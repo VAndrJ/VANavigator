@@ -12,6 +12,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let titleTextNode: VATextNode
     private let replaceRootButtonNode = VAButtonNode()
     private let presentDetailsButtonNode = VAButtonNode()
+    private let presentTabsButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -34,6 +35,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 titleTextNode
                 replaceRootButtonNode
                 presentDetailsButtonNode
+                presentTabsButtonNode
                 descriptionTextNode
                     .padding(.top(16))
             }
@@ -45,6 +47,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         presentDetailsButtonNode.setTitle("Present details", theme: theme)
+        presentTabsButtonNode.setTitle("Present tabs", theme: theme)
     }
 
     private func bind() {
@@ -55,6 +58,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+        presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
     }
 
     private func bindViewModel() {
@@ -66,11 +70,14 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
 struct ReplaceRootWithNewMainEvent: Event {}
 
+struct PresentTabsEvent: Event {}
+
 class MainViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let pushOrPresentDetails: () -> Void
+            let followPushOrPresentDetails: () -> Void
+            let followTabs: () -> Void
         }
 
         let navigation: Navigation
@@ -90,7 +97,9 @@ class MainViewModel: EventViewModel {
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
         case _ as PushNextDetailsEvent:
-            data.navigation.pushOrPresentDetails()
+            data.navigation.followPushOrPresentDetails()
+        case _ as PresentTabsEvent:
+            data.navigation.followTabs()
         default:
             super.run(event)
         }

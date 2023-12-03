@@ -11,6 +11,8 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
+		A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */; };
+		A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -40,6 +42,8 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		6F383BA85DAF542ABE8F7D09 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
 		7114A561A2E29BE0B6621456 /* Pods-VANavigator_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabDetailControllerNode.swift; sourceTree = "<group>"; };
+		A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreNavigationIdentity.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -173,6 +177,8 @@
 			children = (
 				A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
+				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
+				A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -339,6 +345,7 @@
 				A3784B022B1CB51B009351DD /* Log.swift in Sources */,
 				A3C742EB2B1CB9F50050211E /* NavigationController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */,
 				A3C742F72B1CD3020050211E /* ShortcutService.swift in Sources */,
 				A3C742F32B1CBFCA0050211E /* DetailsToPresentControllerNode.swift in Sources */,
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
@@ -347,6 +354,7 @@
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 				A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
+				A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */,
 				A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
