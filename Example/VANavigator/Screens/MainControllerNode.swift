@@ -7,7 +7,6 @@
 //
 
 import VATextureKitRx
-import VANavigator
 
 class MainControllerNode: DisplayNode<MainViewModel> {
     private let titleTextNode: VATextNode

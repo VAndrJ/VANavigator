@@ -7,7 +7,6 @@
 //
 
 import VATextureKit
-import VANavigator
 
 class CompositionRoot {
     private weak var window: UIWindow?

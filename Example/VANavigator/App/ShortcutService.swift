@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import VANavigator
 
 final class ShortcutsService {
 

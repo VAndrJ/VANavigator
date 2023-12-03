@@ -7,7 +7,6 @@
 //
 
 import VATextureKitRx
-import VANavigator
 
 class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     private let titleTextNode: VATextNode
@@ -137,6 +136,11 @@ class DetailsToPresentViewModel: EventViewModel {
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
             _descriptionObs.rx.accept("Opened from shortcut")
+
+            return true
+
+        case _ as ResponderPoppedToExistingEvent:
+            _descriptionObs.rx.accept("Popped to existing")
 
             return true
         default:

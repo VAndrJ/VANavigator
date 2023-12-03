@@ -8,7 +8,6 @@
 
 import Foundation
 import os
-import VANavigator
 
 extension OSLog {
     private static var subsystem = Bundle.main.bundleIdentifier!

@@ -7,7 +7,6 @@
 //
 
 import VATextureKitRx
-import VANavigator
 import RxKeyboard
 
 class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder {

@@ -7,7 +7,6 @@
 //
 
 import VATextureKit
-import VANavigator
 
 final class NavigationController: VANavigationController, Responder {
     var onDismissed: (() -> Void)?
