@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import UIKit
+import VATextureKit
 import VANavigator
 
 class CompositionRoot {
@@ -18,7 +18,10 @@ class CompositionRoot {
         application: UIApplication,
         launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) {
-        window = UIWindow()
+        window = VAWindow(
+            standardLightTheme: .vaLight,
+            standardDarkTheme: .vaDark
+        )
         self.navigator = Navigator(
             window: window,
             screenFactory: ScreenFactory()

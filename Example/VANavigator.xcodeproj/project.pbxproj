@@ -14,6 +14,13 @@
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
+		A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AFF2B1CB482009351DD /* EventViewModel.swift */; };
+		A3784B022B1CB51B009351DD /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784B012B1CB51B009351DD /* Log.swift */; };
+		A3C742E72B1CB7FD0050211E /* DisplayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742E62B1CB7FD0050211E /* DisplayNode.swift */; };
+		A3C742E92B1CB8920050211E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742E82B1CB8920050211E /* ViewController.swift */; };
+		A3C742EB2B1CB9F50050211E /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742EA2B1CB9F50050211E /* NavigationController.swift */; };
+		A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */; };
+		A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F02B1CBCE10050211E /* NSObject+Support.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +38,13 @@
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
+		A3784AFF2B1CB482009351DD /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
+		A3784B012B1CB51B009351DD /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		A3C742E62B1CB7FD0050211E /* DisplayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNode.swift; sourceTree = "<group>"; };
+		A3C742E82B1CB8920050211E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		A3C742EA2B1CB9F50050211E /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
+		A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainControllerNode.swift; sourceTree = "<group>"; };
+		A3C742F02B1CBCE10050211E /* NSObject+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Support.swift"; sourceTree = "<group>"; };
 		A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2CBE1D587B29290115B844B /* Pods-VANavigator_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		F2E1631FCFEE6CF46A0FE348 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -91,6 +105,9 @@
 			isa = PBXGroup;
 			children = (
 				A3784ADD2B1C9449009351DD /* App */,
+				A3C742EF2B1CBCD60050211E /* Extensions */,
+				A3784AFE2B1CB462009351DD /* General */,
+				A3C742EC2B1CBA950050211E /* Screens */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 			);
 			name = "Example for VANavigator";
@@ -126,6 +143,34 @@
 				A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		A3784AFE2B1CB462009351DD /* General */ = {
+			isa = PBXGroup;
+			children = (
+				A3784AFF2B1CB482009351DD /* EventViewModel.swift */,
+				A3784B012B1CB51B009351DD /* Log.swift */,
+				A3C742E62B1CB7FD0050211E /* DisplayNode.swift */,
+				A3C742E82B1CB8920050211E /* ViewController.swift */,
+				A3C742EA2B1CB9F50050211E /* NavigationController.swift */,
+			);
+			path = General;
+			sourceTree = "<group>";
+		};
+		A3C742EC2B1CBA950050211E /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		A3C742EF2B1CBCD60050211E /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A3C742F02B1CBCE10050211E /* NSObject+Support.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -227,11 +272,37 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
+				"${BUILT_PRODUCTS_DIR}/PINCache/PINCache.framework",
+				"${BUILT_PRODUCTS_DIR}/PINOperation/PINOperation.framework",
+				"${BUILT_PRODUCTS_DIR}/PINRemoteImage/PINRemoteImage.framework",
+				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxKeyboard/RxKeyboard.framework",
+				"${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/Swiftional/Swiftional.framework",
+				"${BUILT_PRODUCTS_DIR}/Texture/AsyncDisplayKit.framework",
 				"${BUILT_PRODUCTS_DIR}/VANavigator/VANavigator.framework",
+				"${BUILT_PRODUCTS_DIR}/VATextureKit/VATextureKit.framework",
+				"${BUILT_PRODUCTS_DIR}/VATextureKitRx/VATextureKitRx.framework",
+				"${BUILT_PRODUCTS_DIR}/VATextureKitSpec/VATextureKitSpec.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Differentiator.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINCache.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINOperation.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINRemoteImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxKeyboard.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxRelay.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swiftional.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AsyncDisplayKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VANavigator.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKitRx.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKitSpec.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -245,10 +316,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3C742E72B1CB7FD0050211E /* DisplayNode.swift in Sources */,
+				A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */,
 				A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */,
 				A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */,
+				A3784B022B1CB51B009351DD /* Log.swift in Sources */,
+				A3C742EB2B1CB9F50050211E /* NavigationController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
+				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
+				A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
