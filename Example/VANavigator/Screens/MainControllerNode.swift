@@ -13,6 +13,9 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let replaceRootButtonNode = VAButtonNode().apply {
         $0.setTitle("Replace root with new main", with: nil, with: nil, for: .normal)
     }
+    private let presentDetailsButtonNode = VAButtonNode().apply {
+        $0.setTitle("Present details", with: nil, with: nil, for: .normal)
+    }
 
     override init(viewModel: MainViewModel) {
         self.titleTextNode = VATextNode(
@@ -30,6 +33,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
             Column(spacing: 16) {
                 titleTextNode
                 replaceRootButtonNode
+                presentDetailsButtonNode
             }
             .padding(.all(16))
         }
@@ -41,6 +45,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     private func bind() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+        presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
     }
 }
 
@@ -50,6 +55,7 @@ class MainViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
+            let pushOrPresentDetails: () -> Void
         }
 
         let navigation: Navigation
@@ -65,6 +71,8 @@ class MainViewModel: EventViewModel {
         switch event {
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
+        case _ as PushNextDetailsEvent:
+            data.navigation.pushOrPresentDetails()
         default:
             super.run(event)
         }

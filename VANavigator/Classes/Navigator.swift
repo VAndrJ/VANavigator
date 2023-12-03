@@ -153,9 +153,7 @@ public final class Navigator {
                     }
 
                     let sourceController = sourceController?.topViewController(root: true)?.orNavigationController
-                    if push(sourceController: sourceController, controller: controller, animated: animated) {
-                        completion?()
-                    } else {
+                    if !push(sourceController: sourceController, controller: controller, animated: animated, completion: completion) {
                         navigate(
                             destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
                             source: source,
@@ -243,13 +241,20 @@ public final class Navigator {
     ///   - sourceController: The source controller from which presented controllers will be dismissed.
     ///   - controller: The view controller to push onto the navigation stack.
     ///   - animated: Should be animated or not.
+    ///   - completion: A closure to be executed after the push is complete.
     /// - Returns: A boolean value indicating whether the push operation was successful. `true` if successful, `false` if a navigation controller was not found.
-    func push(sourceController: UIViewController?, controller: UIViewController, animated: Bool) -> Bool {
+    func push(
+        sourceController: UIViewController?,
+        controller: UIViewController,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) -> Bool {
         dismissPresented(in: sourceController, animated: animated)
         if let navigationController = window?.topViewController?.orNavigationController {
             navigationController.pushViewController(
                 controller,
-                animated: animated
+                animated: animated,
+                completion: completion
             )
 
             return true

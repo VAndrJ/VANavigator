@@ -12,10 +12,23 @@ struct MainNavigationIdentity: NavigationIdentity {
     var fallbackSource: NavigationIdentity?
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
-        guard let other = other as? MainNavigationIdentity else {
+        guard other is Self else {
             return false
         }
 
         return true
+    }
+}
+
+struct DetailsNavigationIdentity: NavigationIdentity {
+    let number: Int
+    var fallbackSource: NavigationIdentity?
+
+    func isEqual(to other: NavigationIdentity?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return number == other.number
     }
 }

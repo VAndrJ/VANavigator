@@ -39,7 +39,7 @@ final class NavigationController: VANavigationController, Responder {
         super.configureTheme(theme)
 
         view.backgroundColor = theme.systemBackground
-        navigationBar.tintColor = theme.systemGroupedBackground
+        navigationBar.tintColor = theme.systemBlue
     }
 
     override func didReceiveMemoryWarning() {

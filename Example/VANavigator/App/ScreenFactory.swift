@@ -14,15 +14,47 @@ class ScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as MainNavigationIdentity:
-            return ViewController(node: MainControllerNode(viewModel: MainViewModel(data: .init(navigation: .init(followReplaceRootWithNewMain: { [weak navigator] in
-                let transition = CATransition()
-                transition.duration = 0.3
-                transition.type = kCATransitionFade
-                navigator?.navigate(
-                    destination: .identity(MainNavigationIdentity()),
-                    strategy: .replaceWindowRoot(transition: transition)
-                )
-            })))))
+            return ViewController(node: MainControllerNode(viewModel: MainViewModel(data: .init(navigation: .init(
+                followReplaceRootWithNewMain: { [weak navigator] in
+                    let transition = CATransition()
+                    transition.duration = 0.3
+                    transition.type = kCATransitionReveal
+                    navigator?.navigate(
+                        destination: .identity(MainNavigationIdentity()),
+                        strategy: .replaceWindowRoot(transition: transition)
+                    )
+                },
+                pushOrPresentDetails: { [weak navigator] in
+                    navigator?.navigate(
+                        destination: .identity(DetailsNavigationIdentity(number: -1)),
+                        strategy: .pushOrPopToExisting()
+                    )
+                }
+            )))))
+        case let identity as DetailsNavigationIdentity:
+            return ViewController(
+                node: DetailsToPresentControllerNode(viewModel: DetailsToPresentViewModel(data: .init(
+                    related: .init(value: identity.number),
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = kCATransitionFade
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followPushOrPopNext: { [weak navigator] value in
+                            navigator?.navigate(chain: value.map {
+                                (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                            })
+                        }
+                    )
+                ))),
+                shouldHideNavigationBar: false,
+                isNotImportant: true
+            )
         default:
             assertionFailure("Not implemented")
 
