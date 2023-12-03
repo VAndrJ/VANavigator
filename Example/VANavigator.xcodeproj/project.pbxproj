@@ -29,7 +29,7 @@
 		2084627312EB44A8EC56B572 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		2D2940E24F8A6E5A15601493 /* Pods_VANavigator_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		305B55E0312B6363F4E5D36D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; };
+		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		607FACD01AFB9204008FA782 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
