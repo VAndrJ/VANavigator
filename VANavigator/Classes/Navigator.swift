@@ -105,6 +105,9 @@ public final class Navigator {
                 return nil
             }
 
+            if window?.rootViewController != nil {
+                navigatorEvent = ResponderReplacedWindowRootControllerEvent()
+            }
             replaceWindowRoot(controller: controller, transition: transition, completion: completion)
             eventController = controller as? UIViewController & Responder
         case .present:
@@ -204,14 +207,14 @@ public final class Navigator {
                 )
             }
         }
-        if let event {
-            Task {
-                await eventController?.handle(event: event)
-            }
-        }
         if let navigatorEvent {
             Task {
                 await eventController?.handle(event: navigatorEvent)
+            }
+        }
+        if let event {
+            Task {
+                await eventController?.handle(event: event)
             }
         }
 
@@ -357,3 +360,5 @@ public final class Navigator {
 public struct ResponderPoppedToExistingEvent: ResponderEvent {}
 
 public struct ResponderClosedToExistingEvent: ResponderEvent {}
+
+public struct ResponderReplacedWindowRootControllerEvent: ResponderEvent {}

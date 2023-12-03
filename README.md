@@ -21,6 +21,73 @@ it, simply add the following line to your Podfile:
 pod 'VANavigator'
 ```
 
+## Description
+
+
+`VANavigator` is designed to simplify and streamline navigation in application, alleviating the complexities associated with searching for and transitioning to specific view controllers. 
+At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, a key element that enables the seamless discovery of the required view controller in `UIWindow`, facilitating easy navigation back to it or opening a new one based on the specified `NavigationStrategy`.
+
+
+Navigation strategies:
+
+
+- Replace `UIWindow` root view controller
+
+Code example:
+```
+navigator.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .replaceWindowRoot()
+)
+```
+
+
+- Present view controller 
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .present
+)
+```
+
+
+- Present view controller or close all presented to existing
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .presentOrCloseToExisting
+)
+```
+
+
+- Push view controller 
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .push()
+)
+```
+
+
+- Push view controller or pop to existing
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .pushOrPopToExisting
+)
+```
+
+- Under development
+
+
 ## Author
 
 Volodymyr Andriienko, vandrjios@gmail.com

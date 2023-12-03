@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKit
+import VATextureKitRx
 import VANavigator
 
 class MainControllerNode: DisplayNode<MainViewModel> {
@@ -17,6 +17,10 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let presentDetailsButtonNode = VAButtonNode().apply {
         $0.setTitle("Present details", with: nil, with: nil, for: .normal)
     }
+    private let descriptionTextNode = VATextNode(
+        text: "",
+        fontStyle: .body
+    )
 
     override init(viewModel: MainViewModel) {
         self.titleTextNode = VATextNode(
@@ -35,6 +39,8 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 titleTextNode
                 replaceRootButtonNode
                 presentDetailsButtonNode
+                descriptionTextNode
+                    .padding(.top(16))
             }
             .padding(.all(16))
         }
@@ -47,6 +53,9 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private func bind() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+        viewModel.descriptionObs
+            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
+            .disposed(by: bag)
     }
 }
 
@@ -61,6 +70,9 @@ class MainViewModel: EventViewModel {
 
         let navigation: Navigation
     }
+
+    @Obs.Relay(value: "Normally opened")
+    var descriptionObs: Observable<String>
 
     private let data: DTO
 
@@ -82,6 +94,12 @@ class MainViewModel: EventViewModel {
     override func handle(event: ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
+            _descriptionObs.rx.accept("Opened from shortcut")
+
+            return true
+        case _ as ResponderReplacedWindowRootControllerEvent:
+            _descriptionObs.rx.accept("Replaced root view controller")
+
             return true
         default:
             return await nextEventResponder?.handle(event: event) ?? false
