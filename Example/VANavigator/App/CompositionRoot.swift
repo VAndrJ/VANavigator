@@ -12,6 +12,7 @@ import VANavigator
 class CompositionRoot {
     private weak var window: UIWindow?
     private let navigator: Navigator
+    private let shortcutService = ShortcutsService()
 
     init(
         window: inout UIWindow?,
@@ -28,9 +29,28 @@ class CompositionRoot {
         )
         self.window = window
 
+        shortcutService.addShortcuts()
+
         navigator.navigate(
             destination: .identity(MainNavigationIdentity()),
             strategy: .replaceWindowRoot()
         )
+    }
+
+    func handleShortcut(item: UIApplicationShortcutItem, completion: @escaping (Bool) -> Void) {
+        guard let shortcut = Shortcut(rawValue: item.type) else {
+            completion(false)
+            return
+        }
+
+        switch shortcut {
+        case .main:
+            navigator.navigate(
+                destination: .identity(MainNavigationIdentity()),
+                strategy: .replaceWindowRoot(),
+                event: ResponderOpenedFromShortcutEvent()
+            )
+        }
+        completion(true)
     }
 }

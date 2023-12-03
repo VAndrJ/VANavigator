@@ -7,6 +7,7 @@
 //
 
 import VATextureKit
+import VANavigator
 
 class MainControllerNode: DisplayNode<MainViewModel> {
     private let titleTextNode: VATextNode
@@ -75,6 +76,15 @@ class MainViewModel: EventViewModel {
             data.navigation.pushOrPresentDetails()
         default:
             super.run(event)
+        }
+    }
+
+    override func handle(event: ResponderEvent) async -> Bool {
+        switch event {
+        case _ as ResponderOpenedFromShortcutEvent:
+            return true
+        default:
+            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

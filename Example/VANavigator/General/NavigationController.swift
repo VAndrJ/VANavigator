@@ -30,7 +30,7 @@ final class NavigationController: VANavigationController, Responder {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
-        if isBeingDismissed || isMovingFromParentViewController {
+        if isBeingDismissed || isMovingFromParent {
             onDismissed?()
         }
     }

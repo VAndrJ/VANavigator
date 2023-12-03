@@ -273,7 +273,13 @@ public final class Navigator {
         if window?.rootViewController != nil {
             window?.topViewController?.present(controller, animated: animated, completion: completion)
         } else {
-            replaceWindowRoot(controller: controller, transition: nil, completion: completion)
+            var transition: CATransition?
+            if animated {
+                transition = CATransition()
+                transition?.duration = 0.3
+                transition?.type = .fade
+            }
+            replaceWindowRoot(controller: controller, transition: transition, completion: completion)
         }
     }
 

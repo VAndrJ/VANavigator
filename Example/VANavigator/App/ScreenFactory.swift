@@ -18,7 +18,7 @@ class ScreenFactory: NavigatorScreenFactory {
                 followReplaceRootWithNewMain: { [weak navigator] in
                     let transition = CATransition()
                     transition.duration = 0.3
-                    transition.type = kCATransitionReveal
+                    transition.type = .reveal
                     navigator?.navigate(
                         destination: .identity(MainNavigationIdentity()),
                         strategy: .replaceWindowRoot(transition: transition)
@@ -39,7 +39,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
                             transition.duration = 0.3
-                            transition.type = kCATransitionFade
+                            transition.type = .fade
                             navigator?.navigate(
                                 destination: .identity(MainNavigationIdentity()),
                                 strategy: .replaceWindowRoot(transition: transition)
