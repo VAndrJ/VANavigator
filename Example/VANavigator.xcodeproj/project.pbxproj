@@ -23,6 +23,8 @@
 		A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F02B1CBCE10050211E /* NSObject+Support.swift */; };
 		A3C742F32B1CBFCA0050211E /* DetailsToPresentControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */; };
 		A3C742F72B1CD3020050211E /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F62B1CD3020050211E /* ShortcutService.swift */; };
+		A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F82B1CE69B0050211E /* Collection+Support.swift */; };
+		A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,8 @@
 		A3C742F02B1CBCE10050211E /* NSObject+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Support.swift"; sourceTree = "<group>"; };
 		A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsToPresentControllerNode.swift; sourceTree = "<group>"; };
 		A3C742F62B1CD3020050211E /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutService.swift; sourceTree = "<group>"; };
+		A3C742F82B1CE69B0050211E /* Collection+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Support.swift"; sourceTree = "<group>"; };
+		A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VAButtonNode+Support.swift"; sourceTree = "<group>"; };
 		A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2CBE1D587B29290115B844B /* Pods-VANavigator_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		F2E1631FCFEE6CF46A0FE348 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -174,7 +178,9 @@
 		A3C742EF2B1CBCD60050211E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				A3C742F82B1CE69B0050211E /* Collection+Support.swift */,
 				A3C742F02B1CBCE10050211E /* NSObject+Support.swift */,
+				A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -334,7 +340,9 @@
 				A3C742F32B1CBFCA0050211E /* DetailsToPresentControllerNode.swift in Sources */,
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
 				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,
+				A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
+				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
 				A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

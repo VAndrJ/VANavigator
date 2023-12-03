@@ -11,12 +11,8 @@ import VANavigator
 
 class MainControllerNode: DisplayNode<MainViewModel> {
     private let titleTextNode: VATextNode
-    private let replaceRootButtonNode = VAButtonNode().apply {
-        $0.setTitle("Replace root with new main", with: nil, with: nil, for: .normal)
-    }
-    private let presentDetailsButtonNode = VAButtonNode().apply {
-        $0.setTitle("Present details", with: nil, with: nil, for: .normal)
-    }
+    private let replaceRootButtonNode = VAButtonNode()
+    private let presentDetailsButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -48,6 +44,8 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
+        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        presentDetailsButtonNode.setTitle("Present details", theme: theme)
     }
 
     private func bind() {

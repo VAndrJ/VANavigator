@@ -11,17 +11,13 @@ import VANavigator
 
 class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     private let titleTextNode: VATextNode
-    private let pushNextButtonNode = VAButtonNode().apply {
-        $0.setTitle("Push next or pop to existing", with: nil, with: nil, for: .normal)
-    }
+    private let pushNextButtonNode = VAButtonNode()
     private let inputNode = TextFieldNode()
     private let detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         fontStyle: .body
     )
-    private let replaceRootButtonNode = VAButtonNode().apply {
-        $0.setTitle("Replace root with new main", with: nil, with: nil, for: .normal)
-    }
+    private let replaceRootButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -63,6 +59,8 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
+        pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
+        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
     }
 
     private func bind() {
@@ -85,7 +83,10 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
 
     private func bindViewModel() {
         viewModel.descriptionObs
-            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
+            .bind(to: descriptionTextNode.rx.text)
+            .disposed(by: bag)
+        viewModel.isNavigationAvailableObs
+            .bind(to: pushNextButtonNode.rx.isEnabled)
             .disposed(by: bag)
     }
 }
@@ -106,6 +107,7 @@ class DetailsToPresentViewModel: EventViewModel {
         let navigation: Navigation
     }
 
+    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
