@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import Foundation
+import VANavigator
 
 struct MainNavigationIdentity: NavigationIdentity {
     var fallbackSource: NavigationIdentity?

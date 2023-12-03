@@ -12,12 +12,6 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
-		A3784AE32B1CA8FB009351DD /* NavigatorScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AE22B1CA8FB009351DD /* NavigatorScreenFactory.swift */; };
-		A3784AE52B1CA956009351DD /* NavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AE42B1CA956009351DD /* NavigationIdentity.swift */; };
-		A3784AE72B1CA972009351DD /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AE62B1CA972009351DD /* Navigator.swift */; };
-		A3784AE92B1CA99B009351DD /* NavigationStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AE82B1CA99B009351DD /* NavigationStrategy.swift */; };
-		A3784AEB2B1CA9CC009351DD /* Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEA2B1CA9CC009351DD /* Responder.swift */; };
-		A3784AED2B1CAA20009351DD /* UIViewController+Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEC2B1CAA20009351DD /* UIViewController+Navigator.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
 /* End PBXBuildFile section */
@@ -35,12 +29,6 @@
 		6F383BA85DAF542ABE8F7D09 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
 		7114A561A2E29BE0B6621456 /* Pods-VANavigator_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
-		A3784AE22B1CA8FB009351DD /* NavigatorScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigatorScreenFactory.swift; sourceTree = "<group>"; };
-		A3784AE42B1CA956009351DD /* NavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationIdentity.swift; sourceTree = "<group>"; };
-		A3784AE62B1CA972009351DD /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
-		A3784AE82B1CA99B009351DD /* NavigationStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStrategy.swift; sourceTree = "<group>"; };
-		A3784AEA2B1CA9CC009351DD /* Responder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
-		A3784AEC2B1CAA20009351DD /* UIViewController+Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Navigator.swift"; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
 		A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,12 +122,6 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				A3784ADE2B1C9462009351DD /* CompositionRoot.swift */,
-				A3784AE22B1CA8FB009351DD /* NavigatorScreenFactory.swift */,
-				A3784AE42B1CA956009351DD /* NavigationIdentity.swift */,
-				A3784AE62B1CA972009351DD /* Navigator.swift */,
-				A3784AE82B1CA99B009351DD /* NavigationStrategy.swift */,
-				A3784AEA2B1CA9CC009351DD /* Responder.swift */,
-				A3784AEC2B1CAA20009351DD /* UIViewController+Navigator.swift */,
 				A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */,
 				A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */,
 			);
@@ -157,6 +139,7 @@
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
+				D6B5E13BAA0BBD13EFE0C155 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -237,6 +220,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		D6B5E13BAA0BBD13EFE0C155 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/VANavigator/VANavigator.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VANavigator.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -244,14 +245,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3784AE32B1CA8FB009351DD /* NavigatorScreenFactory.swift in Sources */,
-				A3784AE72B1CA972009351DD /* Navigator.swift in Sources */,
-				A3784AE52B1CA956009351DD /* NavigationIdentity.swift in Sources */,
 				A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */,
-				A3784AEB2B1CA9CC009351DD /* Responder.swift in Sources */,
 				A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */,
-				A3784AE92B1CA99B009351DD /* NavigationStrategy.swift in Sources */,
-				A3784AED2B1CAA20009351DD /* UIViewController+Navigator.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 			);

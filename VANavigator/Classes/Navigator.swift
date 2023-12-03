@@ -1,15 +1,15 @@
 //
 //  Navigator.swift
-//  VANavigator_Example
+//  VANavigator
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import UIKit
 
-final class Navigator {
-    enum NavigationDestination {
+public final class Navigator {
+    public enum NavigationDestination {
         case identity(NavigationIdentity)
         case controller(UIViewController)
 
@@ -24,11 +24,11 @@ final class Navigator {
         }
     }
 
-    let screenFactory: NavigatorScreenFactory
+    public let screenFactory: NavigatorScreenFactory
 
-    private(set) weak var window: UIWindow?
+    public private(set) weak var window: UIWindow?
 
-    init(
+    public init(
         window: UIWindow?,
         screenFactory: NavigatorScreenFactory
     ) {
@@ -45,7 +45,7 @@ final class Navigator {
     ///   - completion: A closure to be executed after the entire navigation chain is complete.
     /// - Returns: The `Responder` representing the destination controller.
     @discardableResult
-    func navigate(
+    public func navigate(
         chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
         source: NavigationIdentity? = nil,
         event: ResponderEvent? = nil,
@@ -88,7 +88,7 @@ final class Navigator {
     ///   - completion: A closure to be executed after the navigation is complete.
     /// - Returns: The `Responder` representing the destination controller.
     @discardableResult
-    func navigate(
+    public func navigate(
         destination: NavigationDestination,
         source: NavigationIdentity? = nil,
         strategy: NavigationStrategy,
@@ -126,7 +126,7 @@ final class Navigator {
                     }
                 )
                 eventController = controller as? UIViewController & Responder
-                navigatorEvent = ResponderPoppedToExistingEvent()
+                navigatorEvent = ResponderClosedToExistingEvent()
             } else {
                 return navigate(
                     destination: destination,
@@ -244,7 +244,7 @@ final class Navigator {
     ///   - controller: The view controller to push onto the navigation stack.
     ///   - animated: Should be animated or not.
     /// - Returns: A boolean value indicating whether the push operation was successful. `true` if successful, `false` if a navigation controller was not found.
-    private func push(sourceController: UIViewController?, controller: UIViewController, animated: Bool) -> Bool {
+    func push(sourceController: UIViewController?, controller: UIViewController, animated: Bool) -> Bool {
         dismissPresented(in: sourceController, animated: animated)
         if let navigationController = window?.topViewController?.orNavigationController {
             navigationController.pushViewController(
@@ -264,7 +264,7 @@ final class Navigator {
     ///   - controller: The view controller to present.
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the replacement is complete.
-    private func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
+    func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
         if window?.rootViewController != nil {
             window?.topViewController?.present(controller, animated: animated, completion: completion)
         } else {
@@ -278,7 +278,7 @@ final class Navigator {
     ///   - controller: The view controller to set as the `rootViewController`.
     ///   - transition: Animated transitions when replacing the `rootViewController`.
     ///   - completion: A closure to be executed after the replacement is complete.
-    private func replaceWindowRoot(controller: UIViewController, transition: CATransition?, completion: (() -> Void)?) {
+    func replaceWindowRoot(controller: UIViewController, transition: CATransition?, completion: (() -> Void)?) {
         if window?.rootViewController == nil {
             window?.rootViewController = controller
             window?.makeKeyAndVisible()
@@ -293,7 +293,7 @@ final class Navigator {
     /// - Parameters:
     ///   - controller: Controller with presented controllers to dismiss and the target for navigation stack pop.
     ///   - animated: Should be animated or not.
-    private func closeNavigationPresented(controller: UIViewController?, animated: Bool) {
+    func closeNavigationPresented(controller: UIViewController?, animated: Bool) {
         if let controller {
             dismissPresented(in: controller, animated: animated)
             controller.navigationController?.popToViewController(controller, animated: animated)
@@ -305,7 +305,7 @@ final class Navigator {
     /// - Parameters:
     ///   - controller: Controller with presented controllers to dismiss.
     ///   - animated: Should be animated or not.
-    private func dismissPresented(in controller: UIViewController?, animated: Bool) {
+    func dismissPresented(in controller: UIViewController?, animated: Bool) {
         controller?.presentedViewController?.dismiss(animated: animated, completion: { [weak self] in
             if controller?.presentedViewController != nil {
                 self?.dismissPresented(in: controller, animated: animated)
@@ -319,7 +319,7 @@ final class Navigator {
     ///   - source: The source navigation identity to find in the tab bar controller.
     ///   - controller: The view controller from which to start searching for the tab bar controller.
     ///   - completion: A closure to be executed after the tab is selected, providing the view controller found in the selected tab if applicable.
-    private func selectTabIfNeeded(
+    func selectTabIfNeeded(
         source: NavigationIdentity?,
         controller: UIViewController?,
         completion: ((UIViewController?) -> Void)? = nil
@@ -344,3 +344,5 @@ final class Navigator {
 }
 
 public struct ResponderPoppedToExistingEvent: ResponderEvent {}
+
+public struct ResponderClosedToExistingEvent: ResponderEvent {}

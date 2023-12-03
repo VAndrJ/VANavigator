@@ -1,21 +1,24 @@
 //
 //  UIViewController+Navigator.swift
-//  VANavigator_Example
+//  VANavigator
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import UIKit
 
-public extension UIViewController {
-
+extension UIViewController {
+    public var orNavigationController: UINavigationController? {
+        (self as? UINavigationController) ?? navigationController
+    }
+    
     func topViewController(in rootViewController: UIViewController? = nil, root: Bool = false) -> UIViewController? {
         let currentController = root ? self : rootViewController
         guard let controller = currentController else {
             return nil
         }
-
+        
         var possibleController: UIViewController?
         if let tabBarController = controller as? UITabBarController {
             possibleController = tabBarController.selectedViewController
@@ -31,7 +34,7 @@ public extension UIViewController {
             return controller
         }
     }
-
+    
     func findController(controller: UIViewController) -> UIViewController? {
         if self === controller {
             return self
@@ -53,7 +56,7 @@ public extension UIViewController {
         // TODO: - Split
         return nil
     }
-
+    
     func findController(identity: NavigationIdentity) -> UIViewController? {
         if navigationIdentity?.isEqual(to: identity) == true {
             return self
@@ -75,7 +78,7 @@ public extension UIViewController {
         // TODO: - Split
         return nil
     }
-
+    
     func findTabBarController() -> UITabBarController? {
         if let tabController = self as? UITabBarController {
             return tabController
@@ -87,14 +90,7 @@ public extension UIViewController {
             return nil
         }
     }
-}
-
-extension UIViewController {
-
-    var orNavigationController: UINavigationController? {
-        (self as? UINavigationController) ?? navigationController
-    }
-
+    
     func findController(destination: Navigator.NavigationDestination) -> UIViewController? {
         switch destination {
         case let .identity(identity):
@@ -103,61 +99,7 @@ extension UIViewController {
             return findController(controller: controller)
         }
     }
-}
-
-public extension UIWindow {
-    var topViewController: UIViewController? {
-        topMostViewController?.topViewController(root: true)
-    }
-
-    private var topMostViewController: UIViewController? {
-        var topmostViewController = rootViewController
-        while let presentedViewController = topmostViewController?.presentedViewController, !presentedViewController.isBeingDismissed {
-            topmostViewController = presentedViewController
-        }
-
-        return topmostViewController
-    }
-
-    func set(rootViewController newRootViewController: UIViewController, transition: CATransition? = nil, completion: (() -> Void)? = nil) {
-        let previousViewController = rootViewController
-        if let transition {
-            layer.add(transition, forKey: kCATransition)
-        }
-        rootViewController = newRootViewController
-        if UIView.areAnimationsEnabled {
-            UIView.animate(withDuration: CATransaction.animationDuration()) {
-                newRootViewController.setNeedsStatusBarAppearanceUpdate()
-            }
-        } else {
-            newRootViewController.setNeedsStatusBarAppearanceUpdate()
-        }
-        if #unavailable(iOS 13.0) {
-            if let transitionViewClass = NSClassFromString("UITransitionView") {
-                for subview in subviews where subview.isKind(of: transitionViewClass) {
-                    subview.removeFromSuperview()
-                }
-            }
-        }
-        if let previousViewController {
-            previousViewController.dismiss(animated: false) {
-                previousViewController.view.removeFromSuperview()
-                completion?()
-            }
-        } else {
-            completion?()
-        }
-    }
-}
-
-extension UIWindow {
-
-    func findController(destination: Navigator.NavigationDestination) -> UIViewController? {
-        rootViewController?.findController(destination: destination)
-    }
-}
-
-extension UIViewController {
+    
     public var navigationIdentity: (any NavigationIdentity)? {
         get { (objc_getAssociatedObject(self, &navigationIdentityKey) as? (any NavigationIdentity)) }
         set { objc_setAssociatedObject(self, &navigationIdentityKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
