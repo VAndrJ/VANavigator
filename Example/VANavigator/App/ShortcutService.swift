@@ -15,6 +15,7 @@ final class ShortcutsService {
         UIApplication.shared.shortcutItems?.removeAll()
         UIApplication.shared.shortcutItems = [
             UIApplicationShortcutItem(type: .main),
+            UIApplicationShortcutItem(type: .details),
         ]
     }
 }
@@ -34,20 +35,24 @@ private extension UIApplicationShortcutItem {
 
 enum Shortcut: String {
     case main = "com.vandrj.VANavigator.main"
+    case details = "com.vandrj.VANavigator.details"
 
     var title: String {
         switch self {
         case .main: return "Main"
+        case .details: return "Details"
         }
     }
     var subtitle: String? {
         switch self {
         case .main: return "Replace root with new main"
+        case .details: return "Push or pop to existing"
         }
     }
     var icon: UIApplicationShortcutIcon {
         switch self {
         case .main: return UIApplicationShortcutIcon(type: .home)
+        case .details: return UIApplicationShortcutIcon(type: .task)
         }
     }
 }

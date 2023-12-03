@@ -7,6 +7,7 @@
 //
 
 import VATextureKitRx
+import VANavigator
 
 class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     private let titleTextNode: VATextNode
@@ -14,13 +15,17 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         $0.setTitle("Push next or pop to existing", with: nil, with: nil, for: .normal)
     }
     private let inputNode = TextFieldNode()
-    private let descriptionTextNode = VATextNode(
+    private let detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         fontStyle: .body
     )
     private let replaceRootButtonNode = VAButtonNode().apply {
         $0.setTitle("Replace root with new main", with: nil, with: nil, for: .normal)
     }
+    private let descriptionTextNode = VATextNode(
+        text: "",
+        fontStyle: .body
+    )
 
     override init(viewModel: DetailsToPresentViewModel) {
         self.titleTextNode = VATextNode(
@@ -39,9 +44,10 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
                 titleTextNode
                 pushNextButtonNode
                 inputNode
-                descriptionTextNode
+                detailsTextNode
                 replaceRootButtonNode
-                    .padding(.top(32))
+                    .padding(.top(32), .bottom(16))
+                descriptionTextNode
             }
             .padding(.all(16))
         }
@@ -60,6 +66,11 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     }
 
     private func bind() {
+        bindView()
+        bindViewModel()
+    }
+
+    private func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         inputNode.child.rx.text
@@ -69,6 +80,12 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
                 } ?? []
             }
             .bind(to: viewModel.nextNumberRelay)
+            .disposed(by: bag)
+    }
+
+    private func bindViewModel() {
+        viewModel.descriptionObs
+            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
             .disposed(by: bag)
     }
 }
@@ -89,6 +106,8 @@ class DetailsToPresentViewModel: EventViewModel {
         let navigation: Navigation
     }
 
+    @Obs.Relay(value: "Normally opened")
+    var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
     var number: Int { data.related.value }
 
@@ -108,6 +127,18 @@ class DetailsToPresentViewModel: EventViewModel {
             data.navigation.followPushOrPopNext(nextNumberRelay.value)
         default:
             super.run(event)
+        }
+    }
+
+    override func handle(event: ResponderEvent) async -> Bool {
+        logResponder(from: self, event: event)
+        switch event {
+        case _ as ResponderOpenedFromShortcutEvent:
+            _descriptionObs.rx.accept("Opened from shortcut")
+
+            return true
+        default:
+            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

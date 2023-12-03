@@ -51,8 +51,16 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     }
 
     private func bind() {
+        bindView()
+        bindViewModel()
+    }
+
+    private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+    }
+
+    private func bindViewModel() {
         viewModel.descriptionObs
             .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
             .disposed(by: bag)
@@ -92,6 +100,7 @@ class MainViewModel: EventViewModel {
     }
 
     override func handle(event: ResponderEvent) async -> Bool {
+        logResponder(from: self, event: event)
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
             _descriptionObs.rx.accept("Opened from shortcut")

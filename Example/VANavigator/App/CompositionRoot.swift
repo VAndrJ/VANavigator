@@ -50,6 +50,12 @@ class CompositionRoot {
                 strategy: .replaceWindowRoot(),
                 event: ResponderOpenedFromShortcutEvent()
             )
+        case .details:
+            navigator.navigate(
+                destination: .identity(DetailsNavigationIdentity(number: -1)),
+                strategy: .pushOrPopToExisting(),
+                event: ResponderOpenedFromShortcutEvent()
+            )
         }
         completion(true)
     }
