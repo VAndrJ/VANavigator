@@ -1,0 +1,6 @@
+framework module VANavigator {
+  umbrella header "VANavigator-umbrella.h"
+
+  export *
+  module * { export * }
+}

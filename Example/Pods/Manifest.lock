@@ -1,0 +1,16 @@
+PODS:
+  - VANavigator (0.0.1)
+
+DEPENDENCIES:
+  - VANavigator (from `../`)
+
+EXTERNAL SOURCES:
+  VANavigator:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  VANavigator: b517b4d1f180a414f708d751180aa235c179b795
+
+PODFILE CHECKSUM: 45da6129b7fd2b0d1e64079fb0bd64e8a31fd289
+
+COCOAPODS: 1.13.0
