@@ -14,4 +14,13 @@ public enum NavigationStrategy: Equatable {
     case present
     case presentOrCloseToExisting
     case replaceNavigationRoot(alwaysEmbedded: Bool = true)
+    case showSplit(strategy: SplitStrategy)
+
+    public enum SplitStrategy: Equatable {
+        case replacePrimary
+//        case replaceSupplementary
+        case replaceSecondary(animated: Bool = true, shouldPop: Bool = true)
+        case secondary(animated: Bool = true, shouldPop: Bool = true)
+//        case compact
+    }
 }

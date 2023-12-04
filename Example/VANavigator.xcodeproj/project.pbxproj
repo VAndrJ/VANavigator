@@ -13,6 +13,7 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */; };
 		A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */; };
+		A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -44,6 +45,7 @@
 		7114A561A2E29BE0B6621456 /* Pods-VANavigator_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabDetailControllerNode.swift; sourceTree = "<group>"; };
 		A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreNavigationIdentity.swift; sourceTree = "<group>"; };
+		A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryControllerNode.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -177,8 +179,9 @@
 			children = (
 				A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
-				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
 				A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */,
+				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
+				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */,
 				A3C742E72B1CB7FD0050211E /* DisplayNode.swift in Sources */,
 				A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */,
 				A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */,

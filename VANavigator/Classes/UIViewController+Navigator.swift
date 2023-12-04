@@ -24,10 +24,12 @@ extension UIViewController {
             possibleController = tabBarController.selectedViewController
         } else if let navigationController = controller as? UINavigationController {
             possibleController = navigationController.topViewController
+        } else if let splitController = controller as? UISplitViewController {
+            possibleController = splitController.viewControllers.last
         } else if let presentedViewController = controller.presentedViewController {
             possibleController = presentedViewController
         }
-        // TODO: - Split
+
         if let possibleController, !possibleController.isBeingDismissed {
             return topViewController(in: possibleController)
         } else {
@@ -50,10 +52,16 @@ extension UIViewController {
                     return target
                 }
             }
+        } else if let split = self as? UISplitViewController {
+            for controller in split.viewControllers {
+                if let target = controller.findController(controller: controller) {
+                    return target
+                }
+            }
         } else if let presentedViewController {
             return presentedViewController.findController(controller: controller)
         }
-        // TODO: - Split
+
         return nil
     }
     

@@ -1,31 +1,27 @@
 //
-//  MainControllerNode.swift
+//  PrimaryControllerNode.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by VAndrJ on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import VATextureKitRx
 
-class MainControllerNode: DisplayNode<MainViewModel> {
-    private let titleTextNode: VATextNode
+class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
+    private let titleTextNode = VATextNode(
+        text: "Primary",
+        fontStyle: .headline
+    )
+    private let showSecondaryButtonNode = VAButtonNode()
     private let replaceRootButtonNode = VAButtonNode()
-    private let presentDetailsButtonNode = VAButtonNode()
-    private let presentTabsButtonNode = VAButtonNode()
-    private let presentSplitButtonNode = VAButtonNode()
     private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
     )
 
-    override init(viewModel: MainViewModel) {
-        self.titleTextNode = VATextNode(
-            text: "Main \(Int.random(in: 0...100))",
-            fontStyle: .headline
-        )
-
+    override init(viewModel: PrimaryViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -33,26 +29,26 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
-            Column(spacing: 16) {
+            Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                replaceRootButtonNode
-                presentDetailsButtonNode
-                presentTabsButtonNode
-                presentSplitButtonNode
+                showSecondaryButtonNode
                 showInSplitOrPresentButtonNode
+                replaceRootButtonNode
+                    .padding(.top(32), .bottom(16))
                 descriptionTextNode
-                    .padding(.top(16))
             }
             .padding(.all(16))
         }
     }
 
+    override func viewDidLoad(in controller: UIViewController) {
+        controller.title = "Primary"
+    }
+
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        presentDetailsButtonNode.setTitle("Present details", theme: theme)
-        presentTabsButtonNode.setTitle("Present tabs", theme: theme)
-        presentSplitButtonNode.setTitle("Present split", theme: theme)
+        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
     }
 
@@ -63,34 +59,24 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
-        presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
-        presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
+        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
     }
 
     private func bindViewModel() {
         viewModel.descriptionObs
-            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
+            .bind(to: descriptionTextNode.rx.text)
             .disposed(by: bag)
     }
 }
 
-struct ReplaceRootWithNewMainEvent: Event {}
+struct ShowSecondaryEvent: Event {}
 
-struct PresentTabsEvent: Event {}
-
-struct PresentSplitEvent: Event {}
-
-struct ShowInSplitOrPresentEvent: Event {}
-
-class MainViewModel: EventViewModel {
+class PrimaryViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followPushOrPresentDetails: () -> Void
-            let followTabs: () -> Void
-            let followSplit: () -> Void
+            let followShowSplitSecondary: () -> Void
             let followShowInSplitOrPresent: () -> Void
         }
 
@@ -104,20 +90,18 @@ class MainViewModel: EventViewModel {
 
     init(data: DTO) {
         self.data = data
+
+        super.init()
     }
 
     override func run(_ event: Event) {
         switch event {
-        case _ as ShowInSplitOrPresentEvent:
-            data.navigation.followShowInSplitOrPresent()
+        case _ as ShowSecondaryEvent:
+            data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
-        case _ as PushNextDetailsEvent:
-            data.navigation.followPushOrPresentDetails()
-        case _ as PresentTabsEvent:
-            data.navigation.followTabs()
-        case _ as PresentSplitEvent:
-            data.navigation.followSplit()
+        case _ as ShowInSplitOrPresentEvent:
+            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }
@@ -130,8 +114,8 @@ class MainViewModel: EventViewModel {
             _descriptionObs.rx.accept("Opened from shortcut")
 
             return true
-        case _ as ResponderReplacedWindowRootControllerEvent:
-            _descriptionObs.rx.accept("Replaced root view controller")
+        case _ as ResponderPoppedToExistingEvent:
+            _descriptionObs.rx.accept("Popped to existing")
 
             return true
         default:

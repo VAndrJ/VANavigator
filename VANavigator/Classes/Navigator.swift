@@ -121,7 +121,7 @@ public final class Navigator {
         case .presentOrCloseToExisting:
             if let controller = window?.findController(destination: destination) {
                 selectTabIfNeeded(
-                    source: source ?? destination.identity?.fallbackSource,
+                    source: destination.identity?.fallbackSource,
                     controller: window?.topViewController,
                     completion: { [weak self] sourceController in
                         self?.closeNavigationPresented(controller: sourceController ?? controller, animated: animated)
@@ -147,7 +147,7 @@ public final class Navigator {
             }
 
             selectTabIfNeeded(
-                source: source ?? destination.identity?.fallbackSource,
+                source: destination.identity?.fallbackSource,
                 controller: window?.topViewController,
                 completion: { [weak self] sourceController in
                     guard let self else {
@@ -172,7 +172,7 @@ public final class Navigator {
         case let .pushOrPopToExisting(alwaysEmbedded):
             if let controller = window?.topViewController?.navigationController?.findController(destination: destination) {
                 closeNavigationPresented(controller: controller, animated: animated)
-                selectTabIfNeeded(source: source ?? destination.identity?.fallbackSource, controller: controller)
+                selectTabIfNeeded(source: destination.identity?.fallbackSource, controller: controller)
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
                 completion?()
@@ -201,6 +201,111 @@ public final class Navigator {
                     destination: destination,
                     source: source,
                     strategy: .push(alwaysEmbedded: alwaysEmbedded),
+                    event: event,
+                    animated: animated,
+                    completion: completion
+                )
+            }
+        case let .showSplit(strategy):
+            // MARK: - Plain flow for easier understanding
+            if let splitController = window?.topViewController?.splitViewController {
+                if let controller = splitController.findController(destination: destination) {
+                    closeNavigationPresented(controller: controller, animated: animated)
+                    selectTabIfNeeded(source: destination.identity?.fallbackSource, controller: controller)
+                    eventController = controller as? UIViewController & Responder
+                    navigatorEvent = ResponderPoppedToExistingEvent()
+                    completion?()
+                } else {
+                    switch strategy {
+                    case .replacePrimary:
+                        guard let controller = getScreen(destination: destination) else {
+                            completion?()
+                            return nil
+                        }
+
+                        if #available(iOS 14.0, *) {
+                            splitController.setViewController(controller, for: .primary)
+                        } else {
+                            splitController.viewControllers = [controller]
+                        }
+                        eventController = controller as? UIViewController & Responder
+                    case let .secondary(animated, shouldPop):
+                        if #available(iOS 14.0, *) {
+                            if let navigationController = splitController.viewController(for: .secondary)?.navigationController,
+                                shouldPop,
+                               let controller = navigationController.findController(destination: destination) {
+
+                                dismissPresented(in: navigationController, animated: animated)
+                                navigationController.popToViewController(controller, animated: animated)
+                                eventController = controller as? UIViewController & Responder
+                                navigatorEvent = ResponderPoppedToExistingEvent()
+                            } else {
+                                guard let controller = getScreen(destination: destination) else {
+                                    completion?()
+                                    return nil
+                                }
+
+                                dismissPresented(in: splitController, animated: animated)
+                                eventController = controller as? UIViewController & Responder
+                                splitController.setViewController(controller, for: .secondary)
+                            }
+                        } else {
+                            guard let controller = getScreen(destination: destination) else {
+                                completion?()
+                                return nil
+                            }
+
+                            dismissPresented(in: splitController, animated: animated)
+                            eventController = controller as? UIViewController & Responder
+                            splitController.showDetailViewController(controller, sender: nil)
+                        }
+                        completion?()
+                    case let .replaceSecondary(animated, shouldPop):
+                        if #available(iOS 14.0, *) {
+                            if let navigationController = splitController.viewController(for: .secondary)?.navigationController {
+                                if shouldPop, navigationController.viewControllers.first?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                                    dismissPresented(in: navigationController, animated: animated)
+                                    navigationController.popToRootViewController(animated: animated)
+                                    eventController = navigationController.viewControllers.first as? UIViewController & Responder
+                                    navigatorEvent = ResponderPoppedToExistingEvent()
+                                } else {
+                                    guard let controller = getScreen(destination: destination) else {
+                                        completion?()
+                                        return nil
+                                    }
+
+                                    dismissPresented(in: navigationController, animated: animated)
+                                    eventController = controller as? UIViewController & Responder
+                                    navigationController.setViewControllers([controller], animated: animated)
+                                }
+                            } else {
+                                guard let controller = getScreen(destination: destination) else {
+                                    completion?()
+                                    return nil
+                                }
+
+                                dismissPresented(in: splitController, animated: animated)
+                                eventController = controller as? UIViewController & Responder
+                                splitController.setViewController(controller, for: .secondary)
+                            }
+                        } else {
+                            guard let controller = getScreen(destination: destination) else {
+                                completion?()
+                                return nil
+                            }
+
+                            dismissPresented(in: splitController, animated: animated)
+                            eventController = controller as? UIViewController & Responder
+                            splitController.viewControllers = splitController.viewControllers.first.flatMap { [$0, controller] } ?? [controller]
+                        }
+                    }
+                    completion?()
+                }
+            } else {
+                return navigate(
+                    destination: source.flatMap { .identity($0) } ?? destination,
+                    source: nil,
+                    strategy: .present,
                     event: event,
                     animated: animated,
                     completion: completion

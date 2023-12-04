@@ -53,8 +53,20 @@ class ScreenFactory: NavigatorScreenFactory {
                             PrimaryNavigationIdentity(),
                             SecondaryNavigationIdentity(),
                             MoreNavigationIdentity(),
+//                            DetailsNavigationIdentity(number: -1),
                         ])),
                         strategy: .presentOrCloseToExisting
+                    )
+                },
+                followShowInSplitOrPresent: {
+                    let destination = DetailsNavigationIdentity(number: -1)
+                    navigator.navigate(
+                        destination: .identity(destination),
+                        source: SplitNavigationIdentity(tabsIdentity: [
+                            PrimaryNavigationIdentity(),
+                            destination,
+                        ]),
+                        strategy: .showSplit(strategy: .replaceSecondary())
                     )
                 }
             )))))
@@ -148,7 +160,7 @@ class ScreenFactory: NavigatorScreenFactory {
             }
             controller.preferredDisplayMode = .automatic
             if #available(iOS 14.0, *) {
-                controller.preferredSplitBehavior = .overlay
+                controller.preferredSplitBehavior = .tile
             }
             controller.viewControllers = identity.tabsIdentity.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
@@ -158,9 +170,8 @@ class ScreenFactory: NavigatorScreenFactory {
             controller.preferredPrimaryColumnWidthFraction = 0.33
             return controller
         case _ as PrimaryNavigationIdentity:
-            // TODO: -
             return ViewController(
-                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
+                node: PrimaryControllerNode(viewModel: PrimaryViewModel(data: .init(navigation: .init(
                     followReplaceRootWithNewMain: { [weak navigator] in
                         let transition = CATransition()
                         transition.duration = 0.3
@@ -170,20 +181,26 @@ class ScreenFactory: NavigatorScreenFactory {
                             strategy: .replaceWindowRoot(transition: transition)
                         )
                     },
-                    followPushOrPopNext: { [weak navigator] value in
-                        navigator?.navigate(chain: value.map {
-                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
-                        })
+                    followShowSplitSecondary: { [weak navigator] in
+                        navigator?.navigate(
+                            destination: .identity(SecondaryNavigationIdentity()),
+                            strategy: .showSplit(strategy: .secondary(shouldPop: true))
+                        )
+                    },
+                    followShowInSplitOrPresent: {
+                        let destination = DetailsNavigationIdentity(number: -1)
+                        navigator.navigate(
+                            destination: .identity(destination),
+                            source: SplitNavigationIdentity(tabsIdentity: [
+                                PrimaryNavigationIdentity(),
+                                destination,
+                            ]),
+                            strategy: .showSplit(strategy: .replaceSecondary())
+                        )
                     }
                 )))),
                 shouldHideNavigationBar: false
-            ).apply {
-                $0.tabBarItem = UITabBarItem(
-                    title: "More",
-                    image: UIImage(systemName: "ellipsis.circle"),
-                    selectedImage: nil
-                )
-            }
+            )
         case _ as SecondaryNavigationIdentity:
             return ViewController(
                 node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
