@@ -153,9 +153,9 @@
 		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
 			isa = PBXGroup;
 			children = (
-				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
-				2084627312EB44A8EC56B572 /* README.md */,
 				305B55E0312B6363F4E5D36D /* LICENSE */,
+				2084627312EB44A8EC56B572 /* README.md */,
+				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
 			);
 			name = "Podspec Metadata";
 			sourceTree = "<group>";

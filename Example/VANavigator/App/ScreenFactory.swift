@@ -28,77 +28,86 @@ class ScreenFactory: NavigatorScreenFactory {
 
             return controller
         case _ as MainNavigationIdentity:
-            return ViewController(node: MainControllerNode(viewModel: MainViewModel(data: .init(navigation: .init(
-                followReplaceRootWithNewMain: { [weak navigator] in
-                    let transition = CATransition()
-                    transition.duration = 0.3
-                    transition.type = .reveal
-                    navigator?.navigate(
-                        destination: .identity(MainNavigationIdentity()),
-                        strategy: .replaceWindowRoot(transition: transition)
+            return ViewController(
+                node: MainControllerNode(viewModel: MainViewModel(data: .init(
+                    source: .init(
+                        authorizedObs: authorizationService.isAuthorizedObs
+                    ),
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followPushOrPresentDetails: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(DetailsNavigationIdentity(number: -1)),
+                                strategy: .pushOrPopToExisting()
+                            )
+                        },
+                        followTabs: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(TabNavigationIdentity(tabsIdentity: [
+                                    TabDetailNavigationIdentity(),
+                                    MoreNavigationIdentity(),
+                                ])),
+                                strategy: .presentOrCloseToExisting
+                            )
+                        },
+                        followSplit: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(SplitNavigationIdentity(tabsIdentity: [
+                                    PrimaryNavigationIdentity(),
+                                    MoreNavigationIdentity(),
+                                    SecondaryNavigationIdentity(),
+                                ])),
+                                strategy: .presentOrCloseToExisting
+                            )
+                        },
+                        followShowInSplitOrPresent: {
+                            let destination = DetailsNavigationIdentity(number: -1)
+                            navigator.navigate(
+                                destination: .identity(destination),
+                                source: SplitNavigationIdentity(tabsIdentity: [
+                                    PrimaryNavigationIdentity(),
+                                    destination,
+                                ]),
+                                strategy: .showSplit(strategy: .replaceSecondary())
+                            )
+                        },
+                        followLoginedContent: {
+                            navigator.navigate(
+                                destination: .identity(SecretInformationIdentity()),
+                                strategy: .present
+                            )
+                        }
                     )
-                },
-                followPushOrPresentDetails: { [weak navigator] in
-                    navigator?.navigate(
-                        destination: .identity(DetailsNavigationIdentity(number: -1)),
-                        strategy: .pushOrPopToExisting()
-                    )
-                },
-                followTabs: { [weak navigator] in
-                    navigator?.navigate(
-                        destination: .identity(TabNavigationIdentity(tabsIdentity: [
-                            TabDetailNavigationIdentity(),
-                            MoreNavigationIdentity(),
-                        ])),
-                        strategy: .presentOrCloseToExisting
-                    )
-                },
-                followSplit: { [weak navigator] in
-                    navigator?.navigate(
-                        destination: .identity(SplitNavigationIdentity(tabsIdentity: [
-                            PrimaryNavigationIdentity(),
-                            MoreNavigationIdentity(),
-                            SecondaryNavigationIdentity(),
-                        ])),
-                        strategy: .presentOrCloseToExisting
-                    )
-                },
-                followShowInSplitOrPresent: {
-                    let destination = DetailsNavigationIdentity(number: -1)
-                    navigator.navigate(
-                        destination: .identity(destination),
-                        source: SplitNavigationIdentity(tabsIdentity: [
-                            PrimaryNavigationIdentity(),
-                            destination,
-                        ]),
-                        strategy: .showSplit(strategy: .replaceSecondary())
-                    )
-                },
-                followLoginedContent: {
-                    navigator.navigate(
-                        destination: .identity(SecretInformationIdentity()),
-                        strategy: .present
-                    )
-                }
-            )))))
+                )))
+            )
         case _ as TabDetailNavigationIdentity:
             return ViewController(
-                node: TabDetailControllerNode(viewModel: TabDetailViewModel(data: .init(navigation: .init(
-                    followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    },
-                    followPushOrPopNext: { [weak navigator] value in
-                        navigator?.navigate(chain: value.map {
-                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
-                        })
-                    }
-                )))),
+                node: TabDetailControllerNode(viewModel: TabDetailViewModel(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followPushOrPopNext: { [weak navigator] value in
+                            navigator?.navigate(chain: value.map {
+                                (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                            })
+                        }
+                    )
+                ))),
                 shouldHideNavigationBar: false
             ).apply {
                 $0.tabBarItem = UITabBarItem(
@@ -109,17 +118,19 @@ class ScreenFactory: NavigatorScreenFactory {
             }
         case _ as MoreNavigationIdentity:
             return ViewController(
-                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
-                    followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    }
-                )))),
+                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        }
+                    )
+                ))),
                 shouldHideNavigationBar: false
             ).apply {
                 $0.tabBarItem = UITabBarItem(
@@ -131,7 +142,9 @@ class ScreenFactory: NavigatorScreenFactory {
         case let identity as DetailsNavigationIdentity:
             return ViewController(
                 node: DetailsToPresentControllerNode(viewModel: DetailsToPresentViewModel(data: .init(
-                    related: .init(value: identity.number),
+                    related: .init(
+                        value: identity.number
+                    ),
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
@@ -179,73 +192,77 @@ class ScreenFactory: NavigatorScreenFactory {
             return controller
         case _ as PrimaryNavigationIdentity:
             return ViewController(
-                node: PrimaryControllerNode(viewModel: PrimaryViewModel(data: .init(navigation: .init(
-                    followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    },
-                    followReplacePrimary: { [weak navigator] in
-                        navigator?.navigate(
-                            destination: .identity(PrimaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .replacePrimary),
-                            animated: false
-                        )
-                    },
-                    followShowSplitSecondary: { [weak navigator] in
-                        navigator?.navigate(
-                            destination: .identity(SecondaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .secondary())
-                        )
-                    },
-                    followShowInSplitOrPresent: {
-                        let destination = DetailsNavigationIdentity(number: -1)
-                        navigator.navigate(
-                            destination: .identity(destination),
-                            source: SplitNavigationIdentity(tabsIdentity: [
-                                PrimaryNavigationIdentity(),
-                                destination,
-                            ]),
-                            strategy: .showSplit(strategy: .replaceSecondary())
-                        )
-                    }
-                )))),
+                node: PrimaryControllerNode(viewModel: PrimaryViewModel(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followReplacePrimary: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(PrimaryNavigationIdentity()),
+                                strategy: .showSplit(strategy: .replacePrimary),
+                                animated: false
+                            )
+                        },
+                        followShowSplitSecondary: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(SecondaryNavigationIdentity()),
+                                strategy: .showSplit(strategy: .secondary())
+                            )
+                        },
+                        followShowInSplitOrPresent: {
+                            let destination = DetailsNavigationIdentity(number: -1)
+                            navigator.navigate(
+                                destination: .identity(destination),
+                                source: SplitNavigationIdentity(tabsIdentity: [
+                                    PrimaryNavigationIdentity(),
+                                    destination,
+                                ]),
+                                strategy: .showSplit(strategy: .replaceSecondary())
+                            )
+                        }
+                    )
+                ))),
                 shouldHideNavigationBar: false
             )
         case _ as SecondaryNavigationIdentity:
             return ViewController(
-                node: SecondaryControllerNode(viewModel: SecondaryViewModel(data: .init(navigation: .init(
-                    followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    },
-                    followShowSplitSecondary: { [weak navigator] in
-                        navigator?.navigate(
-                            destination: .identity(SecondaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .secondary())
-                        )
-                    },
-                    followShowInSplitOrPresent: {
-                        let destination = DetailsNavigationIdentity(number: -1)
-                        navigator.navigate(
-                            destination: .identity(destination),
-                            source: SplitNavigationIdentity(tabsIdentity: [
-                                PrimaryNavigationIdentity(),
-                                destination,
-                            ]),
-                            strategy: .showSplit(strategy: .replaceSecondary())
-                        )
-                    }
-                )))),
+                node: SecondaryControllerNode(viewModel: SecondaryViewModel(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followShowSplitSecondary: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(SecondaryNavigationIdentity()),
+                                strategy: .showSplit(strategy: .secondary())
+                            )
+                        },
+                        followShowInSplitOrPresent: {
+                            let destination = DetailsNavigationIdentity(number: -1)
+                            navigator.navigate(
+                                destination: .identity(destination),
+                                source: SplitNavigationIdentity(tabsIdentity: [
+                                    PrimaryNavigationIdentity(),
+                                    destination,
+                                ]),
+                                strategy: .showSplit(strategy: .replaceSecondary())
+                            )
+                        }
+                    )
+                ))),
                 shouldHideNavigationBar: false
             )
         case _ as LoginNavigationIdentity:
@@ -268,17 +285,19 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as SecretInformationIdentity:
             return ViewController(
-                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(navigation: .init(
-                    followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    }
-                )))),
+                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        }
+                    )
+                ))),
                 shouldHideNavigationBar: false
             )
         default:

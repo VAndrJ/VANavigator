@@ -17,7 +17,11 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let presentLoginedOnlyContentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
-        text: "",
+        text: "-",
+        fontStyle: .body
+    )
+    private let authorizedTextNode = VATextNode(
+        text: "-",
         fontStyle: .body
     )
 
@@ -41,9 +45,10 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 presentTabsButtonNode
                 presentSplitButtonNode
                 showInSplitOrPresentButtonNode
-                presentLoginedOnlyContentButtonNode
                 descriptionTextNode
                     .padding(.top(16))
+                presentLoginedOnlyContentButtonNode
+                authorizedTextNode
             }
             .padding(.all(16))
         }
@@ -75,7 +80,10 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     private func bindViewModel() {
         viewModel.descriptionObs
-            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
+            .bind(to: descriptionTextNode.rx.text)
+            .disposed(by: bag)
+        viewModel.authorizationStatusObs
+            .bind(to: authorizedTextNode.rx.text)
             .disposed(by: bag)
     }
 }
@@ -92,6 +100,10 @@ struct ShowInSplitOrPresentEvent: Event {}
 
 class MainViewModel: EventViewModel {
     struct DTO {
+        struct DataSource {
+            let authorizedObs: Observable<Bool>
+        }
+
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPresentDetails: () -> Void
@@ -101,9 +113,14 @@ class MainViewModel: EventViewModel {
             let followLoginedContent: () -> Void
         }
 
+        let source: DataSource
         let navigation: Navigation
     }
 
+    var authorizationStatusObs: Observable<String> {
+        data.source.authorizedObs
+            .map { $0 ? "Authorized" : "Not authorized " }
+    }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 

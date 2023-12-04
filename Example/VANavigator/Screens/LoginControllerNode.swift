@@ -70,12 +70,12 @@ struct LoginEvent: Event {}
 
 class LoginViewModel: EventViewModel {
     struct DTO {
-        struct Navigation {
-            let followReplaceRootWithNewMain: () -> Void
-        }
-
         struct DataSource {
             let authorize: () -> Void
+        }
+        
+        struct Navigation {
+            let followReplaceRootWithNewMain: () -> Void
         }
 
         let source: DataSource

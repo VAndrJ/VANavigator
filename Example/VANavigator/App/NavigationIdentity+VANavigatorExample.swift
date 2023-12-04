@@ -23,6 +23,8 @@ extension DefaultNavigationIdentity {
 
 protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
 
+// MARK: - Identities
+
 struct SecretInformationIdentity: LoginedOnlyNavigationIdentity {}
 
 struct LoginNavigationIdentity: DefaultNavigationIdentity {}
