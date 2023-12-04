@@ -20,6 +20,7 @@ class ScreenFactory: NavigatorScreenFactory {
                 return embedInNavigationControllerIfNeeded(controller: controller)
             }
             controller.setViewControllers(tabControllers, animated: false)
+
             return controller
         case _ as MainNavigationIdentity:
             return ViewController(node: MainControllerNode(viewModel: MainViewModel(data: .init(navigation: .init(
@@ -164,9 +165,11 @@ class ScreenFactory: NavigatorScreenFactory {
             controller.viewControllers = identity.tabsIdentity.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
+
                 return controller
             }
             controller.preferredPrimaryColumnWidthFraction = 0.33
+            
             return controller
         case _ as PrimaryNavigationIdentity:
             return ViewController(
@@ -190,7 +193,7 @@ class ScreenFactory: NavigatorScreenFactory {
                     followShowSplitSecondary: { [weak navigator] in
                         navigator?.navigate(
                             destination: .identity(SecondaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .replaceSecondary())
+                            strategy: .showSplit(strategy: .secondary())
                         )
                     },
                     followShowInSplitOrPresent: {

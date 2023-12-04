@@ -10,7 +10,7 @@ import VATextureKitRx
 
 class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
     private let titleTextNode = VATextNode(
-        text: "Secondary",
+        text: "Secondary \(Int.random(in: 0...1000))",
         fontStyle: .headline
     )
     private let showSecondaryButtonNode = VAButtonNode()

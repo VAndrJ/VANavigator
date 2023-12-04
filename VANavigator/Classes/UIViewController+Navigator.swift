@@ -82,8 +82,14 @@ extension UIViewController {
             }
         } else if let presentedViewController {
             return presentedViewController.findController(identity: identity)
+        } else if let split = self as? UISplitViewController {
+            for controller in split.viewControllers {
+                if let target = controller.findController(identity: identity) {
+                    return target
+                }
+            }
         }
-        // TODO: - Split
+
         return nil
     }
     
@@ -112,6 +118,10 @@ extension UIViewController {
         get { (objc_getAssociatedObject(self, &navigationIdentityKey) as? (any NavigationIdentity)) }
         set { objc_setAssociatedObject(self, &navigationIdentityKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
+}
+
+extension UISplitViewController {
+    var isSingleNavigation: Bool { viewControllers.count == 1 && viewControllers.first is UINavigationController }
 }
 
 private var navigationIdentityKey = "com.vandrj.navigationIdentityKey"
