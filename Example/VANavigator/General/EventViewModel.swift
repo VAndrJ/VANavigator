@@ -7,8 +7,6 @@
 //
 
 import VATextureKitRx
-import VANavigator
-import Swiftional
 
 struct BecomeVisibleEvent: Event {}
 

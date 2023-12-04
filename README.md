@@ -81,9 +81,21 @@ Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .pushOrPopToExisting
+    strategy: .pushOrPopToExisting()
 )
 ```
+
+
+- Replace navigation stack with view controller or present.
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .replaceNavigationRoot()
+)
+```
+
 
 - Under development
 

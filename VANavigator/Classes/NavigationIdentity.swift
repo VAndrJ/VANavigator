@@ -9,7 +9,6 @@
 import Foundation
 
 public protocol NavigationIdentity {
-    var fallbackSource: NavigationIdentity? { get set }
 
     func isEqual(to other: NavigationIdentity?) -> Bool
 }

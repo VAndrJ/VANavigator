@@ -9,9 +9,8 @@
 import UIKit
 
 extension UIViewController {
-    public var orNavigationController: UINavigationController? {
-        (self as? UINavigationController) ?? navigationController
-    }
+    public var orNavigationController: UINavigationController? { (self as? UINavigationController) ?? navigationController }
+    public var orTabBarController: UITabBarController? { (self as? UITabBarController) ?? tabBarController }
     
     func topViewController(in rootViewController: UIViewController? = nil, root: Bool = false) -> UIViewController? {
         let currentController = root ? self : rootViewController
@@ -24,10 +23,12 @@ extension UIViewController {
             possibleController = tabBarController.selectedViewController
         } else if let navigationController = controller as? UINavigationController {
             possibleController = navigationController.topViewController
+        } else if let splitController = controller as? UISplitViewController {
+            possibleController = splitController.viewControllers.last
         } else if let presentedViewController = controller.presentedViewController {
             possibleController = presentedViewController
         }
-        // TODO: - Split
+
         if let possibleController, !possibleController.isBeingDismissed {
             return topViewController(in: possibleController)
         } else {
@@ -50,10 +51,16 @@ extension UIViewController {
                     return target
                 }
             }
+        } else if let split = self as? UISplitViewController {
+            for controller in split.viewControllers {
+                if let target = controller.findController(controller: controller) {
+                    return target
+                }
+            }
         } else if let presentedViewController {
             return presentedViewController.findController(controller: controller)
         }
-        // TODO: - Split
+
         return nil
     }
     
@@ -74,8 +81,14 @@ extension UIViewController {
             }
         } else if let presentedViewController {
             return presentedViewController.findController(identity: identity)
+        } else if let split = self as? UISplitViewController {
+            for controller in split.viewControllers {
+                if let target = controller.findController(identity: identity) {
+                    return target
+                }
+            }
         }
-        // TODO: - Split
+
         return nil
     }
     
@@ -104,6 +117,10 @@ extension UIViewController {
         get { (objc_getAssociatedObject(self, &navigationIdentityKey) as? (any NavigationIdentity)) }
         set { objc_setAssociatedObject(self, &navigationIdentityKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
+}
+
+extension UISplitViewController {
+    var isSingleNavigation: Bool { viewControllers.count == 1 && viewControllers.first is UINavigationController }
 }
 
 private var navigationIdentityKey = "com.vandrj.navigationIdentityKey"

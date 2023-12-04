@@ -1,5 +1,5 @@
 //
-//  DetailsToPresentControllerNode.swift
+//  TabDetailControllerNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 03.12.2023.
@@ -8,8 +8,11 @@
 
 import VATextureKitRx
 
-class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
-    private let titleTextNode: VATextNode
+class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
+    private let titleTextNode = VATextNode(
+        text: "Tab Details",
+        fontStyle: .headline
+    )
     private let pushNextButtonNode = VAButtonNode()
     private let inputNode = TextFieldNode()
     private let detailsTextNode = VATextNode(
@@ -22,12 +25,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         fontStyle: .body
     )
 
-    override init(viewModel: DetailsToPresentViewModel) {
-        self.titleTextNode = VATextNode(
-            text: "Details \(viewModel.number)",
-            fontStyle: .headline
-        )
-
+    override init(viewModel: TabDetailViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -49,7 +47,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "\(viewModel.number)"
+        controller.title = "Tab details"
     }
 
     override func viewDidAppear(in controller: UIViewController, animated: Bool) {
@@ -90,19 +88,13 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     }
 }
 
-struct PushNextDetailsEvent: Event {}
-
-class DetailsToPresentViewModel: EventViewModel {
+class TabDetailViewModel: EventViewModel {
     struct DTO {
-        struct Related {
-            let value: Int
-        }
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPopNext: ([Int]) -> Void
         }
 
-        let related: Related
         let navigation: Navigation
     }
 
@@ -110,7 +102,6 @@ class DetailsToPresentViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
-    var number: Int { data.related.value }
 
     private let data: DTO
 
@@ -145,19 +136,5 @@ class DetailsToPresentViewModel: EventViewModel {
         default:
             return await nextEventResponder?.handle(event: event) ?? false
         }
-    }
-}
-
-class TextFieldNode: VASizedViewWrapperNode<UITextField> {
-
-    init() {
-        super.init(
-            childGetter: {
-                let textField = UITextField()
-                textField.borderStyle = .roundedRect
-                return textField
-            },
-            sizing: .viewHeight
-        )
     }
 }

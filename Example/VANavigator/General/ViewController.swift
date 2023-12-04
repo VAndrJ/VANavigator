@@ -7,7 +7,6 @@
 //
 
 import VATextureKitRx
-import VANavigator
 
 protocol NavigationClosable: UIViewController {
     var isNotImportant: Bool { get }

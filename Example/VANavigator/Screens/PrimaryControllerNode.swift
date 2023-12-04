@@ -1,33 +1,28 @@
 //
-//  DetailsToPresentControllerNode.swift
+//  PrimaryControllerNode.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by VAndrJ on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import VATextureKitRx
 
-class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
-    private let titleTextNode: VATextNode
-    private let pushNextButtonNode = VAButtonNode()
-    private let inputNode = TextFieldNode()
-    private let detailsTextNode = VATextNode(
-        text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
-        fontStyle: .body
+class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
+    private let titleTextNode = VATextNode(
+        text: "Primary \(Int.random(in: 0...100))",
+        fontStyle: .headline
     )
+    private let replacePrimartButtonNode = VAButtonNode()
+    private let showSecondaryButtonNode = VAButtonNode()
     private let replaceRootButtonNode = VAButtonNode()
+    private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
     )
 
-    override init(viewModel: DetailsToPresentViewModel) {
-        self.titleTextNode = VATextNode(
-            text: "Details \(viewModel.number)",
-            fontStyle: .headline
-        )
-
+    override init(viewModel: PrimaryViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -37,9 +32,9 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                pushNextButtonNode
-                inputNode
-                detailsTextNode
+                replacePrimartButtonNode
+                showSecondaryButtonNode
+                showInSplitOrPresentButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -49,17 +44,15 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "\(viewModel.number)"
-    }
-
-    override func viewDidAppear(in controller: UIViewController, animated: Bool) {
-        inputNode.child.becomeFirstResponder()
+        controller.title = "Primary"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
-        pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
+        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
     }
 
     private func bind() {
@@ -68,49 +61,37 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     }
 
     private func bindView() {
-        pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        inputNode.child.rx.text
-            .map {
-                $0.flatMap {
-                    $0.components(separatedBy: " ").compactMap { Int($0) }
-                } ?? []
-            }
-            .bind(to: viewModel.nextNumberRelay)
-            .disposed(by: bag)
+        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
+        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+        replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     }
 
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)
             .disposed(by: bag)
-        viewModel.isNavigationAvailableObs
-            .bind(to: pushNextButtonNode.rx.isEnabled)
-            .disposed(by: bag)
     }
 }
 
-struct PushNextDetailsEvent: Event {}
+struct ShowSecondaryEvent: Event {}
 
-class DetailsToPresentViewModel: EventViewModel {
+struct ReplacePrimaryEvent: Event {}
+
+class PrimaryViewModel: EventViewModel {
     struct DTO {
-        struct Related {
-            let value: Int
-        }
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followPushOrPopNext: ([Int]) -> Void
+            let followReplacePrimary: () -> Void
+            let followShowSplitSecondary: () -> Void
+            let followShowInSplitOrPresent: () -> Void
         }
 
-        let related: Related
         let navigation: Navigation
     }
 
-    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
-    var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
-    var number: Int { data.related.value }
 
     private let data: DTO
 
@@ -122,10 +103,14 @@ class DetailsToPresentViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as ReplacePrimaryEvent:
+            data.navigation.followReplacePrimary()
+        case _ as ShowSecondaryEvent:
+            data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
-        case _ as PushNextDetailsEvent:
-            data.navigation.followPushOrPopNext(nextNumberRelay.value)
+        case _ as ShowInSplitOrPresentEvent:
+            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }
@@ -145,19 +130,5 @@ class DetailsToPresentViewModel: EventViewModel {
         default:
             return await nextEventResponder?.handle(event: event) ?? false
         }
-    }
-}
-
-class TextFieldNode: VASizedViewWrapperNode<UITextField> {
-
-    init() {
-        super.init(
-            childGetter: {
-                let textField = UITextField()
-                textField.borderStyle = .roundedRect
-                return textField
-            },
-            sizing: .viewHeight
-        )
     }
 }

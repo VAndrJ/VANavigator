@@ -1,10 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'VANavigator'
-  s.version          = '0.0.1'
+  s.version          = '0.0.2'
   s.summary          = 'Easy to use UIKit navigation wrapper.'
 
   s.description      = <<-DESC
-Easy to use UIKit navigation wrapper.
+Easy to use UIKit navigation wrapper. Designed to simplify and streamline navigation in application, alleviating the complexities associated with searching for and transitioning to specific view controllers.
+At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, a key element that enables the seamless discovery of the required view controller in `UIWindow`, facilitating easy navigation back to it or opening a new one based on the specified `NavigationStrategy`.
                        DESC
 
   s.homepage         = 'https://github.com/VAndrJ/VANavigator'
@@ -19,5 +20,5 @@ Easy to use UIKit navigation wrapper.
 
   s.frameworks = 'UIKit'
 
-  s.swift_versions = '5.7'
+  s.swift_versions = '5.8'
 end

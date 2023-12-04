@@ -7,16 +7,14 @@
 //
 
 import VATextureKitRx
-import VANavigator
 
 class MainControllerNode: DisplayNode<MainViewModel> {
     private let titleTextNode: VATextNode
-    private let replaceRootButtonNode = VAButtonNode().apply {
-        $0.setTitle("Replace root with new main", with: nil, with: nil, for: .normal)
-    }
-    private let presentDetailsButtonNode = VAButtonNode().apply {
-        $0.setTitle("Present details", with: nil, with: nil, for: .normal)
-    }
+    private let replaceRootButtonNode = VAButtonNode()
+    private let presentDetailsButtonNode = VAButtonNode()
+    private let presentTabsButtonNode = VAButtonNode()
+    private let presentSplitButtonNode = VAButtonNode()
+    private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -39,6 +37,9 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 titleTextNode
                 replaceRootButtonNode
                 presentDetailsButtonNode
+                presentTabsButtonNode
+                presentSplitButtonNode
+                showInSplitOrPresentButtonNode
                 descriptionTextNode
                     .padding(.top(16))
             }
@@ -48,6 +49,11 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
+        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        presentDetailsButtonNode.setTitle("Present details", theme: theme)
+        presentTabsButtonNode.setTitle("Present tabs", theme: theme)
+        presentSplitButtonNode.setTitle("Present split", theme: theme)
+        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
     }
 
     private func bind() {
@@ -58,6 +64,9 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+        presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
+        presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
+        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
     }
 
     private func bindViewModel() {
@@ -69,11 +78,20 @@ class MainControllerNode: DisplayNode<MainViewModel> {
 
 struct ReplaceRootWithNewMainEvent: Event {}
 
+struct PresentTabsEvent: Event {}
+
+struct PresentSplitEvent: Event {}
+
+struct ShowInSplitOrPresentEvent: Event {}
+
 class MainViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let pushOrPresentDetails: () -> Void
+            let followPushOrPresentDetails: () -> Void
+            let followTabs: () -> Void
+            let followSplit: () -> Void
+            let followShowInSplitOrPresent: () -> Void
         }
 
         let navigation: Navigation
@@ -90,10 +108,16 @@ class MainViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as ShowInSplitOrPresentEvent:
+            data.navigation.followShowInSplitOrPresent()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
         case _ as PushNextDetailsEvent:
-            data.navigation.pushOrPresentDetails()
+            data.navigation.followPushOrPresentDetails()
+        case _ as PresentTabsEvent:
+            data.navigation.followTabs()
+        case _ as PresentSplitEvent:
+            data.navigation.followSplit()
         default:
             super.run(event)
         }
