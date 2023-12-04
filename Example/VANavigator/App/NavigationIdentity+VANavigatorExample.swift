@@ -21,29 +21,18 @@ extension DefaultNavigationIdentity {
     }
 }
 
-struct MainNavigationIdentity: DefaultNavigationIdentity {
-    var fallbackSource: NavigationIdentity?
-}
+struct MainNavigationIdentity: DefaultNavigationIdentity {}
 
-struct TabDetailNavigationIdentity: DefaultNavigationIdentity {
-    var fallbackSource: NavigationIdentity?
-}
+struct TabDetailNavigationIdentity: DefaultNavigationIdentity {}
 
-struct MoreNavigationIdentity: DefaultNavigationIdentity {
-    var fallbackSource: NavigationIdentity?
-}
+struct MoreNavigationIdentity: DefaultNavigationIdentity {}
 
-struct PrimaryNavigationIdentity: DefaultNavigationIdentity {
-    var fallbackSource: NavigationIdentity?
-}
+struct PrimaryNavigationIdentity: DefaultNavigationIdentity {}
 
-struct SecondaryNavigationIdentity: DefaultNavigationIdentity {
-    var fallbackSource: NavigationIdentity?
-}
+struct SecondaryNavigationIdentity: DefaultNavigationIdentity {}
 
 struct SplitNavigationIdentity: NavigationIdentity {
     var tabsIdentity: [NavigationIdentity]
-    var fallbackSource: NavigationIdentity?
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {
@@ -65,7 +54,6 @@ struct SplitNavigationIdentity: NavigationIdentity {
 
 struct DetailsNavigationIdentity: NavigationIdentity {
     let number: Int
-    var fallbackSource: NavigationIdentity?
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {
@@ -78,7 +66,6 @@ struct DetailsNavigationIdentity: NavigationIdentity {
 
 struct TabNavigationIdentity: NavigationIdentity {
     var tabsIdentity: [NavigationIdentity]
-    var fallbackSource: NavigationIdentity?
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {

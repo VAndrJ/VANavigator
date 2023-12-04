@@ -122,7 +122,6 @@ public final class Navigator {
         case .presentOrCloseToExisting:
             if let controller = window?.findController(destination: destination) {
                 selectTabIfNeeded(
-                    source: destination.identity?.fallbackSource,
                     controller: window?.topViewController,
                     completion: { [weak self] sourceController in
                         self?.closeNavigationPresented(controller: sourceController ?? controller, animated: animated)
@@ -148,7 +147,6 @@ public final class Navigator {
             }
 
             selectTabIfNeeded(
-                source: destination.identity?.fallbackSource,
                 controller: window?.topViewController,
                 completion: { [weak self] sourceController in
                     guard let self else {
@@ -170,10 +168,17 @@ public final class Navigator {
                 }
             )
             eventController = controller as? UIViewController & Responder
-        case let .pushOrPopToExisting(alwaysEmbedded):
-            if let controller = window?.topViewController?.navigationController?.findController(destination: destination) {
+        case let .pushOrPopToExisting(alwaysEmbedded, includingTabs):
+            func getController() -> UIViewController? {
+                let topController = window?.topViewController
+                return includingTabs ?
+                topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
+                topController?.orNavigationController?.findController(destination: destination)
+            }
+
+            if let controller = getController() {
                 closeNavigationPresented(controller: controller, animated: animated)
-                selectTabIfNeeded(source: destination.identity?.fallbackSource, controller: controller)
+                selectTabIfNeeded(controller: controller)
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
                 completion?()
@@ -526,17 +531,15 @@ public final class Navigator {
     /// Selects the tab in the tab bar controller, if needed, based on the provided source identity.
     ///
     /// - Parameters:
-    ///   - source: The source navigation identity to find in the tab bar controller.
     ///   - controller: The view controller from which to start searching for the tab bar controller.
     ///   - completion: A closure to be executed after the tab is selected, providing the view controller found in the selected tab if applicable.
     func selectTabIfNeeded(
-        source: NavigationIdentity?,
         controller: UIViewController?,
         completion: ((UIViewController?) -> Void)? = nil
     ) {
-        if let source, let tabBarController = controller?.findTabBarController() {
+        if let controller, let tabBarController = controller.findTabBarController() {
             for index in (tabBarController.viewControllers ?? []).indices {
-                if let sourceController = tabBarController.viewControllers?[index].findController(identity: source) {
+                if let sourceController = tabBarController.viewControllers?[index].findController(controller: controller) {
                     if tabBarController.selectedIndex != index {
                         tabBarController.selectedIndex = index
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
