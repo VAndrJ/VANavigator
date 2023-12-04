@@ -13,6 +13,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let replaceRootButtonNode = VAButtonNode()
     private let presentDetailsButtonNode = VAButtonNode()
     private let presentTabsButtonNode = VAButtonNode()
+    private let presentSplitButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -36,6 +37,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 replaceRootButtonNode
                 presentDetailsButtonNode
                 presentTabsButtonNode
+                presentSplitButtonNode
                 descriptionTextNode
                     .padding(.top(16))
             }
@@ -48,6 +50,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         presentDetailsButtonNode.setTitle("Present details", theme: theme)
         presentTabsButtonNode.setTitle("Present tabs", theme: theme)
+        presentSplitButtonNode.setTitle("Present split", theme: theme)
     }
 
     private func bind() {
@@ -59,6 +62,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
+        presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
     }
 
     private func bindViewModel() {
@@ -72,12 +76,15 @@ struct ReplaceRootWithNewMainEvent: Event {}
 
 struct PresentTabsEvent: Event {}
 
+struct PresentSplitEvent: Event {}
+
 class MainViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPresentDetails: () -> Void
             let followTabs: () -> Void
+            let followSplit: () -> Void
         }
 
         let navigation: Navigation
@@ -100,6 +107,8 @@ class MainViewModel: EventViewModel {
             data.navigation.followPushOrPresentDetails()
         case _ as PresentTabsEvent:
             data.navigation.followTabs()
+        case _ as PresentSplitEvent:
+            data.navigation.followSplit()
         default:
             super.run(event)
         }

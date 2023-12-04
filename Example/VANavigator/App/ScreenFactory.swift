@@ -46,6 +46,16 @@ class ScreenFactory: NavigatorScreenFactory {
                         ])),
                         strategy: .presentOrCloseToExisting
                     )
+                },
+                followSplit: { [weak navigator] in
+                    navigator?.navigate(
+                        destination: .identity(SplitNavigationIdentity(tabsIdentity: [
+                            PrimaryNavigationIdentity(),
+                            SecondaryNavigationIdentity(),
+                            MoreNavigationIdentity(),
+                        ])),
+                        strategy: .presentOrCloseToExisting
+                    )
                 }
             )))))
         case _ as TabDetailNavigationIdentity:
@@ -124,6 +134,82 @@ class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false,
                 isNotImportant: true
             )
+        case let identity as SplitNavigationIdentity:
+            assert([2, 3].contains(identity.tabsIdentity.count))
+            let controller: UISplitViewController
+            if #available(iOS 14.0, *) {
+                if identity.tabsIdentity.count == 2 {
+                    controller = UISplitViewController(style: .doubleColumn)
+                } else {
+                    controller = UISplitViewController(style: .tripleColumn)
+                }
+            } else {
+                controller = UISplitViewController()
+            }
+            controller.preferredDisplayMode = .automatic
+            if #available(iOS 14.0, *) {
+                controller.preferredSplitBehavior = .overlay
+            }
+            controller.viewControllers = identity.tabsIdentity.map { identity in
+                let controller = assembleScreen(identity: identity, navigator: navigator)
+                controller.navigationIdentity = identity
+                return controller
+            }
+            controller.preferredPrimaryColumnWidthFraction = 0.33
+            return controller
+        case _ as PrimaryNavigationIdentity:
+            // TODO: -
+            return ViewController(
+                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
+                    followReplaceRootWithNewMain: { [weak navigator] in
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = .reveal
+                        navigator?.navigate(
+                            destination: .identity(MainNavigationIdentity()),
+                            strategy: .replaceWindowRoot(transition: transition)
+                        )
+                    },
+                    followPushOrPopNext: { [weak navigator] value in
+                        navigator?.navigate(chain: value.map {
+                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                        })
+                    }
+                )))),
+                shouldHideNavigationBar: false
+            ).apply {
+                $0.tabBarItem = UITabBarItem(
+                    title: "More",
+                    image: UIImage(systemName: "ellipsis.circle"),
+                    selectedImage: nil
+                )
+            }
+        case _ as SecondaryNavigationIdentity:
+            return ViewController(
+                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
+                    followReplaceRootWithNewMain: { [weak navigator] in
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = .reveal
+                        navigator?.navigate(
+                            destination: .identity(MainNavigationIdentity()),
+                            strategy: .replaceWindowRoot(transition: transition)
+                        )
+                    },
+                    followPushOrPopNext: { [weak navigator] value in
+                        navigator?.navigate(chain: value.map {
+                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                        })
+                    }
+                )))),
+                shouldHideNavigationBar: false
+            ).apply {
+                $0.tabBarItem = UITabBarItem(
+                    title: "More",
+                    image: UIImage(systemName: "ellipsis.circle"),
+                    selectedImage: nil
+                )
+            }
         default:
             assertionFailure("Not implemented \(type(of: identity))")
 

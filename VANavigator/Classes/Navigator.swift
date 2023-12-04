@@ -186,7 +186,7 @@ public final class Navigator {
                     completion: completion
                 )
             }
-        case .replaceNavigationRoot:
+        case let .replaceNavigationRoot(alwaysEmbedded):
             if let navigationController = window?.topViewController?.navigationController {
                 guard let controller = getScreen(destination: destination) else {
                     completion?()
@@ -200,7 +200,7 @@ public final class Navigator {
                 return navigate(
                     destination: destination,
                     source: source,
-                    strategy: .push(alwaysEmbedded: true),
+                    strategy: .push(alwaysEmbedded: alwaysEmbedded),
                     event: event,
                     animated: animated,
                     completion: completion
