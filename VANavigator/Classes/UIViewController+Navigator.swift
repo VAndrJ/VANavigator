@@ -9,9 +9,7 @@
 import UIKit
 
 extension UIViewController {
-    public var orNavigationController: UINavigationController? {
-        (self as? UINavigationController) ?? navigationController
-    }
+    public var orNavigationController: UINavigationController? { (self as? UINavigationController) ?? navigationController }
     
     func topViewController(in rootViewController: UIViewController? = nil, root: Bool = false) -> UIViewController? {
         let currentController = root ? self : rootViewController

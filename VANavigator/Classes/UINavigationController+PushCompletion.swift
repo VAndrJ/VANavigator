@@ -20,12 +20,10 @@ extension UINavigationController {
         if animated {
             if delegate == nil {
                 Self.completionDelegate.completion = { [weak self] in
-                    completion?()
-                    guard let self else { return }
-
-                    if delegate === Self.completionDelegate {
-                        delegate = nil
+                    if self?.delegate === Self.completionDelegate {
+                        self?.delegate = nil
                     }
+                    completion?()
                 }
                 delegate = Self.completionDelegate
             } else {
