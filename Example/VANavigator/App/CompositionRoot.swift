@@ -12,6 +12,8 @@ class CompositionRoot {
     private weak var window: UIWindow?
     private let navigator: Navigator
     private let shortcutService = ShortcutsService()
+    private let authorizationService = AuthorizationService()
+    private let navigationInterceptor: ExampleNavigationInterceptor
 
     init(
         window: inout UIWindow?,
@@ -22,9 +24,11 @@ class CompositionRoot {
             standardLightTheme: .vaLight,
             standardDarkTheme: .vaDark
         )
+        self.navigationInterceptor = ExampleNavigationInterceptor(authorizationService: authorizationService)
         self.navigator = Navigator(
             window: window,
-            screenFactory: ScreenFactory()
+            screenFactory: ScreenFactory(authorizationService: authorizationService),
+            navigationInterceptor: navigationInterceptor
         )
         self.window = window
 

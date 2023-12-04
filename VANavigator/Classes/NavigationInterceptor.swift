@@ -31,20 +31,34 @@ public struct NavigationInterceptionResult {
 }
 
 open class NavigationInterceptor {
-    var onInterceptionResolved: ((AnyHashable) -> Void)?
+    var onInterceptionResolved: ((AnyHashable, NavigationStrategy?) -> Void)?
+
+    public init() {}
 
     open func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
         nil
     }
 
-    public func interceptionResolved(reason: AnyHashable) {
-        onInterceptionResolved?(reason)
+    public func interceptionResolved(reason: AnyHashable, newStrategy: NavigationStrategy? = nil) {
+        onInterceptionResolved?(reason, newStrategy)
     }
 }
 
-struct InterceptionDetail {
-    let chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)]
+class InterceptionDetail {
+    var chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)]
     let source: NavigationIdentity?
     let event: ResponderEvent?
     let completion: (() -> Void)?
+
+    init(
+        chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
+        source: NavigationIdentity? = nil,
+        event: ResponderEvent? = nil,
+        completion: (() -> Void)? = nil
+    ) {
+        self.chain = chain
+        self.source = source
+        self.event = event
+        self.completion = completion
+    }
 }

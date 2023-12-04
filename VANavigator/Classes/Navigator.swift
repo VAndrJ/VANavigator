@@ -135,6 +135,21 @@ public final class Navigator {
         let eventController: (UIViewController & Responder)?
         var navigatorEvent: ResponderEvent?
         switch strategy {
+        case let .closeIfTop(tryToPop, tryToDismiss):
+            if let controller = window?.topViewController {
+                if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true  {
+                    controller.navigationController?.popViewController(animated: animated, completion: completion)
+                } else {
+                    if tryToDismiss {
+                        controller.dismiss(animated: animated, completion: completion)
+                    } else {
+                        completion?()
+                    }
+                }
+            } else {
+                completion?()
+            }
+            return nil
         case let .replaceWindowRoot(transition):
             guard let controller = getScreen(destination: destination) else {
                 completion?()
@@ -591,10 +606,13 @@ public final class Navigator {
     }
 
     private func bind() {
-        navigationInterceptor?.onInterceptionResolved = { [weak self] reason in
+        navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy in
             guard let self else { return }
 
             if let data = interceptionData.removeValue(forKey: reason) {
+                if !data.chain.isEmpty, let newStrategy {
+                    data.chain[0].strategy = newStrategy
+                }
                 navigate(
                     chain: data.chain,
                     source: data.source,

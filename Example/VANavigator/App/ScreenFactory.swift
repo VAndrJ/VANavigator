@@ -9,6 +9,11 @@
 import VATextureKit
 
 class ScreenFactory: NavigatorScreenFactory {
+    let authorizationService: AuthorizationService
+
+    init(authorizationService: AuthorizationService) {
+        self.authorizationService = authorizationService
+    }
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
@@ -68,6 +73,12 @@ class ScreenFactory: NavigatorScreenFactory {
                         ]),
                         strategy: .showSplit(strategy: .replaceSecondary())
                     )
+                },
+                followLoginedContent: {
+                    navigator.navigate(
+                        destination: .identity(SecretInformationIdentity()),
+                        strategy: .present
+                    )
                 }
             )))))
         case _ as TabDetailNavigationIdentity:
@@ -107,11 +118,6 @@ class ScreenFactory: NavigatorScreenFactory {
                             destination: .identity(MainNavigationIdentity()),
                             strategy: .replaceWindowRoot(transition: transition)
                         )
-                    },
-                    followPushOrPopNext: { [weak navigator] value in
-                        navigator?.navigate(chain: value.map {
-                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
-                        })
                     }
                 )))),
                 shouldHideNavigationBar: false
@@ -237,6 +243,39 @@ class ScreenFactory: NavigatorScreenFactory {
                                 destination,
                             ]),
                             strategy: .showSplit(strategy: .replaceSecondary())
+                        )
+                    }
+                )))),
+                shouldHideNavigationBar: false
+            )
+        case _ as LoginNavigationIdentity:
+            return ViewController(
+                node: LoginControllerNode(viewModel: LoginViewModel(data: .init(
+                    source: .init(authorize: { [weak authorizationService] in
+                        authorizationService?.authorize()
+                    }),
+                    navigation: .init(followReplaceRootWithNewMain: { [weak navigator] in
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = .reveal
+                        navigator?.navigate(
+                            destination: .identity(MainNavigationIdentity()),
+                            strategy: .replaceWindowRoot(transition: transition)
+                        )
+                    })
+                ))),
+                shouldHideNavigationBar: false
+            )
+        case _ as SecretInformationIdentity:
+            return ViewController(
+                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(navigation: .init(
+                    followReplaceRootWithNewMain: { [weak navigator] in
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = .reveal
+                        navigator?.navigate(
+                            destination: .identity(MainNavigationIdentity()),
+                            strategy: .replaceWindowRoot(transition: transition)
                         )
                     }
                 )))),

@@ -11,12 +11,24 @@ import UIKit
 extension UINavigationController {
     static let completionDelegate = NavigationCompletionDelegate()
 
+    public func popViewController(
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        popViewController(animated: animated)
+        observeCompletion(animated: animated, completion: completion)
+    }
+
     public func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
         completion: (() -> Void)?
     ) {
         pushViewController(viewController, animated: animated)
+        observeCompletion(animated: animated, completion: completion)
+    }
+
+    private func observeCompletion(animated: Bool, completion: (() -> Void)?) {
         if animated {
             if delegate == nil {
                 Self.completionDelegate.completion = { [weak self] in

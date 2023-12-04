@@ -21,6 +21,12 @@ extension DefaultNavigationIdentity {
     }
 }
 
+protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
+
+struct SecretInformationIdentity: LoginedOnlyNavigationIdentity {}
+
+struct LoginNavigationIdentity: DefaultNavigationIdentity {}
+
 struct MainNavigationIdentity: DefaultNavigationIdentity {}
 
 struct TabDetailNavigationIdentity: DefaultNavigationIdentity {}

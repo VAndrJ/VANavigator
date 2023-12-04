@@ -15,6 +15,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let presentTabsButtonNode = VAButtonNode()
     private let presentSplitButtonNode = VAButtonNode()
     private let showInSplitOrPresentButtonNode = VAButtonNode()
+    private let presentLoginedOnlyContentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -40,6 +41,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 presentTabsButtonNode
                 presentSplitButtonNode
                 showInSplitOrPresentButtonNode
+                presentLoginedOnlyContentButtonNode
                 descriptionTextNode
                     .padding(.top(16))
             }
@@ -54,6 +56,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentTabsButtonNode.setTitle("Present tabs", theme: theme)
         presentSplitButtonNode.setTitle("Present split", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        presentLoginedOnlyContentButtonNode.setTitle("Present logined only content", theme: theme)
     }
 
     private func bind() {
@@ -67,6 +70,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
         presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+        presentLoginedOnlyContentButtonNode.onTap = viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
     }
 
     private func bindViewModel() {
@@ -75,6 +79,8 @@ class MainControllerNode: DisplayNode<MainViewModel> {
             .disposed(by: bag)
     }
 }
+
+struct PresentLoginedOnlyEvent: Event {}
 
 struct ReplaceRootWithNewMainEvent: Event {}
 
@@ -92,6 +98,7 @@ class MainViewModel: EventViewModel {
             let followTabs: () -> Void
             let followSplit: () -> Void
             let followShowInSplitOrPresent: () -> Void
+            let followLoginedContent: () -> Void
         }
 
         let navigation: Navigation
@@ -108,6 +115,8 @@ class MainViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as PresentLoginedOnlyEvent:
+            data.navigation.followLoginedContent()
         case _ as ShowInSplitOrPresentEvent:
             data.navigation.followShowInSplitOrPresent()
         case _ as ReplaceRootWithNewMainEvent:
