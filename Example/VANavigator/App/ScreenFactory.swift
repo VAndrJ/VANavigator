@@ -225,7 +225,7 @@ class ScreenFactory: NavigatorScreenFactory {
                     followShowSplitSecondary: { [weak navigator] in
                         navigator?.navigate(
                             destination: .identity(SecondaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .replacePrimary)
+                            strategy: .showSplit(strategy: .secondary())
                         )
                     },
                     followShowInSplitOrPresent: {
