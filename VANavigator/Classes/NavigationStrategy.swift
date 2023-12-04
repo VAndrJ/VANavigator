@@ -19,8 +19,9 @@ public enum NavigationStrategy: Equatable {
     public enum SplitStrategy: Equatable {
         case replacePrimary
 //        case replaceSupplementary
-        case replaceSecondary(animated: Bool = true, shouldPop: Bool = true)
-        case secondary(animated: Bool = true, shouldPop: Bool = true)
+        case replaceSecondary(shouldPop: Bool = true)
+        case secondary(shouldPop: Bool = true)
+        case replaceSupplementary(shouldPop: Bool = true)
 //        case compact
     }
 }

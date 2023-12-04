@@ -14,6 +14,7 @@
 		A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */; };
 		A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */; };
 		A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */; };
+		A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -46,6 +47,7 @@
 		A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabDetailControllerNode.swift; sourceTree = "<group>"; };
 		A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreNavigationIdentity.swift; sourceTree = "<group>"; };
 		A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryControllerNode.swift; sourceTree = "<group>"; };
+		A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryControllerNode.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
 				A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */,
 				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
+				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
 				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
 			);
 			path = Screens;
@@ -355,6 +358,7 @@
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
 				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,
 				A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */,
+				A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 				A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,

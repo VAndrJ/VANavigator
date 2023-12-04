@@ -1,5 +1,5 @@
 //
-//  PrimaryControllerNode.swift
+//  SecondaryControllerNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 04.12.2023.
@@ -8,12 +8,11 @@
 
 import VATextureKitRx
 
-class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
+class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
     private let titleTextNode = VATextNode(
-        text: "Primary \(Int.random(in: 0...100))",
+        text: "Secondary",
         fontStyle: .headline
     )
-    private let replacePrimartButtonNode = VAButtonNode()
     private let showSecondaryButtonNode = VAButtonNode()
     private let replaceRootButtonNode = VAButtonNode()
     private let showInSplitOrPresentButtonNode = VAButtonNode()
@@ -22,7 +21,7 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
         fontStyle: .body
     )
 
-    override init(viewModel: PrimaryViewModel) {
+    override init(viewModel: SecondaryViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -32,7 +31,6 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                replacePrimartButtonNode
                 showSecondaryButtonNode
                 showInSplitOrPresentButtonNode
                 replaceRootButtonNode
@@ -44,7 +42,7 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Primary"
+        controller.title = "Secondary"
     }
 
     override func configureTheme(_ theme: VATheme) {
@@ -52,7 +50,6 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
-        replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
     }
 
     private func bind() {
@@ -64,7 +61,6 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
-        replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     }
 
     private func bindViewModel() {
@@ -74,15 +70,10 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
     }
 }
 
-struct ShowSecondaryEvent: Event {}
-
-struct ReplacePrimaryEvent: Event {}
-
-class PrimaryViewModel: EventViewModel {
+class SecondaryViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followReplacePrimary: () -> Void
             let followShowSplitSecondary: () -> Void
             let followShowInSplitOrPresent: () -> Void
         }
@@ -103,8 +94,6 @@ class PrimaryViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
-        case _ as ReplacePrimaryEvent:
-            data.navigation.followReplacePrimary()
         case _ as ShowSecondaryEvent:
             data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:

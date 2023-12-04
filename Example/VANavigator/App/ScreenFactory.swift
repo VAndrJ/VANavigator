@@ -51,9 +51,8 @@ class ScreenFactory: NavigatorScreenFactory {
                     navigator?.navigate(
                         destination: .identity(SplitNavigationIdentity(tabsIdentity: [
                             PrimaryNavigationIdentity(),
-                            SecondaryNavigationIdentity(),
                             MoreNavigationIdentity(),
-//                            DetailsNavigationIdentity(number: -1),
+                            SecondaryNavigationIdentity(),
                         ])),
                         strategy: .presentOrCloseToExisting
                     )
@@ -181,10 +180,17 @@ class ScreenFactory: NavigatorScreenFactory {
                             strategy: .replaceWindowRoot(transition: transition)
                         )
                     },
+                    followReplacePrimary: { [weak navigator] in
+                        navigator?.navigate(
+                            destination: .identity(PrimaryNavigationIdentity()),
+                            strategy: .showSplit(strategy: .replacePrimary),
+                            animated: false
+                        )
+                    },
                     followShowSplitSecondary: { [weak navigator] in
                         navigator?.navigate(
                             destination: .identity(SecondaryNavigationIdentity()),
-                            strategy: .showSplit(strategy: .secondary(shouldPop: true))
+                            strategy: .showSplit(strategy: .replaceSecondary())
                         )
                     },
                     followShowInSplitOrPresent: {
@@ -203,7 +209,7 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as SecondaryNavigationIdentity:
             return ViewController(
-                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(navigation: .init(
+                node: SecondaryControllerNode(viewModel: SecondaryViewModel(data: .init(navigation: .init(
                     followReplaceRootWithNewMain: { [weak navigator] in
                         let transition = CATransition()
                         transition.duration = 0.3
@@ -213,20 +219,26 @@ class ScreenFactory: NavigatorScreenFactory {
                             strategy: .replaceWindowRoot(transition: transition)
                         )
                     },
-                    followPushOrPopNext: { [weak navigator] value in
-                        navigator?.navigate(chain: value.map {
-                            (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
-                        })
+                    followShowSplitSecondary: { [weak navigator] in
+                        navigator?.navigate(
+                            destination: .identity(SecondaryNavigationIdentity()),
+                            strategy: .showSplit(strategy: .replacePrimary)
+                        )
+                    },
+                    followShowInSplitOrPresent: {
+                        let destination = DetailsNavigationIdentity(number: -1)
+                        navigator.navigate(
+                            destination: .identity(destination),
+                            source: SplitNavigationIdentity(tabsIdentity: [
+                                PrimaryNavigationIdentity(),
+                                destination,
+                            ]),
+                            strategy: .showSplit(strategy: .replaceSecondary())
+                        )
                     }
                 )))),
                 shouldHideNavigationBar: false
-            ).apply {
-                $0.tabBarItem = UITabBarItem(
-                    title: "More",
-                    image: UIImage(systemName: "ellipsis.circle"),
-                    selectedImage: nil
-                )
-            }
+            )
         default:
             assertionFailure("Not implemented \(type(of: identity))")
 
