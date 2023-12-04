@@ -1,16 +1,16 @@
 //
-//  MoreNavigationIdentity.swift
+//  SecretInformationControllerNode.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by VAndrJ on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import VATextureKitRx
 
-class MoreControllerNode: DisplayNode<MoreViewModel> {
+class SecretInformationControllerNode: DisplayNode<SecretInformationViewModel> {
     private let titleTextNode = VATextNode(
-        text: "More",
+        text: "Secret information for authorized users only",
         fontStyle: .headline
     )
     private let replaceRootButtonNode = VAButtonNode()
@@ -19,7 +19,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
         fontStyle: .body
     )
 
-    override init(viewModel: MoreViewModel) {
+    override init(viewModel: SecretInformationViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -38,7 +38,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "More"
+        controller.title = "Secret"
     }
 
     override func configureTheme(_ theme: VATheme) {
@@ -62,7 +62,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
     }
 }
 
-class MoreViewModel: EventViewModel {
+class SecretInformationViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void

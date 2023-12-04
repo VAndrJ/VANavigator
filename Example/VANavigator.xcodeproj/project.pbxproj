@@ -15,6 +15,10 @@
 		A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */; };
 		A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */; };
 		A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */; };
+		A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */; };
+		A3081E0E2B1E4B3A0041E11A /* AuthorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */; };
+		A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */; };
+		A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -48,6 +52,10 @@
 		A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreNavigationIdentity.swift; sourceTree = "<group>"; };
 		A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryControllerNode.swift; sourceTree = "<group>"; };
 		A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryControllerNode.swift; sourceTree = "<group>"; };
+		A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleNavigationInterceptor.swift; sourceTree = "<group>"; };
+		A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationService.swift; sourceTree = "<group>"; };
+		A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginControllerNode.swift; sourceTree = "<group>"; };
+		A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationControllerNode.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -145,9 +153,9 @@
 		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
 			isa = PBXGroup;
 			children = (
-				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
-				2084627312EB44A8EC56B572 /* README.md */,
 				305B55E0312B6363F4E5D36D /* LICENSE */,
+				2084627312EB44A8EC56B572 /* README.md */,
+				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
 			);
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
@@ -167,8 +175,10 @@
 		A3784AFE2B1CB462009351DD /* General */ = {
 			isa = PBXGroup;
 			children = (
+				A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */,
 				A3C742E62B1CB7FD0050211E /* DisplayNode.swift */,
 				A3784AFF2B1CB482009351DD /* EventViewModel.swift */,
+				A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */,
 				A3784B012B1CB51B009351DD /* Log.swift */,
 				A3C742EA2B1CB9F50050211E /* NavigationController.swift */,
 				A3C742E82B1CB8920050211E /* ViewController.swift */,
@@ -180,10 +190,12 @@
 			isa = PBXGroup;
 			children = (
 				A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */,
+				A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
 				A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */,
 				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
 				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
+				A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */,
 				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
 			);
 			path = Screens;
@@ -345,6 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */,
+				A3081E0E2B1E4B3A0041E11A /* AuthorizationService.swift in Sources */,
 				A3C742E72B1CB7FD0050211E /* DisplayNode.swift in Sources */,
 				A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */,
 				A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */,
@@ -357,11 +370,14 @@
 				A3C742F32B1CBFCA0050211E /* DetailsToPresentControllerNode.swift in Sources */,
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
 				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,
+				A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */,
 				A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */,
 				A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 				A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */,
+				A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
+				A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */,
 				A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */,
 				A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */,
 			);

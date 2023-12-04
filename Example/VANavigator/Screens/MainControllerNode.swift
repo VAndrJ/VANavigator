@@ -15,8 +15,13 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let presentTabsButtonNode = VAButtonNode()
     private let presentSplitButtonNode = VAButtonNode()
     private let showInSplitOrPresentButtonNode = VAButtonNode()
+    private let presentLoginedOnlyContentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
-        text: "",
+        text: "-",
+        fontStyle: .body
+    )
+    private let authorizedTextNode = VATextNode(
+        text: "-",
         fontStyle: .body
     )
 
@@ -42,6 +47,8 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 showInSplitOrPresentButtonNode
                 descriptionTextNode
                     .padding(.top(16))
+                presentLoginedOnlyContentButtonNode
+                authorizedTextNode
             }
             .padding(.all(16))
         }
@@ -54,6 +61,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentTabsButtonNode.setTitle("Present tabs", theme: theme)
         presentSplitButtonNode.setTitle("Present split", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        presentLoginedOnlyContentButtonNode.setTitle("Present logined only content", theme: theme)
     }
 
     private func bind() {
@@ -67,14 +75,20 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
         presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+        presentLoginedOnlyContentButtonNode.onTap = viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
     }
 
     private func bindViewModel() {
         viewModel.descriptionObs
-            .subscribe(onNext: descriptionTextNode ?> { $0.text = $1 })
+            .bind(to: descriptionTextNode.rx.text)
+            .disposed(by: bag)
+        viewModel.authorizationStatusObs
+            .bind(to: authorizedTextNode.rx.text)
             .disposed(by: bag)
     }
 }
+
+struct PresentLoginedOnlyEvent: Event {}
 
 struct ReplaceRootWithNewMainEvent: Event {}
 
@@ -86,17 +100,27 @@ struct ShowInSplitOrPresentEvent: Event {}
 
 class MainViewModel: EventViewModel {
     struct DTO {
+        struct DataSource {
+            let authorizedObs: Observable<Bool>
+        }
+
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPresentDetails: () -> Void
             let followTabs: () -> Void
             let followSplit: () -> Void
             let followShowInSplitOrPresent: () -> Void
+            let followLoginedContent: () -> Void
         }
 
+        let source: DataSource
         let navigation: Navigation
     }
 
+    var authorizationStatusObs: Observable<String> {
+        data.source.authorizedObs
+            .map { $0 ? "Authorized" : "Not authorized " }
+    }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
@@ -108,6 +132,8 @@ class MainViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as PresentLoginedOnlyEvent:
+            data.navigation.followLoginedContent()
         case _ as ShowInSplitOrPresentEvent:
             data.navigation.followShowInSplitOrPresent()
         case _ as ReplaceRootWithNewMainEvent:

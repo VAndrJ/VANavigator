@@ -1,25 +1,26 @@
 //
-//  MoreNavigationIdentity.swift
+//  LoginControllerNode.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by VAndrJ on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import VATextureKitRx
 
-class MoreControllerNode: DisplayNode<MoreViewModel> {
+class LoginControllerNode: DisplayNode<LoginViewModel> {
     private let titleTextNode = VATextNode(
-        text: "More",
+        text: "Login",
         fontStyle: .headline
     )
     private let replaceRootButtonNode = VAButtonNode()
+    private let loginButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
     )
 
-    override init(viewModel: MoreViewModel) {
+    override init(viewModel: LoginViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -29,6 +30,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
+                loginButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -38,12 +40,13 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "More"
+        controller.title = "Login"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        loginButtonNode.setTitle("Login", theme: theme)
     }
 
     private func bind() {
@@ -53,6 +56,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
 
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+        loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }
 
     private func bindViewModel() {
@@ -62,12 +66,19 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
     }
 }
 
-class MoreViewModel: EventViewModel {
+struct LoginEvent: Event {}
+
+class LoginViewModel: EventViewModel {
     struct DTO {
+        struct DataSource {
+            let authorize: () -> Void
+        }
+        
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
         }
 
+        let source: DataSource
         let navigation: Navigation
     }
 
@@ -84,6 +95,8 @@ class MoreViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as LoginEvent:
+            data.source.authorize()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
         default:

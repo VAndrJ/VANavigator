@@ -16,3 +16,4 @@ typealias Navigator = VANavigator.Navigator
 typealias NavigatorScreenFactory = VANavigator.NavigatorScreenFactory
 typealias NavigationIdentity = VANavigator.NavigationIdentity
 typealias Responder = VANavigator.Responder
+typealias NavigationDestination = VANavigator.NavigationDestination

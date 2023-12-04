@@ -9,6 +9,8 @@
 import UIKit
 
 public enum NavigationStrategy: Equatable {
+    /// Close the controller if it is top one
+    case closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true)
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
     case replaceWindowRoot(transition: CATransition? = nil)
     /// Pushes a controller onto the navigation stack, or presents if no `UINavigationController` is found. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
