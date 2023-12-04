@@ -20,7 +20,7 @@ extension UIWindow {
         return topmostViewController
     }
 
-    func findController(destination: Navigator.NavigationDestination) -> UIViewController? {
+    func findController(destination: NavigationDestination) -> UIViewController? {
         rootViewController?.findController(destination: destination)
     }
 

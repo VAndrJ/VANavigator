@@ -9,31 +9,23 @@
 import UIKit
 
 public final class Navigator {
-    public enum NavigationDestination {
-        case identity(NavigationIdentity)
-        case controller(UIViewController)
-
-        /// Computed property to extract the navigation identity from the destination.
-        var identity: NavigationIdentity? {
-            switch self {
-            case let .identity(identity):
-                return identity
-            case let .controller(controller):
-                return controller.navigationIdentity
-            }
-        }
-    }
-
     public let screenFactory: NavigatorScreenFactory
+    public var navigationInterceptor: NavigationInterceptor?
 
     public private(set) weak var window: UIWindow?
 
+    private var interceptionData: [AnyHashable: InterceptionDetail] = [:]
+
     public init(
         window: UIWindow?,
-        screenFactory: NavigatorScreenFactory
+        screenFactory: NavigatorScreenFactory,
+        navigationInterceptor: NavigationInterceptor? = nil
     ) {
         self.window = window
         self.screenFactory = screenFactory
+        self.navigationInterceptor = navigationInterceptor
+
+        bind()
     }
 
     /// Navigates through a chain of destinations.
@@ -58,6 +50,30 @@ public final class Navigator {
 
         var chain = chain
         let link = chain.removeFirst()
+
+        if let interceptionResult = navigationInterceptor?.intercept(destination: link.destination) {
+            let chain = ([link] + chain).compactMap { link in
+                if let identity = link.destination.identity {
+                    return (NavigationDestination.identity(identity), link.strategy, link.animated)
+                } else {
+                    return nil
+                }
+            }
+            let detail = InterceptionDetail(
+                chain: chain,
+                source: source,
+                event: event,
+                completion: completion
+            )
+            interceptionData[interceptionResult.reason] = detail
+
+            return navigate(
+                chain: interceptionResult.chain,
+                source: interceptionResult.source,
+                event: interceptionResult.event,
+                completion: interceptionResult.completion
+            )
+        }
 
         return navigate(
             destination: link.destination,
@@ -97,6 +113,25 @@ public final class Navigator {
         animated: Bool = true,
         completion: (() -> Void)? = nil
     ) -> (UIViewController & Responder)? {
+        if let interceptionResult = navigationInterceptor?.intercept(destination: destination) {
+            if let identity = destination.identity {
+                let detail = InterceptionDetail(
+                    chain: [(.identity(identity), strategy, animated)],
+                    source: source,
+                    event: event,
+                    completion: completion
+                )
+                interceptionData[interceptionResult.reason] = detail
+            }
+
+            return navigate(
+                chain: interceptionResult.chain,
+                source: interceptionResult.source,
+                event: interceptionResult.event,
+                completion: interceptionResult.completion
+            )
+        }
+
         let eventController: (UIViewController & Responder)?
         var navigatorEvent: ResponderEvent?
         switch strategy {
@@ -553,5 +588,20 @@ public final class Navigator {
             }
         }
         completion?(nil)
+    }
+
+    private func bind() {
+        navigationInterceptor?.onInterceptionResolved = { [weak self] reason in
+            guard let self else { return }
+
+            if let data = interceptionData.removeValue(forKey: reason) {
+                navigate(
+                    chain: data.chain,
+                    source: data.source,
+                    event: data.event,
+                    completion: data.completion
+                )
+            }
+        }
     }
 }
