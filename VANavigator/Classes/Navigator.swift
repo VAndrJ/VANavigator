@@ -14,8 +14,6 @@ public final class Navigator {
 
     public private(set) weak var window: UIWindow?
 
-    private var interceptionData: [AnyHashable: InterceptionDetail] = [:]
-
     public init(
         window: UIWindow?,
         screenFactory: NavigatorScreenFactory,
@@ -51,7 +49,7 @@ public final class Navigator {
         var chain = chain
         let link = chain.removeFirst()
 
-        if let interceptionResult = navigationInterceptor?.intercept(destination: link.destination) {
+        if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: link.destination) {
             let chain = ([link] + chain).compactMap { link in
                 if let identity = link.destination.identity {
                     return (NavigationDestination.identity(identity), link.strategy, link.animated)
@@ -65,7 +63,7 @@ public final class Navigator {
                 event: event,
                 completion: completion
             )
-            interceptionData[interceptionResult.reason] = detail
+            navigationInterceptor.interceptionData[interceptionResult.reason] = detail
 
             return navigate(
                 chain: interceptionResult.chain,
@@ -113,7 +111,7 @@ public final class Navigator {
         animated: Bool = true,
         completion: (() -> Void)? = nil
     ) -> (UIViewController & Responder)? {
-        if let interceptionResult = navigationInterceptor?.intercept(destination: destination) {
+        if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
             if let identity = destination.identity {
                 let detail = InterceptionDetail(
                     chain: [(.identity(identity), strategy, animated)],
@@ -121,7 +119,7 @@ public final class Navigator {
                     event: event,
                     completion: completion
                 )
-                interceptionData[interceptionResult.reason] = detail
+                navigationInterceptor.interceptionData[interceptionResult.reason] = detail
             }
 
             return navigate(
@@ -609,8 +607,12 @@ public final class Navigator {
         navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy in
             guard let self else { return }
 
-            if let data = interceptionData.removeValue(forKey: reason) {
-                if !data.chain.isEmpty, let newStrategy {
+            if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
+                guard !data.chain.isEmpty else {
+                    return
+                }
+
+                if let newStrategy {
                     data.chain[0].strategy = newStrategy
                 }
                 navigate(

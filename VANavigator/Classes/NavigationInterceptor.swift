@@ -32,6 +32,7 @@ public struct NavigationInterceptionResult {
 
 open class NavigationInterceptor {
     var onInterceptionResolved: ((AnyHashable, NavigationStrategy?) -> Void)?
+    var interceptionData: [AnyHashable: InterceptionDetail] = [:]
 
     public init() {}
 
@@ -41,6 +42,22 @@ open class NavigationInterceptor {
 
     public func interceptionResolved(reason: AnyHashable, newStrategy: NavigationStrategy? = nil) {
         onInterceptionResolved?(reason, newStrategy)
+    }
+
+    public func getInterceptionReasons() -> [AnyHashable] {
+        Array(interceptionData.keys)
+    }
+
+    public func removeIfAvailable(reason: AnyHashable) {
+        interceptionData.removeValue(forKey: reason)
+    }
+
+    public func removeAllReasons() {
+        interceptionData.removeAll()
+    }
+
+    public func checkIsExists(reason: AnyHashable) -> Bool {
+        interceptionData[reason] != nil
     }
 }
 
