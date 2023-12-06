@@ -150,11 +150,7 @@ public final class Navigator {
             }
             return nil
         case let .replaceWindowRoot(transition, alwaysEmbedded):
-            guard let controller = getScreen(destination: destination) else {
-                completion?()
-                return nil
-            }
-
+            let controller = getController(destination: destination)
             if window?.rootViewController != nil {
                 navigatorEvent = ResponderReplacedWindowRootControllerEvent()
             }
@@ -165,11 +161,7 @@ public final class Navigator {
             )
             eventController = controller as? UIViewController & Responder
         case .present:
-            guard let controller = getScreen(destination: destination) else {
-                completion?()
-                return nil
-            }
-
+            let controller = getController(destination: destination)
             present(controller: controller, animated: animated, completion: completion)
             eventController = controller as? UIViewController & Responder
         case .presentOrCloseToExisting:
@@ -194,11 +186,7 @@ public final class Navigator {
                 )
             }
         case let .push(alwaysEmbedded):
-            guard let controller = getScreen(destination: destination) else {
-                completion?()
-                return nil
-            }
-
+            let controller = getController(destination: destination)
             selectTabIfNeeded(
                 controller: window?.topController,
                 completion: { [weak self] sourceController in
@@ -247,11 +235,7 @@ public final class Navigator {
             }
         case let .replaceNavigationRoot(alwaysEmbedded):
             if let navigationController = window?.topController?.navigationController {
-                guard let controller = getScreen(destination: destination) else {
-                    completion?()
-                    return nil
-                }
-
+                let controller = getController(destination: destination)
                 navigationController.setViewControllers([controller], animated: animated)
                 eventController = controller as? UIViewController & Responder
                 completion?()
@@ -281,20 +265,12 @@ public final class Navigator {
                                 completion: completion
                             )
                         } else {
-                            guard let controller = getScreen(destination: destination) else {
-                                completion?()
-                                return nil
-                            }
-
+                            let controller = getController(destination: destination)
                             splitController.setViewController(controller, for: .primary)
                             eventController = controller as? UIViewController & Responder
                         }
                     } else {
-                        guard let controller = getScreen(destination: destination) else {
-                            completion?()
-                            return nil
-                        }
-
+                        let controller = getController(destination: destination)
                         splitController.viewControllers = [controller]
                         eventController = controller as? UIViewController & Responder
                     }
@@ -319,22 +295,14 @@ public final class Navigator {
                                 eventController = controller as? UIViewController & Responder
                                 navigatorEvent = ResponderPoppedToExistingEvent()
                             } else {
-                                guard let controller = getScreen(destination: destination) else {
-                                    completion?()
-                                    return nil
-                                }
-
+                                let controller = getController(destination: destination)
                                 dismissPresented(in: splitController, animated: animated)
                                 eventController = controller as? UIViewController & Responder
                                 splitController.setViewController(controller, for: .secondary)
                             }
                         }
                     } else {
-                        guard let controller = getScreen(destination: destination) else {
-                            completion?()
-                            return nil
-                        }
-
+                        let controller = getController(destination: destination)
                         dismissPresented(in: splitController, animated: animated)
                         splitController.showDetailViewController(controller, sender: nil)
                         eventController = controller as? UIViewController & Responder
@@ -359,32 +327,20 @@ public final class Navigator {
                                     eventController = navigationController.viewControllers.first as? UIViewController & Responder
                                     navigatorEvent = ResponderPoppedToExistingEvent()
                                 } else {
-                                    guard let controller = getScreen(destination: destination) else {
-                                        completion?()
-                                        return nil
-                                    }
-
+                                    let controller = getController(destination: destination)
                                     dismissPresented(in: navigationController, animated: animated)
                                     navigationController.setViewControllers([controller], animated: animated)
                                     eventController = controller as? UIViewController & Responder
                                 }
                             } else {
-                                guard let controller = getScreen(destination: destination) else {
-                                    completion?()
-                                    return nil
-                                }
-
+                                let controller = getController(destination: destination)
                                 dismissPresented(in: splitController, animated: animated)
                                 splitController.setViewController(controller, for: .secondary)
                                 eventController = controller as? UIViewController & Responder
                             }
                         }
                     } else {
-                        guard let controller = getScreen(destination: destination) else {
-                            completion?()
-                            return nil
-                        }
-
+                        let controller = getController(destination: destination)
                         dismissPresented(in: splitController, animated: animated)
                         splitController.viewControllers = splitController.viewControllers.first.flatMap { [$0, controller] } ?? [controller]
                         eventController = controller as? UIViewController & Responder
@@ -409,21 +365,13 @@ public final class Navigator {
                                         eventController = navigationController.viewControllers.first as? UIViewController & Responder
                                         navigatorEvent = ResponderPoppedToExistingEvent()
                                     } else {
-                                        guard let controller = getScreen(destination: destination) else {
-                                            completion?()
-                                            return nil
-                                        }
-
+                                        let controller = getController(destination: destination)
                                         dismissPresented(in: navigationController, animated: animated)
                                         navigationController.setViewControllers([controller], animated: animated)
                                         eventController = controller as? UIViewController & Responder
                                     }
                                 } else {
-                                    guard let controller = getScreen(destination: destination) else {
-                                        completion?()
-                                        return nil
-                                    }
-
+                                    let controller = getController(destination: destination)
                                     dismissPresented(in: splitController, animated: animated)
                                     splitController.setViewController(controller, for: .supplementary)
                                     eventController = controller as? UIViewController & Responder
@@ -440,11 +388,7 @@ public final class Navigator {
                             }
                         }
                     } else {
-                        guard let controller = getScreen(destination: destination) else {
-                            completion?()
-                            return nil
-                        }
-
+                        let controller = getController(destination: destination)
                         dismissPresented(in: splitController, animated: animated)
                         splitController.viewControllers = Array(splitController.viewControllers.prefix(2)) + [controller]
                         eventController = controller as? UIViewController & Responder
@@ -480,7 +424,7 @@ public final class Navigator {
     ///
     /// - Parameter destination: The navigation destination indicating whether to assemble a screen using an identity or use an existing controller.
     /// - Returns: The view controller corresponding to the given navigation destination.
-    func getScreen(destination: NavigationDestination) -> UIViewController? {
+    func getController(destination: NavigationDestination) -> UIViewController {
         switch destination {
         case let .identity(identity):
             let controller = screenFactory.assembleScreen(identity: identity, navigator: self)
