@@ -37,13 +37,6 @@ extension UIWindow {
         } else {
             newRootViewController.setNeedsStatusBarAppearanceUpdate()
         }
-        if #unavailable(iOS 13.0) {
-            if let transitionViewClass = NSClassFromString("UITransitionView") {
-                for subview in subviews where subview.isKind(of: transitionViewClass) {
-                    subview.removeFromSuperview()
-                }
-            }
-        }
         if let previousViewController {
             previousViewController.dismiss(animated: false) {
                 previousViewController.view.removeFromSuperview()
