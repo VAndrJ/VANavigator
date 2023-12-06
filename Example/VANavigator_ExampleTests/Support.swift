@@ -30,11 +30,35 @@ class MockScreenFactory: NavigatorScreenFactory {
 }
 
 class MockRootViewController: UIViewController, Responder {
+    private(set) var isReplacedEventHandled = false
+    private(set) var isMockEventHandled = false
+
+    // MARK: - Responder
+
     var nextEventResponder: Responder?
     
     func handle(event: ResponderEvent) async -> Bool {
-        true
+        switch event {
+        case _ as ResponderReplacedWindowRootControllerEvent:
+            isReplacedEventHandled = true
+            
+            return true
+        case _ as ResponderMockEvent:
+            isMockEventHandled = true
+
+            return true
+        default:
+            return false
+        }
     }
 }
 
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
+
+struct ResponderMockEvent: ResponderEvent {}
+
+func taskDetachedMain(_ f: @escaping @Sendable () -> Sendable) {
+    Task.detached {
+        await MainActor.run(body: f)
+    }
+}

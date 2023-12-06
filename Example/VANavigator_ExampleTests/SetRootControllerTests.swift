@@ -22,30 +22,38 @@ class SetRootControllerTests: XCTestCase {
         window = nil
     }
 
-    @MainActor
     func test_setRootController() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
         XCTAssertNil(navigator.window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: false)
+        let responder = replaceWindowRoot(
+            navigator: navigator,
+            identity: identity,
+            alwaysEmbedded: false
+        )
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
         XCTAssertTrue(identity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    @MainActor
     func test_setRootController_embeddingInNavigation() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
         XCTAssertNil(navigator.window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: true)
+        let responder = replaceWindowRoot(
+            navigator: navigator,
+            identity: identity,
+            alwaysEmbedded: true
+        )
 
         // Сhecking that the `UIWindow`'s root view controller is `UINavigationController`
         // and it's root controller's identity is equal to given and it is the top view controller.
@@ -55,9 +63,10 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    @MainActor
     func test_replaceExistingRootController() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         window?.rootViewController = UIViewController()
@@ -66,21 +75,32 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNotNil(navigator.window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: false)
+        let responder = replaceWindowRoot(
+            navigator: navigator,
+            identity: identity,
+            alwaysEmbedded: false
+        )
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
         XCTAssertTrue(identity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    func replaceWindowRoot(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool) -> UIViewController? {
+    func replaceWindowRoot(
+        navigator: Navigator,
+        identity: NavigationIdentity,
+        alwaysEmbedded: Bool
+    ) -> UIViewController? {
         let expect = expectation(description: "navigation")
         let responder = navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(alwaysEmbedded: alwaysEmbedded),
-            completion: { expect.fulfill() }
+            event: ResponderMockEvent(),
+            completion: { taskDetachedMain { expect.fulfill() } }
         )
         wait(for: [expect], timeout: 1)
 
