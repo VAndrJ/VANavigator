@@ -1,4 +1,4 @@
-framework module Pods_VANavigator_Example {
+module Pods_VANavigator_Example {
   umbrella header "Pods-VANavigator_Example-umbrella.h"
 
   export *

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0DA7843BA69298CB75A5FE0B /* Pods_VANavigator_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */; };
+		141735E3E6E7B62490A924C0 /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C462C796857B2D4F72637FB /* libPods-VANavigator_Example.a */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
@@ -20,6 +20,8 @@
 		A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */; };
 		A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
+		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
+		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -35,13 +37,26 @@
 		A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F82B1CE69B0050211E /* Collection+Support.swift */; };
 		A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */; };
 		A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742FE2B1CF4C80050211E /* Umbrella.swift */; };
+		ABE35B24DE9EDB066D8E6F24 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C15158A31152C459732A5969 /* libPods-VANavigator_ExampleTests.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A32F5E912B210DCF008564F9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
+			remoteInfo = VANavigator_Example;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		0C462C796857B2D4F72637FB /* libPods-VANavigator_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2084627312EB44A8EC56B572 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		2D2940E24F8A6E5A15601493 /* Pods_VANavigator_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		305B55E0312B6363F4E5D36D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		4D7A0AD7C813557AC3E5A180 /* Pods-VANavigator_Example-VANavigator_ExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example-VANavigator_ExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example-VANavigator_ExampleTests/Pods-VANavigator_Example-VANavigator_ExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -58,6 +73,9 @@
 		A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginControllerNode.swift; sourceTree = "<group>"; };
 		A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
+		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
+		A32F5E982B210DF9008564F9 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -73,9 +91,12 @@
 		A3C742F82B1CE69B0050211E /* Collection+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Support.swift"; sourceTree = "<group>"; };
 		A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VAButtonNode+Support.swift"; sourceTree = "<group>"; };
 		A3C742FE2B1CF4C80050211E /* Umbrella.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Umbrella.swift; sourceTree = "<group>"; };
-		A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VANavigator_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C15158A31152C459732A5969 /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2CBE1D587B29290115B844B /* Pods-VANavigator_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		DD58092F1D3DE7FA11E768EC /* Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example-VANavigator_ExampleTests/Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
+		EA2E1CA88388DA3094C8EFEA /* Pods-VANavigator_ExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		F2E1631FCFEE6CF46A0FE348 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		F427D9D71EDB57483710C053 /* Pods-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +104,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DA7843BA69298CB75A5FE0B /* Pods_VANavigator_Example.framework in Frameworks */,
+				141735E3E6E7B62490A924C0 /* libPods-VANavigator_Example.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A32F5E8A2B210DCF008564F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ABE35B24DE9EDB066D8E6F24 /* libPods-VANavigator_ExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,8 +122,9 @@
 		1D8F807531C0E6CD587D2695 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A410F0E0C916FD96DA791EB4 /* Pods_VANavigator_Example.framework */,
 				2D2940E24F8A6E5A15601493 /* Pods_VANavigator_Tests.framework */,
+				0C462C796857B2D4F72637FB /* libPods-VANavigator_Example.a */,
+				C15158A31152C459732A5969 /* libPods-VANavigator_ExampleTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -106,6 +136,10 @@
 				6F383BA85DAF542ABE8F7D09 /* Pods-VANavigator_Example.release.xcconfig */,
 				D2CBE1D587B29290115B844B /* Pods-VANavigator_Tests.debug.xcconfig */,
 				7114A561A2E29BE0B6621456 /* Pods-VANavigator_Tests.release.xcconfig */,
+				F427D9D71EDB57483710C053 /* Pods-VANavigator_ExampleTests.debug.xcconfig */,
+				EA2E1CA88388DA3094C8EFEA /* Pods-VANavigator_ExampleTests.release.xcconfig */,
+				DD58092F1D3DE7FA11E768EC /* Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig */,
+				4D7A0AD7C813557AC3E5A180 /* Pods-VANavigator_Example-VANavigator_ExampleTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -115,6 +149,7 @@
 			children = (
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for VANavigator */,
+				A32F5E8E2B210DCF008564F9 /* VANavigator_ExampleTests */,
 				607FACD11AFB9204008FA782 /* Products */,
 				4911D49A603371F50A10A4E4 /* Pods */,
 				1D8F807531C0E6CD587D2695 /* Frameworks */,
@@ -125,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				607FACD01AFB9204008FA782 /* VANavigator_Example.app */,
+				A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -160,6 +196,15 @@
 				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
 			);
 			name = "Podspec Metadata";
+			sourceTree = "<group>";
+		};
+		A32F5E8E2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */,
+				A32F5E982B210DF9008564F9 /* Support.swift */,
+			);
+			path = VANavigator_ExampleTests;
 			sourceTree = "<group>";
 		};
 		A3784ADD2B1C9449009351DD /* App */ = {
@@ -226,7 +271,6 @@
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				D6B5E13BAA0BBD13EFE0C155 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -237,6 +281,25 @@
 			productReference = 607FACD01AFB9204008FA782 /* VANavigator_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A32F5E932B210DCF008564F9 /* Build configuration list for PBXNativeTarget "VANavigator_ExampleTests" */;
+			buildPhases = (
+				2127EE7815D3BA84D8B75D6B /* [CP] Check Pods Manifest.lock */,
+				A32F5E892B210DCF008564F9 /* Sources */,
+				A32F5E8A2B210DCF008564F9 /* Frameworks */,
+				A32F5E8B2B210DCF008564F9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A32F5E922B210DCF008564F9 /* PBXTargetDependency */,
+			);
+			name = VANavigator_ExampleTests;
+			productName = VANavigator_ExampleTests;
+			productReference = A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -244,13 +307,17 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 0830;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "Volodymyr Andriienko";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						LastSwiftMigration = "";
+					};
+					A32F5E8C2B210DCF008564F9 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 				};
 			};
@@ -269,6 +336,7 @@
 			projectRoot = "";
 			targets = (
 				607FACCF1AFB9204008FA782 /* VANavigator_Example */,
+				A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */,
 			);
 		};
 /* End PBXProject section */
@@ -283,9 +351,38 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A32F5E8B2B210DCF008564F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		2127EE7815D3BA84D8B75D6B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VANavigator_ExampleTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		8515680C8044727551486EEE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -306,50 +403,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D6B5E13BAA0BBD13EFE0C155 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
-				"${BUILT_PRODUCTS_DIR}/PINCache/PINCache.framework",
-				"${BUILT_PRODUCTS_DIR}/PINOperation/PINOperation.framework",
-				"${BUILT_PRODUCTS_DIR}/PINRemoteImage/PINRemoteImage.framework",
-				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
-				"${BUILT_PRODUCTS_DIR}/RxKeyboard/RxKeyboard.framework",
-				"${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework",
-				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/Swiftional/Swiftional.framework",
-				"${BUILT_PRODUCTS_DIR}/Texture/AsyncDisplayKit.framework",
-				"${BUILT_PRODUCTS_DIR}/VANavigator/VANavigator.framework",
-				"${BUILT_PRODUCTS_DIR}/VATextureKit/VATextureKit.framework",
-				"${BUILT_PRODUCTS_DIR}/VATextureKitRx/VATextureKitRx.framework",
-				"${BUILT_PRODUCTS_DIR}/VATextureKitSpec/VATextureKitSpec.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Differentiator.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINCache.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINOperation.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PINRemoteImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxKeyboard.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxRelay.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swiftional.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AsyncDisplayKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VANavigator.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKitRx.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VATextureKitSpec.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -387,7 +440,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A32F5E892B210DCF008564F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */,
+				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A32F5E922B210DCF008564F9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 607FACCF1AFB9204008FA782 /* VANavigator_Example */;
+			targetProxy = A32F5E912B210DCF008564F9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		607FACDE1AFB9204008FA782 /* LaunchScreen.xib */ = {
@@ -559,6 +629,63 @@
 			};
 			name = Release;
 		};
+		A32F5E942B210DCF008564F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F427D9D71EDB57483710C053 /* Pods-VANavigator_ExampleTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.VANavigator-ExampleTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
+			};
+			name = Debug;
+		};
+		A32F5E952B210DCF008564F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA2E1CA88388DA3094C8EFEA /* Pods-VANavigator_ExampleTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.VANavigator-ExampleTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -576,6 +703,15 @@
 			buildConfigurations = (
 				607FACF01AFB9204008FA782 /* Debug */,
 				607FACF11AFB9204008FA782 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A32F5E932B210DCF008564F9 /* Build configuration list for PBXNativeTarget "VANavigator_ExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A32F5E942B210DCF008564F9 /* Debug */,
+				A32F5E952B210DCF008564F9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
