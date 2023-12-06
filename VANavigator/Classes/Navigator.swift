@@ -135,7 +135,7 @@ public final class Navigator {
         var navigatorEvent: ResponderEvent?
         switch strategy {
         case let .closeIfTop(tryToPop, tryToDismiss):
-            if let controller = window?.topViewController {
+            if let controller = window?.topController {
                 if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true  {
                     controller.navigationController?.popViewController(animated: animated, completion: completion)
                 } else {
@@ -149,7 +149,7 @@ public final class Navigator {
                 completion?()
             }
             return nil
-        case let .replaceWindowRoot(transition):
+        case let .replaceWindowRoot(transition, alwaysEmbedded):
             guard let controller = getScreen(destination: destination) else {
                 completion?()
                 return nil
@@ -158,7 +158,11 @@ public final class Navigator {
             if window?.rootViewController != nil {
                 navigatorEvent = ResponderReplacedWindowRootControllerEvent()
             }
-            replaceWindowRoot(controller: controller, transition: transition, completion: completion)
+            replaceWindowRoot(
+                controller: alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller,
+                transition: transition,
+                completion: completion
+            )
             eventController = controller as? UIViewController & Responder
         case .present:
             guard let controller = getScreen(destination: destination) else {
@@ -171,7 +175,7 @@ public final class Navigator {
         case .presentOrCloseToExisting:
             if let controller = window?.findController(destination: destination) {
                 selectTabIfNeeded(
-                    controller: window?.topViewController,
+                    controller: window?.topController,
                     completion: { [weak self] sourceController in
                         self?.closeNavigationPresented(controller: sourceController ?? controller, animated: animated)
                         completion?()
@@ -196,14 +200,14 @@ public final class Navigator {
             }
 
             selectTabIfNeeded(
-                controller: window?.topViewController,
+                controller: window?.topController,
                 completion: { [weak self] sourceController in
                     guard let self else {
                         completion?()
                         return
                     }
 
-                    let sourceController = sourceController?.topViewController(root: true)?.orNavigationController
+                    let sourceController = sourceController?.topController.orNavigationController
                     if !push(sourceController: sourceController, controller: controller, animated: animated, completion: completion) {
                         navigate(
                             destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
@@ -219,7 +223,7 @@ public final class Navigator {
             eventController = controller as? UIViewController & Responder
         case let .pushOrPopToExisting(alwaysEmbedded, includingTabs):
             func getController() -> UIViewController? {
-                let topController = window?.topViewController
+                let topController = window?.topController
                 return includingTabs ?
                 topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
                 topController?.orNavigationController?.findController(destination: destination)
@@ -242,7 +246,7 @@ public final class Navigator {
                 )
             }
         case let .replaceNavigationRoot(alwaysEmbedded):
-            if let navigationController = window?.topViewController?.navigationController {
+            if let navigationController = window?.topController?.navigationController {
                 guard let controller = getScreen(destination: destination) else {
                     completion?()
                     return nil
@@ -263,7 +267,7 @@ public final class Navigator {
             }
         case let .showSplit(strategy):
             // MARK: - Plain flow for easier understanding
-            if let splitController = window?.topViewController?.splitViewController {
+            if let splitController = window?.topController?.splitViewController {
                 switch strategy {
                 case .replacePrimary:
                     if #available(iOS 14.0, *) {
@@ -503,7 +507,7 @@ public final class Navigator {
         completion: (() -> Void)?
     ) -> Bool {
         dismissPresented(in: sourceController, animated: animated)
-        if let navigationController = window?.topViewController?.orNavigationController {
+        if let navigationController = window?.topController?.orNavigationController {
             navigationController.pushViewController(
                 controller,
                 animated: animated,
@@ -524,7 +528,7 @@ public final class Navigator {
     ///   - completion: A closure to be executed after the replacement is complete.
     func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
         if window?.rootViewController != nil {
-            window?.topViewController?.present(controller, animated: animated, completion: completion)
+            window?.topController?.present(controller, animated: animated, completion: completion)
         } else {
             var transition: CATransition?
             if animated {

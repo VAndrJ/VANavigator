@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIWindow {
-    var topViewController: UIViewController? { topMostViewController?.topViewController(root: true) }
+    public var topController: UIViewController? { topMostViewController?.topController }
 
     private var topMostViewController: UIViewController? {
         var topmostViewController = rootViewController
