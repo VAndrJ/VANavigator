@@ -24,7 +24,7 @@ PODS:
   - RxRelay (6.5.0):
     - RxSwift (= 6.5.0)
   - RxSwift (6.5.0)
-  - Swiftional (0.3.3)
+  - Swiftional (1.0.0)
   - Texture (3.1.0):
     - Texture/AssetsLibrary (= 3.1.0)
     - Texture/Core (= 3.1.0)
@@ -45,7 +45,7 @@ PODS:
     - Texture/Core
   - Texture/Video (3.1.0):
     - Texture/Core
-  - VANavigator (0.1.0)
+  - VANavigator (0.1.1)
   - VATextureKit (1.1.3):
     - Texture (~> 3.1.0)
     - VATextureKitSpec (= 1.1.3)
@@ -61,7 +61,7 @@ PODS:
 
 DEPENDENCIES:
   - RxKeyboard (~> 2.0.0)
-  - Swiftional (= 0.3.3)
+  - Swiftional (= 1.0.0)
   - VANavigator (from `../`)
   - VATextureKitRx (= 1.1.3)
 
@@ -94,13 +94,13 @@ SPEC CHECKSUMS:
   RxKeyboard: 4f5863f43b4ff0cbb2a20b94688d6b80c8a43c14
   RxRelay: 1de1523e604c72b6c68feadedd1af3b1b4d0ecbd
   RxSwift: 5710a9e6b17f3c3d6e40d6e559b9fa1e813b2ef8
-  Swiftional: 25ee70c9a008d587e1352b799859d78cec520127
+  Swiftional: 50d94038703e18d3afae11751ee3b7c57128cc61
   Texture: 2e8ab2519452515f7f5a520f5a8f7e0a413abfa3
-  VANavigator: 46a0370b490efdc5cb3f43aac69d238cde41c221
+  VANavigator: b2e743884361d361c3462e1fbbbbccf9677160fc
   VATextureKit: 88f9077ea77bb9ba6a1f41762e3f6701bec32788
   VATextureKitRx: c7ac9af01a62b68c48d37186df11a7df6c93801d
   VATextureKitSpec: 9eeaab6a90af29d213d5cdec6230513f49fce323
 
-PODFILE CHECKSUM: 0fc2cc38380d1aacc01c0ba0e1fc510becf062be
+PODFILE CHECKSUM: 2d3240f536dfe8b66f67cc9ad45104adbc35e16d
 
 COCOAPODS: 1.13.0
