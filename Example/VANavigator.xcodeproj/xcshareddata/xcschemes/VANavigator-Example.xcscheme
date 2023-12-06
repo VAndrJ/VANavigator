@@ -66,6 +66,13 @@
             BlueprintName = "VANavigator_Example"
             ReferencedContainer = "container:VANavigator.xcodeproj">
          </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "CCDF91B37A590F405840ADF01BAAD744"
+            BuildableName = "libVANavigator.a"
+            BlueprintName = "VANavigator"
+            ReferencedContainer = "container:Pods/Pods.xcodeproj">
+         </BuildableReference>
       </CodeCoverageTargets>
       <Testables>
          <TestableReference

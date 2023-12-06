@@ -25,41 +25,65 @@ class SetRootControllerTests: XCTestCase {
     @MainActor
     func test_setRootController() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        let expect = expectation(description: "navigtion")
 
         XCTAssertNil(navigator.window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        navigator.navigate(
-            destination: .identity(identity),
-            strategy: .replaceWindowRoot(),
-            completion: { expect.fulfill() }
-        )
-        wait(for: [expect], timeout: 1)
+        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: false)
 
+        // Сhecking that the `UIWindow`'s root view controller identity is equal to given
+        // and it is the top view controller.
         XCTAssertTrue(identity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
     }
 
     @MainActor
     func test_setRootController_embeddingInNavigation() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        let expect = expectation(description: "navigtion")
 
         XCTAssertNil(navigator.window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        navigator.navigate(
+        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: true)
+
+        // Сhecking that the `UIWindow`'s root view controller is `UINavigationController`
+        // and it's root controller's identity is equal to given and it is the top view controller.
+        let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        XCTAssertNotNil(rootNavigationController)
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
+        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+    }
+
+    @MainActor
+    func test_replaceExistingRootController() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        window?.rootViewController = UIViewController()
+        window?.makeKeyAndVisible()
+
+        XCTAssertNotNil(navigator.window?.rootViewController)
+
+        let identity = MockRootControllerNavigationIdentity()
+        let responder = replaceWindowRoot(navigator: navigator, identity: identity, alwaysEmbedded: false)
+
+        // Сhecking that the `UIWindow`'s root view controller identity is equal to given
+        // and it is the top view controller.
+        XCTAssertTrue(identity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+    }
+
+    func replaceWindowRoot(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool) -> UIViewController? {
+        let expect = expectation(description: "navigation")
+        let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .replaceWindowRoot(alwaysEmbedded: true),
+            strategy: .replaceWindowRoot(alwaysEmbedded: alwaysEmbedded),
             completion: { expect.fulfill() }
         )
         wait(for: [expect], timeout: 1)
-        let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
 
-        XCTAssertNotNil(rootNavigationController)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.viewControllers.first?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        return responder
     }
 }

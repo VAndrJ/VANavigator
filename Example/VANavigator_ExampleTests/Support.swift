@@ -13,6 +13,8 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case _ as MockRootControllerNavigationIdentity:
+            return MockRootViewController()
         default:
             return UIViewController()
         }
@@ -24,6 +26,14 @@ class MockScreenFactory: NavigatorScreenFactory {
         } else {
             return UINavigationController(rootViewController: controller)
         }
+    }
+}
+
+class MockRootViewController: UIViewController, Responder {
+    var nextEventResponder: Responder?
+    
+    func handle(event: ResponderEvent) async -> Bool {
+        true
     }
 }
 
