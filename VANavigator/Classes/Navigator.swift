@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 public final class Navigator {
     public let screenFactory: NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor?

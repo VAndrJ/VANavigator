@@ -8,6 +8,7 @@
 
 import VATextureKit
 
+@MainActor
 class CompositionRoot {
     private weak var window: UIWindow?
     private let navigator: Navigator
