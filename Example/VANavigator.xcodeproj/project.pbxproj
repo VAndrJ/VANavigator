@@ -12,13 +12,14 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */; };
-		A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */; };
+		A3081DFE2B1D1A970041E11A /* MoreControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFD2B1D1A970041E11A /* MoreControllerNode.swift */; };
 		A3081E002B1DC4610041E11A /* PrimaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */; };
 		A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */; };
 		A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */; };
 		A3081E0E2B1E4B3A0041E11A /* AuthorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */; };
 		A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */; };
 		A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */; };
+		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -49,13 +50,14 @@
 		6F383BA85DAF542ABE8F7D09 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
 		7114A561A2E29BE0B6621456 /* Pods-VANavigator_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabDetailControllerNode.swift; sourceTree = "<group>"; };
-		A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreNavigationIdentity.swift; sourceTree = "<group>"; };
+		A3081DFD2B1D1A970041E11A /* MoreControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreControllerNode.swift; sourceTree = "<group>"; };
 		A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryControllerNode.swift; sourceTree = "<group>"; };
 		A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryControllerNode.swift; sourceTree = "<group>"; };
 		A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleNavigationInterceptor.swift; sourceTree = "<group>"; };
 		A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationService.swift; sourceTree = "<group>"; };
 		A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginControllerNode.swift; sourceTree = "<group>"; };
 		A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationControllerNode.swift; sourceTree = "<group>"; };
+		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */,
+				A32F5E872B210C8D008564F9 /* ControllerNode.swift */,
 				A3C742E62B1CB7FD0050211E /* DisplayNode.swift */,
 				A3784AFF2B1CB482009351DD /* EventViewModel.swift */,
 				A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */,
@@ -192,7 +195,7 @@
 				A3C742F22B1CBFCA0050211E /* DetailsToPresentControllerNode.swift */,
 				A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
-				A3081DFD2B1D1A970041E11A /* MoreNavigationIdentity.swift */,
+				A3081DFD2B1D1A970041E11A /* MoreControllerNode.swift */,
 				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
 				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
 				A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */,
@@ -364,6 +367,7 @@
 				A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */,
 				A3784B022B1CB51B009351DD /* Log.swift in Sources */,
 				A3C742EB2B1CB9F50050211E /* NavigationController.swift in Sources */,
+				A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				A3081DFC2B1D182D0041E11A /* TabDetailControllerNode.swift in Sources */,
 				A3C742F72B1CD3020050211E /* ShortcutService.swift in Sources */,
@@ -378,7 +382,7 @@
 				A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
 				A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */,
-				A3081DFE2B1D1A970041E11A /* MoreNavigationIdentity.swift in Sources */,
+				A3081DFE2B1D1A970041E11A /* MoreControllerNode.swift in Sources */,
 				A3C742EE2B1CBAB80050211E /* MainControllerNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
