@@ -31,6 +31,7 @@ class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerN
 
     func viewDidDisappear(in controller: UIViewController, animated: Bool) {}
 
+    @MainActor
     func bindKeyboardInset(scrollView: UIScrollView, tabBarController: UITabBarController? = nil) {
         let initialBottomInset = scrollView.contentInset.bottom
         let initialIndicatorBottomInset = scrollView.verticalScrollIndicatorInsets.bottom
@@ -81,9 +82,14 @@ class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerN
 
 protocol ControllerNode: ASDisplayNode {
 
+    @MainActor
     func viewDidLoad(in controller: UIViewController)
+    @MainActor
     func viewDidAppear(in controller: UIViewController, animated: Bool)
+    @MainActor
     func viewWillAppear(in controller: UIViewController, animated: Bool)
+    @MainActor
     func viewWillDisappear(in controller: UIViewController, animated: Bool)
+    @MainActor
     func viewDidDisappear(in controller: UIViewController, animated: Bool)
 }

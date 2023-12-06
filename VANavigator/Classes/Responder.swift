@@ -11,6 +11,7 @@ import Foundation
 public protocol ResponderEvent {}
 
 public protocol Responder: AnyObject {
+    @MainActor
     var nextEventResponder: Responder? { get set }
 
     @MainActor

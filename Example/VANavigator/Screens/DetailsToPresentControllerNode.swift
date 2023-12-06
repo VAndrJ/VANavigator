@@ -151,12 +151,14 @@ class DetailsToPresentViewModel: EventViewModel {
 class TextFieldNode: VASizedViewWrapperNode<UITextField> {
 
     init() {
+        let childGetter = { @MainActor in
+            let textField = UITextField()
+            textField.borderStyle = .roundedRect
+            return textField
+        }
+        
         super.init(
-            childGetter: {
-                let textField = UITextField()
-                textField.borderStyle = .roundedRect
-                return textField
-            },
+            childGetter: childGetter,
             sizing: .viewHeight
         )
     }
