@@ -40,7 +40,9 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "NO"
+      codeCoverageEnabled = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "YES">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -50,14 +52,29 @@
             ReferencedContainer = "container:VANavigator.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "IS_TESTING"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "CCDF91B37A590F405840ADF01BAAD744"
+            BuildableName = "libVANavigator.a"
+            BlueprintName = "VANavigator"
+            ReferencedContainer = "container:Pods/Pods.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "VANavigator_Tests.xctest"
-               BlueprintName = "VANavigator_Tests"
+               BlueprintIdentifier = "A32F5E8C2B210DCF008564F9"
+               BuildableName = "VANavigator_ExampleTests.xctest"
+               BlueprintName = "VANavigator_ExampleTests"
                ReferencedContainer = "container:VANavigator.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -28,7 +28,7 @@ pod 'VANavigator'
 At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, a key element that enables the seamless discovery of the required view controller in `UIWindow`, facilitating easy navigation back to it or opening a new one based on the specified `NavigationStrategy`.
 
 
-Navigation strategies:
+**Navigation strategies:**
 
 
 - Replace `UIWindow` root view controller
@@ -98,6 +98,12 @@ navigator?.navigate(
 
 
 - Under development
+
+
+**Navigation interception**
+
+
+Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on provided conditions. Continue the intercepted navigation after resolving the interception reason.
 
 
 ## Author

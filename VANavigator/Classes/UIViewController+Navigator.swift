@@ -11,28 +11,22 @@ import UIKit
 extension UIViewController {
     public var orNavigationController: UINavigationController? { (self as? UINavigationController) ?? navigationController }
     public var orTabBarController: UITabBarController? { (self as? UITabBarController) ?? tabBarController }
-    
-    func topViewController(in rootViewController: UIViewController? = nil, root: Bool = false) -> UIViewController? {
-        let currentController = root ? self : rootViewController
-        guard let controller = currentController else {
-            return nil
-        }
-        
+    public var topController: UIViewController {
         var possibleController: UIViewController?
-        if let tabBarController = controller as? UITabBarController {
+        if let tabBarController = self as? UITabBarController {
             possibleController = tabBarController.selectedViewController
-        } else if let navigationController = controller as? UINavigationController {
+        } else if let navigationController = self as? UINavigationController {
             possibleController = navigationController.topViewController
-        } else if let splitController = controller as? UISplitViewController {
+        } else if let splitController = self as? UISplitViewController {
             possibleController = splitController.viewControllers.last
-        } else if let presentedViewController = controller.presentedViewController {
+        } else if let presentedViewController = presentedViewController {
             possibleController = presentedViewController
         }
 
         if let possibleController, !possibleController.isBeingDismissed {
-            return topViewController(in: possibleController)
+            return possibleController.topController
         } else {
-            return controller
+            return self
         }
     }
     

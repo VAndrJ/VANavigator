@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIWindow {
-    var topViewController: UIViewController? { topMostViewController?.topViewController(root: true) }
+    public var topController: UIViewController? { topMostViewController?.topController }
 
     private var topMostViewController: UIViewController? {
         var topmostViewController = rootViewController
@@ -36,13 +36,6 @@ extension UIWindow {
             }
         } else {
             newRootViewController.setNeedsStatusBarAppearanceUpdate()
-        }
-        if #unavailable(iOS 13.0) {
-            if let transitionViewClass = NSClassFromString("UITransitionView") {
-                for subview in subviews where subview.isKind(of: transitionViewClass) {
-                    subview.removeFromSuperview()
-                }
-            }
         }
         if let previousViewController {
             previousViewController.dismiss(animated: false) {
