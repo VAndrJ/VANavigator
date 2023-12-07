@@ -15,6 +15,8 @@ class MockScreenFactory: NavigatorScreenFactory {
         switch identity {
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
+        case _ as MockPushControllerNavigationIdentity:
+            return MockPushViewController()
         default:
             return UIViewController()
         }
@@ -25,6 +27,25 @@ class MockScreenFactory: NavigatorScreenFactory {
             return controller
         } else {
             return UINavigationController(rootViewController: controller)
+        }
+    }
+}
+
+class MockPushViewController: UIViewController, Responder {
+    private(set) var isMockEventHandled = false
+
+    // MARK: - Responder
+
+    var nextEventResponder: Responder?
+
+    func handle(event: ResponderEvent) async -> Bool {
+        switch event {
+        case _ as ResponderMockEvent:
+            isMockEventHandled = true
+
+            return true
+        default:
+            return false
         }
     }
 }
@@ -54,6 +75,8 @@ class MockRootViewController: UIViewController, Responder {
 }
 
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
+
+struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct ResponderMockEvent: ResponderEvent {}
 

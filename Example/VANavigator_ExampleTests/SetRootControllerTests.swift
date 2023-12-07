@@ -94,7 +94,7 @@ class SetRootControllerTests: XCTestCase {
         navigator: Navigator,
         identity: NavigationIdentity,
         alwaysEmbedded: Bool
-    ) -> UIViewController? {
+    ) -> (UIViewController & Responder)? {
         let expect = expectation(description: "navigation")
         let responder = navigator.navigate(
             destination: .identity(identity),

@@ -148,6 +148,7 @@ public final class Navigator {
             } else {
                 completion?()
             }
+
             return nil
         case let .replaceWindowRoot(transition, alwaysEmbedded):
             let controller = getController(destination: destination)

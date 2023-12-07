@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -22,6 +22,7 @@
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
+		A35381D82B21292C001B05B8 /* PushViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D72B21292C001B05B8 /* PushViewControllerTests.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -76,6 +77,7 @@
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
 		A32F5E982B210DF9008564F9 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		A35381D72B21292C001B05B8 /* PushViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushViewControllerTests.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 		A32F5E8E2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
 			isa = PBXGroup;
 			children = (
+				A35381D72B21292C001B05B8 /* PushViewControllerTests.swift */,
 				A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */,
 				A32F5E982B210DF9008564F9 /* Support.swift */,
 			);
@@ -446,6 +449,7 @@
 			files = (
 				A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */,
 				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
+				A35381D82B21292C001B05B8 /* PushViewControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
