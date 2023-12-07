@@ -61,13 +61,6 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "VANavigator_Example.app"
-            BlueprintName = "VANavigator_Example"
-            ReferencedContainer = "container:VANavigator.xcodeproj">
-         </BuildableReference>
-         <BuildableReference
-            BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCDF91B37A590F405840ADF01BAAD744"
             BuildableName = "libVANavigator.a"
             BlueprintName = "VANavigator"

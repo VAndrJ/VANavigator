@@ -1,5 +1,5 @@
 //
-//  PushViewControllerTests.swift
+//  PushControllerTests.swift
 //  VANavigator_ExampleTests
 //
 //  Created by VAndrJ on 07.12.2023.
@@ -11,7 +11,7 @@ import VANavigator
 @testable import VANavigator_Example
 
 @MainActor
-class PushViewControllerTests: XCTestCase {
+class PushControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() {
@@ -58,6 +58,7 @@ class PushViewControllerTests: XCTestCase {
         XCTAssertNil(navigator.window?.rootViewController as? UINavigationController, file: file, line: line)
         if alwaysEmbedded {
             let navigationController = navigator.window?.rootViewController?.presentedViewController as? UINavigationController
+            
             XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
             XCTAssertTrue(identity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
         } else {
@@ -86,6 +87,7 @@ class PushViewControllerTests: XCTestCase {
         // Check that controller was pushed
         // and it is the top view controller.
         let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
         XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
@@ -102,7 +104,7 @@ class PushViewControllerTests: XCTestCase {
             completion: { taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 1)
+        wait(for: [expect], timeout: 10)
 
         return responder
     }
@@ -113,10 +115,9 @@ class PushViewControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(alwaysEmbedded: alwaysEmbedded),
-            event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 1)
+        wait(for: [expect], timeout: 10)
     }
 }

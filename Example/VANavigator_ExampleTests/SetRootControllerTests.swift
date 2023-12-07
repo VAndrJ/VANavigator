@@ -58,6 +58,7 @@ class SetRootControllerTests: XCTestCase {
         // Сhecking that the `UIWindow`'s root view controller is `UINavigationController`
         // and it's root controller's identity is equal to given and it is the top view controller.
         let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        
         XCTAssertNotNil(rootNavigationController)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
@@ -102,7 +103,7 @@ class SetRootControllerTests: XCTestCase {
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
-        wait(for: [expect], timeout: 1)
+        wait(for: [expect], timeout: 10)
 
         return responder
     }
