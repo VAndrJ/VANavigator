@@ -10,6 +10,7 @@ import XCTest
 import VANavigator
 @testable import VANavigator_Example
 
+// TODO: - Messages
 @MainActor
 class PushControllerTests: XCTestCase {
     var window: UIWindow?
@@ -55,17 +56,19 @@ class PushControllerTests: XCTestCase {
 
         // Check that controller was presented
         // and it is the top view controller.
+        let expectedIdentity = identity
+
         XCTAssertNil(navigator.window?.rootViewController as? UINavigationController, file: file, line: line)
         if alwaysEmbedded {
             let navigationController = navigator.window?.rootViewController?.presentedViewController as? UINavigationController
             
             XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
-            XCTAssertTrue(identity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
+            XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
         } else {
-            XCTAssertTrue(identity.isEqual(to: navigator.window?.rootViewController?.presentedViewController?.navigationIdentity), file: file, line: line)
+            XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.presentedViewController?.navigationIdentity), file: file, line: line)
         }
-        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockPushViewController)?.isMockEventHandled, file: file, line: line)
     }
 
@@ -87,11 +90,12 @@ class PushControllerTests: XCTestCase {
         // Check that controller was pushed
         // and it is the top view controller.
         let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        let expectedIdentity = identity
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockPushViewController)?.isMockEventHandled, file: file, line: line)
     }
 

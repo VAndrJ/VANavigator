@@ -10,6 +10,7 @@ import XCTest
 import VANavigator
 @testable import VANavigator_Example
 
+// TODO: - Messages
 @MainActor
 class PushOrPopControllerTests: XCTestCase {
     var window: UIWindow?
@@ -48,10 +49,12 @@ class PushOrPopControllerTests: XCTestCase {
 
         // Check that controller was pushed
         // and it is the top view controller.
+        let expectedIdentity = identity
+
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
         XCTAssertEqual(true, (responder as? MockPopViewController)?.isMockEventHandled)
         XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
     }
@@ -86,10 +89,12 @@ class PushOrPopControllerTests: XCTestCase {
 
         // Check that controller was popped
         // and it is the top view controller.
+        let expectedIdentity = identity
+        
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(identity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockPopViewController)?.isMockEventHandled, file: file, line: line)
         if !isTop {
             XCTAssertEqual(true, (responder as? MockPopViewController)?.isPoppedEventHandled, file: file, line: line)
