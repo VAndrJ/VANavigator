@@ -2,6 +2,10 @@
 
 import PackageDescription
 
+let settings: [SwiftSetting] = [
+    .enableExperimentalFeature("StrictConcurrency")
+]
+
 let package = Package(
     name: "VANavigator",
     platforms: [
@@ -16,7 +20,8 @@ let package = Package(
     targets: [
         .target(
             name: "VANavigator",
-            path: "VANavigator/Classes"
-        ),
+            path: "VANavigator/Classes",
+            swiftSettings: settings
+        )
     ]
 )
