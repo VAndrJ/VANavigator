@@ -106,7 +106,7 @@ class PushOrPopControllerTests: XCTestCase {
         let expect = expectation(description: "pushOrPop")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .pushOrPopToExisting(alwaysEmbedded: alwaysEmbedded),
+            strategy: .pushOrPopToExisting(alwaysEmbedded: alwaysEmbedded, includingTabs: false),
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
