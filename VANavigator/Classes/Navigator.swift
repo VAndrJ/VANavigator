@@ -173,7 +173,9 @@ public final class Navigator {
                 selectTabIfNeeded(
                     controller: window?.topController,
                     completion: { [weak self] sourceController in
-                        self?.closeNavigationPresented(
+                        guard let self else { return }
+
+                        closeNavigationPresented(
                             controller: sourceController ?? controller,
                             animated: animated,
                             completion: completion
@@ -201,22 +203,34 @@ public final class Navigator {
                     }
 
                     let sourceController = sourceController?.topController.orNavigationController
-                    if !push(sourceController: sourceController, controller: controller, animated: animated, completion: completion) {
-                        navigate(
-                            destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
-                            source: source,
-                            strategy: .present,
-                            event: event,
-                            animated: animated,
-                            completion: completion
-                        )
-                    }
+                    push(
+                        sourceController: sourceController,
+                        controller: controller,
+                        animated: animated,
+                        completion: { [weak self] isSuccess in
+                            guard let self else { return }
+
+                            if isSuccess {
+                                completion?()
+                            } else {
+                                navigate(
+                                    destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
+                                    source: source,
+                                    strategy: .present,
+                                    event: event,
+                                    animated: animated,
+                                    completion: completion
+                                )
+                            }
+                        }
+                    )
                 }
             )
             eventController = controller as? UIViewController & Responder
         case let .pushOrPopToExisting(alwaysEmbedded, includingTabs):
             func getController() -> UIViewController? {
                 let topController = window?.topController
+
                 return includingTabs ?
                 topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
                 topController?.orNavigationController?.findController(destination: destination)
@@ -450,26 +464,33 @@ public final class Navigator {
     ///   - sourceController: The source controller from which presented controllers will be dismissed.
     ///   - controller: The view controller to push onto the navigation stack.
     ///   - animated: Should be animated or not.
-    ///   - completion: A closure to be executed after the push is complete.
+    ///   - completion: A closure to be executed after the push is complete. `true` if successful, `false` if a navigation controller was not found.
     /// - Returns: A boolean value indicating whether the push operation was successful. `true` if successful, `false` if a navigation controller was not found.
     func push(
         sourceController: UIViewController?,
         controller: UIViewController,
         animated: Bool,
-        completion: (() -> Void)?
-    ) -> Bool {
-        dismissPresented(in: sourceController, animated: animated, completion: nil)
-        if let navigationController = window?.topController?.orNavigationController {
-            navigationController.pushViewController(
-                controller,
-                animated: animated,
-                completion: completion
-            )
+        completion: ((Bool) -> Void)?
+    ) {
+        dismissPresented(
+            in: sourceController,
+            animated: animated,
+            completion: { [weak self] in
+                guard let self else { return }
 
-            return true
-        } else {
-            return false
-        }
+                if let navigationController = window?.topController?.orNavigationController {
+                    navigationController.pushViewController(
+                        controller,
+                        animated: animated,
+                        completion: {
+                            completion?(true)
+                        }
+                    )
+                } else {
+                    completion?(false)
+                }
+            }
+        )
     }
 
     /// Presents a view controller from the current top controller in the window or sets it as the `rootViewController` if the window is empty.
