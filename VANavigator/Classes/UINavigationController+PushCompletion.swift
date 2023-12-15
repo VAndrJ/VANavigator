@@ -19,6 +19,15 @@ extension UINavigationController {
         observeCompletion(animated: animated, completion: completion)
     }
 
+    public func popToViewController(
+        _ controller: UIViewController,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        popToViewController(controller, animated: animated)
+        observeCompletion(animated: animated, completion: completion)
+    }
+
     public func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
