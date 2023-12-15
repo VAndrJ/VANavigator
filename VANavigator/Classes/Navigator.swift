@@ -44,6 +44,7 @@ public final class Navigator {
     ) -> (UIViewController & Responder)? {
         guard !chain.isEmpty else {
             completion?()
+
             return nil
         }
 
@@ -473,7 +474,11 @@ public final class Navigator {
     ///   - completion: A closure to be executed after the replacement is complete.
     func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
         if window?.rootViewController != nil {
-            window?.topController?.present(controller, animated: animated, completion: completion)
+            window?.topController?.present(
+                controller,
+                animated: animated,
+                completion: completion
+            )
         } else {
             var transition: CATransition?
             if animated {
@@ -481,7 +486,11 @@ public final class Navigator {
                 transition?.duration = 0.3
                 transition?.type = .fade
             }
-            replaceWindowRoot(controller: controller, transition: transition, completion: completion)
+            replaceWindowRoot(
+                controller: controller,
+                transition: transition,
+                completion: completion
+            )
         }
     }
 
@@ -497,7 +506,11 @@ public final class Navigator {
             window?.makeKeyAndVisible()
             completion?()
         } else {
-            window?.set(rootViewController: controller, transition: transition, completion: completion)
+            window?.set(
+                rootViewController: controller,
+                transition: transition,
+                completion: completion
+            )
         }
     }
 
@@ -509,7 +522,10 @@ public final class Navigator {
     func closeNavigationPresented(controller: UIViewController?, animated: Bool) {
         if let controller {
             dismissPresented(in: controller, animated: animated)
-            controller.navigationController?.popToViewController(controller, animated: animated)
+            controller.navigationController?.popToViewController(
+                controller,
+                animated: animated
+            )
         }
     }
 
