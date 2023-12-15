@@ -7,7 +7,6 @@
 //
 
 import VANavigator
-@testable import VANavigator_Example
 
 class MockScreenFactory: NavigatorScreenFactory {
 

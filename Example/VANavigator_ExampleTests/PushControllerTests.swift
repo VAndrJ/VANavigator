@@ -8,7 +8,6 @@
 
 import XCTest
 import VANavigator
-@testable import VANavigator_Example
 
 // TODO: - Messages
 @MainActor
