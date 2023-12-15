@@ -24,8 +24,12 @@ extension UINavigationController {
         animated: Bool,
         completion: (() -> Void)?
     ) {
-        popToViewController(controller, animated: animated)
-        observeCompletion(animated: animated, completion: completion)
+        if topViewController == controller {
+            completion?()
+        } else {
+            popToViewController(controller, animated: animated)
+            observeCompletion(animated: animated, completion: completion)
+        }
     }
 
     public func pushViewController(

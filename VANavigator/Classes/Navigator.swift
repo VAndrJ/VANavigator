@@ -168,17 +168,18 @@ public final class Navigator {
             eventController = controller as? UIViewController & Responder
         case .presentOrCloseToExisting:
             if let controller = window?.findController(destination: destination) {
+                eventController = controller as? UIViewController & Responder
+                navigatorEvent = ResponderClosedToExistingEvent()
                 selectTabIfNeeded(
                     controller: window?.topController,
                     completion: { [weak self] sourceController in
-                        self?.closeNavigationPresented(controller: sourceController ?? controller, animated: animated)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.3 : .leastNormalMagnitude)) {
-                            completion?()
-                        }
+                        self?.closeNavigationPresented(
+                            controller: sourceController ?? controller,
+                            animated: animated,
+                            completion: completion
+                        )
                     }
                 )
-                eventController = controller as? UIViewController & Responder
-                navigatorEvent = ResponderClosedToExistingEvent()
             } else {
                 return navigate(
                     destination: destination,
@@ -222,11 +223,14 @@ public final class Navigator {
             }
 
             if let controller = getController() {
-                closeNavigationPresented(controller: controller, animated: animated)
                 selectTabIfNeeded(controller: controller)
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
-                completion?()
+                closeNavigationPresented(
+                    controller: controller,
+                    animated: animated,
+                    completion: completion
+                )
             } else {
                 return navigate(
                     destination: destination,
@@ -521,13 +525,22 @@ public final class Navigator {
     /// - Parameters:
     ///   - controller: Controller with presented controllers to dismiss and the target for navigation stack pop.
     ///   - animated: Should be animated or not.
-    func closeNavigationPresented(controller: UIViewController?, animated: Bool) {
+    ///   - completion: A closure to be executed after controllers are dismissed.
+    func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
         if let controller {
-            dismissPresented(in: controller, animated: animated, completion: nil)
-            controller.navigationController?.popToViewController(
-                controller,
-                animated: animated
-            )
+            dismissPresented(in: controller, animated: animated, completion: {
+                if let navigationController = controller.navigationController {
+                    navigationController.popToViewController(
+                        controller,
+                        animated: animated,
+                        completion: completion
+                    )
+                } else {
+                    completion?()
+                }
+            })
+        } else {
+            completion?()
         }
     }
 
@@ -538,13 +551,17 @@ public final class Navigator {
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the controller is dismissed.
     func dismissPresented(in controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
-        controller?.presentedViewController?.dismiss(animated: animated, completion: { [weak self] in
-            if controller?.presentedViewController != nil {
-                self?.dismissPresented(in: controller, animated: animated, completion: completion)
-            } else {
-                completion?()
-            }
-        })
+        if let presentedViewController = controller?.presentedViewController {
+            presentedViewController.dismiss(animated: animated, completion: { [weak self] in
+                if controller?.presentedViewController != nil {
+                    self?.dismissPresented(in: controller, animated: animated, completion: completion)
+                } else {
+                    completion?()
+                }
+            })
+        } else {
+            completion?()
+        }
     }
 
     /// Selects the tab in the tab bar controller, if needed, based on the provided source identity.
