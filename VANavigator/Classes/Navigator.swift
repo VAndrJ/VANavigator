@@ -195,10 +195,7 @@ public final class Navigator {
             selectTabIfNeeded(
                 controller: window?.topController,
                 completion: { [weak self] sourceController in
-                    guard let self else {
-                        completion?()
-                        return
-                    }
+                    guard let self else { return }
 
                     let sourceController = sourceController?.topController.orNavigationController
                     push(
