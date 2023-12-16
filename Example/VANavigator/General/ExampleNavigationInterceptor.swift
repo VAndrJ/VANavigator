@@ -33,7 +33,13 @@ class ExampleNavigationInterceptor: NavigationInterceptor {
                     return nil
                 } else {
                     return NavigationInterceptionResult(
-                        chain: [(.identity(LoginNavigationIdentity()), .replaceWindowRoot(), true)],
+                        chain: [
+                            NavigationChainLink(
+                                destination: .identity(LoginNavigationIdentity()),
+                                strategy: .replaceWindowRoot(),
+                                animated: true
+                            ),
+                        ],
                         reason: LoginRequiredNavigationInterceptionReason()
                     )
                 }

@@ -8,6 +8,25 @@
 
 import UIKit
 
+public final class NavigationChainLink {
+    let destination: NavigationDestination
+    var strategy: NavigationStrategy
+    let animated: Bool
+    let fallback: NavigationChainLink?
+
+    public init(
+        destination: NavigationDestination,
+        strategy: NavigationStrategy,
+        animated: Bool,
+        fallback: NavigationChainLink? = nil
+    ) {
+        self.destination = destination
+        self.strategy = strategy
+        self.animated = animated
+        self.fallback = fallback
+    }
+}
+
 @MainActor
 public final class Navigator {
     public let screenFactory: NavigatorScreenFactory
@@ -30,15 +49,13 @@ public final class Navigator {
     /// Navigates through a chain of destinations.
     ///
     /// - Parameters:
-    ///   - chain: An array of tuples representing the navigation chain with destination and strategy.
-    ///   - source: The source navigation identity.
+    ///   - chain: An array of navigation links representing the navigation chain with destination and strategy.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure to be executed after the entire navigation chain is complete.
     /// - Returns: The `Responder` representing the destination controller.
     @discardableResult
     public func navigate(
-        chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
-        source: NavigationIdentity? = nil,
+        chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
         completion: (() -> Void)? = nil
     ) -> (UIViewController & Responder)? {
@@ -50,25 +67,16 @@ public final class Navigator {
 
         var chain = chain
         let link = chain.removeFirst()
-
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: link.destination) {
-            let chain = ([link] + chain).compactMap { link in
-                if let identity = link.destination.identity {
-                    return (NavigationDestination.identity(identity), link.strategy, link.animated)
-                } else {
-                    return nil
-                }
-            }
+            let chain = CollectionOfOne(link) + chain
             let detail = InterceptionDetail(
                 chain: chain,
-                source: source,
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
 
             return navigate(
                 chain: interceptionResult.chain,
-                source: interceptionResult.source,
                 event: interceptionResult.event,
                 completion: completion
             )
@@ -76,15 +84,14 @@ public final class Navigator {
 
         return navigate(
             destination: link.destination,
-            source: source,
             strategy: link.strategy,
-            event: event,
             animated: link.animated,
+            fallback: link.fallback,
+            event: event,
             completion: { [weak self] in
                 DispatchQueue.main.async {
                     self?.navigate(
                         chain: chain,
-                        source: link.destination.identity,
                         event: event,
                         completion: completion
                     )
@@ -97,34 +104,37 @@ public final class Navigator {
     ///
     /// - Parameters:
     ///   - destination: The destination to navigate to.
-    ///   - source: The source identity for navigation.
     ///   - strategy: The navigation strategy to be applied.
-    ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - animated: A flag indicating whether the navigation should be animated.
+    ///   - fallback: The fallback navigation chain link.
+    ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure to be executed after the navigation is complete.
     /// - Returns: The `Responder` representing the destination controller.
     @discardableResult
     public func navigate(
         destination: NavigationDestination,
-        source: NavigationIdentity? = nil,
         strategy: NavigationStrategy,
-        event: ResponderEvent? = nil,
         animated: Bool = true,
+        fallback: NavigationChainLink? = nil,
+        event: ResponderEvent? = nil,
         completion: (() -> Void)? = nil
     ) -> (UIViewController & Responder)? {
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
-            if let identity = destination.identity {
-                let detail = InterceptionDetail(
-                    chain: [(.identity(identity), strategy, animated)],
-                    source: source,
-                    event: event
-                )
-                navigationInterceptor.interceptionData[interceptionResult.reason] = detail
-            }
+            let detail = InterceptionDetail(
+                chain: [
+                    NavigationChainLink(
+                        destination: destination,
+                        strategy: strategy,
+                        animated: animated,
+                        fallback: fallback
+                    ),
+                ],
+                event: event
+            )
+            navigationInterceptor.interceptionData[interceptionResult.reason] = detail
 
             return navigate(
                 chain: interceptionResult.chain,
-                source: interceptionResult.source,
                 event: interceptionResult.event,
                 completion: completion
             )
@@ -181,12 +191,13 @@ public final class Navigator {
                     }
                 )
             } else {
+                // TODO: -
                 return navigate(
                     destination: destination,
-                    source: source,
                     strategy: .present,
-                    event: event,
                     animated: animated,
+                    fallback: fallback,
+                    event: event,
                     completion: completion
                 )
             }
@@ -208,12 +219,13 @@ public final class Navigator {
                             if isSuccess {
                                 completion?()
                             } else {
+                                // TODO: -
                                 navigate(
                                     destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
-                                    source: source,
                                     strategy: .present,
-                                    event: event,
                                     animated: animated,
+                                    fallback: fallback,
+                                    event: event,
                                     completion: completion
                                 )
                             }
@@ -241,12 +253,13 @@ public final class Navigator {
                     completion: completion
                 )
             } else {
+                // TODO: -
                 return navigate(
                     destination: destination,
-                    source: source,
                     strategy: .push(alwaysEmbedded: alwaysEmbedded),
-                    event: event,
                     animated: animated,
+                    fallback: fallback,
+                    event: event,
                     completion: completion
                 )
             }
@@ -257,12 +270,13 @@ public final class Navigator {
                 eventController = controller as? UIViewController & Responder
                 completion?()
             } else {
+                // TODO: -
                 return navigate(
                     destination: destination,
-                    source: source,
                     strategy: .push(alwaysEmbedded: alwaysEmbedded),
-                    event: event,
                     animated: animated,
+                    fallback: fallback,
+                    event: event,
                     completion: completion
                 )
             }
@@ -273,12 +287,13 @@ public final class Navigator {
                 case .replacePrimary:
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
+                            // TODO: -
                             return navigate(
                                 destination: destination,
-                                source: source,
                                 strategy: .replaceNavigationRoot(),
-                                event: event,
                                 animated: animated,
+                                fallback: fallback,
+                                event: event,
                                 completion: completion
                             )
                         } else {
@@ -294,12 +309,13 @@ public final class Navigator {
                 case let .secondary(shouldPop):
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
+                            // TODO: -
                             return navigate(
                                 destination: destination,
-                                source: source,
                                 strategy: shouldPop ? .pushOrPopToExisting() : .push(),
-                                event: event,
                                 animated: animated,
+                                fallback: fallback,
+                                event: event,
                                 completion: completion
                             )
                         } else {
@@ -335,12 +351,13 @@ public final class Navigator {
                 case let .replaceSecondary(shouldPop):
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
+                            // TODO: -
                             return navigate(
                                 destination: destination,
-                                source: source,
                                 strategy: shouldPop ? .pushOrPopToExisting() : .push(),
-                                event: event,
                                 animated: animated,
+                                fallback: fallback,
+                                event: event,
                                 completion: completion
                             )
                         } else {
@@ -401,12 +418,13 @@ public final class Navigator {
                 case let .replaceSupplementary(shouldPop):
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
+                            // TODO: -
                             return navigate(
                                 destination: destination,
-                                source: source,
                                 strategy: shouldPop ? .pushOrPopToExisting() : .push(),
-                                event: event,
                                 animated: animated,
+                                fallback: fallback,
+                                event: event,
                                 completion: completion
                             )
                         } else {
@@ -453,12 +471,13 @@ public final class Navigator {
                                     )
                                 }
                             } else {
+                                // TODO: -
                                 return navigate(
                                     destination: destination,
-                                    source: source,
                                     strategy: .showSplit(strategy: .secondary(shouldPop: shouldPop)),
-                                    event: event,
                                     animated: animated,
+                                    fallback: fallback,
+                                    event: event,
                                     completion: completion
                                 )
                             }
@@ -477,14 +496,26 @@ public final class Navigator {
                     }
                 }
             } else {
-                return navigate(
-                    destination: source.flatMap { .identity($0) } ?? destination,
-                    source: nil,
-                    strategy: .present,
-                    event: event,
-                    animated: animated,
-                    completion: completion
-                )
+                // TODO: -
+                if let fallback {
+                    return navigate(
+                        destination: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    return navigate(
+                        destination: destination,
+                        strategy: .present,
+                        animated: animated,
+                        fallback: nil,
+                        event: event,
+                        completion: completion
+                    )
+                }
             }
         }
         if let navigatorEvent {
@@ -675,14 +706,13 @@ public final class Navigator {
         navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
             guard let self else { return }
 
-            if var data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
+            if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
                 if let newStrategy, !data.chain.isEmpty {
                     data.chain[0].strategy = newStrategy
                 }
 
                 navigate(
                     chain: prefixNavigationChain + data.chain + suffixNavigationChain,
-                    source: data.source,
                     event: data.event,
                     completion: completion
                 )

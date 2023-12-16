@@ -72,11 +72,14 @@ class ScreenFactory: NavigatorScreenFactory {
                             let destination = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(destination),
-                                source: SplitNavigationIdentity(tabsIdentity: [
-                                    PrimaryNavigationIdentity(),
-                                    destination,
-                                ]),
-                                strategy: .showSplit(strategy: .replaceSecondary())
+                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                fallback: NavigationChainLink(
+                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
+                                        PrimaryNavigationIdentity(),
+                                        destination,
+                                    ])),
+                                    strategy: .present, animated: true
+                                )
                             )
                         },
                         followLoginedContent: {
@@ -103,7 +106,11 @@ class ScreenFactory: NavigatorScreenFactory {
                         },
                         followPushOrPopNext: { [weak navigator] value in
                             navigator?.navigate(chain: value.map {
-                                (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                                NavigationChainLink(
+                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                    strategy: .pushOrPopToExisting(),
+                                    animated: true
+                                )
                             })
                         }
                     )
@@ -157,7 +164,11 @@ class ScreenFactory: NavigatorScreenFactory {
                         },
                         followPushOrPopNext: { [weak navigator] value in
                             navigator?.navigate(chain: value.map {
-                                (.identity(DetailsNavigationIdentity(number: $0)), .pushOrPopToExisting(), true)
+                                NavigationChainLink(
+                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                    strategy: .pushOrPopToExisting(),
+                                    animated: true
+                                )
                             })
                         }
                     )
@@ -220,11 +231,14 @@ class ScreenFactory: NavigatorScreenFactory {
                             let destination = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(destination),
-                                source: SplitNavigationIdentity(tabsIdentity: [
-                                    PrimaryNavigationIdentity(),
-                                    destination,
-                                ]),
-                                strategy: .showSplit(strategy: .replaceSecondary())
+                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                fallback: NavigationChainLink(
+                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
+                                        PrimaryNavigationIdentity(),
+                                        destination,
+                                    ])),
+                                    strategy: .present, animated: true
+                                )
                             )
                         }
                     )
@@ -254,11 +268,14 @@ class ScreenFactory: NavigatorScreenFactory {
                             let destination = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(destination),
-                                source: SplitNavigationIdentity(tabsIdentity: [
-                                    PrimaryNavigationIdentity(),
-                                    destination,
-                                ]),
-                                strategy: .showSplit(strategy: .replaceSecondary())
+                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                fallback: NavigationChainLink(
+                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
+                                        PrimaryNavigationIdentity(),
+                                        destination,
+                                    ])),
+                                    strategy: .present, animated: true
+                                )
                             )
                         }
                     )

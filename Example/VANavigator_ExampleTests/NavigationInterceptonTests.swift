@@ -72,7 +72,11 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             chain: [
-                (destination: .identity(identity), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -109,7 +113,11 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             chain: [
-                (destination: .identity(identity), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -200,7 +208,11 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -241,7 +253,13 @@ class MockNavigationInterceptor: NavigationInterceptor {
                     return nil
                 } else {
                     return NavigationInterceptionResult(
-                        chain: [(.identity(interceptionIdentity), .present, true)],
+                        chain: [
+                            NavigationChainLink(
+                                destination: .identity(interceptionIdentity),
+                                strategy: .present,
+                                animated: true
+                            ),
+                        ],
                         reason: interceptionReason
                     )
                 }
@@ -266,9 +284,21 @@ class MockNavigationInterceptor: NavigationInterceptor {
             interceptionResolved(
                 reason: interceptionReason,
                 prefixNavigationChain: [
-                    (destination: .identity(interceptionIdentity), strategy: .closeIfTop(), animated: true),
-                    (destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [])), strategy: .closeIfTop(), animated: true),
-                    (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .closeIfTop(), animated: true),
+                    NavigationChainLink(
+                        destination: .identity(interceptionIdentity),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
+                    NavigationChainLink(
+                        destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [])),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
+                    NavigationChainLink(
+                        destination: .identity(MockPopControllerNavigationIdentity()),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
                 ],
                 completion: completion
             )
@@ -277,7 +307,11 @@ class MockNavigationInterceptor: NavigationInterceptor {
                 reason: interceptionReason,
                 newStrategy: .replaceWindowRoot(),
                 suffixNavigationChain: [
-                    (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .present, animated: true),
+                    NavigationChainLink(
+                        destination: .identity(MockPopControllerNavigationIdentity()),
+                        strategy: .present,
+                        animated: true
+                    ),
                 ],
                 completion: completion
             )

@@ -8,7 +8,20 @@
 
 import UIKit
 
-public enum NavigationDestination {
+public enum NavigationDestination: Equatable {
+    public static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
+        switch (lhs, rhs) {
+        case let (.identity(lhs), .identity(rhs)):
+            return lhs.isEqual(to: rhs)
+        case let (.controller(lhs), .controller(rhs)):
+            return lhs === rhs
+        case let (.identity(lhs), .controller(rhs)):
+            return lhs.isEqual(to: rhs.navigationIdentity)
+        case let (.controller(lhs), .identity(rhs)):
+            return rhs.isEqual(to: lhs.navigationIdentity)
+        }
+    }
+
     /// Indicates a navigation destination identified by a `NavigationIdentity`. Used when constructing a controller using a screen factory.
     case identity(NavigationIdentity)
     /// Indicates a navigation destination represented by a specific view controller. Ensure that the corresponding `NavigationIdentity` is set for proper identification.

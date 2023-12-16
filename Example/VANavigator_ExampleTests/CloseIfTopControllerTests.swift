@@ -120,9 +120,21 @@ class CloseIfTopControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
-                (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
-                (destination: .identity(MockPushControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .push(alwaysEmbedded: true),
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPopControllerNavigationIdentity()),
+                    strategy: .push(alwaysEmbedded: true),
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPushControllerNavigationIdentity()),
+                    strategy: .push(alwaysEmbedded: true),
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -134,9 +146,21 @@ class CloseIfTopControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .present, animated: false),
-                (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .present, animated: false),
-                (destination: .identity(MockPushControllerNavigationIdentity()), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPopControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPushControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )

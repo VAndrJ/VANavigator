@@ -70,9 +70,21 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .present, animated: true),
-                (destination: .identity(MockPushControllerNavigationIdentity()), strategy: .present, animated: false),
-                (destination: .controller(UIViewController()), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: true
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPushControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .controller(UIViewController()),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
             completion: { taskDetachedMain { expect.fulfill() } }
         )
