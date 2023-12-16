@@ -13,6 +13,14 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case _ as LoginNavigationIdentity:
+            return UIViewController()
+        case _ as SecretInformationIdentity:
+            return ViewController(
+                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(
+                    navigation: .init(followReplaceRootWithNewMain: {}))
+                ))
+            )
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
         case _ as MockPushControllerNavigationIdentity:

@@ -62,8 +62,7 @@ public final class Navigator {
             let detail = InterceptionDetail(
                 chain: chain,
                 source: source,
-                event: event,
-                completion: completion
+                event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
 
@@ -71,7 +70,7 @@ public final class Navigator {
                 chain: interceptionResult.chain,
                 source: interceptionResult.source,
                 event: interceptionResult.event,
-                completion: interceptionResult.completion
+                completion: completion
             )
         }
 
@@ -118,8 +117,7 @@ public final class Navigator {
                 let detail = InterceptionDetail(
                     chain: [(.identity(identity), strategy, animated)],
                     source: source,
-                    event: event,
-                    completion: completion
+                    event: event
                 )
                 navigationInterceptor.interceptionData[interceptionResult.reason] = detail
             }
@@ -128,7 +126,7 @@ public final class Navigator {
                 chain: interceptionResult.chain,
                 source: interceptionResult.source,
                 event: interceptionResult.event,
-                completion: interceptionResult.completion
+                completion: completion
             )
         }
 
@@ -613,22 +611,19 @@ public final class Navigator {
     }
 
     private func bind() {
-        navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy in
+        navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
             guard let self else { return }
 
-            if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
-                guard !data.chain.isEmpty else {
-                    return
-                }
-
-                if let newStrategy {
+            if var data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
+                if let newStrategy, !data.chain.isEmpty {
                     data.chain[0].strategy = newStrategy
                 }
+
                 navigate(
-                    chain: data.chain,
+                    chain: prefixNavigationChain + data.chain + suffixNavigationChain,
                     source: data.source,
                     event: data.event,
-                    completion: data.completion
+                    completion: completion
                 )
             }
         }
