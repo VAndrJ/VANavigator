@@ -8,25 +8,6 @@
 
 import UIKit
 
-public final class NavigationChainLink {
-    let destination: NavigationDestination
-    var strategy: NavigationStrategy
-    let animated: Bool
-    let fallback: NavigationChainLink?
-
-    public init(
-        destination: NavigationDestination,
-        strategy: NavigationStrategy,
-        animated: Bool,
-        fallback: NavigationChainLink? = nil
-    ) {
-        self.destination = destination
-        self.strategy = strategy
-        self.animated = animated
-        self.fallback = fallback
-    }
-}
-
 @MainActor
 public final class Navigator {
     public let screenFactory: NavigatorScreenFactory
@@ -263,22 +244,28 @@ public final class Navigator {
                     completion: completion
                 )
             }
-        case let .replaceNavigationRoot(alwaysEmbedded):
+        case .replaceNavigationRoot:
             if let navigationController = window?.topController?.navigationController {
                 let controller = getController(destination: destination)
-                navigationController.setViewControllers([controller], animated: animated)
                 eventController = controller as? UIViewController & Responder
-                completion?()
-            } else {
-                // TODO: -
-                return navigate(
-                    destination: destination,
-                    strategy: .push(alwaysEmbedded: alwaysEmbedded),
+                navigationController.setViewControllers(
+                    [controller],
                     animated: animated,
-                    fallback: fallback,
+                    completion: completion
+                )
+            } else if let fallback {
+                return navigate(
+                    destination: fallback.destination,
+                    strategy: fallback.strategy,
+                    animated: fallback.animated,
+                    fallback: fallback.fallback,
                     event: event,
                     completion: completion
                 )
+            } else {
+                completion?()
+
+                return nil
             }
         case let .showSplit(strategy):
             // MARK: - Plain flow for easier understanding
@@ -287,10 +274,9 @@ public final class Navigator {
                 case .replacePrimary:
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
-                            // TODO: -
                             return navigate(
                                 destination: destination,
-                                strategy: .replaceNavigationRoot(),
+                                strategy: .replaceNavigationRoot,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,

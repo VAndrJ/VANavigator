@@ -17,8 +17,8 @@ public enum NavigationStrategy: Equatable {
     case push(alwaysEmbedded: Bool = true)
     /// Pushes a controller onto the navigation stack, or pops to an existing one, or presents if no `UINavigationController` is found. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
     case pushOrPopToExisting(alwaysEmbedded: Bool = true, includingTabs: Bool = true)
-    /// Replaces the navigation stack with the given controller as the root or presents if no `UINavigationController` is found. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
-    case replaceNavigationRoot(alwaysEmbedded: Bool = true)
+    /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
+    case replaceNavigationRoot
     /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.
     case present
     /// Presents a controller from the top view controller or closes presented controllers to given controller if it exists.
