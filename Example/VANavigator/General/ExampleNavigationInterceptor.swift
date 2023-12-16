@@ -13,6 +13,7 @@ struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 class ExampleNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
+    var completion: (() -> Void)?
 
     private let bag = DisposeBag()
 
@@ -57,7 +58,8 @@ class ExampleNavigationInterceptor: NavigationInterceptor {
             newStrategy: .replaceWindowRoot(transition: CATransition().apply {
                 $0.duration = 0.5
                 $0.type = .fade
-            })
+            }),
+            completion: completion
         )
     }
 }

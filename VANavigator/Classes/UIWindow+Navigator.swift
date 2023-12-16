@@ -20,11 +20,11 @@ extension UIWindow {
         return topmostViewController
     }
 
-    func findController(destination: NavigationDestination) -> UIViewController? {
+    public func findController(destination: NavigationDestination) -> UIViewController? {
         rootViewController?.findController(destination: destination)
     }
 
-    func set(rootViewController newRootViewController: UIViewController, transition: CATransition? = nil, completion: (() -> Void)? = nil) {
+    public func set(rootViewController newRootViewController: UIViewController, transition: CATransition? = nil, completion: (() -> Void)? = nil) {
         let previousViewController = rootViewController
         if let transition {
             layer.add(transition, forKey: kCATransition)

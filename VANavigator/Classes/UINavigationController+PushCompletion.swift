@@ -15,8 +15,46 @@ extension UINavigationController {
         animated: Bool,
         completion: (() -> Void)?
     ) {
-        popViewController(animated: animated)
+        if viewControllers.count > 1 {
+            popViewController(animated: animated)
+            observeCompletion(animated: animated, completion: completion)
+        } else {
+            completion?()
+        }
+    }
+
+    public func popToRootViewController(
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        if viewControllers.count > 1 {
+            popToRootViewController(animated: animated)
+            observeCompletion(animated: animated, completion: completion)
+        } else {
+            completion?()
+        }
+    }
+
+    public func setViewControllers(
+        _ controllers: [UIViewController],
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        setViewControllers(controllers, animated: animated)
         observeCompletion(animated: animated, completion: completion)
+    }
+
+    public func popToViewController(
+        _ controller: UIViewController,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        if topViewController == controller {
+            completion?()
+        } else {
+            popToViewController(controller, animated: animated)
+            observeCompletion(animated: animated, completion: completion)
+        }
     }
 
     public func pushViewController(

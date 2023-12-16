@@ -5657,6 +5657,57 @@
 			};
 			name = Debug;
 		};
+		10175974B3F12438EA24277800900E9E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B0BD6E43A340EFFC2BD6B20352335C56 /* VATextureKitSpec.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitSpec/VATextureKitSpec-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MODULEMAP_FILE = Headers/Public/VATextureKitSpec/VATextureKitSpec.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VATextureKitSpec;
+				PRODUCT_NAME = VATextureKitSpec;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.8;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		16617DFFCD701C44B0F8DD6D75189524 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC85908CE47EC2FAEED6066F4F324260 /* VATextureKitRx.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitRx/VATextureKitRx-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MODULEMAP_FILE = Headers/Public/VATextureKitRx/VATextureKitRx.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VATextureKitRx;
+				PRODUCT_NAME = VATextureKitRx;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.8;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		30AD1AA8618BF16B3CA1B21E5C52A6B7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 04F2848A3F8BF5C58BFD80D5F3BDEC71 /* RxRelay.release.xcconfig */;
@@ -5728,30 +5779,32 @@
 			};
 			name = Debug;
 		};
-		3E04BB2A67B8F2DBF071FEF48A33DF07 /* Debug */ = {
+		3F9FD330BC0C690400C3AAFA8AB90B00 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AC85908CE47EC2FAEED6066F4F324260 /* VATextureKitRx.debug.xcconfig */;
+			baseConfigurationReference = 1DB1CB3DFD392EE8CFEBD7854C936F1A /* VATextureKit.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitRx/VATextureKitRx-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKit/VATextureKit-prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKitRx/VATextureKitRx.modulemap;
+				MODULEMAP_FILE = Headers/Public/VATextureKit/VATextureKit.modulemap;
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D AS_ENABLE_TEXTNODE2";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKitRx;
-				PRODUCT_NAME = VATextureKitRx;
+				PRODUCT_MODULE_NAME = VATextureKit;
+				PRODUCT_NAME = VATextureKit;
 				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
+				SWIFT_VERSION = 5.8;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
-			name = Debug;
+			name = Release;
 		};
 		49CB742E8D46F71E9A4F076D235C1A0B /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -5798,6 +5851,32 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5DF4845A815BA821AB463377E99FCF28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F52AEBD24B52252CEA4F2ADD89B27554 /* VATextureKit.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKit/VATextureKit-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MODULEMAP_FILE = Headers/Public/VATextureKit/VATextureKit.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D AS_ENABLE_TEXTNODE2";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VATextureKit;
+				PRODUCT_NAME = VATextureKit;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.8;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -5850,32 +5929,6 @@
 			};
 			name = Debug;
 		};
-		7D9142C5F4E627485F29A6109674BF8C /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = B0BD6E43A340EFFC2BD6B20352335C56 /* VATextureKitSpec.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitSpec/VATextureKitSpec-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKitSpec/VATextureKitSpec.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKitSpec;
-				PRODUCT_NAME = VATextureKitSpec;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		7DE692E30DBC38AA5CB0847227152402 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0447DF904DCC38191A3AE852F6680169 /* Differentiator.release.xcconfig */;
@@ -5896,6 +5949,32 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		82055F8077562E8E1CB6C6A066FFC252 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 314B051B23E7F183E5774E7F08E369D3 /* Swiftional.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/Swiftional/Swiftional-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MODULEMAP_FILE = Headers/Public/Swiftional/Swiftional.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = Swiftional;
+				PRODUCT_NAME = Swiftional;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.8;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -5991,6 +6070,31 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+		};
+		9C2F85BF58E0D62B61E71441EFB9B116 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1FF3180B3D90FA448FB5B6AE767066A8 /* VATextureKitSpec.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitSpec/VATextureKitSpec-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MODULEMAP_FILE = Headers/Public/VATextureKitSpec/VATextureKitSpec.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VATextureKitSpec;
+				PRODUCT_NAME = VATextureKitSpec;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.8;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		9C8528E65C2872C4EF409054ACD0CEA8 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -6105,32 +6209,6 @@
 			};
 			name = Release;
 		};
-		A2FB4AB03B9C1F90DCE23E0B9A8A0D00 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = DFC958066CA0E5C75F6E7ECC48E13EA4 /* VATextureKitRx.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitRx/VATextureKitRx-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKitRx/VATextureKitRx.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKitRx;
-				PRODUCT_NAME = VATextureKitRx;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		A4B2516B339C0768315C4471811B22A3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FF33DB61226E1C974D6F20485BA8C9B0 /* PINCache.debug.xcconfig */;
@@ -6229,27 +6307,27 @@
 			};
 			name = Release;
 		};
-		BE0B553722EE45CAA98F5735640F6EBA /* Debug */ = {
+		BB5AC2FBBED185B7FE6FF3FB3F99F459 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1FF3180B3D90FA448FB5B6AE767066A8 /* VATextureKitSpec.debug.xcconfig */;
+			baseConfigurationReference = B1A20CAF32436C8C07CCED96CC0F1308 /* Swiftional.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitSpec/VATextureKitSpec-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Swiftional/Swiftional-prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKitSpec/VATextureKitSpec.modulemap;
+				MODULEMAP_FILE = Headers/Public/Swiftional/Swiftional.modulemap;
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKitSpec;
-				PRODUCT_NAME = VATextureKitSpec;
+				PRODUCT_MODULE_NAME = Swiftional;
+				PRODUCT_NAME = Swiftional;
 				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
+				SWIFT_VERSION = 5.8;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -6323,33 +6401,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
-		};
-		DAF4DD45A58215F4959196700493D64E /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DB1CB3DFD392EE8CFEBD7854C936F1A /* VATextureKit.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKit/VATextureKit-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKit/VATextureKit.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				OTHER_SWIFT_FLAGS = "$(inherited) -D AS_ENABLE_TEXTNODE2";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKit;
-				PRODUCT_NAME = VATextureKit;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 		DC99925CEBF77F053DDFC7C13E0CE482 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -6452,78 +6503,27 @@
 			};
 			name = Debug;
 		};
-		E668805F05684A8E8D3CC194E9570642 /* Debug */ = {
+		F919911133BC379F25E73A8B4674D5A0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F52AEBD24B52252CEA4F2ADD89B27554 /* VATextureKit.debug.xcconfig */;
+			baseConfigurationReference = DFC958066CA0E5C75F6E7ECC48E13EA4 /* VATextureKitRx.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VATextureKit/VATextureKit-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/VATextureKitRx/VATextureKitRx-prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/VATextureKit/VATextureKit.modulemap;
+				MODULEMAP_FILE = Headers/Public/VATextureKitRx/VATextureKitRx.modulemap;
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
-				OTHER_SWIFT_FLAGS = "$(inherited) -D AS_ENABLE_TEXTNODE2";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VATextureKit;
-				PRODUCT_NAME = VATextureKit;
+				PRODUCT_MODULE_NAME = VATextureKitRx;
+				PRODUCT_NAME = VATextureKitRx;
 				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		F915812350F892938319B9B56826738A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = B1A20CAF32436C8C07CCED96CC0F1308 /* Swiftional.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/Swiftional/Swiftional-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/Swiftional/Swiftional.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = Swiftional;
-				PRODUCT_NAME = Swiftional;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		FC9D1D5B7DC07571273C6D89C676EBE4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 314B051B23E7F183E5774E7F08E369D3 /* Swiftional.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/Swiftional/Swiftional-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MODULEMAP_FILE = Headers/Public/Swiftional/Swiftional.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = Swiftional;
-				PRODUCT_NAME = Swiftional;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.7;
+				SWIFT_VERSION = 5.8;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6580,8 +6580,8 @@
 		6533F070E2EA87D69CE0EDB52CFCC971 /* Build configuration list for PBXNativeTarget "VATextureKitRx" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3E04BB2A67B8F2DBF071FEF48A33DF07 /* Debug */,
-				A2FB4AB03B9C1F90DCE23E0B9A8A0D00 /* Release */,
+				16617DFFCD701C44B0F8DD6D75189524 /* Debug */,
+				F919911133BC379F25E73A8B4674D5A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6589,8 +6589,8 @@
 		6C8604DB65CA390B047452FE66A79EBE /* Build configuration list for PBXNativeTarget "Swiftional" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F915812350F892938319B9B56826738A /* Debug */,
-				FC9D1D5B7DC07571273C6D89C676EBE4 /* Release */,
+				BB5AC2FBBED185B7FE6FF3FB3F99F459 /* Debug */,
+				82055F8077562E8E1CB6C6A066FFC252 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6616,8 +6616,8 @@
 		8ED7F875CA0636A960AE22D58CB562D8 /* Build configuration list for PBXNativeTarget "VATextureKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E668805F05684A8E8D3CC194E9570642 /* Debug */,
-				DAF4DD45A58215F4959196700493D64E /* Release */,
+				5DF4845A815BA821AB463377E99FCF28 /* Debug */,
+				3F9FD330BC0C690400C3AAFA8AB90B00 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -6661,8 +6661,8 @@
 		B0001A2E6DABC0491D1EC3ECF6E7C576 /* Build configuration list for PBXNativeTarget "VATextureKitSpec" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				BE0B553722EE45CAA98F5735640F6EBA /* Debug */,
-				7D9142C5F4E627485F29A6109674BF8C /* Release */,
+				9C2F85BF58E0D62B61E71441EFB9B116 /* Debug */,
+				10175974B3F12438EA24277800900E9E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

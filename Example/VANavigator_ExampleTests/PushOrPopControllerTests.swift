@@ -8,7 +8,6 @@
 
 import XCTest
 import VANavigator
-@testable import VANavigator_Example
 
 // TODO: - Messages
 @MainActor
@@ -55,7 +54,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockPopViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
         XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
     }
 
@@ -97,7 +96,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
-        XCTAssertEqual(true, (responder as? MockPopViewController)?.isMockEventHandled, file: file, line: line)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
         if !isTop {
             XCTAssertEqual(true, (responder as? MockPopViewController)?.isPoppedEventHandled, file: file, line: line)
         }
@@ -107,7 +106,7 @@ class PushOrPopControllerTests: XCTestCase {
         let expect = expectation(description: "pushOrPop")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .pushOrPopToExisting(alwaysEmbedded: alwaysEmbedded),
+            strategy: .pushOrPopToExisting(alwaysEmbedded: alwaysEmbedded, includingTabs: false),
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )

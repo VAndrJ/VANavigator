@@ -13,6 +13,14 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case _ as LoginNavigationIdentity:
+            return UIViewController()
+        case _ as SecretInformationIdentity:
+            return ViewController(
+                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(
+                    navigation: .init(followReplaceRootWithNewMain: {}))
+                ))
+            )
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
         case _ as MockPushControllerNavigationIdentity:
@@ -45,8 +53,11 @@ class MockScreenFactory: NavigatorScreenFactory {
     }
 }
 
-class MockPopViewController: UIViewController, Responder {
-    private(set) var isMockEventHandled = false
+class MockViewController: UIViewController {
+    var isMockEventHandled = false
+}
+
+class MockPopViewController: MockViewController, Responder {
     private(set) var isPoppedEventHandled = false
 
     // MARK: - Responder
@@ -69,8 +80,7 @@ class MockPopViewController: UIViewController, Responder {
     }
 }
 
-class MockPushViewController: UIViewController, Responder {
-    private(set) var isMockEventHandled = false
+class MockPushViewController: MockViewController, Responder {
 
     // MARK: - Responder
 
@@ -88,9 +98,8 @@ class MockPushViewController: UIViewController, Responder {
     }
 }
 
-class MockRootViewController: UIViewController, Responder {
+class MockRootViewController: MockViewController, Responder {
     private(set) var isReplacedEventHandled = false
-    private(set) var isMockEventHandled = false
 
     // MARK: - Responder
 
