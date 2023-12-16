@@ -30,7 +30,7 @@ extension UIViewController {
         }
     }
     
-    func findController(controller: UIViewController) -> UIViewController? {
+    public func findController(controller: UIViewController) -> UIViewController? {
         if self === controller {
             return self
         } else if let navigation = self as? UINavigationController {
@@ -58,7 +58,7 @@ extension UIViewController {
         return nil
     }
     
-    func findController(identity: NavigationIdentity) -> UIViewController? {
+    public func findController(identity: NavigationIdentity) -> UIViewController? {
         if navigationIdentity?.isEqual(to: identity) == true {
             return self
         } else if let navigation = self as? UINavigationController {
@@ -86,7 +86,7 @@ extension UIViewController {
         return nil
     }
     
-    func findTabBarController() -> UITabBarController? {
+    public func findTabBarController() -> UITabBarController? {
         if let tabController = self as? UITabBarController {
             return tabController
         } else if let tabBarController {
@@ -98,7 +98,7 @@ extension UIViewController {
         }
     }
     
-    func findController(destination: NavigationDestination) -> UIViewController? {
+    public func findController(destination: NavigationDestination) -> UIViewController? {
         switch destination {
         case let .identity(identity):
             return findController(identity: identity)

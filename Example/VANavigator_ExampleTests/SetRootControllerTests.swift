@@ -41,7 +41,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
         XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
@@ -67,7 +67,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
         XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
@@ -92,7 +92,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockRootViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
         XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 

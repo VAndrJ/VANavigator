@@ -45,8 +45,11 @@ class MockScreenFactory: NavigatorScreenFactory {
     }
 }
 
-class MockPopViewController: UIViewController, Responder {
-    private(set) var isMockEventHandled = false
+class MockViewController: UIViewController {
+    var isMockEventHandled = false
+}
+
+class MockPopViewController: MockViewController, Responder {
     private(set) var isPoppedEventHandled = false
 
     // MARK: - Responder
@@ -69,8 +72,7 @@ class MockPopViewController: UIViewController, Responder {
     }
 }
 
-class MockPushViewController: UIViewController, Responder {
-    private(set) var isMockEventHandled = false
+class MockPushViewController: MockViewController, Responder {
 
     // MARK: - Responder
 
@@ -88,9 +90,8 @@ class MockPushViewController: UIViewController, Responder {
     }
 }
 
-class MockRootViewController: UIViewController, Responder {
+class MockRootViewController: MockViewController, Responder {
     private(set) var isReplacedEventHandled = false
-    private(set) var isMockEventHandled = false
 
     // MARK: - Responder
 

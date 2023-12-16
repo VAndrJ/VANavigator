@@ -44,7 +44,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
 
         XCTAssertEqual(1, navigationController?.viewControllers.count)
         XCTAssertTrue(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockPushViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
     }
 
     func test_controllerreplaceNavigationRootFallback() {
@@ -67,7 +67,19 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
 
         XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(newRootIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockPushViewController)?.isMockEventHandled)
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
+    func test_closeNavigationPresented_completionCalledWithNilController() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "navigation.close")
+        navigator.closeNavigationPresented(
+            controller: nil,
+            animated: true,
+            completion: { taskDetachedMain { expect.fulfill() } }
+        )
+
+        wait(for: [expect], timeout: 10)
     }
 
     func prepareNavigation(navigator: Navigator) {

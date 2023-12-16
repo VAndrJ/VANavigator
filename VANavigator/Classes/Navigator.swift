@@ -466,7 +466,7 @@ public final class Navigator {
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the push is complete. `true` if successful, `false` if a navigation controller was not found.
     /// - Returns: A boolean value indicating whether the push operation was successful. `true` if successful, `false` if a navigation controller was not found.
-    func push(
+    public func push(
         sourceController: UIViewController?,
         controller: UIViewController,
         animated: Bool,
@@ -499,7 +499,7 @@ public final class Navigator {
     ///   - controller: The view controller to present.
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the replacement is complete.
-    func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
+    public func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
         if window?.rootViewController != nil {
             window?.topController?.present(
                 controller,
@@ -527,7 +527,7 @@ public final class Navigator {
     ///   - controller: The view controller to set as the `rootViewController`.
     ///   - transition: Animated transitions when replacing the `rootViewController`.
     ///   - completion: A closure to be executed after the replacement is complete.
-    func replaceWindowRoot(controller: UIViewController, transition: CATransition?, completion: (() -> Void)?) {
+    public func replaceWindowRoot(controller: UIViewController, transition: CATransition?, completion: (() -> Void)?) {
         if window?.rootViewController == nil {
             window?.rootViewController = controller
             window?.makeKeyAndVisible()
@@ -547,7 +547,7 @@ public final class Navigator {
     ///   - controller: Controller with presented controllers to dismiss and the target for navigation stack pop.
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after controllers are dismissed.
-    func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
+    public func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
         if let controller {
             dismissPresented(in: controller, animated: animated, completion: {
                 if let navigationController = controller.navigationController {
@@ -571,7 +571,7 @@ public final class Navigator {
     ///   - controller: Controller with presented controllers to dismiss.
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the controller is dismissed.
-    func dismissPresented(in controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
+    public func dismissPresented(in controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
         if let presentedViewController = controller?.presentedViewController {
             presentedViewController.dismiss(animated: animated, completion: { [weak self] in
                 if controller?.presentedViewController != nil {
@@ -590,7 +590,7 @@ public final class Navigator {
     /// - Parameters:
     ///   - controller: The view controller from which to start searching for the tab bar controller.
     ///   - completion: A closure to be executed after the tab is selected, providing the view controller found in the selected tab if applicable.
-    func selectTabIfNeeded(
+    public func selectTabIfNeeded(
         controller: UIViewController?,
         completion: ((UIViewController?) -> Void)? = nil
     ) {

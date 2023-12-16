@@ -23,6 +23,7 @@
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
 		A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */; };
+		A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */; };
 		A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D72B21292C001B05B8 /* PushControllerTests.swift */; };
 		A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */; };
 		A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */; };
@@ -81,6 +82,7 @@
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
 		A32F5E982B210DF9008564F9 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceNavigationRootControllerTests.swift; sourceTree = "<group>"; };
+		A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentOrCloseToExistingControllerTests.swift; sourceTree = "<group>"; };
 		A35381D72B21292C001B05B8 /* PushControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushControllerTests.swift; sourceTree = "<group>"; };
 		A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushOrPopControllerTests.swift; sourceTree = "<group>"; };
 		A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseIfTopControllerTests.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */,
+				A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */,
 				A35381D72B21292C001B05B8 /* PushControllerTests.swift */,
 				A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */,
 				A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */,
@@ -460,6 +463,7 @@
 				A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */,
 				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
 				A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */,
+				A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */,
 				A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */,
 				A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */,
 			);
