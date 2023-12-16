@@ -26,8 +26,23 @@ class PushControllerTests: XCTestCase {
         controllerPushOntoNavigationStack(alwaysEmbedded: false)
     }
 
-    func test_controllerPushOntoNavigationStack_embeddedSame() {
+    func test_controllerPushOntoNavigationStack_fallbackPresentNavigation() {
         controllerPushOntoNavigationStack(alwaysEmbedded: true)
+    }
+
+    func test_controllerPushOntoNavigationStack_failWithoutFallback() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
+
+        let identity = MockPushControllerNavigationIdentity()
+        _ = push(
+            navigator: navigator,
+            identity: identity,
+            alwaysEmbedded: nil
+        )
+
+        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_controllerPresentWithNavigation() {
@@ -57,17 +72,17 @@ class PushControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertNil(navigator.window?.rootViewController as? UINavigationController, file: file, line: line)
+        XCTAssertNil(window?.rootViewController as? UINavigationController, file: file, line: line)
         if alwaysEmbedded {
-            let navigationController = navigator.window?.rootViewController?.presentedViewController as? UINavigationController
+            let navigationController = window?.rootViewController?.presentedViewController as? UINavigationController
 
             XCTAssertNotNil(navigationController, file: file, line: line)
             XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
             XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
         } else {
-            XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.presentedViewController?.navigationIdentity), "expected not equal to top", file: file, line: line)
+            XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.presentedViewController?.navigationIdentity), "expected not equal to top", file: file, line: line)
         }
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
     }
@@ -89,30 +104,32 @@ class PushControllerTests: XCTestCase {
 
         // Check that controller was pushed
         // and it is the top view controller.
-        let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        let rootNavigationController = window?.rootViewController as? UINavigationController
         let expectedIdentity = identity
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
     }
 
-    func push(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool) -> (UIViewController & Responder)? {
+    func push(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool?) -> (UIViewController & Responder)? {
         let expect = expectation(description: "push")
         let responder = navigator.navigate(
             destination: .identity(identity),
             strategy: .push,
-            fallback: alwaysEmbedded ? NavigationChainLink(
-                destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [identity])),
-                strategy: .present,
-                animated: true
-            ) : NavigationChainLink(
-                destination: .identity(identity),
-                strategy: .present,
-                animated: true
-            ),
+            fallback: alwaysEmbedded.map {
+                $0 ? NavigationChainLink(
+                    destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [identity])),
+                    strategy: .present,
+                    animated: true
+                ) : NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .present,
+                    animated: true
+                )
+            },
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )

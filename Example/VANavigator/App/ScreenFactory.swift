@@ -22,7 +22,7 @@ class ScreenFactory: NavigatorScreenFactory {
             let tabControllers = identity.tabsIdentity.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
-                return embedInNavigationControllerIfNeeded(controller: controller)
+                return NavigationController(controller: controller)
             }
             controller.setViewControllers(tabControllers, animated: false)
 
@@ -321,14 +321,6 @@ class ScreenFactory: NavigatorScreenFactory {
             assertionFailure("Not implemented \(type(of: identity))")
 
             return UIViewController()
-        }
-    }
-
-    func embedInNavigationControllerIfNeeded(controller: UIViewController) -> UIViewController {
-        if let controller = controller.orNavigationController {
-            return controller
-        } else {
-            return NavigationController(controller: controller)
         }
     }
 }

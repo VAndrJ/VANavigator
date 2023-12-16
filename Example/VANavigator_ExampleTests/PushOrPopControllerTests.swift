@@ -35,7 +35,7 @@ class PushOrPopControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let identity = MockPopControllerNavigationIdentity()
 
-        let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        let rootNavigationController = window?.rootViewController as? UINavigationController
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
@@ -47,7 +47,7 @@ class PushOrPopControllerTests: XCTestCase {
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
         XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
@@ -68,7 +68,7 @@ class PushOrPopControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, isTop: isTop)
         let identity = MockPopControllerNavigationIdentity()
 
-        let rootNavigationController = navigator.window?.rootViewController as? UINavigationController
+        let rootNavigationController = window?.rootViewController as? UINavigationController
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == (isTop ? 2 : 3), file: file, line: line)
         if isTop {
@@ -84,7 +84,7 @@ class PushOrPopControllerTests: XCTestCase {
         
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
         if !isTop {
@@ -123,7 +123,7 @@ class PushOrPopControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .replaceWindowRoot(alwaysEmbedded: false),
+            strategy: .replaceWindowRoot(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
 
@@ -134,8 +134,8 @@ class PushOrPopControllerTests: XCTestCase {
         let identity = MockRootControllerNavigationIdentity()
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
-            destination: .identity(identity),
-            strategy: .replaceWindowRoot(alwaysEmbedded: alwaysEmbedded),
+            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
+            strategy: .replaceWindowRoot(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
 

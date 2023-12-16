@@ -28,7 +28,7 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as MockPopControllerNavigationIdentity:
             return MockPopViewController()
         case let identity as MockNavControllerNavigationIdentity:
-            let controller = UINavigationController()
+            let controller = MockNavigationController()
             controller.setViewControllers(
                 identity.childIdentity.map {
                     let controller = assembleScreen(identity: $0, navigator: navigator)
@@ -44,13 +44,17 @@ class MockScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
+}
 
-    func embedInNavigationControllerIfNeeded(controller: UIViewController) -> UIViewController {
-        if controller is UINavigationController {
-            return controller
-        } else {
-            return UINavigationController(rootViewController: controller)
-        }
+class MockNavigationController: UINavigationController, Responder {
+
+    var nextEventResponder: Responder? {
+        get { topController as? Responder }
+        set {}
+    }
+
+    func handle(event: ResponderEvent) async -> Bool {
+        await nextEventResponder?.handle(event: event) ?? false
     }
 }
 

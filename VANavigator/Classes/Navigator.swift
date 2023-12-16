@@ -140,17 +140,17 @@ public final class Navigator {
             }
 
             return nil
-        case let .replaceWindowRoot(transition, alwaysEmbedded):
+        case let .replaceWindowRoot(transition):
             let controller = getController(destination: destination)
+            eventController = controller as? UIViewController & Responder
             if window?.rootViewController != nil {
                 navigatorEvent = ResponderReplacedWindowRootControllerEvent()
             }
             replaceWindowRoot(
-                controller: alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller,
+                controller: controller,
                 transition: transition,
                 completion: completion
             )
-            eventController = controller as? UIViewController & Responder
         case .present:
             let controller = getController(destination: destination)
             present(controller: controller, animated: animated, completion: completion)
