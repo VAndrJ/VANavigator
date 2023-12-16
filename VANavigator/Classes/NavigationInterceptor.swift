@@ -30,7 +30,7 @@ open class NavigationInterceptor {
         _ newStrategy: NavigationStrategy?,
         _ prefixNavigationChain: [NavigationChainLink],
         _ suffixNavigationChain: [NavigationChainLink],
-        _ completion: (() -> Void)?
+        _ completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) -> Void)?
     var interceptionData: [AnyHashable: InterceptionDetail] = [:]
 
@@ -45,7 +45,7 @@ open class NavigationInterceptor {
         newStrategy: NavigationStrategy? = nil,
         prefixNavigationChain: [NavigationChainLink] = [],
         suffixNavigationChain: [NavigationChainLink] = [],
-        completion: (() -> Void)?
+        completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) {
         onInterceptionResolved?(
             reason,

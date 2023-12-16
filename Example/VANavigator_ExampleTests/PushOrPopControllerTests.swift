@@ -40,7 +40,17 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
-        let responder = pushOrPop(navigator: navigator, identity: identity)
+        var responder: (UIViewController & Responder)?
+        let expect = expectation(description: "push")
+        pushOrPop(
+            navigator: navigator,
+            identity: identity,
+            completion: { controller, _ in
+                responder = controller
+                expect.fulfill()
+            }
+        )
+        wait(for: [expect], timeout: 10)
         // Check that controller was pushed
         // and it is the top view controller.
         let expectedIdentity = identity
@@ -77,7 +87,17 @@ class PushOrPopControllerTests: XCTestCase {
             XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         }
 
-        let responder = pushOrPop(navigator: navigator, identity: identity)
+        var responder: (UIViewController & Responder)?
+        let expect = expectation(description: "push")
+        pushOrPop(
+            navigator: navigator,
+            identity: identity,
+            completion: { controller, _ in
+                responder = controller
+                expect.fulfill()
+            }
+        )
+        wait(for: [expect], timeout: 10)
         // Check that controller was popped
         // and it is the top view controller.
         let expectedIdentity = identity
@@ -92,18 +112,27 @@ class PushOrPopControllerTests: XCTestCase {
         }
     }
 
-    func pushOrPop(navigator: Navigator, identity: NavigationIdentity) -> (UIViewController & Responder)? {
+    func pushOrPop(
+        navigator: Navigator,
+        identity: NavigationIdentity,
+        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+    ) {
         let expect = expectation(description: "pushOrPop")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        var result: Bool = false
+        navigator.navigate(
             destination: .identity(identity),
             strategy: .popToExistingOrPush(includingTabs: false),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
-
-        return responder
+        completion?(responder, result)
     }
 
     func prepareNavigationStack(navigator: Navigator, isTop: Bool) {
@@ -124,7 +153,7 @@ class PushOrPopControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -136,7 +165,7 @@ class PushOrPopControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
             strategy: .replaceWindowRoot(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

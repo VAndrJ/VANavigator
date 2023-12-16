@@ -35,10 +35,11 @@ class PushControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
         let identity = MockPushControllerNavigationIdentity()
-        _ = push(
+        push(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: nil
+            alwaysEmbedded: nil,
+            completion: nil
         )
 
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
@@ -62,11 +63,15 @@ class PushControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
         let identity = MockPushControllerNavigationIdentity()
-        let responder = push(
+        let expect = expectation(description: "push")
+        push(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: alwaysEmbedded
+            alwaysEmbedded: alwaysEmbedded,
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
+        
+        wait(for: [expect], timeout: 10)
 
         // Check that controller was presented
         // and it is the top view controller.
@@ -83,8 +88,7 @@ class PushControllerTests: XCTestCase {
             XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.presentedViewController?.navigationIdentity), "expected not equal to top", file: file, line: line)
         }
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
+        XCTAssertEqual(true, (window?.topController as? MockViewController)?.isMockEventHandled, file: file, line: line)
     }
 
     func controllerPushOntoNavigationStack(
@@ -96,11 +100,18 @@ class PushControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
 
         let identity = MockPushControllerNavigationIdentity()
-        let responder = push(
+        let expect = expectation(description: "push")
+        var responder: (UIViewController & Responder)?
+        push(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: alwaysEmbedded
+            alwaysEmbedded: alwaysEmbedded,
+            completion: { controller, _ in
+                responder = controller
+                expect.fulfill()
+            }
         )
+        wait(for: [expect], timeout: 10)
 
         // Check that controller was pushed
         // and it is the top view controller.
@@ -114,9 +125,16 @@ class PushControllerTests: XCTestCase {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
     }
 
-    func push(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool?) -> (UIViewController & Responder)? {
+    func push(
+        navigator: Navigator,
+        identity: NavigationIdentity,
+        alwaysEmbedded: Bool?,
+        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+    ) {
         let expect = expectation(description: "push")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        var result = false
+        navigator.navigate(
             destination: .identity(identity),
             strategy: .push,
             fallback: alwaysEmbedded.map {
@@ -131,12 +149,15 @@ class PushControllerTests: XCTestCase {
                 )
             },
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
-
-        return responder
+        completion?(responder, result)
     }
 
     func prepareNavigationStack(navigator: Navigator, alwaysEmbedded: Bool) {
@@ -145,7 +166,7 @@ class PushControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
             strategy: .replaceWindowRoot(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

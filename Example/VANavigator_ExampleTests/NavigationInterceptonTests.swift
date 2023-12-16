@@ -39,7 +39,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -50,7 +50,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -78,7 +78,7 @@ class NavigationInterceptonTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -90,7 +90,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -119,7 +119,7 @@ class NavigationInterceptonTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -131,7 +131,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -157,7 +157,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -188,7 +188,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -214,7 +214,7 @@ class NavigationInterceptonTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -231,7 +231,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
     let interceptionIdentity = LoginNavigationIdentity()
     let interceptionReason = LoginRequiredNavigationInterceptionReason()
-    var completion: (() -> Void)?
+    var completion: (((UIViewController & Responder)?, Bool) -> Void)?
     let kind: Kind
 
     private let bag = DisposeBag()

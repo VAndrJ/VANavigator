@@ -28,11 +28,19 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        let responder = replaceWindowRoot(
+        var responder: (UIViewController & Responder)?
+        let expect = expectation(description: "replace")
+        replaceWindowRoot(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: false
+            alwaysEmbedded: false,
+            completion: { controller, _ in
+                responder = controller
+                expect.fulfill()
+            }
         )
+
+        wait(for: [expect], timeout: 10)
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
@@ -51,10 +59,11 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        _ = replaceWindowRoot(
+        replaceWindowRoot(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: true
+            alwaysEmbedded: true,
+            completion: nil
         )
 
         // Сhecking that the `UIWindow`'s root view controller is `UINavigationController`
@@ -78,11 +87,18 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNotNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        let responder = replaceWindowRoot(
+        var responder: (UIViewController & Responder)?
+        let expect = expectation(description: "replace")
+        replaceWindowRoot(
             navigator: navigator,
             identity: identity,
-            alwaysEmbedded: false
+            alwaysEmbedded: false,
+            completion: { controller, _ in
+                responder = controller
+                expect.fulfill()
+            }
         )
+        wait(for: [expect], timeout: 10)
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
@@ -98,17 +114,23 @@ class SetRootControllerTests: XCTestCase {
     func replaceWindowRoot(
         navigator: Navigator,
         identity: NavigationIdentity,
-        alwaysEmbedded: Bool
-    ) -> (UIViewController & Responder)? {
+        alwaysEmbedded: Bool,
+        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+    ) {
         let expect = expectation(description: "navigation")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        var result = false
+        navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
             strategy: .replaceWindowRoot(),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
+            }
         )
         wait(for: [expect], timeout: 10)
-
-        return responder
+        completion?(responder, result)
     }
 }

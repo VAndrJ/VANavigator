@@ -33,11 +33,15 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { controller, _ in
+                responder = controller
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
@@ -56,7 +60,8 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
             fallback: NavigationChainLink(
@@ -65,7 +70,10 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
                 animated: true
             ),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { controller, _ in
+                responder = controller
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
@@ -84,11 +92,15 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { controller, _ in
+                responder = controller
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
@@ -118,7 +130,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -133,7 +145,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(identity), 
             strategy: .replaceWindowRoot(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

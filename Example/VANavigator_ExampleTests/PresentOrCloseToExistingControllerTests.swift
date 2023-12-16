@@ -31,11 +31,15 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNotNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        navigator.navigate(
             destination: .identity(identity),
             strategy: .closeToExistingOrPresent,
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { controller, _ in
+                responder = controller
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
@@ -53,11 +57,15 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        let responder = navigator.navigate(
+        var responder: (UIViewController & Responder)?
+        navigator.navigate(
             destination: .identity(identity),
             strategy: .closeToExistingOrPresent,
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { controller, _ in
+                responder = controller
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
@@ -86,7 +94,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

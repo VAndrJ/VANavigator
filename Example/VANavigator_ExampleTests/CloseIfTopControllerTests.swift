@@ -33,7 +33,7 @@ class CloseIfTopControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(topIdentity),
             strategy: .closeIfTop(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -54,7 +54,7 @@ class CloseIfTopControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(topIdentity),
             strategy: .closeIfTop(tryToDismiss: false),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -78,7 +78,7 @@ class CloseIfTopControllerTests: XCTestCase {
             destination: .identity(topIdentity),
             strategy: .closeIfTop(),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -104,7 +104,7 @@ class CloseIfTopControllerTests: XCTestCase {
             destination: .identity(topIdentity),
             strategy: .closeIfTop(tryToPop: false),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -138,7 +138,7 @@ class CloseIfTopControllerTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -164,7 +164,7 @@ class CloseIfTopControllerTests: XCTestCase {
                     animated: false
                 ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

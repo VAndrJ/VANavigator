@@ -32,18 +32,17 @@ public final class Navigator {
     /// - Parameters:
     ///   - chain: An array of navigation links representing the navigation chain with destination and strategy.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
-    ///   - completion: A closure to be executed after the entire navigation chain is complete.
-    /// - Returns: The `Responder` representing the destination controller.
+    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
     @discardableResult
     public func navigate(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
-        completion: (() -> Void)? = nil
-    ) -> (UIViewController & Responder)? {
+        completion: (((UIViewController & Responder)?, Bool) -> Void)? = nil
+    ) {
         guard !chain.isEmpty else {
-            completion?()
+            completion?(nil, false)
 
-            return nil
+            return
         }
 
         var chain = chain
@@ -55,21 +54,22 @@ public final class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
-
-            return navigate(
+            navigate(
                 chain: interceptionResult.chain,
                 event: interceptionResult.event,
                 completion: completion
             )
+
+            return
         }
 
-        return navigate(
+        navigate(
             destination: link.destination,
             strategy: link.strategy,
             animated: link.animated,
             fallback: link.fallback,
             event: event,
-            completion: { [weak self] in
+            completion: { [weak self] _, _ in
                 DispatchQueue.main.async {
                     self?.navigate(
                         chain: chain,
@@ -89,8 +89,7 @@ public final class Navigator {
     ///   - animated: A flag indicating whether the navigation should be animated.
     ///   - fallback: The fallback navigation chain link.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
-    ///   - completion: A closure to be executed after the navigation is complete.
-    /// - Returns: The `Responder` representing the destination controller.
+    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
     @discardableResult
     public func navigate(
         destination: NavigationDestination,
@@ -98,8 +97,8 @@ public final class Navigator {
         animated: Bool = true,
         fallback: NavigationChainLink? = nil,
         event: ResponderEvent? = nil,
-        completion: (() -> Void)? = nil
-    ) -> (UIViewController & Responder)? {
+        completion: (((UIViewController & Responder)?, Bool) -> Void)? = nil
+    ) {
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
             let detail = InterceptionDetail(
                 chain: [
@@ -113,33 +112,58 @@ public final class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
-
-            return navigate(
+            navigate(
                 chain: interceptionResult.chain,
                 event: interceptionResult.event,
                 completion: completion
             )
+
+            return
         }
 
         let eventController: (UIViewController & Responder)?
         var navigatorEvent: ResponderEvent?
+
+        func perform(event: ResponderEvent?, navigatorEvent: ResponderEvent?, on responder: Responder?) {
+            guard let responder else { return }
+
+            if let navigatorEvent {
+                Task {
+                    await responder.handle(event: navigatorEvent)
+                }
+            }
+            if let event {
+                Task {
+                    await responder.handle(event: event)
+                }
+            }
+        }
+
         switch strategy {
         case let .closeIfTop(tryToPop, tryToDismiss):
             if let controller = window?.topController {
                 if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true  {
-                    controller.navigationController?.popViewController(animated: animated, completion: completion)
+                    controller.navigationController?.popViewController(
+                        animated: animated,
+                        completion: {
+                            completion?(nil, true)
+                        }
+                    )
                 } else {
                     if tryToDismiss {
-                        controller.dismiss(animated: animated, completion: completion)
+                        controller.dismiss(
+                            animated: animated,
+                            completion: {
+                                completion?(nil, true)
+                            }
+                        )
                     } else {
-                        completion?()
+                        completion?(nil, false)
                     }
                 }
             } else {
-                completion?()
+                completion?(nil, false)
             }
-
-            return nil
         case let .replaceWindowRoot(transition):
             let controller = getController(destination: destination)
             eventController = controller as? UIViewController & Responder
@@ -149,12 +173,22 @@ public final class Navigator {
             replaceWindowRoot(
                 controller: controller,
                 transition: transition,
-                completion: completion
+                completion: {
+                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                    completion?(eventController, true)
+                }
             )
         case .present:
             let controller = getController(destination: destination)
-            present(controller: controller, animated: animated, completion: completion)
             eventController = controller as? UIViewController & Responder
+            present(
+                controller: controller,
+                animated: animated,
+                completion: {
+                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                    completion?(eventController, true)
+                }
+            )
         case .closeToExistingOrPresent:
             if let controller = window?.findController(destination: destination) {
                 eventController = controller as? UIViewController & Responder
@@ -167,12 +201,15 @@ public final class Navigator {
                         closeNavigationPresented(
                             controller: sourceController ?? controller,
                             animated: animated,
-                            completion: completion
+                            completion: {
+                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                completion?(eventController, true)
+                            }
                         )
                     }
                 )
             } else {
-                return navigate(
+                navigate(
                     destination: destination,
                     strategy: .present,
                     animated: animated,
@@ -198,7 +235,8 @@ public final class Navigator {
                             guard let self else { return }
 
                             if isSuccess {
-                                completion?()
+                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                completion?(eventController, true)
                             } else {
                                 if let fallback {
                                     navigate(
@@ -210,7 +248,7 @@ public final class Navigator {
                                         completion: completion
                                     )
                                 } else {
-                                    completion?()
+                                    completion?(nil, false)
                                 }
                             }
                         }
@@ -233,10 +271,13 @@ public final class Navigator {
                 closeNavigationPresented(
                     controller: controller,
                     animated: animated,
-                    completion: completion
+                    completion: {
+                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                        completion?(eventController, true)
+                    }
                 )
             } else {
-                return navigate(
+                navigate(
                     destination: destination,
                     strategy: .push,
                     animated: animated,
@@ -252,10 +293,13 @@ public final class Navigator {
                 navigationController.setViewControllers(
                     [controller],
                     animated: animated,
-                    completion: completion
+                    completion: {
+                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                        completion?(eventController, true)
+                    }
                 )
             } else if let fallback {
-                return navigate(
+                navigate(
                     destination: fallback.destination,
                     strategy: fallback.strategy,
                     animated: fallback.animated,
@@ -264,9 +308,7 @@ public final class Navigator {
                     completion: completion
                 )
             } else {
-                completion?()
-
-                return nil
+                completion?(nil, false)
             }
         case let .showSplit(strategy):
             // MARK: - Plain flow for easier understanding
@@ -287,17 +329,21 @@ public final class Navigator {
                             let controller = getController(destination: destination)
                             splitController.setViewController(controller, for: .primary)
                             eventController = controller as? UIViewController & Responder
+                            perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                            completion?(eventController, true)
                         }
                     } else {
                         let controller = getController(destination: destination)
-                        splitController.viewControllers = [controller]
                         eventController = controller as? UIViewController & Responder
+                        splitController.viewControllers = [controller]
+                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                        completion?(eventController, true)
                     }
                 case let .secondary(shouldPop):
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
                             // TODO: -
-                            return navigate(
+                            navigate(
                                 destination: destination,
                                 strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
@@ -309,6 +355,8 @@ public final class Navigator {
                             if let navigationController = splitController.viewController(for: .secondary)?.navigationController,
                                shouldPop,
                                let controller = navigationController.findController(destination: destination) {
+                                eventController = controller as? UIViewController & Responder
+                                navigatorEvent = ResponderPoppedToExistingEvent()
                                 dismissPresented(
                                     in: navigationController,
                                     animated: animated,
@@ -316,30 +364,45 @@ public final class Navigator {
                                         navigationController.popToViewController(
                                             controller,
                                             animated: animated,
-                                            completion: completion
+                                            completion: {
+                                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                                completion?(eventController, true)
+                                            }
                                         )
                                     }
                                 )
-                                eventController = controller as? UIViewController & Responder
-                                navigatorEvent = ResponderPoppedToExistingEvent()
                             } else {
                                 let controller = getController(destination: destination)
                                 eventController = controller as? UIViewController & Responder
                                 splitController.setViewController(controller, for: .secondary)
-                                dismissPresented(in: splitController, animated: animated, completion: completion)
+                                dismissPresented(
+                                    in: splitController,
+                                    animated: animated,
+                                    completion: {
+                                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                        completion?(eventController, true)
+                                    }
+                                )
                             }
                         }
                     } else {
                         let controller = getController(destination: destination)
                         splitController.showDetailViewController(controller, sender: nil)
                         eventController = controller as? UIViewController & Responder
-                        dismissPresented(in: splitController, animated: animated, completion: completion)
+                        dismissPresented(
+                            in: splitController,
+                            animated: animated,
+                            completion: {
+                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                completion?(eventController, true)
+                            }
+                        )
                     }
                 case let .replaceSecondary(shouldPop):
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
                             // TODO: -
-                            return navigate(
+                            navigate(
                                 destination: destination,
                                 strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
@@ -358,7 +421,10 @@ public final class Navigator {
                                         completion: {
                                             navigationController.popToRootViewController(
                                                 animated: animated,
-                                                completion: completion
+                                                completion: {
+                                                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                                    completion?(eventController, true)
+                                                }
                                             )
                                         }
                                     )
@@ -372,7 +438,10 @@ public final class Navigator {
                                             navigationController.setViewControllers(
                                                 [controller],
                                                 animated: animated,
-                                                completion: completion
+                                                completion: {
+                                                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                                    completion?(eventController, true)
+                                                }
                                             )
                                         }
                                     )
@@ -385,7 +454,8 @@ public final class Navigator {
                                     animated: animated,
                                     completion: {
                                         splitController.setViewController(controller, for: .secondary)
-                                        completion?()
+                                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                        completion?(eventController, true)
                                     }
                                 )
                             }
@@ -398,7 +468,8 @@ public final class Navigator {
                             animated: animated,
                             completion: {
                                 splitController.viewControllers = splitController.viewControllers.first.flatMap { [$0, controller] } ?? [controller]
-                                completion?()
+                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                completion?(eventController, true)
                             }
                         )
                     }
@@ -406,7 +477,7 @@ public final class Navigator {
                     if #available(iOS 14.0, *) {
                         if splitController.isSingleNavigation {
                             // TODO: -
-                            return navigate(
+                            navigate(
                                 destination: destination,
                                 strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
@@ -426,7 +497,10 @@ public final class Navigator {
                                             completion: {
                                                 navigationController.popToRootViewController(
                                                     animated: animated,
-                                                    completion: completion
+                                                    completion: {
+                                                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                                        completion?(eventController, true)
+                                                    }
                                                 )
                                             }
                                         )
@@ -440,7 +514,10 @@ public final class Navigator {
                                                 navigationController.setViewControllers(
                                                     [controller],
                                                     animated: animated,
-                                                    completion: completion
+                                                    completion: {
+                                                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                                        completion?(eventController, true)
+                                                    }
                                                 )
                                             }
                                         )
@@ -453,13 +530,14 @@ public final class Navigator {
                                         animated: animated,
                                         completion: {
                                             splitController.setViewController(controller, for: .supplementary)
-                                            completion?()
+                                            perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                            completion?(eventController, true)
                                         }
                                     )
                                 }
                             } else {
                                 // TODO: -
-                                return navigate(
+                                navigate(
                                     destination: destination,
                                     strategy: .showSplit(strategy: .secondary(shouldPop: shouldPop)),
                                     animated: animated,
@@ -477,15 +555,15 @@ public final class Navigator {
                             animated: animated,
                             completion: {
                                 splitController.viewControllers = Array(splitController.viewControllers.prefix(2)) + [controller]
-                                completion?()
+                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                completion?(eventController, true)
                             }
                         )
                     }
                 }
             } else {
-                // TODO: -
                 if let fallback {
-                    return navigate(
+                    navigate(
                         destination: fallback.destination,
                         strategy: fallback.strategy,
                         animated: fallback.animated,
@@ -494,29 +572,10 @@ public final class Navigator {
                         completion: completion
                     )
                 } else {
-                    return navigate(
-                        destination: destination,
-                        strategy: .present,
-                        animated: animated,
-                        fallback: nil,
-                        event: event,
-                        completion: completion
-                    )
+                    completion?(nil, false)
                 }
             }
         }
-        if let navigatorEvent {
-            Task {
-                await eventController?.handle(event: navigatorEvent)
-            }
-        }
-        if let event {
-            Task {
-                await eventController?.handle(event: event)
-            }
-        }
-
-        return eventController
     }
 
     /// Retrieves a view controller based on the provided navigation destination.
