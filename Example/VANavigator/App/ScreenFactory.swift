@@ -46,7 +46,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         followPushOrPresentDetails: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(DetailsNavigationIdentity(number: -1)),
-                                strategy: .pushOrPopToExisting()
+                                strategy: .popToExistingOrPush()
                             )
                         },
                         followTabs: { [weak navigator] in
@@ -55,7 +55,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     TabDetailNavigationIdentity(),
                                     MoreNavigationIdentity(),
                                 ])),
-                                strategy: .presentOrCloseToExisting
+                                strategy: .closeToExistingOrPresent
                             )
                         },
                         followSplit: { [weak navigator] in
@@ -65,7 +65,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     MoreNavigationIdentity(),
                                     SecondaryNavigationIdentity(),
                                 ])),
-                                strategy: .presentOrCloseToExisting
+                                strategy: .closeToExistingOrPresent
                             )
                         },
                         followShowInSplitOrPresent: {
@@ -108,7 +108,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
                                     destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .pushOrPopToExisting(),
+                                    strategy: .popToExistingOrPush(),
                                     animated: true
                                 )
                             })
@@ -166,7 +166,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
                                     destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .pushOrPopToExisting(),
+                                    strategy: .popToExistingOrPush(),
                                     animated: true
                                 )
                             })

@@ -155,7 +155,7 @@ public final class Navigator {
             let controller = getController(destination: destination)
             present(controller: controller, animated: animated, completion: completion)
             eventController = controller as? UIViewController & Responder
-        case .presentOrCloseToExisting:
+        case .closeToExistingOrPresent:
             if let controller = window?.findController(destination: destination) {
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderClosedToExistingEvent()
@@ -172,7 +172,6 @@ public final class Navigator {
                     }
                 )
             } else {
-                // TODO: -
                 return navigate(
                     destination: destination,
                     strategy: .present,
@@ -182,8 +181,9 @@ public final class Navigator {
                     completion: completion
                 )
             }
-        case let .push(alwaysEmbedded):
+        case .push:
             let controller = getController(destination: destination)
+            eventController = controller as? UIViewController & Responder
             selectTabIfNeeded(
                 controller: window?.topController,
                 completion: { [weak self] sourceController in
@@ -200,22 +200,24 @@ public final class Navigator {
                             if isSuccess {
                                 completion?()
                             } else {
-                                // TODO: -
-                                navigate(
-                                    destination: .controller(alwaysEmbedded ? screenFactory.embedInNavigationControllerIfNeeded(controller: controller) : controller),
-                                    strategy: .present,
-                                    animated: animated,
-                                    fallback: fallback,
-                                    event: event,
-                                    completion: completion
-                                )
+                                if let fallback {
+                                    navigate(
+                                        destination: fallback.destination,
+                                        strategy: fallback.strategy,
+                                        animated: fallback.animated,
+                                        fallback: fallback.fallback,
+                                        event: event,
+                                        completion: completion
+                                    )
+                                } else {
+                                    completion?()
+                                }
                             }
                         }
                     )
                 }
             )
-            eventController = controller as? UIViewController & Responder
-        case let .pushOrPopToExisting(alwaysEmbedded, includingTabs):
+        case let .popToExistingOrPush(includingTabs):
             func getController() -> UIViewController? {
                 let topController = window?.topController
 
@@ -234,10 +236,9 @@ public final class Navigator {
                     completion: completion
                 )
             } else {
-                // TODO: -
                 return navigate(
                     destination: destination,
-                    strategy: .push(alwaysEmbedded: alwaysEmbedded),
+                    strategy: .push,
                     animated: animated,
                     fallback: fallback,
                     event: event,
@@ -298,7 +299,7 @@ public final class Navigator {
                             // TODO: -
                             return navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .pushOrPopToExisting() : .push(),
+                                strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,
@@ -340,7 +341,7 @@ public final class Navigator {
                             // TODO: -
                             return navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .pushOrPopToExisting() : .push(),
+                                strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,
@@ -407,7 +408,7 @@ public final class Navigator {
                             // TODO: -
                             return navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .pushOrPopToExisting() : .push(),
+                                strategy: shouldPop ? .popToExistingOrPush() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,

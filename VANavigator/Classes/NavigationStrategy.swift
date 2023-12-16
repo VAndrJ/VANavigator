@@ -13,16 +13,16 @@ public enum NavigationStrategy: Equatable {
     case closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true)
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
     case replaceWindowRoot(transition: CATransition? = nil, alwaysEmbedded: Bool = false)
-    /// Pushes a controller onto the navigation stack, or presents if no `UINavigationController` is found. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
-    case push(alwaysEmbedded: Bool = true)
-    /// Pushes a controller onto the navigation stack, or pops to an existing one, or presents if no `UINavigationController` is found. Presents the controller or `UINavigationController` with the given root controller based on the `alwaysEmbedded` flag.
-    case pushOrPopToExisting(alwaysEmbedded: Bool = true, includingTabs: Bool = true)
+    /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
+    case push
+    /// Pushes a controller onto the navigation stack, or pops to an existing one, or uses fallback if no `UINavigationController` is found. 
+    case popToExistingOrPush(includingTabs: Bool = true)
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
     case replaceNavigationRoot
     /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.
     case present
     /// Presents a controller from the top view controller or closes presented controllers to given controller if it exists.
-    case presentOrCloseToExisting
+    case closeToExistingOrPresent
     /// Shows in a `UISplitViewController` with the given `strategy`.
     case showSplit(strategy: SplitStrategy)
 

@@ -33,7 +33,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         let expect = expectation(description: "replace")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .presentOrCloseToExisting,
+            strategy: .closeToExistingOrPresent,
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -55,7 +55,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         let expect = expectation(description: "replace")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .presentOrCloseToExisting,
+            strategy: .closeToExistingOrPresent,
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )

@@ -57,7 +57,7 @@ class CompositionRoot {
         case .details:
             navigator.navigate(
                 destination: .identity(DetailsNavigationIdentity(number: -1)),
-                strategy: .pushOrPopToExisting(),
+                strategy: .popToExistingOrPush(),
                 event: ResponderOpenedFromShortcutEvent()
             )
         }

@@ -38,6 +38,7 @@ class MockScreenFactory: NavigatorScreenFactory {
                 animated: false
             )
             controller.navigationIdentity = identity
+            
             return controller
         default:
             return UIViewController()

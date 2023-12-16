@@ -60,11 +60,12 @@ class PushControllerTests: XCTestCase {
         XCTAssertNil(navigator.window?.rootViewController as? UINavigationController, file: file, line: line)
         if alwaysEmbedded {
             let navigationController = navigator.window?.rootViewController?.presentedViewController as? UINavigationController
-            
+
+            XCTAssertNotNil(navigationController, file: file, line: line)
             XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
             XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
         } else {
-            XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.presentedViewController?.navigationIdentity), file: file, line: line)
+            XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.rootViewController?.presentedViewController?.navigationIdentity), "expected not equal to top", file: file, line: line)
         }
         XCTAssertTrue(expectedIdentity.isEqual(to: navigator.window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
@@ -102,7 +103,16 @@ class PushControllerTests: XCTestCase {
         let expect = expectation(description: "push")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .push(alwaysEmbedded: alwaysEmbedded),
+            strategy: .push,
+            fallback: alwaysEmbedded ? NavigationChainLink(
+                destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [identity])),
+                strategy: .present,
+                animated: true
+            ) : NavigationChainLink(
+                destination: .identity(identity),
+                strategy: .present,
+                animated: true
+            ),
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
@@ -116,8 +126,8 @@ class PushControllerTests: XCTestCase {
         let identity = MockRootControllerNavigationIdentity()
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
-            destination: .identity(identity),
-            strategy: .replaceWindowRoot(alwaysEmbedded: alwaysEmbedded),
+            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
+            strategy: .replaceWindowRoot(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
 

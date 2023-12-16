@@ -40,12 +40,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
-        let responder = pushOrPop(
-            navigator: navigator,
-            identity: identity,
-            alwaysEmbedded: false
-        )
-
+        let responder = pushOrPop(navigator: navigator, identity: identity)
         // Check that controller was pushed
         // and it is the top view controller.
         let expectedIdentity = identity
@@ -82,12 +77,7 @@ class PushOrPopControllerTests: XCTestCase {
             XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         }
 
-        let responder = pushOrPop(
-            navigator: navigator,
-            identity: identity,
-            alwaysEmbedded: false
-        )
-
+        let responder = pushOrPop(navigator: navigator, identity: identity)
         // Check that controller was popped
         // and it is the top view controller.
         let expectedIdentity = identity
@@ -102,11 +92,11 @@ class PushOrPopControllerTests: XCTestCase {
         }
     }
 
-    func pushOrPop(navigator: Navigator, identity: NavigationIdentity, alwaysEmbedded: Bool) -> (UIViewController & Responder)? {
+    func pushOrPop(navigator: Navigator, identity: NavigationIdentity) -> (UIViewController & Responder)? {
         let expect = expectation(description: "pushOrPop")
         let responder = navigator.navigate(
             destination: .identity(identity),
-            strategy: .pushOrPopToExisting(alwaysEmbedded: alwaysEmbedded, includingTabs: false),
+            strategy: .popToExistingOrPush(includingTabs: false),
             event: ResponderMockEvent(),
             completion: { taskDetachedMain { expect.fulfill() } }
         )
