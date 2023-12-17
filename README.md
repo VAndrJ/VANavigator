@@ -54,13 +54,13 @@ navigator?.navigate(
 ```
 
 
-- Present view controller or close all presented to existing
+- Closes presented controllers to given controller if it exists.
 
 Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .presentOrCloseToExisting
+    strategy: .closeToExisting
 )
 ```
 
@@ -71,34 +71,53 @@ Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .push()
+    strategy: .push
 )
 ```
 
 
-- Push view controller or pop to existing
+- Pops to existing controller
 
 Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .pushOrPopToExisting()
+    strategy: .popToExisting()
 )
 ```
 
 
-- Replace navigation stack with view controller or present.
+- Replace navigation stack with new controller.
 
 Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .replaceNavigationRoot()
+    strategy: .replaceNavigationRoot
 )
 ```
 
 
-- Under development
+- Close (pop or dismiss) the controller if it is top one.
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .closeIfTop()
+)
+```
+
+
+- *Under development. min iOS 14* Shows in a `UISplitViewController` with the given `strategy`.
+
+Code example:
+```
+navigator?.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .split(strategy: ...)
+)
+```
 
 
 **Navigation interception**
