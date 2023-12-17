@@ -30,16 +30,21 @@ class CloseIfTopControllerTests: XCTestCase {
         XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
         navigator.navigate(
             destination: .identity(topIdentity),
             strategy: .closeIfTop(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
 
         let expectedIdentity = MockPopControllerNavigationIdentity()
 
+        XCTAssertEqual(true, result)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
@@ -51,17 +56,44 @@ class CloseIfTopControllerTests: XCTestCase {
         XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
         navigator.navigate(
             destination: .identity(topIdentity),
             strategy: .closeIfTop(tryToDismiss: false),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
 
         let expectedIdentity = topIdentity
 
+        XCTAssertEqual(false, result)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+    }
+
+    func test_controllerClose_withoutWindow() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let topIdentity = MockPushControllerNavigationIdentity()
+
+        XCTAssertNil(window?.topController)
+
+        let expect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(topIdentity),
+            strategy: .closeIfTop(tryToDismiss: false),
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
     }
 
     func test_controllerPop() {
@@ -74,17 +106,22 @@ class CloseIfTopControllerTests: XCTestCase {
         XCTAssertEqual(3, navigationController?.viewControllers.count)
 
         let expect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
         navigator.navigate(
             destination: .identity(topIdentity),
             strategy: .closeIfTop(),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
         )
 
         wait(for: [expect], timeout: 10)
 
         let expectedIdentity = MockPopControllerNavigationIdentity()
-        
+
+        XCTAssertEqual(true, result)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertEqual(2, navigationController?.viewControllers.count)
         XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
@@ -104,7 +141,7 @@ class CloseIfTopControllerTests: XCTestCase {
             destination: .identity(topIdentity),
             strategy: .closeIfTop(tryToPop: false),
             event: ResponderMockEvent(),
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -120,11 +157,25 @@ class CloseIfTopControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
-                (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
-                (destination: .identity(MockPushControllerNavigationIdentity()), strategy: .push(alwaysEmbedded: true), animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockNavControllerNavigationIdentity(children: [
+                        MockRootControllerNavigationIdentity(),
+                    ])),
+                    strategy: .replaceWindowRoot(),
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPopControllerNavigationIdentity()),
+                    strategy: .push,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPushControllerNavigationIdentity()),
+                    strategy: .push,
+                    animated: false
+                ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -134,11 +185,23 @@ class CloseIfTopControllerTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .present, animated: false),
-                (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .present, animated: false),
-                (destination: .identity(MockPushControllerNavigationIdentity()), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPopControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .identity(MockPushControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)

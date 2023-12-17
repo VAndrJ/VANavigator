@@ -13,7 +13,7 @@ struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 class ExampleNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
-    var completion: (() -> Void)?
+    var completion: (((UIViewController & Responder)?, Bool) -> Void)?
 
     private let bag = DisposeBag()
 
@@ -33,7 +33,13 @@ class ExampleNavigationInterceptor: NavigationInterceptor {
                     return nil
                 } else {
                     return NavigationInterceptionResult(
-                        chain: [(.identity(LoginNavigationIdentity()), .replaceWindowRoot(), true)],
+                        chain: [
+                            NavigationChainLink(
+                                destination: .identity(LoginNavigationIdentity()),
+                                strategy: .replaceWindowRoot(),
+                                animated: true
+                            ),
+                        ],
                         reason: LoginRequiredNavigationInterceptionReason()
                     )
                 }

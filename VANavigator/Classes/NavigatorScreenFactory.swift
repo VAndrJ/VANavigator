@@ -12,5 +12,4 @@ import UIKit
 public protocol NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController
-    func embedInNavigationControllerIfNeeded(controller: UIViewController) -> UIViewController
 }

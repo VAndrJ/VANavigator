@@ -39,7 +39,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -50,7 +50,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -72,9 +72,13 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             chain: [
-                (destination: .identity(identity), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -86,7 +90,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -109,9 +113,13 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             chain: [
-                (destination: .identity(identity), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -123,7 +131,7 @@ class NavigationInterceptonTests: XCTestCase {
         XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
 
         let expect1 = expectation(description: "navigation.resolved")
-        navigationInterceptor.completion = { taskDetachedMain { expect1.fulfill() } }
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
         wait(for: [expect1], timeout: 10)
@@ -149,7 +157,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -180,7 +188,7 @@ class NavigationInterceptonTests: XCTestCase {
             destination: .identity(identity),
             strategy: .present,
             animated: false,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -200,9 +208,13 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
-                (destination: .identity(MockRootControllerNavigationIdentity()), strategy: .present, animated: false),
+                NavigationChainLink(
+                    destination: .identity(MockRootControllerNavigationIdentity()),
+                    strategy: .present,
+                    animated: false
+                ),
             ],
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
         wait(for: [expect], timeout: 10)
@@ -219,7 +231,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
     let interceptionIdentity = LoginNavigationIdentity()
     let interceptionReason = LoginRequiredNavigationInterceptionReason()
-    var completion: (() -> Void)?
+    var completion: (((UIViewController & Responder)?, Bool) -> Void)?
     let kind: Kind
 
     private let bag = DisposeBag()
@@ -241,7 +253,13 @@ class MockNavigationInterceptor: NavigationInterceptor {
                     return nil
                 } else {
                     return NavigationInterceptionResult(
-                        chain: [(.identity(interceptionIdentity), .present, true)],
+                        chain: [
+                            NavigationChainLink(
+                                destination: .identity(interceptionIdentity),
+                                strategy: .present,
+                                animated: true
+                            ),
+                        ],
                         reason: interceptionReason
                     )
                 }
@@ -266,9 +284,21 @@ class MockNavigationInterceptor: NavigationInterceptor {
             interceptionResolved(
                 reason: interceptionReason,
                 prefixNavigationChain: [
-                    (destination: .identity(interceptionIdentity), strategy: .closeIfTop(), animated: true),
-                    (destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [])), strategy: .closeIfTop(), animated: true),
-                    (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .closeIfTop(), animated: true),
+                    NavigationChainLink(
+                        destination: .identity(interceptionIdentity),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
+                    NavigationChainLink(
+                        destination: .identity(MockNavControllerNavigationIdentity(children: [])),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
+                    NavigationChainLink(
+                        destination: .identity(MockPopControllerNavigationIdentity()),
+                        strategy: .closeIfTop(),
+                        animated: true
+                    ),
                 ],
                 completion: completion
             )
@@ -277,7 +307,11 @@ class MockNavigationInterceptor: NavigationInterceptor {
                 reason: interceptionReason,
                 newStrategy: .replaceWindowRoot(),
                 suffixNavigationChain: [
-                    (destination: .identity(MockPopControllerNavigationIdentity()), strategy: .present, animated: true),
+                    NavigationChainLink(
+                        destination: .identity(MockPopControllerNavigationIdentity()),
+                        strategy: .present,
+                        animated: true
+                    ),
                 ],
                 completion: completion
             )

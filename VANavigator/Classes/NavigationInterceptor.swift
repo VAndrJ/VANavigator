@@ -9,19 +9,16 @@
 import Foundation
 
 public struct NavigationInterceptionResult {
-    let chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)]
-    let source: NavigationIdentity?
+    let chain: [NavigationChainLink]
     let event: ResponderEvent?
     let reason: AnyHashable
 
     public init(
-        chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
-        source: NavigationIdentity? = nil,
+        chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
         reason: AnyHashable
     ) {
         self.chain = chain
-        self.source = source
         self.event = event
         self.reason = reason
     }
@@ -31,9 +28,9 @@ open class NavigationInterceptor {
     var onInterceptionResolved: ((
         _ reason: AnyHashable,
         _ newStrategy: NavigationStrategy?,
-        _ prefixNavigationChain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
-        _ suffixNavigationChain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
-        _ completion: (() -> Void)?
+        _ prefixNavigationChain: [NavigationChainLink],
+        _ suffixNavigationChain: [NavigationChainLink],
+        _ completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) -> Void)?
     var interceptionData: [AnyHashable: InterceptionDetail] = [:]
 
@@ -46,11 +43,17 @@ open class NavigationInterceptor {
     public func interceptionResolved(
         reason: AnyHashable,
         newStrategy: NavigationStrategy? = nil,
-        prefixNavigationChain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)] = [],
-        suffixNavigationChain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)] = [],
-        completion: (() -> Void)?
+        prefixNavigationChain: [NavigationChainLink] = [],
+        suffixNavigationChain: [NavigationChainLink] = [],
+        completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) {
-        onInterceptionResolved?(reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion)
+        onInterceptionResolved?(
+            reason,
+            newStrategy,
+            prefixNavigationChain,
+            suffixNavigationChain,
+            completion
+        )
     }
 
     public func getInterceptionReasons() -> [AnyHashable] {
@@ -71,17 +74,14 @@ open class NavigationInterceptor {
 }
 
 class InterceptionDetail {
-    var chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)]
-    let source: NavigationIdentity?
+    var chain: [NavigationChainLink]
     let event: ResponderEvent?
 
     init(
-        chain: [(destination: NavigationDestination, strategy: NavigationStrategy, animated: Bool)],
-        source: NavigationIdentity? = nil,
+        chain: [NavigationChainLink],
         event: ResponderEvent? = nil
     ) {
         self.chain = chain
-        self.source = source
         self.event = event
     }
 }

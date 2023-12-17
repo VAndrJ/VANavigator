@@ -16,7 +16,7 @@ public enum NavigationDestination {
 
     /// Computed property to extract the navigation identity from the destination.
     @MainActor
-    var identity: NavigationIdentity? {
+    public var identity: NavigationIdentity? {
         switch self {
         case let .identity(identity):
             return identity

@@ -13,6 +13,41 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case let identity as MockSplitControllerNavigationIdentity:
+            let splitController = MockSplitViewController(style: identity.supplementary == nil ? .doubleColumn : .tripleColumn)
+            let primary = assembleScreen(identity: identity.primary, navigator: navigator)
+            primary.navigationIdentity = identity.primary
+            let secondary = assembleScreen(identity: identity.secondary, navigator: navigator)
+            secondary.navigationIdentity = identity.secondary
+            let supplementary = identity.supplementary.map {
+                let controller = assembleScreen(identity: $0, navigator: navigator)
+                controller.navigationIdentity = $0
+                return controller
+            }
+            splitController.setViewController(primary, for: .primary)
+            splitController.setViewController(secondary, for: .secondary)
+            if let supplementary {
+                splitController.setViewController(supplementary, for: .supplementary)
+            }
+            splitController.navigationIdentity = identity
+
+            return splitController
+        case let identity as MockTabControllerNavigationIdentity:
+            let controller = MockTabBarViewController()
+            controller.setViewControllers(
+                identity.children.map {
+                    let controller = assembleScreen(identity: $0, navigator: navigator)
+                    controller.navigationIdentity = $0
+
+                    return controller
+                },
+                animated: false
+            )
+            controller.navigationIdentity = identity
+
+            return controller
+        case _ as MockControllerNavigationIdentity:
+            return UIViewController()
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
@@ -28,28 +63,34 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as MockPopControllerNavigationIdentity:
             return MockPopViewController()
         case let identity as MockNavControllerNavigationIdentity:
-            let controller = UINavigationController()
+            let controller = MockNavigationController()
             controller.setViewControllers(
-                identity.childIdentity.map {
+                identity.children.map {
                     let controller = assembleScreen(identity: $0, navigator: navigator)
                     controller.navigationIdentity = $0
+
                     return controller
                 },
                 animated: false
             )
             controller.navigationIdentity = identity
+            
             return controller
         default:
             return UIViewController()
         }
     }
+}
 
-    func embedInNavigationControllerIfNeeded(controller: UIViewController) -> UIViewController {
-        if controller is UINavigationController {
-            return controller
-        } else {
-            return UINavigationController(rootViewController: controller)
-        }
+class MockNavigationController: UINavigationController, Responder {
+
+    var nextEventResponder: Responder? {
+        get { topController as? Responder }
+        set {}
+    }
+
+    func handle(event: ResponderEvent) async -> Bool {
+        await nextEventResponder?.handle(event: event) ?? false
     }
 }
 
@@ -121,14 +162,42 @@ class MockRootViewController: MockViewController, Responder {
     }
 }
 
+class MockSplitViewController: UISplitViewController {}
+
+class MockTabBarViewController: UITabBarController, Responder {
+
+    // MARK: - Responder
+
+    var nextEventResponder: Responder? {
+        get { selectedViewController as? Responder }
+        set {}
+    }
+
+    func handle(event: ResponderEvent) async -> Bool {
+        await nextEventResponder?.handle(event: event) ?? false
+    }
+}
+
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+struct MockControllerNavigationIdentity: DefaultNavigationIdentity {}
+
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
-    let childIdentity: [NavigationIdentity]
+    let children: [NavigationIdentity]
+}
+
+struct MockSplitControllerNavigationIdentity: DefaultNavigationIdentity {
+    let primary: NavigationIdentity
+    let secondary: NavigationIdentity
+    var supplementary: NavigationIdentity?
+}
+
+struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
+    let children: [NavigationIdentity]
 }
 
 struct ResponderMockEvent: ResponderEvent {}
