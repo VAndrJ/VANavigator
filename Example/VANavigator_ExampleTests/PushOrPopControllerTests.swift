@@ -30,7 +30,7 @@ class PushOrPopControllerTests: XCTestCase {
         controllerPopInNavigationStack(isTop: true)
     }
 
-    func test_controllerPush_whenNotResentedInStack() {
+    func test_controllerPush_whenNotInStack() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let identity = MockPopControllerNavigationIdentity()
@@ -40,21 +40,32 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
+        let expect = expectation(description: "pushOrPop")
         var responder: (UIViewController & Responder)?
-        let expect = expectation(description: "push")
-        pushOrPop(
-            navigator: navigator,
-            identity: identity,
-            completion: { controller, _ in
-                responder = controller
-                expect.fulfill()
+        var result: Bool = false
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .popToExisting(includingTabs: false),
+            fallback: NavigationChainLink(
+                destination: .identity(identity),
+                strategy: .push,
+                animated: true
+            ),
+            event: ResponderMockEvent(),
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
             }
         )
+
         wait(for: [expect], timeout: 10)
+
         // Check that controller was pushed
         // and it is the top view controller.
         let expectedIdentity = identity
 
+        XCTAssertEqual(true, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -122,7 +133,7 @@ class PushOrPopControllerTests: XCTestCase {
         var result: Bool = false
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .popToExistingOrPush(includingTabs: false),
+            strategy: .popToExisting(includingTabs: false),
             event: ResponderMockEvent(),
             completion: {
                 responder = $0

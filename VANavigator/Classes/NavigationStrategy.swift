@@ -16,7 +16,7 @@ public enum NavigationStrategy: Equatable {
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
     case push
     /// Pushes a controller onto the navigation stack, or pops to an existing one, or uses fallback if no `UINavigationController` is found. 
-    case popToExistingOrPush(includingTabs: Bool = true)
+    case popToExisting(includingTabs: Bool = true)
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
     case replaceNavigationRoot
     /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.

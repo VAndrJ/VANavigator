@@ -35,13 +35,59 @@ class PushControllerTests: XCTestCase {
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
         let identity = MockPushControllerNavigationIdentity()
+        var result: Bool?
+        let expect = expectation(description: "push")
         push(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: nil,
-            completion: nil
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
         )
 
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+    }
+
+    func test_controllerPushOntoNavigationStack_failPushNavigation() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
+
+        let identity = MockPushControllerNavigationIdentity()
+        var result: Bool?
+        let expect = expectation(description: "push")
+        navigator.navigate(
+            destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+            strategy: .push,
+            fallback: NavigationChainLink(
+                destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                strategy: .push,
+                animated: true,
+                fallback: NavigationChainLink(
+                    destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                    strategy: .push,
+                    animated: true,
+                    fallback: NavigationChainLink(
+                        destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                        strategy: .push,
+                        animated: true
+                    )
+                )
+            ),
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
@@ -102,12 +148,14 @@ class PushControllerTests: XCTestCase {
         let identity = MockPushControllerNavigationIdentity()
         let expect = expectation(description: "push")
         var responder: (UIViewController & Responder)?
+        var result: Bool?
         push(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: alwaysEmbedded,
-            completion: { controller, _ in
+            completion: { controller, isSuccess in
                 responder = controller
+                result = isSuccess
                 expect.fulfill()
             }
         )
@@ -118,6 +166,7 @@ class PushControllerTests: XCTestCase {
         let rootNavigationController = window?.rootViewController as? UINavigationController
         let expectedIdentity = identity
 
+        XCTAssertEqual(true, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)

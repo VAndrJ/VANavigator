@@ -17,11 +17,23 @@ class ScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case let identity as NavNavigationIdentity:
+            let controller = NavigationController()
+            let viewControllers = identity.childrenIdentity.map { identity in
+                let controller = assembleScreen(identity: identity, navigator: navigator)
+                controller.navigationIdentity = identity
+
+                return controller
+            }
+            controller.setViewControllers(viewControllers, animated: false)
+
+            return controller
         case let identity as TabNavigationIdentity:
             let controller = VATabBarController()
             let tabControllers = identity.tabsIdentity.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
+
                 return NavigationController(controller: controller)
             }
             controller.setViewControllers(tabControllers, animated: false)
@@ -44,9 +56,17 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followPushOrPresentDetails: { [weak navigator] in
+                            let identity = DetailsNavigationIdentity(number: -1)
                             navigator?.navigate(
-                                destination: .identity(DetailsNavigationIdentity(number: -1)),
-                                strategy: .popToExistingOrPush()
+                                destination: .identity(identity),
+                                strategy: .popToExisting(),
+                                fallback: NavigationChainLink(
+                                    destination: .identity(NavNavigationIdentity(childrenIdentity: [
+                                        identity,
+                                    ])),
+                                    strategy: .present,
+                                    animated: true
+                                )
                             )
                         },
                         followTabs: { [weak navigator] in
@@ -108,7 +128,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
                                     destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .popToExistingOrPush(),
+                                    strategy: .popToExisting(),
                                     animated: true
                                 )
                             })
@@ -166,7 +186,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
                                     destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .popToExistingOrPush(),
+                                    strategy: .popToExisting(),
                                     animated: true
                                 )
                             })
@@ -265,14 +285,14 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followShowInSplitOrPresent: {
-                            let destination = DetailsNavigationIdentity(number: -1)
+                            let identity = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
-                                destination: .identity(destination),
+                                destination: .identity(identity),
                                 strategy: .showSplit(strategy: .replaceSecondary()),
                                 fallback: NavigationChainLink(
                                     destination: .identity(SplitNavigationIdentity(tabsIdentity: [
                                         PrimaryNavigationIdentity(),
-                                        destination,
+                                        identity,
                                     ])),
                                     strategy: .present, animated: true
                                 )

@@ -174,7 +174,11 @@ public final class Navigator {
                 controller: controller,
                 transition: transition,
                 completion: {
-                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                    perform(
+                        event: event,
+                        navigatorEvent: navigatorEvent,
+                        on: eventController
+                    )
                     completion?(eventController, true)
                 }
             )
@@ -185,7 +189,11 @@ public final class Navigator {
                 controller: controller,
                 animated: animated,
                 completion: {
-                    perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                    perform(
+                        event: event,
+                        navigatorEvent: navigatorEvent,
+                        on: eventController
+                    )
                     completion?(eventController, true)
                 }
             )
@@ -202,7 +210,11 @@ public final class Navigator {
                             controller: sourceController ?? controller,
                             animated: animated,
                             completion: {
-                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: eventController
+                                )
                                 completion?(eventController, true)
                             }
                         )
@@ -235,7 +247,11 @@ public final class Navigator {
                             guard let self else { return }
 
                             if isSuccess {
-                                perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: eventController
+                                )
                                 completion?(eventController, true)
                             } else {
                                 if let fallback {
@@ -255,8 +271,8 @@ public final class Navigator {
                     )
                 }
             )
-        case let .popToExistingOrPush(includingTabs):
-            func getController() -> UIViewController? {
+        case let .popToExisting(includingTabs):
+            func findController() -> UIViewController? {
                 let topController = window?.topController
 
                 return includingTabs ?
@@ -264,7 +280,7 @@ public final class Navigator {
                 topController?.orNavigationController?.findController(destination: destination)
             }
 
-            if let controller = getController() {
+            if let controller = findController() {
                 selectTabIfNeeded(controller: controller)
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
@@ -272,19 +288,25 @@ public final class Navigator {
                     controller: controller,
                     animated: animated,
                     completion: {
-                        perform(event: event, navigatorEvent: navigatorEvent, on: eventController)
+                        perform(
+                            event: event,
+                            navigatorEvent: navigatorEvent,
+                            on: eventController
+                        )
                         completion?(eventController, true)
                     }
                 )
-            } else {
+            } else if let fallback {
                 navigate(
-                    destination: destination,
-                    strategy: .push,
-                    animated: animated,
-                    fallback: fallback,
+                    destination: fallback.destination,
+                    strategy: fallback.strategy,
+                    animated: fallback.animated,
+                    fallback: fallback.fallback,
                     event: event,
                     completion: completion
                 )
+            } else {
+                completion?(nil, false)
             }
         case .replaceNavigationRoot:
             if let navigationController = window?.topController?.navigationController {
@@ -345,7 +367,7 @@ public final class Navigator {
                             // TODO: -
                             navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .popToExistingOrPush() : .push,
+                                strategy: shouldPop ? .popToExisting() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,
@@ -404,7 +426,7 @@ public final class Navigator {
                             // TODO: -
                             navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .popToExistingOrPush() : .push,
+                                strategy: shouldPop ? .popToExisting() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,
@@ -479,7 +501,7 @@ public final class Navigator {
                             // TODO: -
                             navigate(
                                 destination: destination,
-                                strategy: shouldPop ? .popToExistingOrPush() : .push,
+                                strategy: shouldPop ? .popToExisting() : .push,
                                 animated: animated,
                                 fallback: fallback,
                                 event: event,
@@ -614,7 +636,7 @@ public final class Navigator {
             completion: { [weak self] in
                 guard let self else { return }
 
-                if let navigationController = window?.topController?.orNavigationController {
+                if !(controller is UINavigationController), let navigationController = window?.topController?.orNavigationController {
                     navigationController.pushViewController(
                         controller,
                         animated: animated,

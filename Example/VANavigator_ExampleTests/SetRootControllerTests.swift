@@ -30,11 +30,13 @@ class SetRootControllerTests: XCTestCase {
         let identity = MockRootControllerNavigationIdentity()
         var responder: (UIViewController & Responder)?
         let expect = expectation(description: "replace")
+        var result: Bool?
         replaceWindowRoot(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: false,
-            completion: { controller, _ in
+            completion: { controller, isSuccess in
+                result = isSuccess
                 responder = controller
                 expect.fulfill()
             }
@@ -46,6 +48,7 @@ class SetRootControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
+        XCTAssertEqual(true, result)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
