@@ -1,0 +1,39 @@
+# This workflow will build a Swift project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
+name: Swift
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+    
+    strategy:
+      matrix:
+        destination: ['platform=iOS Simulator,OS=16.2,name=iPhone 11']
+        
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/cache@v3
+      id: cocoapods-cache
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+    - name: CocoaPods
+      if: steps.cocoapods-cache.outputs.cache-hit != 'true'
+      working-directory: ./Example
+      run: |
+        pod install
+    - name: Build
+      run: |
+        xcodebuild build test -workspace ./Example/VANavigator.xcworkspace -scheme VANavigator-Example -destination "${destination}"
+    env:
+      destination: ${{ matrix.destination }}
