@@ -40,17 +40,17 @@ struct PrimaryNavigationIdentity: DefaultNavigationIdentity {}
 struct SecondaryNavigationIdentity: DefaultNavigationIdentity {}
 
 struct NavNavigationIdentity: NavigationIdentity {
-    var childrenIdentity: [NavigationIdentity]
+    var children: [NavigationIdentity]
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
-        guard childrenIdentity.count == other.childrenIdentity.count else {
+        guard children.count == other.children.count else {
             return false
         }
 
-        for pair in zip(childrenIdentity, other.childrenIdentity) {
+        for pair in zip(children, other.children) {
             if !pair.0.isEqual(to: pair.1) {
                 return false
             }
@@ -89,17 +89,17 @@ struct DetailsNavigationIdentity: NavigationIdentity {
 }
 
 struct TabNavigationIdentity: NavigationIdentity {
-    var tabsIdentity: [NavigationIdentity]
+    var children: [NavigationIdentity]
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
-        guard tabsIdentity.count == other.tabsIdentity.count else {
+        guard children.count == other.children.count else {
             return false
         }
 
-        for pair in zip(tabsIdentity, other.tabsIdentity) {
+        for pair in zip(children, other.children) {
             if !pair.0.isEqual(to: pair.1) {
                 return false
             }

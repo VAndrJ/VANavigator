@@ -44,6 +44,7 @@ class CompositionRoot {
     func handleShortcut(item: UIApplicationShortcutItem, completion: @escaping (Bool) -> Void) {
         guard let shortcut = Shortcut(rawValue: item.type) else {
             completion(false)
+
             return
         }
 
@@ -55,9 +56,20 @@ class CompositionRoot {
                 event: ResponderOpenedFromShortcutEvent()
             )
         case .details:
+            let identity = DetailsNavigationIdentity(number: -1)
             navigator.navigate(
-                destination: .identity(DetailsNavigationIdentity(number: -1)),
+                destination: .identity(identity),
                 strategy: .popToExisting(),
+                fallback: NavigationChainLink(
+                    destination: .identity(identity),
+                    strategy: .push,
+                    animated: true,
+                    fallback: NavigationChainLink(
+                        destination: .identity(NavNavigationIdentity(children: [identity])),
+                        strategy: .present,
+                        animated: true
+                    )
+                ),
                 event: ResponderOpenedFromShortcutEvent()
             )
         }

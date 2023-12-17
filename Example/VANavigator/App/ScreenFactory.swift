@@ -19,7 +19,7 @@ class ScreenFactory: NavigatorScreenFactory {
         switch identity {
         case let identity as NavNavigationIdentity:
             let controller = NavigationController()
-            let viewControllers = identity.childrenIdentity.map { identity in
+            let viewControllers = identity.children.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
 
@@ -30,7 +30,7 @@ class ScreenFactory: NavigatorScreenFactory {
             return controller
         case let identity as TabNavigationIdentity:
             let controller = VATabBarController()
-            let tabControllers = identity.tabsIdentity.map { identity in
+            let tabControllers = identity.children.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
 
@@ -61,7 +61,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 destination: .identity(identity),
                                 strategy: .popToExisting(),
                                 fallback: NavigationChainLink(
-                                    destination: .identity(NavNavigationIdentity(childrenIdentity: [
+                                    destination: .identity(NavNavigationIdentity(children: [
                                         identity,
                                     ])),
                                     strategy: .present,
@@ -70,7 +70,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followTabs: { [weak navigator] in
-                            let destination: NavigationDestination = .identity(TabNavigationIdentity(tabsIdentity: [
+                            let destination: NavigationDestination = .identity(TabNavigationIdentity(children: [
                                 TabDetailNavigationIdentity(),
                                 MoreNavigationIdentity(),
                             ]))
