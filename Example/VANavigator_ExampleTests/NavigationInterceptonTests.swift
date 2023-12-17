@@ -290,7 +290,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                         animated: true
                     ),
                     NavigationChainLink(
-                        destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [])),
+                        destination: .identity(MockNavControllerNavigationIdentity(children: [])),
                         strategy: .closeIfTop(),
                         animated: true
                     ),

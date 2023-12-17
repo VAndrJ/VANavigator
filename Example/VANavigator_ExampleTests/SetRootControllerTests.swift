@@ -124,7 +124,7 @@ class SetRootControllerTests: XCTestCase {
         var responder: (UIViewController & Responder)?
         var result = false
         navigator.navigate(
-            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
+            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(children: [identity]) : identity),
             strategy: .replaceWindowRoot(),
             event: ResponderMockEvent(),
             completion: {

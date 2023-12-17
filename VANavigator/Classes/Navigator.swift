@@ -203,11 +203,11 @@ public final class Navigator {
                 navigatorEvent = ResponderClosedToExistingEvent()
                 selectTabIfNeeded(
                     controller: window?.topController,
-                    completion: { [weak self] sourceController in
+                    completion: { [weak self] in
                         guard let self else { return }
 
                         closeNavigationPresented(
-                            controller: sourceController ?? controller,
+                            controller: controller,
                             animated: animated,
                             completion: {
                                 perform(
@@ -235,10 +235,10 @@ public final class Navigator {
             eventController = controller as? UIViewController & Responder
             selectTabIfNeeded(
                 controller: window?.topController,
-                completion: { [weak self] sourceController in
+                completion: { [weak self] in
                     guard let self else { return }
 
-                    let sourceController = sourceController?.topController.orNavigationController
+                    let sourceController = controller.topController.orNavigationController
                     push(
                         sourceController: sourceController,
                         controller: controller,
@@ -281,19 +281,25 @@ public final class Navigator {
             }
 
             if let controller = findController() {
-                selectTabIfNeeded(controller: controller)
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
-                closeNavigationPresented(
+                selectTabIfNeeded(
                     controller: controller,
-                    animated: animated,
-                    completion: {
-                        perform(
-                            event: event,
-                            navigatorEvent: navigatorEvent,
-                            on: eventController
+                    completion: { [weak self] in
+                        guard let self else { return }
+
+                        closeNavigationPresented(
+                            controller: controller,
+                            animated: animated,
+                            completion: {
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: eventController
+                                )
+                                completion?(eventController, true)
+                            }
                         )
-                        completion?(eventController, true)
                     }
                 )
             } else if let fallback {
@@ -747,10 +753,10 @@ public final class Navigator {
     ///
     /// - Parameters:
     ///   - controller: The view controller from which to start searching for the tab bar controller.
-    ///   - completion: A closure to be executed after the tab is selected, providing the view controller found in the selected tab if applicable.
+    ///   - completion: A closure to be executed after the tab is selected.
     public func selectTabIfNeeded(
         controller: UIViewController?,
-        completion: ((UIViewController?) -> Void)? = nil
+        completion: (() -> Void)? = nil
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
             for index in (tabBarController.viewControllers ?? []).indices {
@@ -758,16 +764,16 @@ public final class Navigator {
                     if tabBarController.selectedIndex != index {
                         tabBarController.selectedIndex = index
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            completion?(sourceController)
+                            completion?()
                         }
                     } else {
-                        completion?(sourceController)
+                        completion?()
                     }
                     return
                 }
             }
         }
-        completion?(nil)
+        completion?()
     }
 
     private func bind() {

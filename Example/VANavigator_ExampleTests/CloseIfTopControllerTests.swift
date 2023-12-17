@@ -158,7 +158,7 @@ class CloseIfTopControllerTests: XCTestCase {
         navigator.navigate(
             chain: [
                 NavigationChainLink(
-                    destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [
+                    destination: .identity(MockNavControllerNavigationIdentity(children: [
                         MockRootControllerNavigationIdentity(),
                     ])),
                     strategy: .replaceWindowRoot(),

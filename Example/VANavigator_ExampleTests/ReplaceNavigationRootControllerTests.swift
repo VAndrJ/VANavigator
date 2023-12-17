@@ -137,7 +137,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
     }
 
     func prepareNavigationStack(navigator: Navigator) {
-        let identity = MockNavControllerNavigationIdentity(childIdentity: [
+        let identity = MockNavControllerNavigationIdentity(children: [
             MockRootControllerNavigationIdentity(),
             MockPopControllerNavigationIdentity(),
         ])

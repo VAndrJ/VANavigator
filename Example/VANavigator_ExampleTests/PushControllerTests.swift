@@ -58,22 +58,21 @@ class PushControllerTests: XCTestCase {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
-        let identity = MockPushControllerNavigationIdentity()
         var result: Bool?
         let expect = expectation(description: "push")
         navigator.navigate(
-            destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+            destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
             strategy: .push,
             fallback: NavigationChainLink(
-                destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
                 strategy: .push,
                 animated: true,
                 fallback: NavigationChainLink(
-                    destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                    destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
                     strategy: .push,
                     animated: true,
                     fallback: NavigationChainLink(
-                        destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [MockRootControllerNavigationIdentity()])),
+                        destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
                         strategy: .push,
                         animated: true
                     )
@@ -188,7 +187,7 @@ class PushControllerTests: XCTestCase {
             strategy: .push,
             fallback: alwaysEmbedded.map {
                 $0 ? NavigationChainLink(
-                    destination: .identity(MockNavControllerNavigationIdentity(childIdentity: [identity])),
+                    destination: .identity(MockNavControllerNavigationIdentity(children: [identity])),
                     strategy: .present,
                     animated: true
                 ) : NavigationChainLink(
@@ -213,7 +212,7 @@ class PushControllerTests: XCTestCase {
         let identity = MockRootControllerNavigationIdentity()
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
-            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(childIdentity: [identity]) : identity),
+            destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(children: [identity]) : identity),
             strategy: .replaceWindowRoot(),
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )

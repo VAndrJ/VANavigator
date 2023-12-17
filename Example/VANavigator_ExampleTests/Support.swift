@@ -13,6 +13,20 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case let identity as MockTabControllerNavigationIdentity:
+            let controller = MockTabBarViewController()
+            controller.setViewControllers(
+                identity.children.map {
+                    let controller = assembleScreen(identity: $0, navigator: navigator)
+                    controller.navigationIdentity = $0
+
+                    return controller
+                },
+                animated: false
+            )
+            controller.navigationIdentity = identity
+
+            return controller
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
@@ -30,9 +44,10 @@ class MockScreenFactory: NavigatorScreenFactory {
         case let identity as MockNavControllerNavigationIdentity:
             let controller = MockNavigationController()
             controller.setViewControllers(
-                identity.childIdentity.map {
+                identity.children.map {
                     let controller = assembleScreen(identity: $0, navigator: navigator)
                     controller.navigationIdentity = $0
+
                     return controller
                 },
                 animated: false
@@ -126,6 +141,20 @@ class MockRootViewController: MockViewController, Responder {
     }
 }
 
+class MockTabBarViewController: UITabBarController, Responder {
+
+    // MARK: - Responder
+
+    var nextEventResponder: Responder? {
+        get { selectedViewController as? Responder }
+        set {}
+    }
+
+    func handle(event: ResponderEvent) async -> Bool {
+        await nextEventResponder?.handle(event: event) ?? false
+    }
+}
+
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
@@ -133,7 +162,11 @@ struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
-    let childIdentity: [NavigationIdentity]
+    let children: [NavigationIdentity]
+}
+
+struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
+    let children: [NavigationIdentity]
 }
 
 struct ResponderMockEvent: ResponderEvent {}
