@@ -70,22 +70,34 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followTabs: { [weak navigator] in
+                            let destination: NavigationDestination = .identity(TabNavigationIdentity(tabsIdentity: [
+                                TabDetailNavigationIdentity(),
+                                MoreNavigationIdentity(),
+                            ]))
                             navigator?.navigate(
-                                destination: .identity(TabNavigationIdentity(tabsIdentity: [
-                                    TabDetailNavigationIdentity(),
-                                    MoreNavigationIdentity(),
-                                ])),
-                                strategy: .closeToExistingOrPresent
+                                destination: destination,
+                                strategy: .closeToExisting,
+                                fallback: NavigationChainLink(
+                                    destination: destination,
+                                    strategy: .present,
+                                    animated: true
+                                )
                             )
                         },
                         followSplit: { [weak navigator] in
+                            let destination: NavigationDestination = .identity(SplitNavigationIdentity(tabsIdentity: [
+                                PrimaryNavigationIdentity(),
+                                MoreNavigationIdentity(),
+                                SecondaryNavigationIdentity(),
+                            ]))
                             navigator?.navigate(
-                                destination: .identity(SplitNavigationIdentity(tabsIdentity: [
-                                    PrimaryNavigationIdentity(),
-                                    MoreNavigationIdentity(),
-                                    SecondaryNavigationIdentity(),
-                                ])),
-                                strategy: .closeToExistingOrPresent
+                                destination: destination,
+                                strategy: .closeToExisting,
+                                fallback: NavigationChainLink(
+                                    destination: destination,
+                                    strategy: .present,
+                                    animated: true
+                                )
                             )
                         },
                         followShowInSplitOrPresent: {

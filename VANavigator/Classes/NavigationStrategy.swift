@@ -21,8 +21,8 @@ public enum NavigationStrategy: Equatable {
     case replaceNavigationRoot
     /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.
     case present
-    /// Presents a controller from the top view controller or closes presented controllers to given controller if it exists.
-    case closeToExistingOrPresent
+    /// Closes presented controllers to given controller if it exists.
+    case closeToExisting
     /// Shows in a `UISplitViewController` with the given `strategy`.
     case showSplit(strategy: SplitStrategy)
 

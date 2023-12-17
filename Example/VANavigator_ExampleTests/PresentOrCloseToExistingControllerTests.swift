@@ -35,7 +35,12 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .closeToExistingOrPresent,
+            strategy: .closeToExisting,
+            fallback: NavigationChainLink(
+                destination: .identity(identity),
+                strategy: .present,
+                animated: true
+            ),
             event: ResponderMockEvent(),
             completion: { controller, isSuccess in
                 responder = controller
@@ -65,7 +70,12 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .closeToExistingOrPresent,
+            strategy: .closeToExisting,
+            fallback: NavigationChainLink(
+                destination: .identity(identity),
+                strategy: .present,
+                animated: true
+            ),
             event: ResponderMockEvent(),
             completion: { controller, isSuccess in
                 responder = controller
@@ -79,6 +89,33 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertEqual(true, result)
         XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
+    func test_controllerCloseToExisting_failure() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigation(navigator: navigator)
+        let identity = MockPopControllerNavigationIdentity()
+
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+
+        let expect = expectation(description: "replace")
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .closeToExisting,
+            event: ResponderMockEvent(),
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
     }
 
     func test_controller_presented() {

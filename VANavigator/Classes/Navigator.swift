@@ -197,7 +197,7 @@ public final class Navigator {
                     completion?(eventController, true)
                 }
             )
-        case .closeToExistingOrPresent:
+        case .closeToExisting:
             if let controller = window?.findController(destination: destination) {
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderClosedToExistingEvent()
@@ -220,15 +220,17 @@ public final class Navigator {
                         )
                     }
                 )
-            } else {
+            } else if let fallback {
                 navigate(
-                    destination: destination,
-                    strategy: .present,
-                    animated: animated,
-                    fallback: fallback,
+                    destination: fallback.destination,
+                    strategy: fallback.strategy,
+                    animated: fallback.animated,
+                    fallback: fallback.fallback,
                     event: event,
                     completion: completion
                 )
+            } else {
+                completion?(nil, false)
             }
         case .push:
             let controller = getController(destination: destination)
