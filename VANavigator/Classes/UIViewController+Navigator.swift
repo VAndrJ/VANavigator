@@ -113,7 +113,7 @@ extension UIViewController {
     }
 }
 
-extension UISplitViewController {
+public extension UISplitViewController {
     var isSingleNavigation: Bool { viewControllers.count == 1 && viewControllers.first is UINavigationController }
 }
 

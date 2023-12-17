@@ -85,11 +85,11 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followSplit: { [weak navigator] in
-                            let destination: NavigationDestination = .identity(SplitNavigationIdentity(tabsIdentity: [
-                                PrimaryNavigationIdentity(),
-                                MoreNavigationIdentity(),
-                                SecondaryNavigationIdentity(),
-                            ]))
+                            let destination: NavigationDestination = .identity(SplitNavigationIdentity(
+                                primary: PrimaryNavigationIdentity(),
+                                secondary: MoreNavigationIdentity(),
+                                supplementary: SecondaryNavigationIdentity()
+                            ))
                             navigator?.navigate(
                                 destination: destination,
                                 strategy: .closeToExisting,
@@ -104,12 +104,12 @@ class ScreenFactory: NavigatorScreenFactory {
                             let destination = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(destination),
-                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
-                                        PrimaryNavigationIdentity(),
-                                        destination,
-                                    ])),
+                                    destination: .identity(SplitNavigationIdentity(
+                                        primary: PrimaryNavigationIdentity(),
+                                        secondary: destination
+                                    )),
                                     strategy: .present, animated: true
                                 )
                             )
@@ -219,26 +219,26 @@ class ScreenFactory: NavigatorScreenFactory {
                 isNotImportant: true
             )
         case let identity as SplitNavigationIdentity:
-            assert([2, 3].contains(identity.tabsIdentity.count))
             let controller: UISplitViewController
-            if #available(iOS 14.0, *) {
-                if identity.tabsIdentity.count == 2 {
-                    controller = UISplitViewController(style: .doubleColumn)
-                } else {
-                    controller = UISplitViewController(style: .tripleColumn)
-                }
+            if identity.supplementary == nil {
+                controller = UISplitViewController(style: .doubleColumn)
             } else {
-                controller = UISplitViewController()
+                controller = UISplitViewController(style: .tripleColumn)
             }
             controller.preferredDisplayMode = .automatic
-            if #available(iOS 14.0, *) {
-                controller.preferredSplitBehavior = .tile
-            }
-            controller.viewControllers = identity.tabsIdentity.map { identity in
-                let controller = assembleScreen(identity: identity, navigator: navigator)
-                controller.navigationIdentity = identity
-
-                return controller
+            controller.preferredSplitBehavior = .tile
+            let primary = identity.primary
+            let primaryController = assembleScreen(identity: primary, navigator: navigator)
+            primaryController.navigationIdentity = primary
+            controller.setViewController(primaryController, for: .primary)
+            let secondary = identity.secondary
+            let secondaryController = assembleScreen(identity: secondary, navigator: navigator)
+            secondaryController.navigationIdentity = secondary
+            controller.setViewController(secondaryController, for: .secondary)
+            if let supplementary = identity.supplementary {
+                let supplementaryController = assembleScreen(identity: supplementary, navigator: navigator)
+                supplementaryController.navigationIdentity = supplementary
+                controller.setViewController(supplementaryController, for: .supplementary)
             }
             controller.preferredPrimaryColumnWidthFraction = 0.33
             
@@ -259,26 +259,26 @@ class ScreenFactory: NavigatorScreenFactory {
                         followReplacePrimary: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(PrimaryNavigationIdentity()),
-                                strategy: .showSplit(strategy: .replacePrimary),
+                                strategy: .split(strategy: .primary(action: .replace)),
                                 animated: false
                             )
                         },
                         followShowSplitSecondary: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(SecondaryNavigationIdentity()),
-                                strategy: .showSplit(strategy: .secondary())
+                                strategy: .split(strategy: .secondary(action: .push))
                             )
                         },
                         followShowInSplitOrPresent: {
                             let destination = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(destination),
-                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
-                                        PrimaryNavigationIdentity(),
-                                        destination,
-                                    ])),
+                                    destination: .identity(SplitNavigationIdentity(
+                                        primary: PrimaryNavigationIdentity(),
+                                        secondary: destination
+                                    )),
                                     strategy: .present, animated: true
                                 )
                             )
@@ -303,19 +303,19 @@ class ScreenFactory: NavigatorScreenFactory {
                         followShowSplitSecondary: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(SecondaryNavigationIdentity()),
-                                strategy: .showSplit(strategy: .secondary())
+                                strategy: .split(strategy: .secondary(action: .push))
                             )
                         },
                         followShowInSplitOrPresent: {
                             let identity = DetailsNavigationIdentity(number: -1)
                             navigator.navigate(
                                 destination: .identity(identity),
-                                strategy: .showSplit(strategy: .replaceSecondary()),
+                                strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(tabsIdentity: [
-                                        PrimaryNavigationIdentity(),
-                                        identity,
-                                    ])),
+                                    destination: .identity(SplitNavigationIdentity(
+                                        primary: PrimaryNavigationIdentity(),
+                                        secondary: identity
+                                    )),
                                     strategy: .present, animated: true
                                 )
                             )

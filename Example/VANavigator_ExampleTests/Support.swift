@@ -13,6 +13,25 @@ class MockScreenFactory: NavigatorScreenFactory {
 
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case let identity as MockSplitControllerNavigationIdentity:
+            let splitController = MockSplitViewController(style: identity.supplementary == nil ? .doubleColumn : .tripleColumn)
+            let primary = assembleScreen(identity: identity.primary, navigator: navigator)
+            primary.navigationIdentity = identity.primary
+            let secondary = assembleScreen(identity: identity.secondary, navigator: navigator)
+            secondary.navigationIdentity = identity.secondary
+            let supplementary = identity.supplementary.map {
+                let controller = assembleScreen(identity: $0, navigator: navigator)
+                controller.navigationIdentity = $0
+                return controller
+            }
+            splitController.setViewController(primary, for: .primary)
+            splitController.setViewController(secondary, for: .secondary)
+            if let supplementary {
+                splitController.setViewController(supplementary, for: .supplementary)
+            }
+            splitController.navigationIdentity = identity
+
+            return splitController
         case let identity as MockTabControllerNavigationIdentity:
             let controller = MockTabBarViewController()
             controller.setViewControllers(
@@ -27,6 +46,8 @@ class MockScreenFactory: NavigatorScreenFactory {
             controller.navigationIdentity = identity
 
             return controller
+        case _ as MockControllerNavigationIdentity:
+            return UIViewController()
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
@@ -141,6 +162,8 @@ class MockRootViewController: MockViewController, Responder {
     }
 }
 
+class MockSplitViewController: UISplitViewController {}
+
 class MockTabBarViewController: UITabBarController, Responder {
 
     // MARK: - Responder
@@ -161,8 +184,16 @@ struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+struct MockControllerNavigationIdentity: DefaultNavigationIdentity {}
+
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
     let children: [NavigationIdentity]
+}
+
+struct MockSplitControllerNavigationIdentity: DefaultNavigationIdentity {
+    let primary: NavigationIdentity
+    let secondary: NavigationIdentity
+    var supplementary: NavigationIdentity?
 }
 
 struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {

@@ -61,23 +61,18 @@ struct NavNavigationIdentity: NavigationIdentity {
 }
 
 struct SplitNavigationIdentity: NavigationIdentity {
-    var tabsIdentity: [NavigationIdentity]
+    var primary: NavigationIdentity
+    var secondary: NavigationIdentity
+    var supplementary: NavigationIdentity?
 
     func isEqual(to other: NavigationIdentity?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
-        guard tabsIdentity.count == other.tabsIdentity.count else {
-            return false
-        }
 
-        for pair in zip(tabsIdentity, other.tabsIdentity) {
-            if !pair.0.isEqual(to: pair.1) {
-                return false
-            }
-        }
-
-        return true
+        return primary.isEqual(to: other.primary) &&
+        secondary.isEqual(to: other.secondary) &&
+        supplementary?.isEqual(to: other.supplementary) == true
     }
 }
 

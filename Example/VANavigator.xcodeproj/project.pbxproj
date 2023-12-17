@@ -19,6 +19,7 @@
 		A3081E0E2B1E4B3A0041E11A /* AuthorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */; };
 		A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */; };
 		A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */; };
+		A30DB7B12B2F0BDF009994E5 /* SplitControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
@@ -79,6 +80,7 @@
 		A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationService.swift; sourceTree = "<group>"; };
 		A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginControllerNode.swift; sourceTree = "<group>"; };
 		A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationControllerNode.swift; sourceTree = "<group>"; };
+		A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitControllerTests.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */,
 				A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */,
 				A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */,
+				A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */,
 				A32F5E982B210DF9008564F9 /* Support.swift */,
 			);
 			path = VANavigator_ExampleTests;
@@ -329,7 +332,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1510;
 				ORGANIZATIONNAME = "Volodymyr Andriienko";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -344,10 +347,9 @@
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "VANavigator" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
@@ -467,6 +469,7 @@
 			files = (
 				A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */,
 				A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */,
+				A30DB7B12B2F0BDF009994E5 /* SplitControllerTests.swift in Sources */,
 				A34FCA942B2D9153004404A1 /* NavigationInterceptonTests.swift in Sources */,
 				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
 				A333AB582B2EF2DA009AB080 /* NavigationDestinationTests.swift in Sources */,
@@ -533,6 +536,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -548,7 +552,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -591,6 +595,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -599,7 +604,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -615,7 +620,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = VANavigator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -639,7 +644,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = VANavigator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
