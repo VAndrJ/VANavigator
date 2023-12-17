@@ -33,7 +33,6 @@ public final class Navigator {
     ///   - chain: An array of navigation links representing the navigation chain with destination and strategy.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
-    @discardableResult
     public func navigate(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
@@ -90,7 +89,6 @@ public final class Navigator {
     ///   - fallback: The fallback navigation chain link.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
-    @discardableResult
     public func navigate(
         destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -676,7 +674,7 @@ public final class Navigator {
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
             for index in (tabBarController.viewControllers ?? []).indices {
-                if let sourceController = tabBarController.viewControllers?[index].findController(controller: controller) {
+                if tabBarController.viewControllers?[index].findController(controller: controller) != nil {
                     if tabBarController.selectedIndex != index {
                         tabBarController.selectedIndex = index
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
