@@ -10,7 +10,7 @@ import Foundation
 import os
 
 extension OSLog {
-    private static let subsystem = Bundle.main.bundleIdentifier!
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.vandrj"
 
     static let responderChain = OSLog(subsystem: subsystem, category: "ResponderChain")
 }

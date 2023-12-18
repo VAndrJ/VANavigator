@@ -31,9 +31,9 @@ class EventViewModel: ViewModel {
     }
 
     func run(_ event: Event) {
-#if DEBUG || targetEnvironment(simulator)
+        #if DEBUG || targetEnvironment(simulator)
         debugPrint("⚠️ [Event not handled] \(event)")
-#endif
+        #endif
     }
 
     func perform(_ event: Event) {

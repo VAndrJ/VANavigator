@@ -50,10 +50,8 @@ struct NavNavigationIdentity: NavigationIdentity {
             return false
         }
 
-        for pair in zip(children, other.children) {
-            if !pair.0.isEqual(to: pair.1) {
-                return false
-            }
+        for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
+            return false
         }
 
         return true
@@ -99,10 +97,8 @@ struct TabNavigationIdentity: NavigationIdentity {
             return false
         }
 
-        for pair in zip(children, other.children) {
-            if !pair.0.isEqual(to: pair.1) {
-                return false
-            }
+        for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
+            return false
         }
 
         return true

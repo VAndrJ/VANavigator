@@ -8,6 +8,7 @@
 
 import UIKit
 
+// swiftlint:disable file_length type_body_length
 @MainActor
 public final class Navigator {
     public let screenFactory: NavigatorScreenFactory
@@ -80,6 +81,7 @@ public final class Navigator {
         )
     }
 
+    // swiftlint:disable function_body_length cyclomatic_complexity
     /// Navigates to a specific destination using the provided navigation strategy.
     ///
     /// - Parameters:
@@ -142,7 +144,7 @@ public final class Navigator {
             let tryToPop = strategy.tryToPop
             let tryToDismiss = strategy.tryToDismiss
             if let controller = window?.topController {
-                if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true  {
+                if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     controller.navigationController?.popViewController(
                         animated: animated,
                         completion: {
@@ -519,6 +521,7 @@ public final class Navigator {
             }
         }
     }
+    // swiftlint:enable function_body_length cyclomatic_complexity
 
     /// Retrieves a view controller based on the provided navigation destination.
     ///
@@ -673,18 +676,16 @@ public final class Navigator {
         completion: (() -> Void)? = nil
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
-            for index in (tabBarController.viewControllers ?? []).indices {
-                if tabBarController.viewControllers?[index].findController(controller: controller) != nil {
-                    if tabBarController.selectedIndex != index {
-                        tabBarController.selectedIndex = index
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            completion?()
-                        }
-                    } else {
+            for index in (tabBarController.viewControllers ?? []).indices where tabBarController.viewControllers?[index].findController(controller: controller) != nil {
+                if tabBarController.selectedIndex != index {
+                    tabBarController.selectedIndex = index
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                         completion?()
                     }
-                    return
+                } else {
+                    completion?()
                 }
+                return
             }
         }
         completion?()
