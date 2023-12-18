@@ -97,7 +97,7 @@ extension UIViewController {
             return nil
         }
     }
-
+    
     public func findController(destination: NavigationDestination) -> UIViewController? {
         switch destination {
         case let .identity(identity):

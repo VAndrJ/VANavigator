@@ -12,9 +12,9 @@ import UIKit
 public final class Navigator {
     public let screenFactory: NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor?
-    
+
     public private(set) weak var window: UIWindow?
-    
+
     public init(
         window: UIWindow?,
         screenFactory: NavigatorScreenFactory,
@@ -23,10 +23,10 @@ public final class Navigator {
         self.window = window
         self.screenFactory = screenFactory
         self.navigationInterceptor = navigationInterceptor
-        
+
         bind()
     }
-    
+
     /// Navigates through a chain of destinations.
     ///
     /// - Parameters:
@@ -40,10 +40,10 @@ public final class Navigator {
     ) {
         guard !chain.isEmpty else {
             completion?(nil, false)
-            
+
             return
         }
-        
+
         var chain = chain
         let link = chain.removeFirst()
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: link.destination) {
@@ -58,10 +58,10 @@ public final class Navigator {
                 event: interceptionResult.event,
                 completion: completion
             )
-            
+
             return
         }
-        
+
         navigate(
             destination: link.destination,
             strategy: link.strategy,
@@ -79,7 +79,7 @@ public final class Navigator {
             }
         )
     }
-    
+
     /// Navigates to a specific destination using the provided navigation strategy.
     ///
     /// - Parameters:
@@ -115,16 +115,16 @@ public final class Navigator {
                 event: interceptionResult.event,
                 completion: completion
             )
-            
+
             return
         }
-        
+
         let eventController: (UIViewController & Responder)?
         var navigatorEvent: ResponderEvent?
-        
+
         func perform(event: ResponderEvent?, navigatorEvent: ResponderEvent?, on responder: Responder?) {
             guard let responder else { return }
-            
+
             if let navigatorEvent {
                 Task {
                     await responder.handle(event: navigatorEvent)
@@ -136,7 +136,7 @@ public final class Navigator {
                 }
             }
         }
-        
+
         switch strategy {
         case let strategy as CloseIfTopNavigationStrategy:
             let tryToPop = strategy.tryToPop
@@ -206,7 +206,7 @@ public final class Navigator {
                     controller: window?.topController,
                     completion: { [weak self] in
                         guard let self else { return }
-                        
+
                         closeNavigationPresented(
                             controller: controller,
                             animated: animated,
@@ -240,7 +240,7 @@ public final class Navigator {
                 controller: window?.topController,
                 completion: { [weak self] in
                     guard let self else { return }
-                    
+
                     let sourceController = controller.topController.orNavigationController
                     push(
                         sourceController: sourceController,
@@ -248,7 +248,7 @@ public final class Navigator {
                         animated: animated,
                         completion: { [weak self] isSuccess in
                             guard let self else { return }
-                            
+
                             if isSuccess {
                                 perform(
                                     event: event,
@@ -276,15 +276,15 @@ public final class Navigator {
             )
         case let strategy as PopToExistingNavigationStrategy:
             let includingTabs = strategy.includingTabs
-            
+
             func findController() -> UIViewController? {
                 let topController = window?.topController
-                
+
                 return includingTabs ?
                 topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
                 topController?.orNavigationController?.findController(destination: destination)
             }
-            
+
             if let controller = findController() {
                 eventController = controller as? UIViewController & Responder
                 navigatorEvent = ResponderPoppedToExistingEvent()
@@ -292,7 +292,7 @@ public final class Navigator {
                     controller: controller,
                     completion: { [weak self] in
                         guard let self else { return }
-                        
+
                         closeNavigationPresented(
                             controller: controller,
                             animated: animated,
@@ -519,7 +519,7 @@ public final class Navigator {
             }
         }
     }
-    
+
     /// Retrieves a view controller based on the provided navigation destination.
     ///
     /// - Parameter destination: The navigation destination indicating whether to assemble a screen using an identity or use an existing controller.
@@ -529,13 +529,13 @@ public final class Navigator {
         case let .identity(identity):
             let controller = screenFactory.assembleScreen(identity: identity, navigator: self)
             controller.navigationIdentity = identity
-            
+
             return controller
         case let .controller(controller):
             return controller
         }
     }
-    
+
     /// Pushes a view controller onto the navigation stack of the top view controller in the window, dismissing presented controllers in the process.
     ///
     /// - Parameters:
@@ -555,7 +555,7 @@ public final class Navigator {
             animated: animated,
             completion: { [weak self] in
                 guard let self else { return }
-                
+
                 if !(controller is UINavigationController), let navigationController = window?.topController?.orNavigationController {
                     navigationController.pushViewController(
                         controller,
@@ -570,7 +570,7 @@ public final class Navigator {
             }
         )
     }
-    
+
     /// Presents a view controller from the current top controller in the window or sets it as the `rootViewController` if the window is empty.
     ///
     /// - Parameters:
@@ -598,7 +598,7 @@ public final class Navigator {
             )
         }
     }
-    
+
     /// Replaces the root view controller of the window or sets it as the initial root view controller.
     ///
     /// - Parameters:
@@ -618,7 +618,7 @@ public final class Navigator {
             )
         }
     }
-    
+
     /// Dismisses all presented view controllers within the given controller while they are being presented and pops back to the specified controller in the navigation stack if it exists.
     ///
     /// - Parameters:
@@ -642,7 +642,7 @@ public final class Navigator {
             completion?()
         }
     }
-    
+
     /// Dismisses all presented view controllers within the given controller while they are being presented.
     ///
     /// - Parameters:
@@ -662,7 +662,7 @@ public final class Navigator {
             completion?()
         }
     }
-    
+
     /// Selects the tab in the tab bar controller, if needed, based on the provided source identity.
     ///
     /// - Parameters:
@@ -689,16 +689,16 @@ public final class Navigator {
         }
         completion?()
     }
-    
+
     private func bind() {
         navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
             guard let self else { return }
-            
+
             if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
                 if let newStrategy, !data.chain.isEmpty {
                     data.chain[0].strategy = newStrategy
                 }
-                
+
                 navigate(
                     chain: prefixNavigationChain + data.chain + suffixNavigationChain,
                     event: data.event,

@@ -13,7 +13,7 @@ public final class NavigationChainLink {
     var strategy: NavigationStrategy
     let animated: Bool
     let fallback: NavigationChainLink?
-    
+
     public init(
         destination: NavigationDestination,
         strategy: NavigationStrategy,

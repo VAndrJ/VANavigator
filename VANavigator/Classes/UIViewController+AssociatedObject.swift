@@ -10,7 +10,7 @@ import UIKit
 
 extension UIViewController {
     @UniqueAddress static var key
-
+    
     public var navigationIdentity: NavigationIdentity? {
         get {
             objc_getAssociatedObject(self, Self.key) as? NavigationIdentity
@@ -24,6 +24,6 @@ extension UIViewController {
 @propertyWrapper
 public class UniqueAddress {
     public var wrappedValue: UnsafeRawPointer { UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque()) }
-
+    
     public init() {}
 }

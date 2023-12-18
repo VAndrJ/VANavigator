@@ -19,22 +19,22 @@ public extension NavigationStrategy {
     static var present: NavigationStrategy { PresentNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
-    
+
     /// Close the controller if it is top one
     static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
         CloseIfTopNavigationStrategy(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
     }
-    
+
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
     static func replaceWindowRoot(transition: CATransition? = nil) -> NavigationStrategy {
         ReplaceWindowRootNavigationStrategy(transition: transition)
     }
-    
+
     /// Pops to existing controller, or uses fallback if no `UINavigationController` is found.
     static func popToExisting(includingTabs: Bool = true) -> NavigationStrategy {
         PopToExistingNavigationStrategy(includingTabs: includingTabs)
     }
-    
+
     /// Shows in a `UISplitViewController` with the given `strategy`.
     @available (iOS 14.0, *)
     static func split(strategy: SplitStrategy) -> NavigationStrategy {
@@ -53,7 +53,7 @@ public enum SplitStrategy: Equatable {
         /// Replaces with the selected view controller in `UISplitViewController`.
         case replace
     }
-    
+
     /// Performs action on the primary view controller in `UISplitViewController`.
     case primary(action: SplitActon)
     /// Performs action on the secondary view controller in `UISplitViewController`.
@@ -63,7 +63,7 @@ public enum SplitStrategy: Equatable {
 @available(iOS 14.0, *)
 class SplitNavigationStrategy: NavigationStrategy {
     let strategy: SplitStrategy
-    
+
     init(strategy: SplitStrategy) {
         self.strategy = strategy
     }
@@ -77,7 +77,7 @@ class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 
 class PopToExistingNavigationStrategy: NavigationStrategy {
     let includingTabs: Bool
-    
+
     init(includingTabs: Bool) {
         self.includingTabs = includingTabs
     }
@@ -87,7 +87,7 @@ class PushNavigationStrategy: NavigationStrategy {}
 
 class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     let transition: CATransition?
-    
+
     init(transition: CATransition? = nil) {
         self.transition = transition
     }
@@ -96,7 +96,7 @@ class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
 class CloseIfTopNavigationStrategy: NavigationStrategy {
     let tryToPop: Bool
     let tryToDismiss: Bool
-    
+
     init(tryToPop: Bool, tryToDismiss: Bool) {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss

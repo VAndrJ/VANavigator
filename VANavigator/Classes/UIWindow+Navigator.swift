@@ -10,20 +10,20 @@ import UIKit
 
 extension UIWindow {
     public var topController: UIViewController? { topMostViewController?.topController }
-    
+
     private var topMostViewController: UIViewController? {
         var topmostViewController = rootViewController
         while let presentedViewController = topmostViewController?.presentedViewController, !presentedViewController.isBeingDismissed {
             topmostViewController = presentedViewController
         }
-        
+
         return topmostViewController
     }
-    
+
     public func findController(destination: NavigationDestination) -> UIViewController? {
         rootViewController?.findController(destination: destination)
     }
-    
+
     public func set(
         rootViewController newRootViewController: UIViewController,
         transition: CATransition? = nil,

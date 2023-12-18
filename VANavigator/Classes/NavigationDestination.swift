@@ -13,7 +13,7 @@ public enum NavigationDestination {
     case identity(NavigationIdentity)
     /// Indicates a navigation destination represented by a specific view controller. Ensure that the corresponding `NavigationIdentity` is set for proper identification.
     case controller(UIViewController)
-
+    
     /// Computed property to extract the navigation identity from the destination.
     @MainActor
     public var identity: NavigationIdentity? {
