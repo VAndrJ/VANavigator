@@ -12,7 +12,6 @@ opt_in_rules:
   - discarded_notification_center_observer
   - notification_center_detachment
   - orphaned_doc_comment
-  - unused_capture_list
   - trailing_comma
   - nesting
   - empty_enum_arguments
@@ -51,10 +50,11 @@ opt_in_rules:
   - toggle_bool
   - trailing_closure
   - unneeded_parentheses_in_closure_argument
-  - unused_import
   - vertical_whitespace_closing_braces
   - yoda_condition
 
+analyzer_rules:
+  - unused_import
 
 custom_rules:
   array_constructor:
@@ -71,6 +71,8 @@ attributes:
     - "@IBAction"
     - "@NSManaged"
     - "@objc"
+  always_on_line_above:
+    - "@MainActor"
 
 force_cast: warning
 force_try: warning
@@ -147,5 +149,9 @@ type_name:
   max_length:
     warning: 60
   allowed_symbols: ["_"]
-  
+
+included:
+  - example/VANavigator
+  - VANavigator/classes/
+
 reporter: "xcode"
