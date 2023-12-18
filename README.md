@@ -1,9 +1,12 @@
 # VANavigator
 
-[![Version](https://img.shields.io/cocoapods/v/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
-[![SPM](https://img.shields.io/badge/SPM-compatible-limegreen.svg?style=flat)](https://github.com/apple/swift-package-manager)
 [![License](https://img.shields.io/cocoapods/l/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
 [![Platform](https://img.shields.io/cocoapods/p/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
+
+
+[![Version](https://img.shields.io/cocoapods/v/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
+[![SPM](https://img.shields.io/badge/SPM-compatible-limegreen.svg?style=flat)](https://github.com/apple/swift-package-manager)
+&nbsp;[![VANavigator](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml/badge.svg)](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml)
 
 ## Example
 
