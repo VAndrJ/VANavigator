@@ -22,6 +22,6 @@ let package = Package(
             name: "VANavigator",
             path: "VANavigator/Classes",
             swiftSettings: settings
-        )
+        ),
     ]
 )
