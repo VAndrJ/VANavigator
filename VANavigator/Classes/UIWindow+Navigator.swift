@@ -24,7 +24,11 @@ extension UIWindow {
         rootViewController?.findController(destination: destination)
     }
 
-    public func set(rootViewController newRootViewController: UIViewController, transition: CATransition? = nil, completion: (() -> Void)? = nil) {
+    public func set(
+        rootViewController newRootViewController: UIViewController,
+        transition: CATransition? = nil,
+        completion: (() -> Void)? = nil
+    ) {
         let previousViewController = rootViewController
         if let transition {
             layer.add(transition, forKey: kCATransition)

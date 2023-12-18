@@ -29,7 +29,7 @@ extension UIViewController {
             return self
         }
     }
-    
+
     public func findController(controller: UIViewController) -> UIViewController? {
         if self === controller {
             return self
@@ -57,7 +57,7 @@ extension UIViewController {
 
         return nil
     }
-    
+
     public func findController(identity: NavigationIdentity) -> UIViewController? {
         if navigationIdentity?.isEqual(to: identity) == true {
             return self
@@ -85,7 +85,7 @@ extension UIViewController {
 
         return nil
     }
-    
+
     public func findTabBarController() -> UITabBarController? {
         if let tabController = self as? UITabBarController {
             return tabController
@@ -106,15 +106,8 @@ extension UIViewController {
             return findController(controller: controller)
         }
     }
-    
-    public var navigationIdentity: (any NavigationIdentity)? {
-        get { (objc_getAssociatedObject(self, &navigationIdentityKey) as? (any NavigationIdentity)) }
-        set { objc_setAssociatedObject(self, &navigationIdentityKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
-    }
 }
 
 public extension UISplitViewController {
     var isSingleNavigation: Bool { viewControllers.count == 1 && viewControllers.first is UINavigationController }
 }
-
-private var navigationIdentityKey = "com.vandrj.navigationIdentityKey"
