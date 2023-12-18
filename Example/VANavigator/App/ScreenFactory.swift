@@ -8,6 +8,7 @@
 
 import VATextureKit
 
+// swiftlint:disable type_body_length
 class ScreenFactory: NavigatorScreenFactory {
     let authorizationService: AuthorizationService
 
@@ -15,6 +16,7 @@ class ScreenFactory: NavigatorScreenFactory {
         self.authorizationService = authorizationService
     }
 
+    // swiftlint:disable function_body_length
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as NavNavigationIdentity:
@@ -110,7 +112,8 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present, animated: true
+                                    strategy: .present,
+                                    animated: true
                                 )
                             )
                         },
@@ -279,7 +282,8 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present, animated: true
+                                    strategy: .present,
+                                    animated: true
                                 )
                             )
                         }
@@ -316,7 +320,8 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: identity
                                     )),
-                                    strategy: .present, animated: true
+                                    strategy: .present,
+                                    animated: true
                                 )
                             )
                         }
@@ -365,4 +370,6 @@ class ScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
+    // swiftlint:enable function_body_length
 }
+// swiftlint:enable type_body_length

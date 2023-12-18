@@ -10,6 +10,18 @@ on:
     branches: [ "main" ]
 
 jobs:
+
+  SwiftLint: 
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: GitHub Action for SwiftLint
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with:
+          args: --config .swiftlint.yml
+          
   build:
 
     runs-on: macos-13
@@ -35,5 +47,6 @@ jobs:
     - name: Build
       run: |
         xcodebuild build test -workspace ./Example/VANavigator.xcworkspace -scheme VANavigator-Example -destination "${destination}"
+    
     env:
       destination: ${{ matrix.destination }}

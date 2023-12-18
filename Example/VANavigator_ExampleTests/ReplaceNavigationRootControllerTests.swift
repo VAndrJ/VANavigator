@@ -143,7 +143,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         ])
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
-            destination: .identity(identity), 
+            destination: .identity(identity),
             strategy: .replaceWindowRoot(),
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )

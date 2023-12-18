@@ -11,6 +11,7 @@ import VANavigator
 
 class MockScreenFactory: NavigatorScreenFactory {
 
+    // swiftlint:disable function_body_length
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as MockSplitControllerNavigationIdentity:
@@ -80,13 +81,14 @@ class MockScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
+    // swiftlint:enable function_body_length
 }
 
 class MockNavigationController: UINavigationController, Responder {
 
     var nextEventResponder: Responder? {
         get { topController as? Responder }
-        set {}
+        set {} // swiftlint:disable:this unused_setter_value
     }
 
     func handle(event: ResponderEvent) async -> Bool {
@@ -170,7 +172,7 @@ class MockTabBarViewController: UITabBarController, Responder {
 
     var nextEventResponder: Responder? {
         get { selectedViewController as? Responder }
-        set {}
+        set {} // swiftlint:disable:this unused_setter_value
     }
 
     func handle(event: ResponderEvent) async -> Bool {
@@ -202,8 +204,8 @@ struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
 
 struct ResponderMockEvent: ResponderEvent {}
 
-func taskDetachedMain(_ f: @escaping @Sendable () -> Sendable) {
+func taskDetachedMain(_ fn: @escaping @Sendable () -> Sendable) {
     Task.detached {
-        await MainActor.run(body: f)
+        await MainActor.run(body: fn)
     }
 }

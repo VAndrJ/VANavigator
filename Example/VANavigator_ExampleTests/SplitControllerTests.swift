@@ -10,6 +10,7 @@ import XCTest
 import VANavigator
 
 // TODO: - Messages
+// swiftlint:disable type_body_length
 @MainActor
 class SplitControllerTests: XCTestCase {
     var window: UIWindow?
@@ -248,7 +249,7 @@ class SplitControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
             strategy: .split(strategy: .primary(action: .replace)),
-            completion: { 
+            completion: {
                 responder = $0
                 result = $1
                 taskDetachedMain { expect.fulfill() }
@@ -563,3 +564,4 @@ class SplitControllerTests: XCTestCase {
         wait(for: [expect], timeout: 10)
     }
 }
+// swiftlint:enable type_body_length
