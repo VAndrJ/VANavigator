@@ -22,7 +22,7 @@ jobs:
         with:
           args: --config .swiftlint.yml
           
-  Build and test:
+  build:
 
     runs-on: macos-13
     
