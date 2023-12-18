@@ -231,7 +231,7 @@ class PushOrPopControllerTests: XCTestCase {
     ) {
         let expect = expectation(description: "pushOrPop")
         var responder: (UIViewController & Responder)?
-        var result: Bool = false
+        var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
             strategy: .popToExisting(includingTabs: false),
@@ -244,7 +244,7 @@ class PushOrPopControllerTests: XCTestCase {
         )
 
         wait(for: [expect], timeout: 10)
-        completion?(responder, result)
+        completion?(responder, result ?? false)
     }
 
     func prepareTabNavigationStack(navigator: Navigator, isTop: Bool) {

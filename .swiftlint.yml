@@ -150,8 +150,4 @@ type_name:
     warning: 60
   allowed_symbols: ["_"]
 
-included:
-  - example/VANavigator
-  - VANavigator/classes/
-
 reporter: "xcode"
