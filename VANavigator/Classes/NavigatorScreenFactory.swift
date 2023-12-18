@@ -10,6 +10,6 @@ import UIKit
 
 @MainActor
 public protocol NavigatorScreenFactory {
-
+    
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController
 }

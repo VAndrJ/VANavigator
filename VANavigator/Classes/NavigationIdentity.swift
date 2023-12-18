@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol NavigationIdentity {
-
+    
     func isEqual(to other: NavigationIdentity?) -> Bool
 }

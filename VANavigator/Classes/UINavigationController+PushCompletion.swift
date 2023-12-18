@@ -10,7 +10,7 @@ import UIKit
 
 extension UINavigationController {
     static let completionDelegate = NavigationCompletionDelegate()
-
+    
     public func popViewController(
         animated: Bool,
         completion: (() -> Void)?
@@ -22,7 +22,7 @@ extension UINavigationController {
             completion?()
         }
     }
-
+    
     public func popToRootViewController(
         animated: Bool,
         completion: (() -> Void)?
@@ -34,7 +34,7 @@ extension UINavigationController {
             completion?()
         }
     }
-
+    
     public func setViewControllers(
         _ controllers: [UIViewController],
         animated: Bool,
@@ -43,7 +43,7 @@ extension UINavigationController {
         setViewControllers(controllers, animated: animated)
         observeCompletion(animated: animated, completion: completion)
     }
-
+    
     public func popToViewController(
         _ controller: UIViewController,
         animated: Bool,
@@ -56,7 +56,7 @@ extension UINavigationController {
             observeCompletion(animated: animated, completion: completion)
         }
     }
-
+    
     public func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
@@ -65,7 +65,7 @@ extension UINavigationController {
         pushViewController(viewController, animated: animated)
         observeCompletion(animated: animated, completion: completion)
     }
-
+    
     private func observeCompletion(animated: Bool, completion: (() -> Void)?) {
         if animated {
             if delegate == nil {
@@ -89,7 +89,7 @@ extension UINavigationController {
 
 class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
     var completion: (() -> Void)?
-
+    
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         completion?()
     }
