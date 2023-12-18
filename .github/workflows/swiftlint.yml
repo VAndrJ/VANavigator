@@ -2,9 +2,7 @@ name: SwiftLint
 
 on:
   pull_request:
-    paths:
-      - '.swiftlint.yml'
-      - '**/*.swift'
+    branches: [ master ]
 
 jobs:
   SwiftLint:
