@@ -291,8 +291,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "VANavigator_Example" */;
 			buildPhases = (
-				A33FDA502B303F5900353D44 /* SwiftLint */,
 				8515680C8044727551486EEE /* [CP] Check Pods Manifest.lock */,
+				A33FDA502B303F5900353D44 /* SwiftLint */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
