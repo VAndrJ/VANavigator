@@ -12,7 +12,7 @@ public struct NavigationInterceptionResult {
     let chain: [NavigationChainLink]
     let event: ResponderEvent?
     let reason: AnyHashable
-    
+
     public init(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
@@ -33,13 +33,13 @@ open class NavigationInterceptor {
         _ completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) -> Void)?
     var interceptionData: [AnyHashable: InterceptionDetail] = [:]
-    
+
     public init() {}
-    
+
     open func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
         nil
     }
-    
+
     public func interceptionResolved(
         reason: AnyHashable,
         newStrategy: NavigationStrategy? = nil,
@@ -55,19 +55,19 @@ open class NavigationInterceptor {
             completion
         )
     }
-    
+
     public func getInterceptionReasons() -> [AnyHashable] {
         Array(interceptionData.keys)
     }
-    
+
     public func removeIfAvailable(reason: AnyHashable) {
         interceptionData.removeValue(forKey: reason)
     }
-    
+
     public func removeAllReasons() {
         interceptionData.removeAll()
     }
-    
+
     public func checkIsExists(reason: AnyHashable) -> Bool {
         interceptionData[reason] != nil
     }
@@ -76,7 +76,7 @@ open class NavigationInterceptor {
 class InterceptionDetail {
     var chain: [NavigationChainLink]
     let event: ResponderEvent?
-    
+
     init(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil
