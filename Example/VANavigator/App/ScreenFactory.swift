@@ -66,7 +66,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     destination: .identity(NavNavigationIdentity(children: [
                                         identity,
                                     ])),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -81,7 +81,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .closeToExisting,
                                 fallback: NavigationChainLink(
                                     destination: destination,
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -97,7 +97,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .closeToExisting,
                                 fallback: NavigationChainLink(
                                     destination: destination,
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -112,7 +112,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -120,7 +120,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         followLoginedContent: {
                             navigator.navigate(
                                 destination: .identity(SecretInformationIdentity()),
-                                strategy: .present
+                                strategy: .present()
                             )
                         }
                     )
@@ -282,7 +282,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -320,7 +320,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: identity
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )

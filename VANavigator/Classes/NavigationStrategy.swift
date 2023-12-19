@@ -15,10 +15,13 @@ public extension NavigationStrategy {
     static var push: NavigationStrategy { PushNavigationStrategy() }
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
     static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
-    /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.
-    static var present: NavigationStrategy { PresentNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
+
+    /// Presents a controller based on source.
+    static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
+        PresentNavigationStrategy(source: source)
+    }
 
     /// Close the controller if it is top one
     static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
@@ -71,7 +74,19 @@ class SplitNavigationStrategy: NavigationStrategy {
 
 class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
-class PresentNavigationStrategy: NavigationStrategy {}
+public enum PresentNavigationSource {
+    case topController
+    case navigationController
+    case tabBarController
+}
+
+class PresentNavigationStrategy: NavigationStrategy {
+    let source: PresentNavigationSource
+
+    init(source: PresentNavigationSource) {
+        self.source = source
+    }
+}
 
 class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 

@@ -66,7 +66,7 @@ class CompositionRoot {
                     animated: true,
                     fallback: NavigationChainLink(
                         destination: .identity(NavNavigationIdentity(children: [identity])),
-                        strategy: .present,
+                        strategy: .present(),
                         animated: true
                     )
                 ),
