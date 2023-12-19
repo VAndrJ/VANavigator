@@ -283,7 +283,7 @@ public final class Navigator {
                 let topController = window?.topController
 
                 return includingTabs ?
-                topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
+                (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(destination: destination) :
                 topController?.orNavigationController?.findController(destination: destination)
             }
 
