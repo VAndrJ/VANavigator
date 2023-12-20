@@ -8,17 +8,32 @@
 
 import UIKit
 
-public class NavigationStrategy {}
+public class NavigationStrategy: Equatable {
+    public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
+        lhs.isEqual(to: rhs)
+    }
+
+    func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard (other as? Self) != nil else {
+            return false
+        }
+
+        return true
+    }
+}
 
 public extension NavigationStrategy {
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
     static var push: NavigationStrategy { PushNavigationStrategy() }
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
     static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
-    /// Presents a controller from the top view controller or sets `UIWindow`'s `rootViewController`.
-    static var present: NavigationStrategy { PresentNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
+
+    /// Presents a controller based on source.
+    static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
+        PresentNavigationStrategy(source: source)
+    }
 
     /// Close the controller if it is top one
     static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
@@ -45,7 +60,7 @@ public extension NavigationStrategy {
 /// Navigation strategy for `UISplitViewController`.
 @available (iOS 14.0, *)
 public enum SplitStrategy: Equatable {
-    public enum SplitActon {
+    public enum SplitActon: Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -67,11 +82,39 @@ class SplitNavigationStrategy: NavigationStrategy {
     init(strategy: SplitStrategy) {
         self.strategy = strategy
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return strategy == other.strategy
+    }
 }
 
 class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
-class PresentNavigationStrategy: NavigationStrategy {}
+public enum PresentNavigationSource: Equatable {
+    case topController
+    case navigationController
+    case tabBarController
+}
+
+class PresentNavigationStrategy: NavigationStrategy {
+    let source: PresentNavigationSource
+
+    init(source: PresentNavigationSource) {
+        self.source = source
+    }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return source == other.source
+    }
+}
 
 class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 
@@ -80,6 +123,14 @@ class PopToExistingNavigationStrategy: NavigationStrategy {
 
     init(includingTabs: Bool) {
         self.includingTabs = includingTabs
+    }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return includingTabs == other.includingTabs
     }
 }
 
@@ -91,6 +142,14 @@ class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     init(transition: CATransition? = nil) {
         self.transition = transition
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return transition == other.transition
+    }
 }
 
 class CloseIfTopNavigationStrategy: NavigationStrategy {
@@ -100,5 +159,13 @@ class CloseIfTopNavigationStrategy: NavigationStrategy {
     init(tryToPop: Bool, tryToDismiss: Bool) {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss
+    }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return tryToDismiss == other.tryToDismiss && tryToPop == other.tryToPop
     }
 }

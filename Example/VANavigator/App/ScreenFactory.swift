@@ -43,7 +43,7 @@ class ScreenFactory: NavigatorScreenFactory {
             return controller
         case _ as MainNavigationIdentity:
             return ViewController(
-                node: MainControllerNode(viewModel: MainViewModel(data: .init(
+                node: MainControllerNode(viewModel: .init(data: .init(
                     source: .init(
                         authorizedObs: authorizationService.isAuthorizedObs
                     ),
@@ -66,7 +66,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     destination: .identity(NavNavigationIdentity(children: [
                                         identity,
                                     ])),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -81,7 +81,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .closeToExisting,
                                 fallback: NavigationChainLink(
                                     destination: destination,
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -97,7 +97,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .closeToExisting,
                                 fallback: NavigationChainLink(
                                     destination: destination,
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -112,7 +112,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -120,7 +120,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         followLoginedContent: {
                             navigator.navigate(
                                 destination: .identity(SecretInformationIdentity()),
-                                strategy: .present
+                                strategy: .present()
                             )
                         }
                     )
@@ -128,7 +128,7 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as TabDetailNavigationIdentity:
             return ViewController(
-                node: TabDetailControllerNode(viewModel: TabDetailViewModel(data: .init(
+                node: TabDetailControllerNode(viewModel: .init(data: .init(
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
@@ -165,7 +165,7 @@ class ScreenFactory: NavigatorScreenFactory {
             }
         case _ as MoreNavigationIdentity:
             return ViewController(
-                node: MoreControllerNode(viewModel: MoreViewModel(data: .init(
+                node: MoreControllerNode(viewModel: .init(data: .init(
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
@@ -188,7 +188,7 @@ class ScreenFactory: NavigatorScreenFactory {
             }
         case let identity as DetailsNavigationIdentity:
             return ViewController(
-                node: DetailsToPresentControllerNode(viewModel: DetailsToPresentViewModel(data: .init(
+                node: DetailsToPresentControllerNode(viewModel: .init(data: .init(
                     related: .init(
                         value: identity.number
                     ),
@@ -248,7 +248,7 @@ class ScreenFactory: NavigatorScreenFactory {
             return controller
         case _ as PrimaryNavigationIdentity:
             return ViewController(
-                node: PrimaryControllerNode(viewModel: PrimaryViewModel(data: .init(
+                node: PrimaryControllerNode(viewModel: .init(data: .init(
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
@@ -282,7 +282,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: destination
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -293,7 +293,7 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as SecondaryNavigationIdentity:
             return ViewController(
-                node: SecondaryControllerNode(viewModel: SecondaryViewModel(data: .init(
+                node: SecondaryControllerNode(viewModel: .init(data: .init(
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()
@@ -320,7 +320,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                         primary: PrimaryNavigationIdentity(),
                                         secondary: identity
                                     )),
-                                    strategy: .present,
+                                    strategy: .present(),
                                     animated: true
                                 )
                             )
@@ -331,7 +331,7 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as LoginNavigationIdentity:
             return ViewController(
-                node: LoginControllerNode(viewModel: LoginViewModel(data: .init(
+                node: LoginControllerNode(viewModel: .init(data: .init(
                     source: .init(authorize: { [weak authorizationService] in
                         authorizationService?.authorize()
                     }),
@@ -349,7 +349,7 @@ class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as SecretInformationIdentity:
             return ViewController(
-                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(
+                node: SecretInformationControllerNode(viewModel: .init(data: .init(
                     navigation: .init(
                         followReplaceRootWithNewMain: { [weak navigator] in
                             let transition = CATransition()

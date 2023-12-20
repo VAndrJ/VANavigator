@@ -23,18 +23,6 @@ extension UINavigationController {
         }
     }
 
-    public func popToRootViewController(
-        animated: Bool,
-        completion: (() -> Void)?
-    ) {
-        if viewControllers.count > 1 {
-            popToRootViewController(animated: animated)
-            observeCompletion(animated: animated, completion: completion)
-        } else {
-            completion?()
-        }
-    }
-
     public func setViewControllers(
         _ controllers: [UIViewController],
         animated: Bool,

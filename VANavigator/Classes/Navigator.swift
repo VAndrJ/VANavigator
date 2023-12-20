@@ -81,6 +81,59 @@ public final class Navigator {
         )
     }
 
+    /// Navigates to a specific destination using the provided navigation strategy.
+    ///
+    /// - Parameters:
+    ///   - destination: The destination to navigate to.
+    ///   - strategy: The navigation strategy to be applied.
+    ///   - animated: A flag indicating whether the navigation should be animated.
+    ///   - fallbackStrategies: The fallback navigation strategies.
+    ///   - event: `ResponderEvent` to be handled by the destination controller.
+    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
+    public func navigate(
+        destination: NavigationDestination,
+        strategy: NavigationStrategy,
+        animated: Bool = true,
+        fallbackStrategies: [NavigationStrategy],
+        event: ResponderEvent? = nil,
+        completion: (((UIViewController & Responder)?, Bool) -> Void)? = nil
+    ) {
+
+        navigate(
+            destination: destination,
+            strategy: strategy,
+            animated: animated,
+            fallback: makeFallbackChain(
+                destination: destination,
+                strategy: strategy,
+                animated: animated,
+                fallbackStrategies: fallbackStrategies
+            ),
+            event: event,
+            completion: completion
+        )
+    }
+
+    public func makeFallbackChain(
+        destination: NavigationDestination,
+        strategy: NavigationStrategy,
+        animated: Bool,
+        fallbackStrategies: [NavigationStrategy]
+    ) -> NavigationChainLink? {
+        var fallbackChainLink: NavigationChainLink?
+        for fallbackStrategy in fallbackStrategies.reversed() {
+            let link = NavigationChainLink(
+                destination: destination,
+                strategy: fallbackStrategy,
+                animated: animated,
+                fallback: fallbackChainLink
+            )
+            fallbackChainLink = link
+        }
+
+        return fallbackChainLink
+    }
+
     // swiftlint:disable function_body_length cyclomatic_complexity
     /// Navigates to a specific destination using the provided navigation strategy.
     ///
@@ -185,21 +238,38 @@ public final class Navigator {
                     completion?(eventController, true)
                 }
             )
-        case _ as PresentNavigationStrategy:
-            let controller = getController(destination: destination)
-            eventController = controller as? UIViewController & Responder
-            present(
-                controller: controller,
-                animated: animated,
-                completion: {
-                    perform(
-                        event: event,
-                        navigatorEvent: navigatorEvent,
-                        on: eventController
-                    )
-                    completion?(eventController, true)
+        case let strategy as PresentNavigationStrategy:
+            if window?.rootViewController != nil {
+                let sourceController: UIViewController?
+                switch strategy.source {
+                case .topController:
+                    sourceController = window?.topController
+                case .navigationController:
+                    sourceController = window?.topController?.orNavigationController
+                case .tabBarController:
+                    sourceController = window?.topController?.orTabBarController
                 }
-            )
+                if let sourceController {
+                    let controller = getController(destination: destination)
+                    eventController = controller as? UIViewController & Responder
+                    sourceController.present(
+                        controller,
+                        animated: animated,
+                        completion: {
+                            perform(
+                                event: event,
+                                navigatorEvent: navigatorEvent,
+                                on: eventController
+                            )
+                            completion?(eventController, true)
+                        }
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            } else {
+                completion?(nil, false)
+            }
         case _ as CloseToExistingNavigationStrategy:
             if let controller = window?.findController(destination: destination) {
                 eventController = controller as? UIViewController & Responder
@@ -283,7 +353,7 @@ public final class Navigator {
                 let topController = window?.topController
 
                 return includingTabs ?
-                topController?.orTabBarController?.findController(destination: destination) ?? topController?.orNavigationController?.findController(destination: destination) :
+                (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(destination: destination) :
                 topController?.orNavigationController?.findController(destination: destination)
             }
 
@@ -574,34 +644,6 @@ public final class Navigator {
         )
     }
 
-    /// Presents a view controller from the current top controller in the window or sets it as the `rootViewController` if the window is empty.
-    ///
-    /// - Parameters:
-    ///   - controller: The view controller to present.
-    ///   - animated: Should be animated or not.
-    ///   - completion: A closure to be executed after the replacement is complete.
-    public func present(controller: UIViewController, animated: Bool, completion: (() -> Void)?) {
-        if window?.rootViewController != nil {
-            window?.topController?.present(
-                controller,
-                animated: animated,
-                completion: completion
-            )
-        } else {
-            var transition: CATransition?
-            if animated {
-                transition = CATransition()
-                transition?.duration = 0.3
-                transition?.type = .fade
-            }
-            replaceWindowRoot(
-                controller: controller,
-                transition: transition,
-                completion: completion
-            )
-        }
-    }
-
     /// Replaces the root view controller of the window or sets it as the initial root view controller.
     ///
     /// - Parameters:
@@ -697,7 +739,7 @@ public final class Navigator {
 
             if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
                 if let newStrategy, !data.chain.isEmpty {
-                    data.chain[0].strategy = newStrategy
+                    data.chain[0].update(strategy: newStrategy)
                 }
 
                 navigate(

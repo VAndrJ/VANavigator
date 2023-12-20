@@ -52,7 +52,7 @@ Code example:
 ```
 navigator?.navigate(
     destination: .identity(MainNavigationIdentity()),
-    strategy: .present
+    strategy: .present()
 )
 ```
 

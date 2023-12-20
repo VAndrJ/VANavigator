@@ -1,5 +1,5 @@
 //
-//  NavigationInterceptonTests.swift
+//  NavigationInterceptionTests.swift
 //  VANavigator_ExampleTests
 //
 //  Created by VAndrJ on 16.12.2023.
@@ -13,7 +13,7 @@ import RxCocoa
 @testable import VANavigator_Example
 
 @MainActor
-class NavigationInterceptonTests: XCTestCase {
+class NavigationInterceptionTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() {
@@ -22,6 +22,12 @@ class NavigationInterceptonTests: XCTestCase {
 
     override func tearDown() {
         window = nil
+    }
+
+    func test_defaultInterception() {
+        let sut = MockEmptyInterceptor()
+
+        XCTAssertNil(sut.intercept(destination: .identity(MockControllerNavigationIdentity())))
     }
 
     func test_navigationInterception() {
@@ -37,7 +43,7 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .present,
+            strategy: .present(),
             animated: false,
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -74,7 +80,7 @@ class NavigationInterceptonTests: XCTestCase {
             chain: [
                 NavigationChainLink(
                     destination: .identity(identity),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
             ],
@@ -115,7 +121,7 @@ class NavigationInterceptonTests: XCTestCase {
             chain: [
                 NavigationChainLink(
                     destination: .identity(identity),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
             ],
@@ -155,7 +161,7 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .present,
+            strategy: .present(),
             animated: false,
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -186,7 +192,7 @@ class NavigationInterceptonTests: XCTestCase {
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .present,
+            strategy: .present(),
             animated: false,
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -210,7 +216,7 @@ class NavigationInterceptonTests: XCTestCase {
             chain: [
                 NavigationChainLink(
                     destination: .identity(MockRootControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .replaceWindowRoot(),
                     animated: false
                 ),
             ],
@@ -220,6 +226,8 @@ class NavigationInterceptonTests: XCTestCase {
         wait(for: [expect], timeout: 10)
     }
 }
+
+class MockEmptyInterceptor: NavigationInterceptor {}
 
 class MockNavigationInterceptor: NavigationInterceptor {
     enum Kind {
@@ -256,7 +264,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                         chain: [
                             NavigationChainLink(
                                 destination: .identity(interceptionIdentity),
-                                strategy: .present,
+                                strategy: .present(),
                                 animated: true
                             ),
                         ],
@@ -309,7 +317,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                 suffixNavigationChain: [
                     NavigationChainLink(
                         destination: .identity(MockPopControllerNavigationIdentity()),
-                        strategy: .present,
+                        strategy: .present(),
                         animated: true
                     ),
                 ],

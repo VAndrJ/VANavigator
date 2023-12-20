@@ -187,17 +187,17 @@ class CloseIfTopControllerTests: XCTestCase {
             chain: [
                 NavigationChainLink(
                     destination: .identity(MockRootControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .replaceWindowRoot(),
                     animated: false
                 ),
                 NavigationChainLink(
                     destination: .identity(MockPopControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
                 NavigationChainLink(
                     destination: .identity(MockPushControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
             ],
