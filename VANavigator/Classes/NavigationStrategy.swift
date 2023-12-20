@@ -14,7 +14,7 @@ public class NavigationStrategy: Equatable {
     }
 
     func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
+        guard (other as? Self) != nil else {
             return false
         }
 
