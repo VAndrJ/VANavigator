@@ -8,7 +8,19 @@
 
 import UIKit
 
-public class NavigationStrategy {}
+public class NavigationStrategy: Equatable {
+    public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
+        lhs.isEqual(to: rhs)
+    }
+
+    func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return true
+    }
+}
 
 public extension NavigationStrategy {
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
@@ -48,7 +60,7 @@ public extension NavigationStrategy {
 /// Navigation strategy for `UISplitViewController`.
 @available (iOS 14.0, *)
 public enum SplitStrategy: Equatable {
-    public enum SplitActon {
+    public enum SplitActon: Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -70,11 +82,19 @@ class SplitNavigationStrategy: NavigationStrategy {
     init(strategy: SplitStrategy) {
         self.strategy = strategy
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return strategy == other.strategy
+    }
 }
 
 class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
-public enum PresentNavigationSource {
+public enum PresentNavigationSource: Equatable {
     case topController
     case navigationController
     case tabBarController
@@ -86,6 +106,14 @@ class PresentNavigationStrategy: NavigationStrategy {
     init(source: PresentNavigationSource) {
         self.source = source
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return source == other.source
+    }
 }
 
 class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
@@ -95,6 +123,14 @@ class PopToExistingNavigationStrategy: NavigationStrategy {
 
     init(includingTabs: Bool) {
         self.includingTabs = includingTabs
+    }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return includingTabs == other.includingTabs
     }
 }
 
@@ -106,6 +142,14 @@ class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     init(transition: CATransition? = nil) {
         self.transition = transition
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return transition == other.transition
+    }
 }
 
 class CloseIfTopNavigationStrategy: NavigationStrategy {
@@ -115,5 +159,13 @@ class CloseIfTopNavigationStrategy: NavigationStrategy {
     init(tryToPop: Bool, tryToDismiss: Bool) {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss
+    }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return tryToDismiss == other.tryToDismiss && tryToPop == other.tryToPop
     }
 }
