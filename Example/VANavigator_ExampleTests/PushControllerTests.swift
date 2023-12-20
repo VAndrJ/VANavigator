@@ -188,11 +188,11 @@ class PushControllerTests: XCTestCase {
             fallback: alwaysEmbedded.map {
                 $0 ? NavigationChainLink(
                     destination: .identity(MockNavControllerNavigationIdentity(children: [identity])),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: true
                 ) : NavigationChainLink(
                     destination: .identity(identity),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: true
                 )
             },

@@ -38,7 +38,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
             strategy: .closeToExisting,
             fallback: NavigationChainLink(
                 destination: .identity(identity),
-                strategy: .present,
+                strategy: .present(),
                 animated: true
             ),
             event: ResponderMockEvent(),
@@ -73,7 +73,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
             strategy: .closeToExisting,
             fallback: NavigationChainLink(
                 destination: .identity(identity),
-                strategy: .present,
+                strategy: .present(),
                 animated: true
             ),
             event: ResponderMockEvent(),
@@ -131,7 +131,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
-            strategy: .present,
+            strategy: .present(),
             event: ResponderMockEvent(),
             completion: { controller, isSuccess in
                 responder = controller
@@ -147,23 +147,179 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
     }
 
+    func test_controller_presented_fromNavigationController() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationControllerNavigation(navigator: navigator)
+        let identity = MockPopControllerNavigationIdentity()
+
+        XCTAssertTrue(window?.rootViewController is UINavigationController)
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+
+        let expect = expectation(description: "replace")
+        var responder: (UIViewController & Responder)?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(source: .navigationController),
+            event: ResponderMockEvent(),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
+    func test_controller_presented_fromTabBarController() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareTabBar(navigator: navigator)
+        let identity = MockPopControllerNavigationIdentity()
+
+        XCTAssertTrue(window?.rootViewController is UITabBarController)
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+
+        let expect = expectation(description: "replace")
+        var responder: (UIViewController & Responder)?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(source: .tabBarController),
+            event: ResponderMockEvent(),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
+    func test_controller_presenting_fromTabBarNavControllerFailure() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigation(navigator: navigator)
+        let identity = MockPopControllerNavigationIdentity()
+
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+
+        let expect = expectation(description: "replace")
+        var responder: (UIViewController & Responder)?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(source: .tabBarController),
+            fallbackStrategies: [.present(source: .navigationController)],
+            event: ResponderMockEvent(),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertNil(responder)
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+    }
+
+    func test_controller_presenting_withoutWindowFailure() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let identity = MockPopControllerNavigationIdentity()
+
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+
+        let expect = expectation(description: "replace")
+        var responder: (UIViewController & Responder)?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(source: .tabBarController),
+            fallbackStrategies: [
+                .present(source: .navigationController),
+                .present(source: .topController),
+            ],
+            event: ResponderMockEvent(),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertNil(responder)
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertNil(window?.findController(destination: .identity(identity)))
+    }
+
+    func prepareTabBar(navigator: Navigator) {
+        let expect = expectation(description: "navigation.replaceWindowRoot")
+        navigator.navigate(
+            chain: [
+                NavigationChainLink(
+                    destination: .controller(UITabBarController()),
+                    strategy: .replaceWindowRoot(),
+                    animated: true
+                ),
+            ],
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+        )
+
+        wait(for: [expect], timeout: 10)
+    }
+
+    func prepareNavigationControllerNavigation(navigator: Navigator) {
+        let expect = expectation(description: "navigation.replaceWindowRoot")
+        navigator.navigate(
+            chain: [
+                NavigationChainLink(
+                    destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
+                    strategy: .replaceWindowRoot(),
+                    animated: true
+                ),
+            ],
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+        )
+
+        wait(for: [expect], timeout: 10)
+    }
+
     func prepareNavigation(navigator: Navigator) {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             chain: [
                 NavigationChainLink(
                     destination: .identity(MockRootControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .replaceWindowRoot(),
                     animated: true
                 ),
                 NavigationChainLink(
                     destination: .identity(MockPushControllerNavigationIdentity()),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
                 NavigationChainLink(
                     destination: .controller(UIViewController()),
-                    strategy: .present,
+                    strategy: .present(),
                     animated: false
                 ),
             ],

@@ -64,11 +64,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
-            fallback: NavigationChainLink(
-                destination: .identity(newRootIdentity),
-                strategy: .present,
-                animated: true
-            ),
+            fallbackStrategies: [.closeToExisting, .present()],
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller

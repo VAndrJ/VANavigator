@@ -20,13 +20,16 @@
 		A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */; };
 		A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */; };
 		A30DB7B12B2F0BDF009994E5 /* SplitControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */; };
+		A30F913D2B331C8600C217C7 /* MakeFallbackChainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */; };
+		A30F91452B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */; };
+		A30F91492B333E1800C217C7 /* NavigationDestinationEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
 		A333AB582B2EF2DA009AB080 /* NavigationDestinationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A333AB572B2EF2DA009AB080 /* NavigationDestinationTests.swift */; };
 		A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */; };
 		A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */; };
-		A34FCA942B2D9153004404A1 /* NavigationInterceptonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA932B2D9153004404A1 /* NavigationInterceptonTests.swift */; };
+		A34FCA942B2D9153004404A1 /* NavigationInterceptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FCA932B2D9153004404A1 /* NavigationInterceptionTests.swift */; };
 		A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D72B21292C001B05B8 /* PushControllerTests.swift */; };
 		A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */; };
 		A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */; };
@@ -81,6 +84,9 @@
 		A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginControllerNode.swift; sourceTree = "<group>"; };
 		A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationControllerNode.swift; sourceTree = "<group>"; };
 		A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitControllerTests.swift; sourceTree = "<group>"; };
+		A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MakeFallbackChainTests.swift; sourceTree = "<group>"; };
+		A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStrategyEqualityTests.swift; sourceTree = "<group>"; };
+		A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDestinationEqualityTests.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
@@ -88,7 +94,7 @@
 		A333AB572B2EF2DA009AB080 /* NavigationDestinationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDestinationTests.swift; sourceTree = "<group>"; };
 		A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceNavigationRootControllerTests.swift; sourceTree = "<group>"; };
 		A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentOrCloseToExistingControllerTests.swift; sourceTree = "<group>"; };
-		A34FCA932B2D9153004404A1 /* NavigationInterceptonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationInterceptonTests.swift; sourceTree = "<group>"; };
+		A34FCA932B2D9153004404A1 /* NavigationInterceptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationInterceptionTests.swift; sourceTree = "<group>"; };
 		A35381D72B21292C001B05B8 /* PushControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushControllerTests.swift; sourceTree = "<group>"; };
 		A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushOrPopControllerTests.swift; sourceTree = "<group>"; };
 		A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseIfTopControllerTests.swift; sourceTree = "<group>"; };
@@ -218,8 +224,11 @@
 			isa = PBXGroup;
 			children = (
 				A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */,
+				A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */,
+				A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */,
 				A333AB572B2EF2DA009AB080 /* NavigationDestinationTests.swift */,
-				A34FCA932B2D9153004404A1 /* NavigationInterceptonTests.swift */,
+				A34FCA932B2D9153004404A1 /* NavigationInterceptionTests.swift */,
+				A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */,
 				A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */,
 				A35381D72B21292C001B05B8 /* PushControllerTests.swift */,
 				A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */,
@@ -490,10 +499,13 @@
 				A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */,
 				A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */,
 				A30DB7B12B2F0BDF009994E5 /* SplitControllerTests.swift in Sources */,
-				A34FCA942B2D9153004404A1 /* NavigationInterceptonTests.swift in Sources */,
+				A34FCA942B2D9153004404A1 /* NavigationInterceptionTests.swift in Sources */,
+				A30F91452B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift in Sources */,
+				A30F913D2B331C8600C217C7 /* MakeFallbackChainTests.swift in Sources */,
 				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
 				A333AB582B2EF2DA009AB080 /* NavigationDestinationTests.swift in Sources */,
 				A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */,
+				A30F91492B333E1800C217C7 /* NavigationDestinationEqualityTests.swift in Sources */,
 				A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */,
 				A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */,
 				A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */,

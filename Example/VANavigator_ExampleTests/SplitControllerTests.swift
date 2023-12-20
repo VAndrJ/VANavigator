@@ -535,7 +535,7 @@ class SplitControllerTests: XCTestCase {
             strategy: .split(strategy: .primary(action: .push)),
             fallback: NavigationChainLink(
                 destination: .identity(newPrimaryIdentity),
-                strategy: .present,
+                strategy: .present(),
                 animated: true
             ),
             completion: {
