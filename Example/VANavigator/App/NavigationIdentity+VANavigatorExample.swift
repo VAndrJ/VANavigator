@@ -35,6 +35,8 @@ struct TabDetailNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MoreNavigationIdentity: DefaultNavigationIdentity {}
 
+struct TabPresentExampleNavigationIdentity: DefaultNavigationIdentity {}
+
 struct PrimaryNavigationIdentity: DefaultNavigationIdentity {}
 
 struct SecondaryNavigationIdentity: DefaultNavigationIdentity {}
