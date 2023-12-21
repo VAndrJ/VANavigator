@@ -28,7 +28,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         let expect = expectation(description: "replace")
         var result: Bool?
         replaceWindowRoot(
@@ -90,7 +90,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertNotNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         let expect = expectation(description: "replace")
         replaceWindowRoot(
             navigator: navigator,
@@ -118,10 +118,10 @@ class SetRootControllerTests: XCTestCase {
         navigator: Navigator,
         identity: NavigationIdentity,
         alwaysEmbedded: Bool,
-        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+        completion: ((UIViewController?, Bool) -> Void)?
     ) {
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result = false
         navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(children: [identity]) : identity),

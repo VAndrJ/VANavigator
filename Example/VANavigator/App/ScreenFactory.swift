@@ -16,9 +16,61 @@ class ScreenFactory: NavigatorScreenFactory {
         self.authorizationService = authorizationService
     }
 
-    // swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length cyclomatic_complexity
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case _ as TabPresentExampleNavigationIdentity:
+            return ViewController(
+                node: TabPresentExampleControllerNode(viewModel: .init(data: .init(
+                    navigation: .init(
+                        followPresentFromTop: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .controller(UIViewController().apply {
+                                    $0.view.backgroundColor = .blue.withAlphaComponent(0.3)
+                                    $0.modalPresentationStyle = .overCurrentContext
+                                }),
+                                strategy: .present(),
+                                completion: { controller, _ in
+                                    if let controller {
+                                        mainAsync(after: 1) {
+                                            navigator?.navigate(
+                                                destination: .controller(controller),
+                                                strategy: .closeIfTop()
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        },
+                        followPresentFromTab: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .controller(UIViewController().apply {
+                                    $0.view.backgroundColor = .green.withAlphaComponent(0.3)
+                                    $0.modalPresentationStyle = .overCurrentContext
+                                }),
+                                strategy: .present(source: .tabBarController),
+                                completion: { controller, _ in
+                                    if let controller {
+                                        mainAsync(after: 1) {
+                                            navigator?.navigate(
+                                                destination: .controller(controller),
+                                                strategy: .closeIfTop()
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    )
+                ))),
+                shouldHideNavigationBar: false
+            ).apply {
+                $0.tabBarItem = UITabBarItem(
+                    title: "Present",
+                    image: UIImage(systemName: "p.circle"),
+                    selectedImage: nil
+                )
+            }
         case let identity as NavNavigationIdentity:
             let controller = NavigationController()
             let viewControllers = identity.children.map { identity in
@@ -39,6 +91,7 @@ class ScreenFactory: NavigatorScreenFactory {
                 return NavigationController(controller: controller)
             }
             controller.setViewControllers(tabControllers, animated: false)
+            controller.tabBar.backgroundColor = .yellow
 
             return controller
         case _ as MainNavigationIdentity:
@@ -72,18 +125,14 @@ class ScreenFactory: NavigatorScreenFactory {
                             )
                         },
                         followTabs: { [weak navigator] in
-                            let destination: NavigationDestination = .identity(TabNavigationIdentity(children: [
-                                TabDetailNavigationIdentity(),
-                                MoreNavigationIdentity(),
-                            ]))
                             navigator?.navigate(
-                                destination: destination,
+                                destination: .identity(TabNavigationIdentity(children: [
+                                    TabDetailNavigationIdentity(),
+                                    MoreNavigationIdentity(),
+                                    TabPresentExampleNavigationIdentity(),
+                                ])),
                                 strategy: .closeToExisting,
-                                fallback: NavigationChainLink(
-                                    destination: destination,
-                                    strategy: .present(),
-                                    animated: true
-                                )
+                                fallbackStrategies: [.replaceWindowRoot()]
                             )
                         },
                         followSplit: { [weak navigator] in
@@ -370,6 +419,6 @@ class ScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
-    // swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length cyclomatic_complexity
 }
 // swiftlint:enable type_body_length

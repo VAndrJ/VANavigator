@@ -146,7 +146,7 @@ class PushControllerTests: XCTestCase {
 
         let identity = MockPushControllerNavigationIdentity()
         let expect = expectation(description: "push")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         push(
             navigator: navigator,
@@ -177,10 +177,10 @@ class PushControllerTests: XCTestCase {
         navigator: Navigator,
         identity: NavigationIdentity,
         alwaysEmbedded: Bool?,
-        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+        completion: ((UIViewController?, Bool) -> Void)?
     ) {
         let expect = expectation(description: "push")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result = false
         navigator.navigate(
             destination: .identity(identity),

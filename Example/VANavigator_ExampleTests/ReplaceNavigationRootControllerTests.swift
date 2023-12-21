@@ -33,7 +33,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
@@ -60,7 +60,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,
@@ -88,7 +88,7 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         navigator.navigate(
             destination: .identity(newRootIdentity),
             strategy: .replaceNavigationRoot,

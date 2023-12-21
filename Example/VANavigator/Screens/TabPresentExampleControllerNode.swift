@@ -1,26 +1,22 @@
 //
-//  LoginControllerNode.swift
+//  TabPresentExampleControllerNode.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 04.12.2023.
+//  Created by VAndrJ on 20.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import VATextureKitRx
 
-class LoginControllerNode: DisplayNode<LoginViewModel> {
+class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
     private let titleTextNode = VATextNode(
-        text: "Login",
+        text: "Tab Present Example",
         fontStyle: .headline
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let loginButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
-        fontStyle: .body
-    )
+    private let presentFromTopButtonNode = VAButtonNode()
+    private let presentFromTabButtonNode = VAButtonNode()
 
-    override init(viewModel: LoginViewModel) {
+    override init(viewModel: TabPresentExampleViewModel) {
         super.init(viewModel: viewModel)
 
         bind()
@@ -29,62 +25,52 @@ class LoginControllerNode: DisplayNode<LoginViewModel> {
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                loginButtonNode
-                replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
-                descriptionTextNode
+                presentFromTopButtonNode
+                presentFromTabButtonNode
             }
             .padding(.all(16))
         }
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Login"
+        controller.title = "Tab Present Example"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        loginButtonNode.setTitle("Login", theme: theme)
+        presentFromTopButtonNode.setTitle("Present from top controller", theme: theme)
+        presentFromTabButtonNode.setTitle("Present from tab bar controller", theme: theme)
         setNeedsLayout()
     }
 
     private func bind() {
         bindView()
-        bindViewModel()
     }
 
     private func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
-    }
-
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
+        presentFromTopButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTopEvent()) }
+        presentFromTabButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTabEvent()) }
     }
 }
 
-struct LoginEvent: Event {}
+class PresentFromTopEvent: Event {}
 
-class LoginViewModel: EventViewModel {
+class PresentFromTabEvent: Event {}
+
+class TabPresentExampleViewModel: EventViewModel {
     struct DTO {
-        struct DataSource {
-            let authorize: () -> Void
-        }
-        
         struct Navigation {
-            let followReplaceRootWithNewMain: () -> Void
+            let followPresentFromTop: () -> Void
+            let followPresentFromTab: () -> Void
         }
 
-        let source: DataSource
         let navigation: Navigation
     }
 
+    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
+    var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
     private let data: DTO
 
@@ -96,10 +82,10 @@ class LoginViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
-        case _ as LoginEvent:
-            data.source.authorize()
-        case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
+        case _ as PresentFromTopEvent:
+            data.navigation.followPresentFromTop()
+        case _ as PresentFromTabEvent:
+            data.navigation.followPresentFromTab()
         default:
             super.run(event)
         }

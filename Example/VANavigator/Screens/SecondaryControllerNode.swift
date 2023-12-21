@@ -50,6 +50,7 @@ class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        setNeedsLayout()
     }
 
     private func bind() {

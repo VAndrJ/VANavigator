@@ -23,6 +23,7 @@
 		A30F913D2B331C8600C217C7 /* MakeFallbackChainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */; };
 		A30F91452B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */; };
 		A30F91492B333E1800C217C7 /* NavigationDestinationEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */; };
+		A30F914B2B33973F00C217C7 /* TabPresentExampleControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F914A2B33973F00C217C7 /* TabPresentExampleControllerNode.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
@@ -87,6 +88,7 @@
 		A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MakeFallbackChainTests.swift; sourceTree = "<group>"; };
 		A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStrategyEqualityTests.swift; sourceTree = "<group>"; };
 		A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDestinationEqualityTests.swift; sourceTree = "<group>"; };
+		A30F914A2B33973F00C217C7 /* TabPresentExampleControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabPresentExampleControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
 				A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */,
 				A3081DFB2B1D182D0041E11A /* TabDetailControllerNode.swift */,
+				A30F914A2B33973F00C217C7 /* TabPresentExampleControllerNode.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -480,6 +483,7 @@
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
 				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,
 				A3081E122B1E63170041E11A /* SecretInformationControllerNode.swift in Sources */,
+				A30F914B2B33973F00C217C7 /* TabPresentExampleControllerNode.swift in Sources */,
 				A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */,
 				A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,

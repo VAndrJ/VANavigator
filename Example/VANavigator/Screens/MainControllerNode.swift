@@ -62,6 +62,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentSplitButtonNode.setTitle("Present split", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
         presentLoginedOnlyContentButtonNode.setTitle("Present logined only content", theme: theme)
+        setNeedsLayout()
     }
 
     private func bind() {

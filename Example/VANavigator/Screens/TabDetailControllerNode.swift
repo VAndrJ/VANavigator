@@ -58,6 +58,7 @@ class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
         backgroundColor = theme.systemBackground
         pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        setNeedsLayout()
     }
 
     private func bind() {

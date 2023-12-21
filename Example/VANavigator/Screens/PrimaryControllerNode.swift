@@ -53,6 +53,7 @@ class PrimaryControllerNode: DisplayNode<PrimaryViewModel> {
         showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
         replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
+        setNeedsLayout()
     }
 
     private func bind() {
