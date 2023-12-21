@@ -36,7 +36,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -72,7 +72,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -128,7 +128,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -184,7 +184,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -244,7 +244,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -280,7 +280,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -315,7 +315,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -370,7 +370,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -424,7 +424,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -482,7 +482,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),
@@ -528,7 +528,7 @@ class SplitControllerTests: XCTestCase {
         XCTAssertTrue(primaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(newPrimaryIdentity),

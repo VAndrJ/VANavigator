@@ -41,7 +41,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
         let expect = expectation(description: "pushOrPop")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -85,7 +85,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "popSelecting")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -122,7 +122,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "popSelecting")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -158,7 +158,7 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "popSelecting")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -199,7 +199,7 @@ class PushOrPopControllerTests: XCTestCase {
             XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         }
 
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         let expect = expectation(description: "push")
         pushOrPop(
             navigator: navigator,
@@ -227,10 +227,10 @@ class PushOrPopControllerTests: XCTestCase {
     func pushOrPop(
         navigator: Navigator,
         identity: NavigationIdentity,
-        completion: (((UIViewController & Responder)?, Bool) -> Void)?
+        completion: ((UIViewController?, Bool) -> Void)?
     ) {
         let expect = expectation(description: "pushOrPop")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
