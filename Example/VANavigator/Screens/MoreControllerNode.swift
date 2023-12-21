@@ -44,6 +44,7 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        setNeedsLayout()
     }
 
     private func bind() {

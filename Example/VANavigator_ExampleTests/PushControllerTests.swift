@@ -180,7 +180,7 @@ class PushControllerTests: XCTestCase {
         completion: (((UIViewController & Responder)?, Bool) -> Void)?
     ) {
         let expect = expectation(description: "push")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result = false
         navigator.navigate(
             destination: .identity(identity),

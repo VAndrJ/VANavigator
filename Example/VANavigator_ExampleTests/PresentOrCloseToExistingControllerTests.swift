@@ -31,7 +31,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNotNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -66,7 +66,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -127,7 +127,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -157,7 +157,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -187,7 +187,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -216,7 +216,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
@@ -246,7 +246,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
 
         let expect = expectation(description: "replace")
-        var responder: (UIViewController & Responder)?
+        var responder: UIViewController?
         var result: Bool?
         navigator.navigate(
             destination: .identity(identity),
