@@ -74,6 +74,40 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
     }
 
+    func test_controllerPop_single() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
+        let identity = MockRootControllerNavigationIdentity()
+
+        let rootNavigationController = window?.rootViewController as? UINavigationController
+
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
+        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+
+        let expect = expectation(description: "pushOrPop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .closeIfTop(),
+            event: ResponderMockEvent(),
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        // Check that controller was pushed
+        // and it is the top view controller.
+        let expectedIdentity = identity
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+    }
+
     func test_controllerPop_selectingTab() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareTabNavigationStack(navigator: navigator, isTop: false)

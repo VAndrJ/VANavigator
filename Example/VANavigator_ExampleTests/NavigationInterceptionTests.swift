@@ -239,7 +239,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
     let interceptionIdentity = LoginNavigationIdentity()
     let interceptionReason = LoginRequiredNavigationInterceptionReason()
-    var completion: (((UIViewController & Responder)?, Bool) -> Void)?
+    var completion: ((UIViewController?, Bool) -> Void)?
     let kind: Kind
 
     private let bag = DisposeBag()

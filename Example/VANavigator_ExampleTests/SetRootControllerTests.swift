@@ -114,6 +114,17 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
+    func test_setWithoutAnimation() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+
+        XCTAssertNil(window?.rootViewController)
+        UIView.setAnimationsEnabled(false)
+
+        window?.set(rootViewController: UIViewController())
+
+        XCTAssertNotNil(window?.rootViewController)
+    }
+
     func replaceWindowRoot(
         navigator: Navigator,
         identity: NavigationIdentity,

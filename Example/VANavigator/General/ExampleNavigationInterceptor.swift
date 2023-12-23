@@ -13,7 +13,7 @@ struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 class ExampleNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
-    var completion: (((UIViewController & Responder)?, Bool) -> Void)?
+    var completion: ((UIViewController?, Bool) -> Void)?
 
     private let bag = DisposeBag()
 

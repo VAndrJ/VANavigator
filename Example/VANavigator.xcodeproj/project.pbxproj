@@ -34,6 +34,9 @@
 		A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D72B21292C001B05B8 /* PushControllerTests.swift */; };
 		A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */; };
 		A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */; };
+		A374FB512B37360F00C0563E /* NavigationQueueExampleControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */; };
+		A374FB532B373E6A00C0563E /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374FB522B373E6A00C0563E /* QueueTests.swift */; };
+		A374FB552B374A5700C0563E /* SearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374FB542B374A5700C0563E /* SearchTests.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -100,6 +103,9 @@
 		A35381D72B21292C001B05B8 /* PushControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushControllerTests.swift; sourceTree = "<group>"; };
 		A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushOrPopControllerTests.swift; sourceTree = "<group>"; };
 		A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseIfTopControllerTests.swift; sourceTree = "<group>"; };
+		A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationQueueExampleControllerNode.swift; sourceTree = "<group>"; };
+		A374FB522B373E6A00C0563E /* QueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueTests.swift; sourceTree = "<group>"; };
+		A374FB542B374A5700C0563E /* SearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTests.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -234,7 +240,9 @@
 				A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */,
 				A35381D72B21292C001B05B8 /* PushControllerTests.swift */,
 				A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */,
+				A374FB522B373E6A00C0563E /* QueueTests.swift */,
 				A34FCA8F2B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift */,
+				A374FB542B374A5700C0563E /* SearchTests.swift */,
 				A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */,
 				A30DB7B02B2F0BDF009994E5 /* SplitControllerTests.swift */,
 				A32F5E982B210DF9008564F9 /* Support.swift */,
@@ -276,6 +284,7 @@
 				A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
 				A3081DFD2B1D1A970041E11A /* MoreControllerNode.swift */,
+				A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */,
 				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
 				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
 				A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */,
@@ -488,6 +497,7 @@
 				A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 				A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */,
+				A374FB512B37360F00C0563E /* NavigationQueueExampleControllerNode.swift in Sources */,
 				A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
 				A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */,
@@ -505,12 +515,14 @@
 				A30DB7B12B2F0BDF009994E5 /* SplitControllerTests.swift in Sources */,
 				A34FCA942B2D9153004404A1 /* NavigationInterceptionTests.swift in Sources */,
 				A30F91452B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift in Sources */,
+				A374FB532B373E6A00C0563E /* QueueTests.swift in Sources */,
 				A30F913D2B331C8600C217C7 /* MakeFallbackChainTests.swift in Sources */,
 				A32F5E992B210DF9008564F9 /* Support.swift in Sources */,
 				A333AB582B2EF2DA009AB080 /* NavigationDestinationTests.swift in Sources */,
 				A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */,
 				A30F91492B333E1800C217C7 /* NavigationDestinationEqualityTests.swift in Sources */,
 				A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */,
+				A374FB552B374A5700C0563E /* SearchTests.swift in Sources */,
 				A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */,
 				A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */,
 			);

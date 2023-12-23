@@ -34,20 +34,20 @@ extension UIViewController {
         if self === controller {
             return self
         } else if let navigation = self as? UINavigationController {
-            for controller in navigation.viewControllers {
-                if let target = controller.findController(controller: controller) {
+            for child in navigation.viewControllers {
+                if let target = child.findController(controller: controller) {
                     return target
                 }
             }
         } else if let tab = self as? UITabBarController {
-            for controller in (tab.viewControllers ?? []) {
-                if let target = controller.findController(controller: controller) {
+            for child in (tab.viewControllers ?? []) {
+                if let target = child.findController(controller: controller) {
                     return target
                 }
             }
         } else if let split = self as? UISplitViewController {
-            for controller in split.viewControllers {
-                if let target = controller.findController(controller: controller) {
+            for child in split.viewControllers {
+                if let target = child.findController(controller: controller) {
                     return target
                 }
             }
@@ -73,14 +73,14 @@ extension UIViewController {
                     return target
                 }
             }
-        } else if let presentedViewController {
-            return presentedViewController.findController(identity: identity)
         } else if let split = self as? UISplitViewController {
             for controller in split.viewControllers {
                 if let target = controller.findController(identity: identity) {
                     return target
                 }
             }
+        } else if let presentedViewController {
+            return presentedViewController.findController(identity: identity)
         }
 
         return nil

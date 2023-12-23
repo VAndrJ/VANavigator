@@ -13,6 +13,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
     private let replaceRootButtonNode = VAButtonNode()
     private let presentDetailsButtonNode = VAButtonNode()
     private let presentTabsButtonNode = VAButtonNode()
+    private let presentQueueButtonNode = VAButtonNode()
     private let presentSplitButtonNode = VAButtonNode()
     private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let presentLoginedOnlyContentButtonNode = VAButtonNode()
@@ -42,6 +43,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
                 titleTextNode
                 replaceRootButtonNode
                 presentDetailsButtonNode
+                presentQueueButtonNode
                 presentTabsButtonNode
                 presentSplitButtonNode
                 showInSplitOrPresentButtonNode
@@ -62,6 +64,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentSplitButtonNode.setTitle("Present split", theme: theme)
         showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
         presentLoginedOnlyContentButtonNode.setTitle("Present logined only content", theme: theme)
+        presentQueueButtonNode.setTitle("Present queue example", theme: theme)
         setNeedsLayout()
     }
 
@@ -77,6 +80,7 @@ class MainControllerNode: DisplayNode<MainViewModel> {
         presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
         presentLoginedOnlyContentButtonNode.onTap = viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
+        presentQueueButtonNode.onTap = viewModel ?> { $0.perform(PresentQueueEvent()) }
     }
 
     private func bindViewModel() {
@@ -99,6 +103,8 @@ struct PresentSplitEvent: Event {}
 
 struct ShowInSplitOrPresentEvent: Event {}
 
+struct PresentQueueEvent: Event {}
+
 class MainViewModel: EventViewModel {
     struct DTO {
         struct DataSource {
@@ -112,6 +118,7 @@ class MainViewModel: EventViewModel {
             let followSplit: () -> Void
             let followShowInSplitOrPresent: () -> Void
             let followLoginedContent: () -> Void
+            let followQueue: () -> Void
         }
 
         let source: DataSource
@@ -133,6 +140,8 @@ class MainViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case _ as PresentQueueEvent:
+            data.navigation.followQueue()
         case _ as PresentLoginedOnlyEvent:
             data.navigation.followLoginedContent()
         case _ as ShowInSplitOrPresentEvent:
