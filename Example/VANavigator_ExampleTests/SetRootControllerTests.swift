@@ -115,8 +115,6 @@ class SetRootControllerTests: XCTestCase {
     }
 
     func test_setWithoutAnimation() {
-        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-
         XCTAssertNil(window?.rootViewController)
         UIView.setAnimationsEnabled(false)
 

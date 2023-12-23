@@ -17,8 +17,8 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail: NavigationDestination = .identity(MockPopControllerNavigationIdentity())
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
+        XCTAssertEqual(true, expected.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
     }
 
     func test_identity_controller() {
@@ -31,9 +31,9 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
+        XCTAssertEqual(true, expected.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
     }
 
     func test_controller_controller() {
@@ -46,9 +46,9 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
+        XCTAssertEqual(true, expected.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
     }
 
     func test_controller_identity() {
@@ -61,8 +61,8 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
+        XCTAssertEqual(true, expected.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
+        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
     }
 }
