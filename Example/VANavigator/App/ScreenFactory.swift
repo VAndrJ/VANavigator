@@ -19,6 +19,34 @@ class ScreenFactory: NavigatorScreenFactory {
     // swiftlint:disable function_body_length cyclomatic_complexity
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
+        case _ as QueueNavigationIdentity:
+            return ViewController(
+                node: NavigationQueueExampleControllerNode(viewModel: .init(data: .init(
+                    navigation: .init(
+                        followReplaceRootWithNewMain: { [weak navigator] in
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = .reveal
+                            navigator?.navigate(
+                                destination: .identity(MainNavigationIdentity()),
+                                strategy: .replaceWindowRoot(transition: transition)
+                            )
+                        },
+                        followPresentAndClose: { [weak navigator] in
+                            for _ in 0..<$0 {
+                                navigator?.navigate(
+                                    destination: .identity(MoreNavigationIdentity()),
+                                    strategy: .present()
+                                )
+                                navigator?.navigate(
+                                    destination: .identity(MoreNavigationIdentity()),
+                                    strategy: .closeIfTop()
+                                )
+                            }
+                        }
+                    )
+                )))
+            )
         case _ as TabPresentExampleNavigationIdentity:
             return ViewController(
                 node: TabPresentExampleControllerNode(viewModel: .init(data: .init(
@@ -151,9 +179,9 @@ class ScreenFactory: NavigatorScreenFactory {
                                 )
                             )
                         },
-                        followShowInSplitOrPresent: {
+                        followShowInSplitOrPresent: { [weak navigator] in
                             let destination = DetailsNavigationIdentity(number: -1)
-                            navigator.navigate(
+                            navigator?.navigate(
                                 destination: .identity(destination),
                                 strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(
@@ -166,9 +194,15 @@ class ScreenFactory: NavigatorScreenFactory {
                                 )
                             )
                         },
-                        followLoginedContent: {
-                            navigator.navigate(
+                        followLoginedContent: { [weak navigator] in
+                            navigator?.navigate(
                                 destination: .identity(SecretInformationIdentity()),
+                                strategy: .present()
+                            )
+                        },
+                        followQueue: { [weak navigator] in
+                            navigator?.navigate(
+                                destination: .identity(QueueNavigationIdentity()),
                                 strategy: .present()
                             )
                         }
@@ -321,9 +355,9 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .split(strategy: .secondary(action: .push))
                             )
                         },
-                        followShowInSplitOrPresent: {
+                        followShowInSplitOrPresent: { [weak navigator] in
                             let destination = DetailsNavigationIdentity(number: -1)
-                            navigator.navigate(
+                            navigator?.navigate(
                                 destination: .identity(destination),
                                 strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(
@@ -359,9 +393,9 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .split(strategy: .secondary(action: .push))
                             )
                         },
-                        followShowInSplitOrPresent: {
+                        followShowInSplitOrPresent: { [weak navigator] in
                             let identity = DetailsNavigationIdentity(number: -1)
-                            navigator.navigate(
+                            navigator?.navigate(
                                 destination: .identity(identity),
                                 strategy: .split(strategy: .secondary(action: .replace)),
                                 fallback: NavigationChainLink(

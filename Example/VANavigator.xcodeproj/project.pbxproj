@@ -34,6 +34,7 @@
 		A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D72B21292C001B05B8 /* PushControllerTests.swift */; };
 		A35381DA2B21B469001B05B8 /* PushOrPopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */; };
 		A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */; };
+		A374FB512B37360F00C0563E /* NavigationQueueExampleControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */; };
 		A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784ADE2B1C9462009351DD /* CompositionRoot.swift */; };
 		A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */; };
 		A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */; };
@@ -100,6 +101,7 @@
 		A35381D72B21292C001B05B8 /* PushControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushControllerTests.swift; sourceTree = "<group>"; };
 		A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushOrPopControllerTests.swift; sourceTree = "<group>"; };
 		A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseIfTopControllerTests.swift; sourceTree = "<group>"; };
+		A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationQueueExampleControllerNode.swift; sourceTree = "<group>"; };
 		A3784ADE2B1C9462009351DD /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A3784AEE2B1CACC4009351DD /* ScreenFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFactory.swift; sourceTree = "<group>"; };
 		A3784AF02B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationIdentity+VANavigatorExample.swift"; sourceTree = "<group>"; };
@@ -276,6 +278,7 @@
 				A3081E0F2B1E4D470041E11A /* LoginControllerNode.swift */,
 				A3C742ED2B1CBAB80050211E /* MainControllerNode.swift */,
 				A3081DFD2B1D1A970041E11A /* MoreControllerNode.swift */,
+				A374FB502B37360F00C0563E /* NavigationQueueExampleControllerNode.swift */,
 				A3081DFF2B1DC4610041E11A /* PrimaryControllerNode.swift */,
 				A3081E032B1DDECD0041E11A /* SecondaryControllerNode.swift */,
 				A3081E112B1E63170041E11A /* SecretInformationControllerNode.swift */,
@@ -488,6 +491,7 @@
 				A3081E042B1DDECD0041E11A /* SecondaryControllerNode.swift in Sources */,
 				A3784AEF2B1CACC4009351DD /* ScreenFactory.swift in Sources */,
 				A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */,
+				A374FB512B37360F00C0563E /* NavigationQueueExampleControllerNode.swift in Sources */,
 				A3081E0C2B1E48940041E11A /* ExampleNavigationInterceptor.swift in Sources */,
 				A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */,
 				A3081E102B1E4D470041E11A /* LoginControllerNode.swift in Sources */,
