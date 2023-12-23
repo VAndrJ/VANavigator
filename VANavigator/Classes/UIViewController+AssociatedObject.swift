@@ -12,12 +12,8 @@ extension UIViewController {
     @UniqueAddress static var key
     
     public var navigationIdentity: NavigationIdentity? {
-        get {
-            objc_getAssociatedObject(self, Self.key) as? NavigationIdentity
-        }
-        set {
-            objc_setAssociatedObject(self, Self.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
+        get { objc_getAssociatedObject(self, Self.key) as? NavigationIdentity }
+        set { objc_setAssociatedObject(self, Self.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
 }
 
