@@ -9,14 +9,7 @@
 import Foundation
 
 @MainActor
-public final class NavigationChainLink: Equatable {
-    public static func == (lhs: NavigationChainLink, rhs: NavigationChainLink) -> Bool {
-        lhs.destination == rhs.destination &&
-        lhs.strategy == rhs.strategy &&
-        lhs.animated == rhs.animated &&
-        lhs.fallback == rhs.fallback
-    }
-
+public final class NavigationChainLink {
     public let destination: NavigationDestination
     public private(set) var strategy: NavigationStrategy
     public let animated: Bool
@@ -36,5 +29,16 @@ public final class NavigationChainLink: Equatable {
 
     func update(strategy: NavigationStrategy) {
         self.strategy = strategy
+    }
+
+    public func isEqual(to other: NavigationChainLink?) -> Bool {
+        guard let other else {
+            return false
+        }
+
+        return destination.isEqual(to: other.destination) &&
+        strategy == other.strategy &&
+        animated == other.animated &&
+        fallback?.isEqual(to: other.fallback) ?? (fallback == nil && other.fallback == nil)
     }
 }

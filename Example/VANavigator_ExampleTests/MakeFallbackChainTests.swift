@@ -62,7 +62,7 @@ class MakeFallbackChainTests: XCTestCase {
             ]
         )
         while !(expected == nil && sut == nil) {
-            XCTAssertEqual(expected, sut)
+            XCTAssertEqual(true, expected?.isEqual(to: sut))
             expected = expected?.fallback
             sut = sut?.fallback
         }
