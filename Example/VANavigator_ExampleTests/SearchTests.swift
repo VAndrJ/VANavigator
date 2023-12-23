@@ -41,21 +41,9 @@ class SearchTests: XCTestCase {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             chain: [
-                .init(
-                    destination: .identity(splitIdentity),
-                    strategy: .replaceWindowRoot(),
-                    animated: false
-                ),
-                .init(
-                    destination: .identity(tabIdentity),
-                    strategy: .present(source: .navigationController),
-                    animated: false
-                ),
-                .init(
-                    destination: .identity(presentIdentity),
-                    strategy: .present(),
-                    animated: true
-                ),
+                .init(destination: .identity(splitIdentity), strategy: .replaceWindowRoot(), animated: false),
+                .init(destination: .identity(tabIdentity), strategy: .present(source: .navigationController), animated: false),
+                .init(destination: .identity(presentIdentity), strategy: .present(), animated: true),
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )

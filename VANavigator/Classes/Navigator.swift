@@ -20,7 +20,7 @@ public final class Navigator {
     private var isNavigationInProgress = false {
         didSet { checkQueue() }
     }
-    private var isChainNavigationInProgress = false{
+    private var isChainNavigationInProgress = false {
         didSet { checkQueue() }
     }
 
