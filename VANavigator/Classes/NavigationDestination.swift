@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 public enum NavigationDestination: Equatable {
     public static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
         switch (lhs, rhs) {

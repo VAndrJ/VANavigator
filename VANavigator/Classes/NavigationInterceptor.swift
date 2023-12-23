@@ -24,6 +24,7 @@ public struct NavigationInterceptionResult {
     }
 }
 
+@MainActor
 open class NavigationInterceptor {
     var onInterceptionResolved: ((
         _ reason: AnyHashable,

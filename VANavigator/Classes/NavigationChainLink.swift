@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 public final class NavigationChainLink: Equatable {
     public static func == (lhs: NavigationChainLink, rhs: NavigationChainLink) -> Bool {
         lhs.destination == rhs.destination &&
