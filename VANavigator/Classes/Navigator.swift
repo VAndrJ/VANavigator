@@ -16,6 +16,14 @@ public final class Navigator {
 
     public private(set) weak var window: UIWindow?
 
+    private let navigationQueue = Queue<InterceptionDetail>()
+    private var isNavigationInProgress = false {
+        didSet { checkQueue() }
+    }
+    private var isChainNavigationInProgress = false{
+        didSet { checkQueue() }
+    }
+
     public init(
         window: UIWindow?,
         screenFactory: NavigatorScreenFactory,
@@ -37,10 +45,23 @@ public final class Navigator {
     public func navigate(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
+        linkCompletionResult: (UIViewController?, Bool)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
+        guard !(isChainNavigationInProgress && linkCompletionResult == nil || isNavigationInProgress) else {
+            navigationQueue.enqueue(InterceptionDetail(
+                chain: chain,
+                event: event,
+                completion: completion
+            ))
+
+            return
+        }
+
+        isChainNavigationInProgress = true
         guard !chain.isEmpty else {
-            completion?(nil, false)
+            isChainNavigationInProgress = false
+            completion?(linkCompletionResult?.0, linkCompletionResult?.1 ?? false)
 
             return
         }
@@ -54,6 +75,7 @@ public final class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
+            isChainNavigationInProgress = false
             navigate(
                 chain: interceptionResult.chain,
                 event: interceptionResult.event,
@@ -64,16 +86,17 @@ public final class Navigator {
         }
 
         navigate(
-            destination: link.destination,
+            to: link.destination,
             strategy: link.strategy,
             animated: link.animated,
             fallback: link.fallback,
             event: event,
-            completion: { [weak self] _, _ in
+            completion: { [weak self] controller, result in
                 DispatchQueue.main.async {
                     self?.navigate(
                         chain: chain,
                         event: event,
+                        linkCompletionResult: (controller, result),
                         completion: completion
                     )
                 }
@@ -113,27 +136,6 @@ public final class Navigator {
         )
     }
 
-    public func makeFallbackChain(
-        destination: NavigationDestination,
-        strategy: NavigationStrategy,
-        animated: Bool,
-        fallbackStrategies: [NavigationStrategy]
-    ) -> NavigationChainLink? {
-        var fallbackChainLink: NavigationChainLink?
-        for fallbackStrategy in fallbackStrategies.reversed() {
-            let link = NavigationChainLink(
-                destination: destination,
-                strategy: fallbackStrategy,
-                animated: animated,
-                fallback: fallbackChainLink
-            )
-            fallbackChainLink = link
-        }
-
-        return fallbackChainLink
-    }
-
-    // swiftlint:disable function_body_length cyclomatic_complexity
     /// Navigates to a specific destination using the provided navigation strategy.
     ///
     /// - Parameters:
@@ -151,6 +153,46 @@ public final class Navigator {
         event: ResponderEvent? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
+        guard !(isChainNavigationInProgress || isNavigationInProgress) else {
+            navigationQueue.enqueue(InterceptionDetail(
+                chain: [
+                    NavigationChainLink(
+                        destination: destination,
+                        strategy: strategy,
+                        animated: animated,
+                        fallback: fallback
+                    ),
+                ],
+                event: event,
+                completion: completion
+            ))
+
+            return
+        }
+
+        isNavigationInProgress = true
+        navigate(
+            to: destination,
+            strategy: strategy,
+            animated: animated,
+            fallback: fallback,
+            event: event,
+            completion: { [weak self] controller, result in
+                self?.isNavigationInProgress = false
+                completion?(controller, result)
+            }
+        )
+    }
+
+    // swiftlint:disable function_body_length cyclomatic_complexity
+    private func navigate(
+        to destination: NavigationDestination,
+        strategy: NavigationStrategy,
+        animated: Bool,
+        fallback: NavigationChainLink?,
+        event: ResponderEvent?,
+        completion: ((UIViewController?, Bool) -> Void)?
+    ) {
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
             let detail = InterceptionDetail(
                 chain: [
@@ -164,6 +206,7 @@ public final class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
+            isNavigationInProgress = false
             navigate(
                 chain: interceptionResult.chain,
                 event: interceptionResult.event,
@@ -290,7 +333,7 @@ public final class Navigator {
                 )
             } else if let fallback {
                 navigate(
-                    destination: fallback.destination,
+                    to: fallback.destination,
                     strategy: fallback.strategy,
                     animated: fallback.animated,
                     fallback: fallback.fallback,
@@ -325,7 +368,7 @@ public final class Navigator {
                             } else {
                                 if let fallback {
                                     navigate(
-                                        destination: fallback.destination,
+                                        to: fallback.destination,
                                         strategy: fallback.strategy,
                                         animated: fallback.animated,
                                         fallback: fallback.fallback,
@@ -374,7 +417,7 @@ public final class Navigator {
                 )
             } else if let fallback {
                 navigate(
-                    destination: fallback.destination,
+                    to: fallback.destination,
                     strategy: fallback.strategy,
                     animated: fallback.animated,
                     fallback: fallback.fallback,
@@ -401,7 +444,7 @@ public final class Navigator {
                 )
             } else if let fallback {
                 navigate(
-                    destination: fallback.destination,
+                    to: fallback.destination,
                     strategy: fallback.strategy,
                     animated: fallback.animated,
                     fallback: fallback.fallback,
@@ -459,7 +502,7 @@ public final class Navigator {
                                     )
                                 } else if let fallback {
                                     navigate(
-                                        destination: fallback.destination,
+                                        to: fallback.destination,
                                         strategy: fallback.strategy,
                                         animated: fallback.animated,
                                         fallback: fallback.fallback,
@@ -530,7 +573,7 @@ public final class Navigator {
                                     )
                                 } else if let fallback {
                                     navigate(
-                                        destination: fallback.destination,
+                                        to: fallback.destination,
                                         strategy: fallback.strategy,
                                         animated: fallback.animated,
                                         fallback: fallback.fallback,
@@ -563,7 +606,7 @@ public final class Navigator {
                         }
                     } else if let fallback {
                         navigate(
-                            destination: fallback.destination,
+                            to: fallback.destination,
                             strategy: fallback.strategy,
                             animated: fallback.animated,
                             fallback: fallback.fallback,
@@ -721,6 +764,37 @@ public final class Navigator {
             }
         }
         completion?()
+    }
+
+    public func makeFallbackChain(
+        destination: NavigationDestination,
+        strategy: NavigationStrategy,
+        animated: Bool,
+        fallbackStrategies: [NavigationStrategy]
+    ) -> NavigationChainLink? {
+        var fallbackChainLink: NavigationChainLink?
+        for fallbackStrategy in fallbackStrategies.reversed() {
+            let link = NavigationChainLink(
+                destination: destination,
+                strategy: fallbackStrategy,
+                animated: animated,
+                fallback: fallbackChainLink
+            )
+            fallbackChainLink = link
+        }
+
+        return fallbackChainLink
+    }
+
+    private func checkQueue() {
+        guard !(isNavigationInProgress || isChainNavigationInProgress) else { return }
+        guard let queued = navigationQueue.dequeue() else { return }
+
+        navigate(
+            chain: queued.chain,
+            event: queued.event,
+            completion: queued.completion
+        )
     }
 
     private func bind() {

@@ -76,12 +76,15 @@ open class NavigationInterceptor {
 class InterceptionDetail {
     var chain: [NavigationChainLink]
     let event: ResponderEvent?
+    let completion: ((UIViewController?, Bool) -> Void)?
 
     init(
         chain: [NavigationChainLink],
-        event: ResponderEvent? = nil
+        event: ResponderEvent? = nil,
+        completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         self.chain = chain
         self.event = event
+        self.completion = completion
     }
 }
