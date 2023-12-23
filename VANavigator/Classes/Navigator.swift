@@ -37,7 +37,7 @@ public final class Navigator {
     public func navigate(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
-        completion: (((UIViewController & Responder)?, Bool) -> Void)? = nil
+        completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         guard !chain.isEmpty else {
             completion?(nil, false)
