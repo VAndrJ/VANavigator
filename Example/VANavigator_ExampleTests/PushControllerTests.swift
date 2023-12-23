@@ -173,6 +173,40 @@ class PushControllerTests: XCTestCase {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
     }
 
+    func test_controllerPushOntoNavigationStack_delegate() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
+        let delegate = MockNavigationDelegate()
+        (window?.rootViewController as? UINavigationController)?.delegate = delegate
+        let identity = MockPushControllerNavigationIdentity()
+        let expect = expectation(description: "push")
+        var responder: UIViewController?
+        var result: Bool?
+        push(
+            navigator: navigator,
+            identity: identity,
+            alwaysEmbedded: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+        wait(for: [expect], timeout: 10)
+
+        // Check that controller was pushed
+        // and it is the top view controller.
+        let rootNavigationController = window?.rootViewController as? UINavigationController
+        let expectedIdentity = identity
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
     func push(
         navigator: Navigator,
         identity: NavigationIdentity,
@@ -220,3 +254,5 @@ class PushControllerTests: XCTestCase {
         wait(for: [expect], timeout: 10)
     }
 }
+
+private class MockNavigationDelegate: NSObject, UINavigationControllerDelegate {}
