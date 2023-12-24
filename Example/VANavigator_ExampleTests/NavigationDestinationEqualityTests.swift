@@ -17,8 +17,9 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail: NavigationDestination = .identity(MockPopControllerNavigationIdentity())
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertEqual(true, expected.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
+        XCTAssertTrue(expected.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail.isEqual(to: sut))
+        XCTAssertFalse(expected.isEqual(to: nil))
     }
 
     func test_identity_controller() {
@@ -31,9 +32,10 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertEqual(true, expected.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
+        XCTAssertTrue(expected.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
+        XCTAssertFalse(expected.isEqual(to: nil))
     }
 
     func test_controller_controller() {
@@ -46,9 +48,10 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertEqual(true, expected.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
+        XCTAssertTrue(expected.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
+        XCTAssertFalse(expected.isEqual(to: nil))
     }
 
     func test_controller_identity() {
@@ -61,8 +64,9 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertEqual(true, expected.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail.isEqual(to: sut))
-        XCTAssertEqual(false, expectedToFail1.isEqual(to: sut))
+        XCTAssertTrue(expected.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail.isEqual(to: sut))
+        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
+        XCTAssertFalse(expected.isEqual(to: nil))
     }
 }
