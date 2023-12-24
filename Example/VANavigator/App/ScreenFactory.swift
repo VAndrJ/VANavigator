@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKit
+import VATextureKitRx
 
 // swiftlint:disable type_body_length
 class ScreenFactory: NavigatorScreenFactory {
@@ -87,6 +87,18 @@ class ScreenFactory: NavigatorScreenFactory {
                                         }
                                     }
                                 }
+                            )
+                        },
+                        followPresentPopover: { [weak navigator] source in
+                            navigator?.navigate(
+                                destination: .identity(NavNavigationIdentity(children: [
+                                    DetailsNavigationIdentity(number: 11),
+                                    DetailsNavigationIdentity(number: 12),
+                                ])),
+                                strategy: .popover(configure: { [weak source] popover, _ in
+                                    popover.permittedArrowDirections = .up
+                                    popover.sourceView = source
+                                })
                             )
                         }
                     )

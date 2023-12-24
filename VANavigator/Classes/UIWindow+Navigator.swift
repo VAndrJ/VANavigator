@@ -20,8 +20,8 @@ extension UIWindow {
         return topmostViewController
     }
 
-    public func findController(destination: NavigationDestination) -> UIViewController? {
-        rootViewController?.findController(destination: destination)
+    public func findController(destination: NavigationDestination, withPresented: Bool = true) -> UIViewController? {
+        rootViewController?.findController(destination: destination, withPresented: withPresented)
     }
 
     public func set(
