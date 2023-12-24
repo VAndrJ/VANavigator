@@ -35,6 +35,11 @@ public extension NavigationStrategy {
         PresentNavigationStrategy(source: source)
     }
 
+    /// Presents a popover.
+    static func popover(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) -> NavigationStrategy {
+        PopoverNavigationStrategy(configure: configure)
+    }
+
     /// Close the controller if it is top one
     static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
         CloseIfTopNavigationStrategy(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
@@ -89,6 +94,14 @@ class SplitNavigationStrategy: NavigationStrategy {
         }
 
         return strategy == other.strategy
+    }
+}
+
+class PopoverNavigationStrategy: NavigationStrategy {
+    let configure: (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void
+    
+    init(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) {
+        self.configure = configure
     }
 }
 

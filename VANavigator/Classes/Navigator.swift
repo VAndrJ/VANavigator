@@ -23,6 +23,7 @@ public final class Navigator {
     private var isChainNavigationInProgress = false {
         didSet { checkQueue() }
     }
+    private let popoverDelegate = PopoverDelegate()
 
     public init(
         window: UIWindow?,
@@ -345,42 +346,35 @@ public final class Navigator {
             }
         case _ as PushNavigationStrategy:
             let controller = getController(destination: destination)
-            selectTabIfNeeded(
-                controller: window?.topController,
-                completion: { [weak self] in
+            let sourceController = controller.topController.orNavigationController
+            push(
+                sourceController: sourceController,
+                controller: controller,
+                animated: animated,
+                completion: { [weak self] isSuccess in
                     guard let self else { return }
 
-                    let sourceController = controller.topController.orNavigationController
-                    push(
-                        sourceController: sourceController,
-                        controller: controller,
-                        animated: animated,
-                        completion: { [weak self] isSuccess in
-                            guard let self else { return }
-
-                            if isSuccess {
-                                perform(
-                                    event: event,
-                                    navigatorEvent: navigatorEvent,
-                                    on: controller as? UIViewController & Responder
-                                )
-                                completion?(controller, true)
-                            } else {
-                                if let fallback {
-                                    navigate(
-                                        to: fallback.destination,
-                                        strategy: fallback.strategy,
-                                        animated: fallback.animated,
-                                        fallback: fallback.fallback,
-                                        event: event,
-                                        completion: completion
-                                    )
-                                } else {
-                                    completion?(nil, false)
-                                }
-                            }
+                    if isSuccess {
+                        perform(
+                            event: event,
+                            navigatorEvent: navigatorEvent,
+                            on: controller as? UIViewController & Responder
+                        )
+                        completion?(controller, true)
+                    } else {
+                        if let fallback {
+                            navigate(
+                                to: fallback.destination,
+                                strategy: fallback.strategy,
+                                animated: fallback.animated,
+                                fallback: fallback.fallback,
+                                event: event,
+                                completion: completion
+                            )
+                        } else {
+                            completion?(nil, false)
                         }
-                    )
+                    }
                 }
             )
         case let strategy as PopToExistingNavigationStrategy:
@@ -451,6 +445,33 @@ public final class Navigator {
                     event: event,
                     completion: completion
                 )
+            } else {
+                completion?(nil, false)
+            }
+        case let strategy as PopoverNavigationStrategy:
+            if let sourceController = window?.topController {
+                let controller = getController(destination: destination)
+                controller.modalPresentationStyle = .popover
+                if let popover = controller.popoverPresentationController {
+                    strategy.configure(popover, controller)
+                    if popover.delegate == nil {
+                        popover.delegate = popoverDelegate
+                    }
+                    sourceController.present(
+                        controller,
+                        animated: animated,
+                        completion: {
+                            perform(
+                                event: event,
+                                navigatorEvent: navigatorEvent,
+                                on: controller as? UIViewController & Responder
+                            )
+                            completion?(controller, true)
+                        }
+                    )
+                } else {
+                    completion?(nil, false)
+                }
             } else {
                 completion?(nil, false)
             }
@@ -751,7 +772,7 @@ public final class Navigator {
         completion: (() -> Void)? = nil
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
-            for index in (tabBarController.viewControllers ?? []).indices where tabBarController.viewControllers?[index].findController(controller: controller) != nil {
+            for index in (tabBarController.viewControllers ?? []).indices where tabBarController.viewControllers?[index].findController(controller: controller, withPresented: false) != nil {
                 if tabBarController.selectedIndex != index {
                     tabBarController.selectedIndex = index
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -760,6 +781,7 @@ public final class Navigator {
                 } else {
                     completion?()
                 }
+                
                 return
             }
         }

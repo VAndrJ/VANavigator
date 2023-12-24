@@ -52,6 +52,8 @@
 		A3C742F92B1CE69B0050211E /* Collection+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742F82B1CE69B0050211E /* Collection+Support.swift */; };
 		A3C742FD2B1CEA160050211E /* VAButtonNode+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */; };
 		A3C742FF2B1CF4C80050211E /* Umbrella.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C742FE2B1CF4C80050211E /* Umbrella.swift */; };
+		A3E909102B38A93500A3E68E /* PopoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E9090F2B38A93500A3E68E /* PopoverTests.swift */; };
+		A3E909122B38AEC500A3E68E /* NavigationChainLinkEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E909112B38AEC500A3E68E /* NavigationChainLinkEqualityTests.swift */; };
 		ABE35B24DE9EDB066D8E6F24 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C15158A31152C459732A5969 /* libPods-VANavigator_ExampleTests.a */; };
 /* End PBXBuildFile section */
 
@@ -121,6 +123,8 @@
 		A3C742F82B1CE69B0050211E /* Collection+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Support.swift"; sourceTree = "<group>"; };
 		A3C742FC2B1CEA160050211E /* VAButtonNode+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VAButtonNode+Support.swift"; sourceTree = "<group>"; };
 		A3C742FE2B1CF4C80050211E /* Umbrella.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Umbrella.swift; sourceTree = "<group>"; };
+		A3E9090F2B38A93500A3E68E /* PopoverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverTests.swift; sourceTree = "<group>"; };
+		A3E909112B38AEC500A3E68E /* NavigationChainLinkEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationChainLinkEqualityTests.swift; sourceTree = "<group>"; };
 		C15158A31152C459732A5969 /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2CBE1D587B29290115B844B /* Pods-VANavigator_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Tests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Tests/Pods-VANavigator_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		DD58092F1D3DE7FA11E768EC /* Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example-VANavigator_ExampleTests/Pods-VANavigator_Example-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -233,10 +237,12 @@
 			children = (
 				A35381DB2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift */,
 				A30F913C2B331C8600C217C7 /* MakeFallbackChainTests.swift */,
+				A3E909112B38AEC500A3E68E /* NavigationChainLinkEqualityTests.swift */,
 				A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */,
 				A333AB572B2EF2DA009AB080 /* NavigationDestinationTests.swift */,
 				A34FCA932B2D9153004404A1 /* NavigationInterceptionTests.swift */,
 				A30F91442B333A4B00C217C7 /* NavigationStrategyEqualityTests.swift */,
+				A3E9090F2B38A93500A3E68E /* PopoverTests.swift */,
 				A34FCA912B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift */,
 				A35381D72B21292C001B05B8 /* PushControllerTests.swift */,
 				A35381D92B21B469001B05B8 /* PushOrPopControllerTests.swift */,
@@ -521,7 +527,9 @@
 				A333AB582B2EF2DA009AB080 /* NavigationDestinationTests.swift in Sources */,
 				A35381DC2B21C0A6001B05B8 /* CloseIfTopControllerTests.swift in Sources */,
 				A30F91492B333E1800C217C7 /* NavigationDestinationEqualityTests.swift in Sources */,
+				A3E909102B38A93500A3E68E /* PopoverTests.swift in Sources */,
 				A34FCA922B2CFC84004404A1 /* PresentOrCloseToExistingControllerTests.swift in Sources */,
+				A3E909122B38AEC500A3E68E /* NavigationChainLinkEqualityTests.swift in Sources */,
 				A374FB552B374A5700C0563E /* SearchTests.swift in Sources */,
 				A34FCA902B2CEDB4004404A1 /* ReplaceNavigationRootControllerTests.swift in Sources */,
 				A35381D82B21292C001B05B8 /* PushControllerTests.swift in Sources */,

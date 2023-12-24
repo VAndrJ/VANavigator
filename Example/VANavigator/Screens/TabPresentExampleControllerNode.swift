@@ -15,6 +15,7 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
     )
     private let presentFromTopButtonNode = VAButtonNode()
     private let presentFromTabButtonNode = VAButtonNode()
+    private let presentPopoverButtonNode = VAButtonNode()
 
     override init(viewModel: TabPresentExampleViewModel) {
         super.init(viewModel: viewModel)
@@ -27,6 +28,7 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
             Column(spacing: 16, cross: .stretch) {
                 presentFromTopButtonNode
                 presentFromTabButtonNode
+                presentPopoverButtonNode
             }
             .padding(.all(16))
         }
@@ -40,6 +42,7 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
         backgroundColor = theme.systemBackground
         presentFromTopButtonNode.setTitle("Present from top controller", theme: theme)
         presentFromTabButtonNode.setTitle("Present from tab bar controller", theme: theme)
+        presentPopoverButtonNode.setTitle("Present popover", theme: theme)
         setNeedsLayout()
     }
 
@@ -50,18 +53,28 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
     private func bindView() {
         presentFromTopButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTopEvent()) }
         presentFromTabButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTabEvent()) }
+        presentPopoverButtonNode.onTap = viewModel ?> { [weak self] in
+            guard let self else { return }
+
+            $0.perform(PresentPopoverEvent(source: presentPopoverButtonNode.view))
+        }
     }
 }
 
-class PresentFromTopEvent: Event {}
+struct PresentFromTopEvent: Event {}
 
-class PresentFromTabEvent: Event {}
+struct PresentFromTabEvent: Event {}
+
+struct PresentPopoverEvent: Event {
+    let source: UIView
+}
 
 class TabPresentExampleViewModel: EventViewModel {
     struct DTO {
         struct Navigation {
             let followPresentFromTop: () -> Void
             let followPresentFromTab: () -> Void
+            let followPresentPopover: (UIView) -> Void
         }
 
         let navigation: Navigation
@@ -82,6 +95,8 @@ class TabPresentExampleViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
+        case let event as PresentPopoverEvent:
+            data.navigation.followPresentPopover(event.source)
         case _ as PresentFromTopEvent:
             data.navigation.followPresentFromTop()
         case _ as PresentFromTabEvent:
