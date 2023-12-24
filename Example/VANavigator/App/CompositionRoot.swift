@@ -49,6 +49,17 @@ class CompositionRoot {
         }
 
         switch shortcut {
+        case .alert:
+            navigator.navigate(
+                destination: .controller(UIAlertController(
+                    title: "Title",
+                    message: "Message",
+                    preferredStyle: .alert
+                ).apply {
+                    $0.addAction(UIAlertAction(title: "Close", style: .default))
+                }),
+                strategy: .present()
+            )
         case .main:
             navigator.navigate(
                 destination: .identity(MainNavigationIdentity()),
