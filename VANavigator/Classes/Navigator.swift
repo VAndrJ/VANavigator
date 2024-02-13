@@ -243,7 +243,7 @@ public final class Navigator {
                     controller.navigationController?.popViewController(
                         animated: animated,
                         completion: {
-                            completion?(nil, true)
+                            completion?(nil, $0)
                         }
                     )
                 } else {
