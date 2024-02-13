@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'VANavigator'
-  s.version          = '1.1.1'
+  s.version          = '1.2.0'
   s.summary          = 'Easy to use UIKit navigation wrapper.'
 
   s.description      = <<-DESC
