@@ -9,9 +9,9 @@
 import UIKit
 
 public struct NavigationInterceptionResult {
-    let chain: [NavigationChainLink]
-    let event: ResponderEvent?
-    let reason: AnyHashable
+    public let chain: [NavigationChainLink]
+    public let event: ResponderEvent?
+    public let reason: AnyHashable
 
     public init(
         link: NavigationChainLink,

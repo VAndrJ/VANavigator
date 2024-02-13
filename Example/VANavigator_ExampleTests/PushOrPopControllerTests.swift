@@ -11,7 +11,7 @@ import VANavigator
 
 // TODO: - Messages
 @MainActor
-class PushOrPopControllerTests: XCTestCase {
+class PushOrPopControllerTests: XCTestCase { // swiftlint:disable:this type_body_length
     var window: UIWindow?
 
     override func setUp() {
@@ -98,12 +98,49 @@ class PushOrPopControllerTests: XCTestCase {
 
         wait(for: [expect], timeout: 10)
 
-        // Check that controller was pushed
+        // Check that controller was not popped
         // and it is the top view controller.
         let expectedIdentity = identity
 
         XCTAssertEqual(false, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
+        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+    }
+
+    func test_controllerPop_singleFallback() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
+        let identity = MockRootControllerNavigationIdentity()
+
+        let rootNavigationController = window?.rootViewController as? UINavigationController
+
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
+        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+
+        let expect = expectation(description: "pushOrPop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .closeIfTop(),
+            fallback: .init(
+                destination: .identity(identity),
+                strategy: .push,
+                animated: false
+            ),
+            event: ResponderMockEvent(),
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        let expectedIdentity = identity
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
