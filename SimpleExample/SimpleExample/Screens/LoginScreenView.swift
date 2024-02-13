@@ -1,5 +1,5 @@
 //
-//  DetailsScreenView.swift
+//  LoginScreenView.swift
 //  SimpleExample
 //
 //  Created by VAndrJ on 13.02.2024.
@@ -7,18 +7,16 @@
 
 import UIKit
 
-class DetailsScreenView: ControllerView<DetailsViewModel> {
-    private lazy var titleLabel = UILabel().apply {
-        $0.text = "Details \(viewModel.number)"
+class LoginScreenView: ControllerView<LoginViewModel> {
+    private let titleLabel = UILabel().apply {
+        $0.text = "Login screen"
     }
-    private let closeIfTopPushedOrPresentedButton = Button(title: "Close if top pushed or presented")
-    private let replaceRootButton = Button(title: "Replace window root")
+    private let loginButton = Button(title: "Login")
 
     override func addElements() {
         embedIntoScroll(
             titleLabel,
-            closeIfTopPushedOrPresentedButton,
-            replaceRootButton
+            loginButton
         )
     }
 
@@ -27,33 +25,28 @@ class DetailsScreenView: ControllerView<DetailsViewModel> {
     }
 
     override func bindView() {
-        replaceRootButton.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        closeIfTopPushedOrPresentedButton.onTap = viewModel ?> { $0.perform(CloseIfTopPushedOrPresentedEvent()) }
+        loginButton.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }
 }
 
-struct CloseIfTopPushedOrPresentedEvent: Event {}
+struct LoginEvent: Event {}
 
-class DetailsViewModel: EventViewModel {
+class LoginViewModel: EventViewModel {
     struct Context {
         struct Related {
-            let number: Int
         }
 
         struct DataSource {
+            let authorize: () -> Void
         }
 
         struct Navigation {
-            let followReplaceRootWithNewMain: () -> Void
-            let followCloseIfTopPushedOrPresented: () -> Void
         }
 
         let related: Related
         let source: DataSource
         let navigation: Navigation
     }
-
-    var number: Int { data.related.number }
 
     private let data: Context
 
@@ -63,10 +56,8 @@ class DetailsViewModel: EventViewModel {
 
     override func run(_ event: Event) async {
         switch event {
-        case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
-        case _ as CloseIfTopPushedOrPresentedEvent:
-            data.navigation.followCloseIfTopPushedOrPresented()
+        case _ as LoginEvent:
+            data.source.authorize()
         default:
             await super.run(event)
         }

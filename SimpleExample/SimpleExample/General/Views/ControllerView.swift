@@ -7,6 +7,19 @@
 
 import UIKit
 
+protocol ControllerViewProtocol: UIView {
+    @MainActor
+    func viewDidLoad(in controller: UIViewController)
+    @MainActor
+    func viewDidAppear(in controller: UIViewController, animated: Bool)
+    @MainActor
+    func viewWillAppear(in controller: UIViewController, animated: Bool)
+    @MainActor
+    func viewWillDisappear(in controller: UIViewController, animated: Bool)
+    @MainActor
+    func viewDidDisappear(in controller: UIViewController, animated: Bool)
+}
+
 class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol, Responder {
     let viewModel: ViewModel
 
@@ -55,6 +68,40 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
         get { viewModel }
         set { viewModel.nextEventResponder = newValue }
     }
+
+    func handle(event: ResponderEvent) async -> Bool {
+        logResponder(from: Self.self, event: event)
+
+        return await nextEventResponder?.handle(event: event) ?? false
+    }
+}
+
+struct BecomeVisibleEvent: Event {}
+
+protocol Event {}
+
+class EventViewModel: ViewModel {
+    weak var controller: UIViewController?
+
+    @MainActor
+    func run(_ event: Event) async {
+        #if DEBUG || targetEnvironment(simulator)
+        print("⚠️ [Event not handled] \(event)")
+        #endif
+    }
+
+    func perform(_ event: Event) {
+        Task { @MainActor in
+            await run(event)
+        }
+    }
+}
+
+class ViewModel: NSObject, Responder {
+
+    // MARK: - Responder
+
+    weak var nextEventResponder: Responder?
 
     func handle(event: ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
