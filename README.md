@@ -25,6 +25,13 @@ it, simply add the following line to your Podfile:
 pod 'VANavigator'
 ```
 
+VANavigator is available through [SPM](https://github.com/apple/swift-package-manager). To install
+it, simply add to your Pakcage Dependencies:
+
+```
+https://github.com/VAndrJ/VANavigator.git
+```
+
 ## Description
 
 
