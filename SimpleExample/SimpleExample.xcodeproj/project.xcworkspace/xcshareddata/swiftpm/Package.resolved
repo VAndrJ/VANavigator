@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "swiftional",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VAndrJ/Swiftional",
+      "state" : {
+        "revision" : "de5b3c062aa3f1309cfdc221702335e509a29c5d",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "vanavigator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VAndrJ/VANavigator.git",
+      "state" : {
+        "revision" : "b8b9cb6487d02b5cf1b152efd5ebe71bcb25315e",
+        "version" : "1.1.0"
+      }
+    }
+  ],
+  "version" : 2
+}
