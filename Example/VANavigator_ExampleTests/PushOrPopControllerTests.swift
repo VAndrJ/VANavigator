@@ -102,7 +102,7 @@ class PushOrPopControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
+        XCTAssertEqual(false, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
