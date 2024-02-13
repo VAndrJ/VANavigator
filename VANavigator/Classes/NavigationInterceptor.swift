@@ -14,6 +14,16 @@ public struct NavigationInterceptionResult {
     let reason: AnyHashable
 
     public init(
+        link: NavigationChainLink,
+        event: ResponderEvent? = nil,
+        reason: AnyHashable
+    ) {
+        self.chain = [link]
+        self.event = event
+        self.reason = reason
+    }
+
+    public init(
         chain: [NavigationChainLink],
         event: ResponderEvent? = nil,
         reason: AnyHashable
