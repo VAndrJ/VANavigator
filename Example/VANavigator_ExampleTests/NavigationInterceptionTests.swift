@@ -225,6 +225,30 @@ class NavigationInterceptionTests: XCTestCase {
 
         wait(for: [expect], timeout: 10)
     }
+
+    func test_resultInit_equality() {
+        let link = NavigationChainLink(
+            destination: .identity(MainNavigationIdentity()),
+            strategy: .push,
+            animated: true
+        )
+        let reason = "Reason"
+        let sut = NavigationInterceptionResult(
+            link: link,
+            event: ResponderMockEvent(),
+            reason: reason
+        )
+        let expected = NavigationInterceptionResult(
+            chain: [link],
+            event: ResponderMockEvent(),
+            reason: reason
+        )
+
+        XCTAssertEqual(sut.chain.count, expected.chain.count)
+        XCTAssertEqual(true, sut.chain.first?.isEqual(to: expected.chain.first))
+        XCTAssertEqual(String(describing: sut.event), String(describing: expected.event))
+        XCTAssertEqual(sut.reason, expected.reason)
+    }
 }
 
 class MockEmptyInterceptor: NavigationInterceptor {}

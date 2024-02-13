@@ -13,13 +13,13 @@ extension UINavigationController {
 
     public func popViewController(
         animated: Bool,
-        completion: (() -> Void)?
+        completion: @escaping (Bool) -> Void
     ) {
         if viewControllers.count > 1 {
             popViewController(animated: animated)
-            observeCompletion(animated: animated, completion: completion)
+            observeCompletion(animated: animated, completion: { completion(true) })
         } else {
-            completion?()
+            completion(false)
         }
     }
 

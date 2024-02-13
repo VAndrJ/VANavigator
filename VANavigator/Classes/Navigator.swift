@@ -242,8 +242,21 @@ public final class Navigator {
                 if tryToPop, controller.navigationController?.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     controller.navigationController?.popViewController(
                         animated: animated,
-                        completion: {
-                            completion?(nil, true)
+                        completion: { [weak self] isSuccess in
+                            guard let self else { return }
+
+                            if !isSuccess, let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
+                            } else {
+                                completion?(nil, isSuccess)
+                            }
                         }
                     )
                 } else {
