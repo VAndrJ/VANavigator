@@ -39,7 +39,7 @@ extension UIView {
             containerView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -16),
             containerView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
-            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
         ])
         views.forEach(containerView.addArrangedSubview(_:))
     }

@@ -14,6 +14,7 @@ class ScreenFactory: NavigatorScreenFactory {
         self.authorizationService = authorizationService
     }
 
+    // swiftlint:disable:next function_body_length
     func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as TabPresentExampleNavigationIdentity:
@@ -56,7 +57,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 animated: true
                             )
                         )
-                    }, 
+                    },
                     followReplaceRootWithTabs: navigator ?> {
                         $0.navigate(
                             destination: .identity(TabNavigationIdentity(children: [
@@ -65,7 +66,7 @@ class ScreenFactory: NavigatorScreenFactory {
                             ])),
                             strategy: .replaceWindowRoot()
                         )
-                    }, 
+                    },
                     followLoginedOnlyContent: navigator ?> {
                         $0.navigate(
                             destination: .identity(SecretInformationIdentity()),
