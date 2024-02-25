@@ -35,7 +35,7 @@ https://github.com/VAndrJ/VANavigator.git
 ## Description
 
 
-`VANavigator` is designed to simplify and streamline navigation in application, alleviating the complexities associated with searching for and transitioning to specific view controllers. 
+`VANavigator` is designed to simplify and streamline navigation in an application, alleviating the complexities associated with searching for and transitioning to specific view controllers. 
 At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, a key element that enables the seamless discovery of the required view controller in `UIWindow`, facilitating easy navigation back to it or opening a new one based on the specified `NavigationStrategy`.
 
 
@@ -64,7 +64,7 @@ navigator?.navigate(
 ```
 
 
-- Closes presented controllers to given controller if it exists.
+- Closes presented controllers to the given controller if it exists.
 
 Code example:
 ```
@@ -97,7 +97,7 @@ navigator?.navigate(
 ```
 
 
-- Replace navigation stack with new controller.
+- Replace the navigation stack with a new controller.
 
 Code example:
 ```
@@ -108,7 +108,7 @@ navigator?.navigate(
 ```
 
 
-- Close (pop or dismiss) the controller if it is top one.
+- Close (pop or dismiss) the controller if it is the top one.
 
 Code example:
 ```
@@ -133,7 +133,7 @@ navigator?.navigate(
 **Navigation interception**
 
 
-Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on provided conditions. Continue the intercepted navigation after resolving the interception reason.
+Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on the provided conditions. Continue the intercepted navigation after resolving the interception reason.
 
 
 ## Author
