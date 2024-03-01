@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class NavigationStrategy: Sendable, Equatable {
+public class NavigationStrategy: @unchecked Sendable, Equatable {
     public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
         lhs.isEqual(to: rhs)
     }
