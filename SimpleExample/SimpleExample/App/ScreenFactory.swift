@@ -51,7 +51,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         $0.navigate(
                             destination: .identity(identity),
                             strategy: .popToExisting(),
-                            fallback: NavigationChainLink(
+                            fallback: .init(
                                 destination: .identity(identity),
                                 strategy: .present(),
                                 animated: true
