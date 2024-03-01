@@ -29,6 +29,10 @@ public extension NavigationStrategy {
     static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
+    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
+    static var removeFromNavigationStack: NavigationStrategy {
+        RemoveFromStackNavigationStrategy()
+    }
 
     /// Presents a controller based on source.
     static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
@@ -56,11 +60,6 @@ public extension NavigationStrategy {
     /// Pops to existing controller, or uses fallback if no `UINavigationController` is found.
     static func popToExisting(includingTabs: Bool = true) -> NavigationStrategy {
         PopToExistingNavigationStrategy(includingTabs: includingTabs)
-    }
-
-    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
-    static func removeFromNavigationStack() -> NavigationStrategy {
-        RemoveFromStackNavigationStrategy()
     }
 
     /// Shows in a `UISplitViewController` with the given `strategy`.

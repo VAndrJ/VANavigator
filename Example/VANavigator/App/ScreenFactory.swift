@@ -314,7 +314,7 @@ class ScreenFactory: NavigatorScreenFactory {
                         followRemoveFromStack: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(DetailsNavigationIdentity(number: -1)),
-                                strategy: .removeFromNavigationStack()
+                                strategy: .removeFromNavigationStack
                             )
                         }
                     )
