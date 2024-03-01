@@ -70,7 +70,7 @@ struct PresentPopoverEvent: Event {
 }
 
 class TabPresentExampleViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct Navigation {
             let followPresentFromTop: () -> Void
             let followPresentFromTab: () -> Void
@@ -85,9 +85,9 @@ class TabPresentExampleViewModel: EventViewModel {
     var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()

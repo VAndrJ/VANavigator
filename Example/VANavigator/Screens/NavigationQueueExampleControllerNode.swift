@@ -71,7 +71,7 @@ class NavigationQueueExampleControllerNode: DisplayNode<NavigationQueueExampleVi
 struct PresentAndCloseEvent: Event {}
 
 class NavigationQueueExampleViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPresentAndClose: (Int) -> Void
@@ -83,9 +83,9 @@ class NavigationQueueExampleViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()

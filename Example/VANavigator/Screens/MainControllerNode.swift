@@ -106,7 +106,7 @@ struct ShowInSplitOrPresentEvent: Event {}
 struct PresentQueueEvent: Event {}
 
 class MainViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct DataSource {
             let authorizedObs: Observable<Bool>
         }
@@ -132,9 +132,9 @@ class MainViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
     }
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class NavigationStrategy: Equatable {
+public class NavigationStrategy: @unchecked Sendable, Equatable {
     public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
         lhs.isEqual(to: rhs)
     }
@@ -29,6 +29,10 @@ public extension NavigationStrategy {
     static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
+    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
+    static var removeFromNavigationStack: NavigationStrategy {
+        RemoveFromStackNavigationStrategy()
+    }
 
     /// Presents a controller based on source.
     static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
@@ -41,7 +45,10 @@ public extension NavigationStrategy {
     }
 
     /// Close the controller if it is top one
-    static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
+    static func closeIfTop(
+        tryToPop: Bool = true,
+        tryToDismiss: Bool = true
+    ) -> NavigationStrategy {
         CloseIfTopNavigationStrategy(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
     }
 
@@ -106,6 +113,8 @@ class PopoverNavigationStrategy: NavigationStrategy {
 }
 
 class CloseToExistingNavigationStrategy: NavigationStrategy {}
+
+class RemoveFromStackNavigationStrategy: NavigationStrategy {}
 
 public enum PresentNavigationSource: Equatable {
     case topController

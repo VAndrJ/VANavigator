@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol ResponderEvent {}
+public protocol ResponderEvent: Sendable {}
 
 public protocol Responder: AnyObject {
     @MainActor

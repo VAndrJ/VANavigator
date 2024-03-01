@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/VAndrJ/VANavigator.git",
       "state" : {
-        "revision" : "b8b9cb6487d02b5cf1b152efd5ebe71bcb25315e",
-        "version" : "1.1.0"
+        "revision" : "13c47161642d0dddcae283ecd5b0a53dc817dbcb",
+        "version" : "1.2.0"
       }
     }
   ],
