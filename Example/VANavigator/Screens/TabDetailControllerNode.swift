@@ -90,7 +90,7 @@ class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
 }
 
 class TabDetailViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPopNext: ([Int]) -> Void
@@ -104,9 +104,9 @@ class TabDetailViewModel: EventViewModel {
     var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()

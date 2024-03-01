@@ -70,7 +70,7 @@ class LoginControllerNode: DisplayNode<LoginViewModel> {
 struct LoginEvent: Event {}
 
 class LoginViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct DataSource {
             let authorize: () -> Void
         }
@@ -86,9 +86,9 @@ class LoginViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()

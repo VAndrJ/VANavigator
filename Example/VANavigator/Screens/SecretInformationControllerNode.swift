@@ -64,7 +64,7 @@ class SecretInformationControllerNode: DisplayNode<SecretInformationViewModel> {
 }
 
 class SecretInformationViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
         }
@@ -75,9 +75,9 @@ class SecretInformationViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()

@@ -17,6 +17,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         fontStyle: .body
     )
     private let replaceRootButtonNode = VAButtonNode()
+    private let removeFromStackButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
@@ -41,7 +42,9 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
                 inputNode
                 detailsTextNode
                 replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
+                    .padding(.top(32))
+                removeFromStackButtonNode
+                    .padding(.bottom(16))
                 descriptionTextNode
             }
             .padding(.all(16))
@@ -60,6 +63,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         backgroundColor = theme.systemBackground
         pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
+        removeFromStackButtonNode.setTitle("Remove -1 from navigation stack", theme: theme)
         setNeedsLayout()
     }
 
@@ -71,6 +75,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
     private func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+        removeFromStackButtonNode.onTap = viewModel ?> { $0.perform(RemoveFromStackEvent()) }
         inputNode.child.rx.text
             .map {
                 $0.flatMap {
@@ -93,14 +98,17 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
 
 struct PushNextDetailsEvent: Event {}
 
+struct RemoveFromStackEvent: Event {}
+
 class DetailsToPresentViewModel: EventViewModel {
-    struct DTO {
+    struct Context {
         struct Related {
             let value: Int
         }
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPopNext: ([Int]) -> Void
+            let followRemoveFromStack: () -> Void
         }
 
         let related: Related
@@ -113,9 +121,9 @@ class DetailsToPresentViewModel: EventViewModel {
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
     var number: Int { data.related.value }
 
-    private let data: DTO
+    private let data: Context
 
-    init(data: DTO) {
+    init(data: Context) {
         self.data = data
 
         super.init()
@@ -127,6 +135,8 @@ class DetailsToPresentViewModel: EventViewModel {
             data.navigation.followReplaceRootWithNewMain()
         case _ as PushNextDetailsEvent:
             data.navigation.followPushOrPopNext(nextNumberRelay.value)
+        case _ as RemoveFromStackEvent:
+            data.navigation.followRemoveFromStack()
         default:
             super.run(event)
         }
