@@ -235,7 +235,7 @@ public final class Navigator {
         }
 
         switch strategy {
-        case let strategy as RemoveFromStackNavigationStrategy:
+        case let _ as RemoveFromStackNavigationStrategy:
             if let navigationController = window?.topController?.navigationController {
                 if navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     navigate(
