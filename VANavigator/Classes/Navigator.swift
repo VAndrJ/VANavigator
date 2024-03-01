@@ -235,6 +235,35 @@ public final class Navigator {
         }
 
         switch strategy {
+        case let strategy as RemoveFromStackNavigationStrategy:
+            if let navigationController = window?.topController?.navigationController {
+                if navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                    navigate(
+                        to: destination,
+                        strategy: .closeIfTop(),
+                        animated: animated,
+                        fallback: fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else if let index = navigationController.viewControllers.firstIndex(where: { $0.navigationIdentity?.isEqual(to: destination.identity) == true }) {
+                    navigationController.viewControllers.remove(at: index)
+                    completion?(nil, true)
+                } else {
+                    completion?(nil, false)
+                }
+            } else if let fallback {
+                navigate(
+                    to: fallback.destination,
+                    strategy: fallback.strategy,
+                    animated: fallback.animated,
+                    fallback: fallback.fallback,
+                    event: event,
+                    completion: completion
+                )
+            } else {
+                completion?(nil, false)
+            }
         case let strategy as CloseIfTopNavigationStrategy:
             let tryToPop = strategy.tryToPop
             let tryToDismiss = strategy.tryToDismiss

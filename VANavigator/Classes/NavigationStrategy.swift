@@ -41,7 +41,10 @@ public extension NavigationStrategy {
     }
 
     /// Close the controller if it is top one
-    static func closeIfTop(tryToPop: Bool = true, tryToDismiss: Bool = true) -> NavigationStrategy {
+    static func closeIfTop(
+        tryToPop: Bool = true,
+        tryToDismiss: Bool = true
+    ) -> NavigationStrategy {
         CloseIfTopNavigationStrategy(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
     }
 
@@ -53,6 +56,11 @@ public extension NavigationStrategy {
     /// Pops to existing controller, or uses fallback if no `UINavigationController` is found.
     static func popToExisting(includingTabs: Bool = true) -> NavigationStrategy {
         PopToExistingNavigationStrategy(includingTabs: includingTabs)
+    }
+
+    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
+    static func removeFromNavigationStack() -> NavigationStrategy {
+        RemoveFromStackNavigationStrategy()
     }
 
     /// Shows in a `UISplitViewController` with the given `strategy`.
@@ -106,6 +114,8 @@ class PopoverNavigationStrategy: NavigationStrategy {
 }
 
 class CloseToExistingNavigationStrategy: NavigationStrategy {}
+
+class RemoveFromStackNavigationStrategy: NavigationStrategy {}
 
 public enum PresentNavigationSource: Equatable {
     case topController
