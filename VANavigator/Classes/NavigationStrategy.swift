@@ -23,8 +23,6 @@ public class NavigationStrategy: @unchecked Sendable, Equatable {
 }
 
 public extension NavigationStrategy {
-    /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
-    static var push: NavigationStrategy { PushNavigationStrategy() }
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
     static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
@@ -32,6 +30,11 @@ public extension NavigationStrategy {
     /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
     static var removeFromNavigationStack: NavigationStrategy {
         RemoveFromStackNavigationStrategy()
+    }
+
+    /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
+    static func push(navigation: ((UINavigationController) -> Void)? = nil) -> NavigationStrategy {
+        PushNavigationStrategy(navigation: navigation)
     }
 
     /// Presents a controller based on source.
@@ -156,7 +159,13 @@ class PopToExistingNavigationStrategy: NavigationStrategy {
     }
 }
 
-class PushNavigationStrategy: NavigationStrategy {}
+class PushNavigationStrategy: NavigationStrategy {
+    let navigation: ((UINavigationController) -> Void)?
+
+    init(navigation: ((UINavigationController) -> Void)?) {
+        self.navigation = navigation
+    }
+}
 
 class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     let transition: CATransition?

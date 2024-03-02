@@ -386,13 +386,14 @@ public final class Navigator {
             } else {
                 completion?(nil, false)
             }
-        case _ as PushNavigationStrategy:
+        case let strategy as PushNavigationStrategy:
             let controller = getController(destination: destination)
             let sourceController = controller.topController.orNavigationController
             push(
                 sourceController: sourceController,
                 controller: controller,
-                animated: animated,
+                animated: animated, 
+                navigation: strategy.navigation,
                 completion: { [weak self] isSuccess in
                     guard let self else { return }
 
@@ -717,6 +718,7 @@ public final class Navigator {
         sourceController: UIViewController?,
         controller: UIViewController,
         animated: Bool,
+        navigation: ((UINavigationController) -> Void)?,
         completion: ((Bool) -> Void)?
     ) {
         dismissPresented(
@@ -726,6 +728,7 @@ public final class Navigator {
                 guard let self else { return }
 
                 if !(controller is UINavigationController), let navigationController = window?.topController?.orNavigationController {
+                    navigation?(navigationController)
                     navigationController.pushViewController(
                         controller,
                         animated: animated,
