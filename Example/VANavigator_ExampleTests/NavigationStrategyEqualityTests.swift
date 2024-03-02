@@ -13,9 +13,9 @@ import VANavigator
 class NavigationStrategyEqualityTests: XCTestCase {
 
     func test_push() {
-        let expected: NavigationStrategy = .push
+        let expected: NavigationStrategy = .push()
         let expectedToFail: NavigationStrategy = .popToExisting()
-        let sut: NavigationStrategy = .push
+        let sut: NavigationStrategy = .push()
 
         XCTAssertEqual(expected, sut)
         XCTAssertNotEqual(expectedToFail, sut)
@@ -94,7 +94,7 @@ class NavigationStrategyEqualityTests: XCTestCase {
         let expectedToFail: NavigationStrategy = .split(strategy: .primary(action: .pop))
         let expectedToFail1: NavigationStrategy = .split(strategy: .secondary(action: .push))
         let expectedToFail2: NavigationStrategy = .split(strategy: .secondary(action: .pop))
-        let expectedToFail3: NavigationStrategy = .push
+        let expectedToFail3: NavigationStrategy = .push()
         let sut: NavigationStrategy = .split(strategy: .primary(action: .push))
 
         XCTAssertEqual(expected, sut)

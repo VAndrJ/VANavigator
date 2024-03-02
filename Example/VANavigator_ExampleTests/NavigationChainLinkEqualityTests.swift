@@ -15,12 +15,12 @@ class NavigationChainLinkEqualityTests: XCTestCase {
     func test_links() {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true
         )
         let expectedToFail = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: false
         )
         let expectedToFail1 = NavigationChainLink(
@@ -30,12 +30,12 @@ class NavigationChainLinkEqualityTests: XCTestCase {
         )
         let expectedToFail2 = NavigationChainLink(
             destination: .identity(MockPopControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true
         )
         let sut = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true
         )
 
@@ -49,7 +49,7 @@ class NavigationChainLinkEqualityTests: XCTestCase {
     func test_links_fallback() {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true,
             fallback: NavigationChainLink(
                 destination: .identity(MockControllerNavigationIdentity()),
@@ -59,13 +59,13 @@ class NavigationChainLinkEqualityTests: XCTestCase {
         )
         let expectedToFail = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true,
             fallback: nil
         )
         let expectedToFail1 = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true,
             fallback: NavigationChainLink(
                 destination: .identity(MockControllerNavigationIdentity()),
@@ -75,7 +75,7 @@ class NavigationChainLinkEqualityTests: XCTestCase {
         )
         let sut = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true,
             fallback: NavigationChainLink(
                 destination: .identity(MockControllerNavigationIdentity()),

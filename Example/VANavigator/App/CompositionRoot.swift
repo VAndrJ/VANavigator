@@ -73,7 +73,7 @@ class CompositionRoot {
                 strategy: .popToExisting(),
                 fallback: NavigationChainLink(
                     destination: .identity(identity),
-                    strategy: .push,
+                    strategy: .push(),
                     animated: true,
                     fallback: NavigationChainLink(
                         destination: .identity(NavNavigationIdentity(children: [identity])),

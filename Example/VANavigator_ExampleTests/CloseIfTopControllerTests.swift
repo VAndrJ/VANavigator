@@ -166,12 +166,12 @@ class CloseIfTopControllerTests: XCTestCase {
                 ),
                 NavigationChainLink(
                     destination: .identity(MockPopControllerNavigationIdentity()),
-                    strategy: .push,
+                    strategy: .push(),
                     animated: false
                 ),
                 NavigationChainLink(
                     destination: .identity(MockPushControllerNavigationIdentity()),
-                    strategy: .push,
+                    strategy: .push(),
                     animated: false
                 ),
             ],
