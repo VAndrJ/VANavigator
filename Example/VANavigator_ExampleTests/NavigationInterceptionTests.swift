@@ -229,7 +229,7 @@ class NavigationInterceptionTests: XCTestCase {
     func test_resultInit_equality() {
         let link = NavigationChainLink(
             destination: .identity(MainNavigationIdentity()),
-            strategy: .push,
+            strategy: .push(),
             animated: true
         )
         let reason = "Reason"

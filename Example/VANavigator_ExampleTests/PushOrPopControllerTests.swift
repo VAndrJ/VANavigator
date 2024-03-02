@@ -48,7 +48,7 @@ class PushOrPopControllerTests: XCTestCase { // swiftlint:disable:this type_body
             strategy: .popToExisting(includingTabs: false),
             fallback: NavigationChainLink(
                 destination: .identity(identity),
-                strategy: .push,
+                strategy: .push(),
                 animated: true
             ),
             event: ResponderMockEvent(),
@@ -125,7 +125,7 @@ class PushOrPopControllerTests: XCTestCase { // swiftlint:disable:this type_body
             strategy: .closeIfTop(),
             fallback: .init(
                 destination: .identity(identity),
-                strategy: .push,
+                strategy: .push(),
                 animated: false
             ),
             event: ResponderMockEvent(),

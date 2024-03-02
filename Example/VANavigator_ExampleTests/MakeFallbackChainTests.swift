@@ -15,7 +15,7 @@ class MakeFallbackChainTests: XCTestCase {
 
     func test_fallbackChain() {
         let destination = NavigationDestination.identity(MockRootControllerNavigationIdentity())
-        let strategy = NavigationStrategy.push
+        let strategy = NavigationStrategy.push()
         let animated = true
         var expected: NavigationChainLink? = NavigationChainLink(
             destination: destination,
