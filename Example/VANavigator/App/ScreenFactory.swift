@@ -242,7 +242,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     animated: true,
                                     fallback: NavigationChainLink(
                                         destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                        strategy: .push,
+                                        strategy: .push(),
                                         animated: true
                                     )
                                 )
@@ -305,7 +305,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                     animated: true,
                                     fallback: NavigationChainLink(
                                         destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                        strategy: .push,
+                                        strategy: .push(),
                                         animated: true
                                     )
                                 )
