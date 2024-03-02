@@ -33,6 +33,8 @@ public extension NavigationStrategy {
     }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
+    /// - Parameter navigation: UINavigationController to push in.
+    /// - Returns: NavigationStrategy.
     static func push(navigation: ((UINavigationController) -> Void)? = nil) -> NavigationStrategy {
         PushNavigationStrategy(navigation: navigation)
     }
@@ -50,9 +52,14 @@ public extension NavigationStrategy {
     /// Close the controller if it is top one
     static func closeIfTop(
         tryToPop: Bool = true,
-        tryToDismiss: Bool = true
+        tryToDismiss: Bool = true,
+        navigation: ((UINavigationController) -> Void)? = nil
     ) -> NavigationStrategy {
-        CloseIfTopNavigationStrategy(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
+        CloseIfTopNavigationStrategy(
+            tryToPop: tryToPop,
+            tryToDismiss: tryToDismiss,
+            navigation: navigation
+        )
     }
 
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
@@ -186,10 +193,16 @@ class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
 class CloseIfTopNavigationStrategy: NavigationStrategy {
     let tryToPop: Bool
     let tryToDismiss: Bool
+    let navigation: ((UINavigationController) -> Void)?
 
-    init(tryToPop: Bool, tryToDismiss: Bool) {
+    init(
+        tryToPop: Bool,
+        tryToDismiss: Bool,
+        navigation: ((UINavigationController) -> Void)?
+    ) {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss
+        self.navigation = navigation
     }
 
     override func isEqual(to other: NavigationStrategy?) -> Bool {
