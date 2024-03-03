@@ -236,7 +236,7 @@ public final class Navigator {
 
         switch strategy {
         case _ as RemoveFromStackNavigationStrategy:
-            if let navigationController = window?.topController?.navigationController {
+            if let navigationController = window?.topController?.orNavigationController {
                 if navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     navigate(
                         to: destination,
@@ -269,7 +269,7 @@ public final class Navigator {
             let tryToDismiss = strategy.tryToDismiss
             if let controller = window?.topController {
                 if tryToPop,
-                   let navigationController = controller.navigationController,
+                   let navigationController = controller.orNavigationController,
                    navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
@@ -468,7 +468,7 @@ public final class Navigator {
                 completion?(nil, false)
             }
         case _ as ReplaceNavigationRootNavigationStrategy:
-            if let navigationController = window?.topController?.navigationController {
+            if let navigationController = window?.topController?.orNavigationController {
                 let controller = getController(destination: destination)
                 navigationController.setViewControllers(
                     [controller],
@@ -775,7 +775,7 @@ public final class Navigator {
     public func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
         if let controller {
             dismissPresented(in: controller, animated: animated, completion: {
-                if let navigationController = controller.navigationController {
+                if let navigationController = controller.orNavigationController {
                     navigationController.popToViewController(
                         controller,
                         animated: animated,
