@@ -126,7 +126,7 @@ class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
 class RemoveFromStackNavigationStrategy: NavigationStrategy {}
 
-public enum PresentNavigationSource: Equatable {
+public enum PresentNavigationSource: Sendable, Equatable {
     case topController
     case navigationController
     case tabBarController
