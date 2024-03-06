@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol NavigationIdentity {
+public protocol NavigationIdentity: Sendable {
 
     func isEqual(to other: NavigationIdentity?) -> Bool
 }
