@@ -10,7 +10,7 @@ import UIKit
 
 // swiftlint:disable file_length type_body_length
 @MainActor
-public final class Navigator {
+open class Navigator {
     public let screenFactory: NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor?
 
