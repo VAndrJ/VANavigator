@@ -359,7 +359,7 @@ open class Navigator {
             if let controller = window?.findController(destination: destination) {
                 navigatorEvent = ResponderClosedToExistingEvent()
                 selectTabIfNeeded(
-                    controller: window?.topController,
+                    controller: controller,
                     completion: { [weak self] in
                         guard let self else { return }
 
