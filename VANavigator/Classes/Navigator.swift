@@ -269,8 +269,8 @@ open class Navigator {
             let tryToDismiss = strategy.tryToDismiss
             if let controller = window?.topController {
                 if tryToPop,
-                   let navigationController = controller.orNavigationController,
-                   navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                    let navigationController = controller.orNavigationController,
+                    navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
@@ -395,7 +395,7 @@ open class Navigator {
             push(
                 sourceController: sourceController,
                 controller: controller,
-                animated: animated, 
+                animated: animated,
                 navigation: strategy.navigation,
                 completion: { [weak self] isSuccess in
                     guard let self else { return }
@@ -730,7 +730,7 @@ open class Navigator {
             completion: { [weak self] in
                 guard let self else { return }
 
-                if !(controller is UINavigationController), 
+                if !(controller is UINavigationController),
                     let navigationController = window?.topController?.orNavigationController {
                     navigation?(navigationController)
                     navigationController.pushViewController(
