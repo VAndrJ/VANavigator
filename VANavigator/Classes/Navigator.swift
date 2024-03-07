@@ -730,7 +730,8 @@ open class Navigator {
             completion: { [weak self] in
                 guard let self else { return }
 
-                if !(controller is UINavigationController), let navigationController = window?.topController?.orNavigationController {
+                if !(controller is UINavigationController), 
+                    let navigationController = window?.topController?.orNavigationController {
                     navigation?(navigationController)
                     navigationController.pushViewController(
                         controller,
@@ -796,11 +797,19 @@ open class Navigator {
     ///   - controller: Controller with presented controllers to dismiss.
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after the controller is dismissed.
-    public func dismissPresented(in controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
+    public func dismissPresented(
+        in controller: UIViewController?,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
         if let presentedViewController = controller?.presentedViewController {
             presentedViewController.dismiss(animated: animated, completion: { [weak self] in
                 if controller?.presentedViewController != nil {
-                    self?.dismissPresented(in: controller, animated: animated, completion: completion)
+                    self?.dismissPresented(
+                        in: controller,
+                        animated: animated,
+                        completion: completion
+                    )
                 } else {
                     completion?()
                 }

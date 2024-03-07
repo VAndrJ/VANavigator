@@ -79,7 +79,11 @@ extension UINavigationController {
 class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
     var completion: (() -> Void)?
 
-    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+    func navigationController(
+        _ navigationController: UINavigationController,
+        didShow viewController: UIViewController,
+        animated: Bool
+    ) {
         completion?()
     }
 }
