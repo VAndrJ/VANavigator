@@ -13,15 +13,22 @@ extension UIWindow {
 
     private var topMostViewController: UIViewController? {
         var topmostViewController = rootViewController
-        while let presentedViewController = topmostViewController?.presentedViewController, !presentedViewController.isBeingDismissed {
+        while let presentedViewController = topmostViewController?.presentedViewController,
+            !presentedViewController.isBeingDismissed {
             topmostViewController = presentedViewController
         }
 
         return topmostViewController
     }
 
-    public func findController(destination: NavigationDestination, withPresented: Bool = true) -> UIViewController? {
-        rootViewController?.findController(destination: destination, withPresented: withPresented)
+    public func findController(
+        destination: NavigationDestination,
+        withPresented: Bool = true
+    ) -> UIViewController? {
+        rootViewController?.findController(
+            destination: destination,
+            withPresented: withPresented
+        )
     }
 
     public func set(

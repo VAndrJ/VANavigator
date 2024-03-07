@@ -8,7 +8,7 @@
 
 import UIKit
 
-public struct NavigationInterceptionResult {
+public struct NavigationInterceptionResult: Sendable {
     public let chain: [NavigationChainLink]
     public let event: ResponderEvent?
     public let reason: AnyHashable
