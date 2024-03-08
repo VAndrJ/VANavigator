@@ -1,12 +1,13 @@
 {
+  "originHash" : "5776880a6b5e93392920bb4839505385f3012a967e330fb49ecfa71adda41b0a",
   "pins" : [
     {
       "identity" : "swiftional",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/VAndrJ/Swiftional",
       "state" : {
-        "revision" : "de5b3c062aa3f1309cfdc221702335e509a29c5d",
-        "version" : "2.0.0"
+        "revision" : "616227ce6fbc30939fcf1af956928effaf4db84e",
+        "version" : "2.0.1"
       }
     },
     {
@@ -14,10 +15,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/VAndrJ/VANavigator.git",
       "state" : {
-        "revision" : "13c47161642d0dddcae283ecd5b0a53dc817dbcb",
-        "version" : "1.2.0"
+        "revision" : "f73d3321976464f019777ef8fcb43e8293f3a300",
+        "version" : "1.3.7"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

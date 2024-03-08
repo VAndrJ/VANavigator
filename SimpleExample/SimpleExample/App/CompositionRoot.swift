@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import VANavigator
 
 @MainActor
 class CompositionRoot {
@@ -69,7 +70,7 @@ class CompositionRoot {
                 strategy: .popToExisting(),
                 fallback: .init(
                     destination: .identity(identity),
-                    strategy: .push,
+                    strategy: .push(),
                     animated: true,
                     fallback: .init(
                         destination: .identity(NavNavigationIdentity(children: [identity])),

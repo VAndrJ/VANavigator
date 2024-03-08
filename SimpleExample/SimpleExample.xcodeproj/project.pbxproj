@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A32DBBB52B9B5252006E7AA7 /* UIEdgeInsets+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32DBBB42B9B5252006E7AA7 /* UIEdgeInsets+Support.swift */; };
 		A3312C572B7BD28600E5D465 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C562B7BD28600E5D465 /* TabBarController.swift */; };
 		A3312C592B7BDF8900E5D465 /* SecretInformationScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C582B7BDF8900E5D465 /* SecretInformationScreenView.swift */; };
 		A3312C5C2B7BE08600E5D465 /* LoginScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C5B2B7BE08600E5D465 /* LoginScreenView.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A32DBBB42B9B5252006E7AA7 /* UIEdgeInsets+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Support.swift"; sourceTree = "<group>"; };
 		A3312C562B7BD28600E5D465 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		A3312C582B7BDF8900E5D465 /* SecretInformationScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationScreenView.swift; sourceTree = "<group>"; };
 		A3312C5B2B7BE08600E5D465 /* LoginScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreenView.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 				A380D5FB2B7BC22300F79374 /* NSObject+Support.swift */,
 				A380D5F42B7BBBD600F79374 /* UIStackView+Support.swift */,
 				A380D5F22B7BBAEE00F79374 /* UIView+Support.swift */,
+				A32DBBB42B9B5252006E7AA7 /* UIEdgeInsets+Support.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 				A380D5FC2B7BC22300F79374 /* NSObject+Support.swift in Sources */,
 				A380D5F52B7BBBD600F79374 /* UIStackView+Support.swift in Sources */,
 				A38B9DA02B7BAD520023AF75 /* ExampleNavigationInterceptor.swift in Sources */,
+				A32DBBB52B9B5252006E7AA7 /* UIEdgeInsets+Support.swift in Sources */,
 				A38B9DB52B7BB3A80023AF75 /* Log.swift in Sources */,
 				A38B9D992B7BAC4E0023AF75 /* Umbrella.swift in Sources */,
 				A380D6002B7BC81700F79374 /* DetailsScreenView.swift in Sources */,
@@ -362,6 +366,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -417,6 +422,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -506,7 +512,7 @@
 			repositoryURL = "https://github.com/VAndrJ/VANavigator.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.0;
+				minimumVersion = 1.3.7;
 			};
 		};
 		A38B9DA72B7BB0680023AF75 /* XCRemoteSwiftPackageReference "Swiftional" */ = {
@@ -514,7 +520,7 @@
 			repositoryURL = "https://github.com/VAndrJ/Swiftional";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.0.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
