@@ -78,25 +78,25 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
 
 struct BecomeVisibleEvent: Event {}
 
-protocol Event {}
+protocol Event: Sendable {}
 
 class EventViewModel: ViewModel {
     weak var controller: UIViewController?
 
-    @MainActor
     func run(_ event: Event) async {
         #if DEBUG || targetEnvironment(simulator)
         print("⚠️ [Event not handled] \(event)")
         #endif
     }
 
-    func perform(_ event: Event) {
+    final func perform(_ event: Event) {
         Task { @MainActor in
             await run(event)
         }
     }
 }
 
+@MainActor
 class ViewModel: NSObject, Responder {
 
     // MARK: - Responder

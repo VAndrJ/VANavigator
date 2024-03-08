@@ -19,6 +19,7 @@ extension UIView {
     }
 
     func embedIntoScroll(_ views: UIView...) {
+        let spacing: CGFloat = 16
         let scrollView = UIScrollView().apply {
             $0.alwaysBounceVertical = true
         }
@@ -31,16 +32,17 @@ extension UIView {
         ])
         let containerView = UIStackView().apply {
             $0.axis = .vertical
-            $0.spacing = 16
+            $0.spacing = spacing
         }
         scrollView.addAutolayoutSubview(containerView)
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 16),
-            containerView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
-            containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -16),
-            containerView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
-            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
+            containerView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            containerView.leftAnchor.constraint(equalTo: scrollView.leftAnchor),
+            containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            containerView.rightAnchor.constraint(equalTo: scrollView.rightAnchor),
+            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -spacing * 2),
         ])
+        scrollView.contentInset = UIEdgeInsets(all: spacing)
         views.forEach(containerView.addArrangedSubview(_:))
     }
 }
