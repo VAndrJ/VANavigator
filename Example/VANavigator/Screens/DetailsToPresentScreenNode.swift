@@ -56,7 +56,7 @@ class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
     }
 
     override func viewDidAppear(in controller: UIViewController, animated: Bool) {
-        inputNode.child.becomeFirstResponder()
+        inputNode.becomeFirstResponder()
     }
 
     override func configureTheme(_ theme: VATheme) {
@@ -142,19 +142,5 @@ class DetailsToPresentViewModel: EventViewModel {
         default:
             return await nextEventResponder?.handle(event: event) ?? false
         }
-    }
-}
-
-class TextFieldNode: VASizedViewWrapperNode<UITextField> {
-
-    convenience init() {
-        self.init(
-            actorChildGetter: { @MainActor in
-                let textField = UITextField()
-                textField.borderStyle = .roundedRect
-                return textField
-            },
-            sizing: .viewHeight
-        )
     }
 }

@@ -43,7 +43,7 @@ class EventViewModel: ViewModel {
     private func bind() {
         eventRelay
             .observe(on: scheduler)
-            .subscribe(onNext: self ?> { $0.run($1) })
+            .subscribe(onNext: self ?>> { $0.run(_:) })
             .disposed(by: bag)
     }
 }

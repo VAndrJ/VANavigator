@@ -47,7 +47,7 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
     }
 
     override func viewDidAppear(in controller: UIViewController, animated: Bool) {
-        inputNode.child.becomeFirstResponder()
+        inputNode.becomeFirstResponder()
     }
 
     override func configureTheme(_ theme: VATheme) {

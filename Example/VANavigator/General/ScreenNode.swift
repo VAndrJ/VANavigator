@@ -102,4 +102,10 @@ class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNo
 
         return await nextEventResponder?.handle(event: event) ?? false
     }
+
+    deinit {
+        #if DEBUG || targetEnvironment(simulator)
+        print(#function, String(describing: Self.self))
+        #endif
+    }
 }

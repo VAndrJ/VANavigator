@@ -26,6 +26,7 @@
 		A31B04B9C4399662E6B3B207 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6290286B717C46B78928107F /* libPods-VANavigator_ExampleTests.a */; };
 		A32C4B812BA702E500E36454 /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C4B802BA702E500E36454 /* TextNode.swift */; };
 		A32C4B832BA7079F00E36454 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C4B822BA7079F00E36454 /* ButtonNode.swift */; };
+		A32C4B852BA7115100E36454 /* TextFieldNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C4B842BA7115100E36454 /* TextFieldNode.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
@@ -97,6 +98,7 @@
 		A30F914A2B33973F00C217C7 /* TabPresentExampleScreenNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabPresentExampleScreenNode.swift; sourceTree = "<group>"; };
 		A32C4B802BA702E500E36454 /* TextNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
 		A32C4B822BA7079F00E36454 /* ButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
+		A32C4B842BA7115100E36454 /* TextFieldNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldNode.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				A3784B012B1CB51B009351DD /* Log.swift */,
 				A3C742EA2B1CB9F50050211E /* NavigationController.swift */,
 				A3C742E62B1CB7FD0050211E /* ScreenNode.swift */,
+				A32C4B842BA7115100E36454 /* TextFieldNode.swift */,
 				A32C4B802BA702E500E36454 /* TextNode.swift */,
 				A3C742E82B1CB8920050211E /* ViewController.swift */,
 			);
@@ -484,6 +487,7 @@
 				A3C742F12B1CBCE10050211E /* NSObject+Support.swift in Sources */,
 				A3784ADF2B1C9462009351DD /* CompositionRoot.swift in Sources */,
 				A3784AF12B1CAE2A009351DD /* NavigationIdentity+VANavigatorExample.swift in Sources */,
+				A32C4B852BA7115100E36454 /* TextFieldNode.swift in Sources */,
 				A3784B022B1CB51B009351DD /* Log.swift in Sources */,
 				A3C742EB2B1CB9F50050211E /* NavigationController.swift in Sources */,
 				A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */,
