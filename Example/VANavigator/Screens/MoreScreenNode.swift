@@ -9,13 +9,13 @@
 import VATextureKitRx
 
 class MoreScreenNode: ScreenNode<MoreViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "More",
         fontStyle: .headline
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -43,19 +43,11 @@ class MoreScreenNode: ScreenNode<MoreViewModel> {
 
     override func bind() {
         bindView()
-        bindViewModel()
     }
 
     @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

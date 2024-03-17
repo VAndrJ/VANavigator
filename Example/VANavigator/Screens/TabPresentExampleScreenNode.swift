@@ -9,13 +9,13 @@
 import VATextureKitRx
 
 class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Tab Present Example",
         fontStyle: .headline
     )
-    private let presentFromTopButtonNode = VAButtonNode()
-    private let presentFromTabButtonNode = VAButtonNode()
-    private let presentPopoverButtonNode = VAButtonNode()
+    private lazy var presentFromTopButtonNode = VAButtonNode()
+    private lazy var presentFromTabButtonNode = VAButtonNode()
+    private lazy var presentPopoverButtonNode = VAButtonNode()
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {

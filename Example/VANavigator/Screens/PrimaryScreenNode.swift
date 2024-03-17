@@ -9,16 +9,16 @@
 import VATextureKitRx
 
 class PrimaryScreenNode: ScreenNode<PrimaryViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Primary \(Int.random(in: 0...100))",
         fontStyle: .headline
     )
-    private let replacePrimartButtonNode = VAButtonNode()
-    private let showSecondaryButtonNode = VAButtonNode()
-    private let replaceRootButtonNode = VAButtonNode()
-    private let showInSplitOrPresentButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replacePrimartButtonNode = VAButtonNode()
+    private lazy var showSecondaryButtonNode = VAButtonNode()
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -52,7 +52,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel> {
 
     override func bind() {
         bindView()
-        bindViewModel()
     }
 
     @MainActor
@@ -61,13 +60,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel> {
         showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
         replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

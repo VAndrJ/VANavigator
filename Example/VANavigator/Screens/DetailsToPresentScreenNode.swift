@@ -10,16 +10,16 @@ import VATextureKitRx
 
 class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
     private let titleTextNode: VATextNode
-    private let pushNextButtonNode = VAButtonNode()
-    private let inputNode = TextFieldNode()
-    private let detailsTextNode = VATextNode(
+    private lazy var pushNextButtonNode = VAButtonNode()
+    private lazy var inputNode = TextFieldNode()
+    private lazy var detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         fontStyle: .body
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let removeFromStackButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var removeFromStackButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -87,9 +87,6 @@ class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
 
     @MainActor
     private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
         viewModel.isNavigationAvailableObs
             .bind(to: pushNextButtonNode.rx.isEnabled)
             .disposed(by: bag)
