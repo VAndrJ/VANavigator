@@ -9,13 +9,13 @@
 import VATextureKitRx
 
 class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Secret information for authorized users only",
         fontStyle: .headline
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -41,21 +41,8 @@ class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

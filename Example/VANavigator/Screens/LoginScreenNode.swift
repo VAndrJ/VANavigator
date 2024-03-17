@@ -9,14 +9,14 @@
 import VATextureKitRx
 
 class LoginScreenNode: ScreenNode<LoginViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Login",
         fontStyle: .headline
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let loginButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var loginButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -44,22 +44,9 @@ class LoginScreenNode: ScreenNode<LoginViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

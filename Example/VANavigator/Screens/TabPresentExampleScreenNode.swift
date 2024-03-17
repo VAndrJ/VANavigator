@@ -9,13 +9,13 @@
 import VATextureKitRx
 
 class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Tab Present Example",
         fontStyle: .headline
     )
-    private let presentFromTopButtonNode = VAButtonNode()
-    private let presentFromTabButtonNode = VAButtonNode()
-    private let presentPopoverButtonNode = VAButtonNode()
+    private lazy var presentFromTopButtonNode = VAButtonNode()
+    private lazy var presentFromTabButtonNode = VAButtonNode()
+    private lazy var presentPopoverButtonNode = VAButtonNode()
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -40,18 +40,11 @@ class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         presentFromTopButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTopEvent()) }
         presentFromTabButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTabEvent()) }
-        presentPopoverButtonNode.onTap = viewModel ?> { [weak self] in
-            guard let self else { return }
-
-            $0.perform(PresentPopoverEvent(source: self.presentPopoverButtonNode.view))
+        presentPopoverButtonNode.onTap = self ?> {
+            $0.viewModel.perform(PresentPopoverEvent(source: $0.presentPopoverButtonNode.view))
         }
     }
 }

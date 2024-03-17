@@ -10,19 +10,19 @@ import VATextureKitRx
 
 class MainScreenNode: ScreenNode<MainViewModel> {
     private let titleTextNode: VATextNode
-    private let replaceRootButtonNode = VAButtonNode()
-    private let presentDetailsButtonNode = VAButtonNode()
-    private let presentTabsButtonNode = VAButtonNode()
-    private let presentQueueButtonNode = VAButtonNode()
-    private let presentSplitButtonNode = VAButtonNode()
-    private let showInSplitOrPresentButtonNode = VAButtonNode()
-    private let presentLoginedOnlyContentButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "-",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var presentDetailsButtonNode = VAButtonNode()
+    private lazy var presentTabsButtonNode = VAButtonNode()
+    private lazy var presentQueueButtonNode = VAButtonNode()
+    private lazy var presentSplitButtonNode = VAButtonNode()
+    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
+    private lazy var presentLoginedOnlyContentButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
-    private let authorizedTextNode = VATextNode(
-        text: "-",
+    private lazy var authorizedTextNode = TextNode(
+        textObs: viewModel.authorizationStatusObs,
         fontStyle: .body
     )
 
@@ -66,13 +66,7 @@ class MainScreenNode: ScreenNode<MainViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
@@ -80,16 +74,6 @@ class MainScreenNode: ScreenNode<MainViewModel> {
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
         presentLoginedOnlyContentButtonNode.onTap = viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
         presentQueueButtonNode.onTap = viewModel ?> { $0.perform(PresentQueueEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
-        viewModel.authorizationStatusObs
-            .bind(to: authorizedTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

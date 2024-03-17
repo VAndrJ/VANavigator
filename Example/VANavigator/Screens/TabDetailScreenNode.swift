@@ -9,19 +9,21 @@
 import VATextureKitRx
 
 class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Tab Details",
         fontStyle: .headline
     )
-    private let pushNextButtonNode = VAButtonNode()
-    private let inputNode = TextFieldNode()
-    private let detailsTextNode = VATextNode(
+    private lazy var pushNextButtonNode = ButtonNode(
+        isEnabledObs: viewModel.isNavigationAvailableObs
+    )
+    private lazy var inputNode = TextFieldNode()
+    private lazy var detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         fontStyle: .body
     )
-    private let replaceRootButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -55,13 +57,7 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         inputNode.child.rx.text
@@ -71,15 +67,6 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
                 } ?? []
             }
             .bind(to: viewModel.nextNumberRelay)
-            .disposed(by: bag)
-    }
-
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
-        viewModel.isNavigationAvailableObs
-            .bind(to: pushNextButtonNode.rx.isEnabled)
             .disposed(by: bag)
     }
 }

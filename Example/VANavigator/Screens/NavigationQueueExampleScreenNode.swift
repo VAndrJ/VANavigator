@@ -9,14 +9,14 @@
 import VATextureKitRx
 
 class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Queue",
         fontStyle: .headline
     )
-    private let presentAndCloseButtonNode = VAButtonNode()
-    private let replaceRootButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var presentAndCloseButtonNode = VAButtonNode()
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -45,22 +45,9 @@ class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewMod
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 

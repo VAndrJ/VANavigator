@@ -9,15 +9,15 @@
 import VATextureKitRx
 
 class SecondaryScreenNode: ScreenNode<SecondaryViewModel> {
-    private let titleTextNode = VATextNode(
+    private lazy var titleTextNode = VATextNode(
         text: "Secondary \(Int.random(in: 0...1000))",
         fontStyle: .headline
     )
-    private let showSecondaryButtonNode = VAButtonNode()
-    private let replaceRootButtonNode = VAButtonNode()
-    private let showInSplitOrPresentButtonNode = VAButtonNode()
-    private let descriptionTextNode = VATextNode(
-        text: "",
+    private lazy var showSecondaryButtonNode = VAButtonNode()
+    private lazy var replaceRootButtonNode = VAButtonNode()
+    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
+    private lazy var descriptionTextNode = TextNode(
+        textObs: viewModel.descriptionObs,
         fontStyle: .body
     )
 
@@ -47,23 +47,10 @@ class SecondaryScreenNode: ScreenNode<SecondaryViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
         showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
-    }
-
-    @MainActor
-    private func bindViewModel() {
-        viewModel.descriptionObs
-            .bind(to: descriptionTextNode.rx.text)
-            .disposed(by: bag)
     }
 }
 
