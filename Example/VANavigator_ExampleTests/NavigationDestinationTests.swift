@@ -8,9 +8,9 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
-@MainActor
-class NavigationDestinationTests: XCTestCase {
+class NavigationDestinationTests: XCTestCase, MainActorIsolated {
 
     func test_identity_equality() {
         let identity = MockRootControllerNavigationIdentity()

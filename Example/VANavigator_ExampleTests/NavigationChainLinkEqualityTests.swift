@@ -8,9 +8,9 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
-@MainActor
-class NavigationChainLinkEqualityTests: XCTestCase {
+class NavigationChainLinkEqualityTests: XCTestCase, MainActorIsolated {
 
     func test_links() {
         let expected = NavigationChainLink(

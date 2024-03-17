@@ -8,10 +8,10 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
 // TODO: - Messages
-@MainActor
-class MakeFallbackChainTests: XCTestCase {
+class MakeFallbackChainTests: XCTestCase, MainActorIsolated {
 
     func test_fallbackChain() {
         let destination = NavigationDestination.identity(MockRootControllerNavigationIdentity())

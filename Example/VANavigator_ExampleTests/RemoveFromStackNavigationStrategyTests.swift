@@ -8,9 +8,9 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
-@MainActor
-class RemoveFromStackNavigationStrategyTests: XCTestCase {
+class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {

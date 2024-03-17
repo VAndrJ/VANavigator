@@ -8,10 +8,10 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
 // TODO: - Messages
-@MainActor
-class PushOrPopControllerTests: XCTestCase { // swiftlint:disable:this type_body_length
+class PushOrPopControllerTests: XCTestCase, MainActorIsolated { // swiftlint:disable:this type_body_length
     var window: UIWindow?
 
     override func setUp() {
