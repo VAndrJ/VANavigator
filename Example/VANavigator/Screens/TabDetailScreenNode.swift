@@ -13,7 +13,9 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
         text: "Tab Details",
         fontStyle: .headline
     )
-    private lazy var pushNextButtonNode = VAButtonNode()
+    private lazy var pushNextButtonNode = ButtonNode(
+        isEnabledObs: viewModel.isNavigationAvailableObs
+    )
     private lazy var inputNode = TextFieldNode()
     private lazy var detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
@@ -55,13 +57,7 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-        bindViewModel()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         inputNode.child.rx.text
@@ -71,12 +67,6 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
                 } ?? []
             }
             .bind(to: viewModel.nextNumberRelay)
-            .disposed(by: bag)
-    }
-
-    private func bindViewModel() {
-        viewModel.isNavigationAvailableObs
-            .bind(to: pushNextButtonNode.rx.isEnabled)
             .disposed(by: bag)
     }
 }

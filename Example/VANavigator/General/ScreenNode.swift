@@ -27,7 +27,16 @@ class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNo
     }
 
     @MainActor
-    func bind() {}
+    private func bind() {
+        bindView()
+        bindViewModel()
+    }
+
+    @MainActor
+    func bindView() {}
+
+    @MainActor
+    func bindViewModel() {}
 
     @MainActor
     func configure() {}

@@ -44,12 +44,7 @@ class LoginScreenNode: ScreenNode<LoginViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }

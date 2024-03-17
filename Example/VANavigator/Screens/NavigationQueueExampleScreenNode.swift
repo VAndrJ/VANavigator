@@ -45,12 +45,7 @@ class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewMod
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
     }

@@ -25,6 +25,7 @@
 		A30F914B2B33973F00C217C7 /* TabPresentExampleScreenNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30F914A2B33973F00C217C7 /* TabPresentExampleScreenNode.swift */; };
 		A31B04B9C4399662E6B3B207 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6290286B717C46B78928107F /* libPods-VANavigator_ExampleTests.a */; };
 		A32C4B812BA702E500E36454 /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C4B802BA702E500E36454 /* TextNode.swift */; };
+		A32C4B832BA7079F00E36454 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C4B822BA7079F00E36454 /* ButtonNode.swift */; };
 		A32F5E882B210C8D008564F9 /* ControllerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E872B210C8D008564F9 /* ControllerNode.swift */; };
 		A32F5E972B210DEE008564F9 /* SetRootControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */; };
 		A32F5E992B210DF9008564F9 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32F5E982B210DF9008564F9 /* Support.swift */; };
@@ -95,6 +96,7 @@
 		A30F91482B333E1800C217C7 /* NavigationDestinationEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDestinationEqualityTests.swift; sourceTree = "<group>"; };
 		A30F914A2B33973F00C217C7 /* TabPresentExampleScreenNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabPresentExampleScreenNode.swift; sourceTree = "<group>"; };
 		A32C4B802BA702E500E36454 /* TextNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
+		A32C4B822BA7079F00E36454 /* ButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
 		A32F5E872B210C8D008564F9 /* ControllerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerNode.swift; sourceTree = "<group>"; };
 		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32F5E962B210DEE008564F9 /* SetRootControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetRootControllerTests.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				A3081E0D2B1E4B3A0041E11A /* AuthorizationService.swift */,
+				A32C4B822BA7079F00E36454 /* ButtonNode.swift */,
 				A32F5E872B210C8D008564F9 /* ControllerNode.swift */,
 				A3784AFF2B1CB482009351DD /* EventViewModel.swift */,
 				A3081E0B2B1E48940041E11A /* ExampleNavigationInterceptor.swift */,
@@ -488,6 +491,7 @@
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				A3081DFC2B1D182D0041E11A /* TabDetailScreenNode.swift in Sources */,
 				A3C742F72B1CD3020050211E /* ShortcutService.swift in Sources */,
+				A32C4B832BA7079F00E36454 /* ButtonNode.swift in Sources */,
 				A3C742F32B1CBFCA0050211E /* DetailsToPresentScreenNode.swift in Sources */,
 				A3784B002B1CB482009351DD /* EventViewModel.swift in Sources */,
 				A3C742E92B1CB8920050211E /* ViewController.swift in Sources */,

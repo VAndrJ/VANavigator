@@ -9,7 +9,7 @@
 import VATextureKitRx
 
 class TextNode: VATextNode {
-    private var textDisposable: Disposable?
+    let bag = DisposeBag()
 
     convenience init(
         textObs: Observable<String>,
@@ -34,7 +34,8 @@ class TextNode: VATextNode {
             secondary: secondary
         )
 
-        textDisposable = textObs
+        textObs
             .bind(to: super.rx.text)
+            .disposed(by: bag)
     }
 }

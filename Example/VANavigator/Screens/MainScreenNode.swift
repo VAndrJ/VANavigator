@@ -66,12 +66,7 @@ class MainScreenNode: ScreenNode<MainViewModel> {
         setNeedsLayout()
     }
 
-    override func bind() {
-        bindView()
-    }
-
-    @MainActor
-    private func bindView() {
+    override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
