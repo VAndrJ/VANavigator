@@ -278,7 +278,7 @@ open class Navigator {
                             guard let self else { return }
 
                             if !isSuccess, let fallback {
-                                navigate(
+                                self.navigate(
                                     to: fallback.destination,
                                     strategy: fallback.strategy,
                                     animated: fallback.animated,
@@ -363,7 +363,7 @@ open class Navigator {
                     completion: { [weak self] in
                         guard let self else { return }
 
-                        closeNavigationPresented(
+                        self.closeNavigationPresented(
                             controller: controller,
                             animated: animated,
                             completion: {
@@ -409,7 +409,7 @@ open class Navigator {
                         completion?(controller, true)
                     } else {
                         if let fallback {
-                            navigate(
+                            self.navigate(
                                 to: fallback.destination,
                                 strategy: fallback.strategy,
                                 animated: fallback.animated,
@@ -441,7 +441,7 @@ open class Navigator {
                     completion: { [weak self] in
                         guard let self else { return }
 
-                        closeNavigationPresented(
+                        self.closeNavigationPresented(
                             controller: controller,
                             animated: animated,
                             completion: {
@@ -730,8 +730,7 @@ open class Navigator {
             completion: { [weak self] in
                 guard let self else { return }
 
-                if !(controller is UINavigationController),
-                    let navigationController = window?.topController?.orNavigationController {
+                if !(controller is UINavigationController), let navigationController = self.window?.topController?.orNavigationController {
                     navigation?(navigationController)
                     navigationController.pushViewController(
                         controller,
@@ -880,12 +879,12 @@ open class Navigator {
         navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
             guard let self else { return }
 
-            if let data = navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
+            if let data = self.navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
                 if let newStrategy, !data.chain.isEmpty {
                     data.chain[0].update(strategy: newStrategy)
                 }
 
-                navigate(
+                self.navigate(
                     chain: prefixNavigationChain + data.chain + suffixNavigationChain,
                     event: data.event,
                     completion: completion

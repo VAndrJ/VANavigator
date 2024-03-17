@@ -53,7 +53,7 @@ class MockScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         case _ as SecretInformationIdentity:
             return ViewController(
-                node: SecretInformationControllerNode(viewModel: SecretInformationViewModel(data: .init(
+                node: SecretInformationScreenNode(viewModel: SecretInformationViewModel(data: .init(
                     navigation: .init(followReplaceRootWithNewMain: {}))
                 ))
             )

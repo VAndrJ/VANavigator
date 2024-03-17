@@ -1,5 +1,5 @@
 //
-//  DetailsToPresentControllerNode.swift
+//  DetailsToPresentScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 03.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
+class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
     private let titleTextNode: VATextNode
     private let pushNextButtonNode = VAButtonNode()
     private let inputNode = TextFieldNode()
@@ -30,8 +30,6 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         )
 
         super.init(viewModel: viewModel)
-
-        bind()
     }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -67,11 +65,12 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
@@ -86,6 +85,7 @@ class DetailsToPresentControllerNode: DisplayNode<DetailsToPresentViewModel> {
             .disposed(by: bag)
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)

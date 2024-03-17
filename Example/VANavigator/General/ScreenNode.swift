@@ -1,5 +1,5 @@
 //
-//  DisplayNode.swift
+//  ScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 03.12.2023.
@@ -9,7 +9,7 @@
 import VATextureKitRx
 import RxKeyboard
 
-class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder {
+class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder {
     let bag = DisposeBag()
     let viewModel: ViewModel
 
@@ -19,17 +19,18 @@ class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerN
         super.init()
     }
 
-    func viewDidLoad(in controller: UIViewController) {
-        viewModel.controller = controller
+    override func didLoad() {
+        super.didLoad()
+
+        configure()
+        bind()
     }
 
-    func viewDidAppear(in controller: UIViewController, animated: Bool) {}
+    @MainActor
+    func bind() {}
 
-    func viewWillAppear(in controller: UIViewController, animated: Bool) {}
-
-    func viewWillDisappear(in controller: UIViewController, animated: Bool) {}
-
-    func viewDidDisappear(in controller: UIViewController, animated: Bool) {}
+    @MainActor
+    func configure() {}
 
     @MainActor
     func bindKeyboardInset(scrollView: UIScrollView, tabBarController: UITabBarController? = nil) {
@@ -65,6 +66,20 @@ class DisplayNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerN
             })
             .disposed(by: bag)
     }
+
+    // MARK: - ControllerNode
+
+    func viewDidLoad(in controller: UIViewController) {
+        viewModel.controller = controller
+    }
+
+    func viewDidAppear(in controller: UIViewController, animated: Bool) {}
+
+    func viewWillAppear(in controller: UIViewController, animated: Bool) {}
+
+    func viewWillDisappear(in controller: UIViewController, animated: Bool) {}
+
+    func viewDidDisappear(in controller: UIViewController, animated: Bool) {}
 
     // MARK: - Responder
 

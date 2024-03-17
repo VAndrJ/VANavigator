@@ -1,5 +1,5 @@
 //
-//  SecretInformationControllerNode.swift
+//  SecretInformationScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 04.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class SecretInformationControllerNode: DisplayNode<SecretInformationViewModel> {
+class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel> {
     private let titleTextNode = VATextNode(
         text: "Secret information for authorized users only",
         fontStyle: .headline
@@ -18,12 +18,6 @@ class SecretInformationControllerNode: DisplayNode<SecretInformationViewModel> {
         text: "",
         fontStyle: .body
     )
-
-    override init(viewModel: SecretInformationViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -47,15 +41,17 @@ class SecretInformationControllerNode: DisplayNode<SecretInformationViewModel> {
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)

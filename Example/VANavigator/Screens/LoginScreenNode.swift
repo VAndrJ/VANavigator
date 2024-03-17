@@ -1,5 +1,5 @@
 //
-//  SecondaryControllerNode.swift
+//  LoginScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 04.12.2023.
@@ -8,31 +8,23 @@
 
 import VATextureKitRx
 
-class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
+class LoginScreenNode: ScreenNode<LoginViewModel> {
     private let titleTextNode = VATextNode(
-        text: "Secondary \(Int.random(in: 0...1000))",
+        text: "Login",
         fontStyle: .headline
     )
-    private let showSecondaryButtonNode = VAButtonNode()
     private let replaceRootButtonNode = VAButtonNode()
-    private let showInSplitOrPresentButtonNode = VAButtonNode()
+    private let loginButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
     )
 
-    override init(viewModel: SecondaryViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
-
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                showSecondaryButtonNode
-                showInSplitOrPresentButtonNode
+                loginButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -42,28 +34,28 @@ class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Secondary"
+        controller.title = "Login"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
-        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        loginButtonNode.setTitle("Login", theme: theme)
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
-        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+        loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)
@@ -71,14 +63,19 @@ class SecondaryControllerNode: DisplayNode<SecondaryViewModel> {
     }
 }
 
-class SecondaryViewModel: EventViewModel {
+struct LoginEvent: Event {}
+
+class LoginViewModel: EventViewModel {
     struct Context {
+        struct DataSource {
+            let authorize: () -> Void
+        }
+        
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followShowSplitSecondary: () -> Void
-            let followShowInSplitOrPresent: () -> Void
         }
 
+        let source: DataSource
         let navigation: Navigation
     }
 
@@ -95,12 +92,10 @@ class SecondaryViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
-        case _ as ShowSecondaryEvent:
-            data.navigation.followShowSplitSecondary()
+        case _ as LoginEvent:
+            data.source.authorize()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
-        case _ as ShowInSplitOrPresentEvent:
-            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }
