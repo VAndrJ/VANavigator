@@ -8,10 +8,10 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
 // TODO: - Messages
-@MainActor
-class CloseIfTopControllerTests: XCTestCase {
+class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {

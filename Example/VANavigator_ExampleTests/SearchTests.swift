@@ -9,10 +9,10 @@
 import XCTest
 import VANavigator
 @testable import VANavigator_Example
+import VATextureKit
 
 // TODO: - Messages
-@MainActor
-class SearchTests: XCTestCase {
+class SearchTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {

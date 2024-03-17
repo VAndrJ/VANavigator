@@ -8,9 +8,9 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
-@MainActor
-class NavigationStrategyEqualityTests: XCTestCase {
+class NavigationStrategyEqualityTests: XCTestCase, MainActorIsolated {
 
     func test_push() {
         let expected: NavigationStrategy = .push()

@@ -11,9 +11,9 @@ import VANavigator
 import RxSwift
 import RxCocoa
 @testable import VANavigator_Example
+import VATextureKit
 
-@MainActor
-class NavigationInterceptionTests: XCTestCase {
+class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {

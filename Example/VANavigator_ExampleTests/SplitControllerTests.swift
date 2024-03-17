@@ -8,11 +8,11 @@
 
 import XCTest
 import VANavigator
+import VATextureKit
 
 // TODO: - Messages
 // swiftlint:disable type_body_length
-@MainActor
-class SplitControllerTests: XCTestCase {
+class SplitControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {
