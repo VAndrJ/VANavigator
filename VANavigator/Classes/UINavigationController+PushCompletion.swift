@@ -59,9 +59,9 @@ extension UINavigationController {
             if delegate == nil {
                 Self.completionDelegate.completion = { [weak self] in
                     if self?.delegate === Self.completionDelegate {
-                        Self.completionDelegate.completion = nil
                         self?.delegate = nil
                     }
+                    Self.completionDelegate.completion = nil
                     completion?()
                 }
                 delegate = Self.completionDelegate
