@@ -1,5 +1,5 @@
 //
-//  NavigationQueueExampleControllerNode.swift
+//  NavigationQueueExampleScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 23.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class NavigationQueueExampleControllerNode: DisplayNode<NavigationQueueExampleViewModel> {
+class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel> {
     private let titleTextNode = VATextNode(
         text: "Queue",
         fontStyle: .headline
@@ -19,12 +19,6 @@ class NavigationQueueExampleControllerNode: DisplayNode<NavigationQueueExampleVi
         text: "",
         fontStyle: .body
     )
-
-    override init(viewModel: NavigationQueueExampleViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -51,16 +45,18 @@ class NavigationQueueExampleControllerNode: DisplayNode<NavigationQueueExampleVi
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)

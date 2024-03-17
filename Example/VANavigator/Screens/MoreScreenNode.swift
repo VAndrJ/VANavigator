@@ -1,5 +1,5 @@
 //
-//  MoreControllerNode.swift
+//  MoreScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 03.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class MoreControllerNode: DisplayNode<MoreViewModel> {
+class MoreScreenNode: ScreenNode<MoreViewModel> {
     private let titleTextNode = VATextNode(
         text: "More",
         fontStyle: .headline
@@ -18,12 +18,6 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
         text: "",
         fontStyle: .body
     )
-
-    override init(viewModel: MoreViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -47,15 +41,17 @@ class MoreControllerNode: DisplayNode<MoreViewModel> {
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)

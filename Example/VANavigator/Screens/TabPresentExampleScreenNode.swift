@@ -1,5 +1,5 @@
 //
-//  TabPresentExampleControllerNode.swift
+//  TabPresentExampleScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 20.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
+class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel> {
     private let titleTextNode = VATextNode(
         text: "Tab Present Example",
         fontStyle: .headline
@@ -16,12 +16,6 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
     private let presentFromTopButtonNode = VAButtonNode()
     private let presentFromTabButtonNode = VAButtonNode()
     private let presentPopoverButtonNode = VAButtonNode()
-
-    override init(viewModel: TabPresentExampleViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -46,17 +40,18 @@ class TabPresentExampleControllerNode: DisplayNode<TabPresentExampleViewModel> {
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
     }
 
+    @MainActor
     private func bindView() {
         presentFromTopButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTopEvent()) }
         presentFromTabButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTabEvent()) }
         presentPopoverButtonNode.onTap = viewModel ?> { [weak self] in
             guard let self else { return }
 
-            $0.perform(PresentPopoverEvent(source: presentPopoverButtonNode.view))
+            $0.perform(PresentPopoverEvent(source: self.presentPopoverButtonNode.view))
         }
     }
 }

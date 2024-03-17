@@ -1,5 +1,5 @@
 //
-//  TabDetailControllerNode.swift
+//  TabDetailScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 03.12.2023.
@@ -8,7 +8,7 @@
 
 import VATextureKitRx
 
-class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
+class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
     private let titleTextNode = VATextNode(
         text: "Tab Details",
         fontStyle: .headline
@@ -24,12 +24,6 @@ class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
         text: "",
         fontStyle: .body
     )
-
-    override init(viewModel: TabDetailViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
 
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
@@ -61,11 +55,12 @@ class TabDetailControllerNode: DisplayNode<TabDetailViewModel> {
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }

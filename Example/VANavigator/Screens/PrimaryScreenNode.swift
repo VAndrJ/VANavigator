@@ -1,5 +1,5 @@
 //
-//  LoginControllerNode.swift
+//  PrimaryScreenNode.swift
 //  VANavigator_Example
 //
 //  Created by VAndrJ on 04.12.2023.
@@ -8,29 +8,27 @@
 
 import VATextureKitRx
 
-class LoginControllerNode: DisplayNode<LoginViewModel> {
+class PrimaryScreenNode: ScreenNode<PrimaryViewModel> {
     private let titleTextNode = VATextNode(
-        text: "Login",
+        text: "Primary \(Int.random(in: 0...100))",
         fontStyle: .headline
     )
+    private let replacePrimartButtonNode = VAButtonNode()
+    private let showSecondaryButtonNode = VAButtonNode()
     private let replaceRootButtonNode = VAButtonNode()
-    private let loginButtonNode = VAButtonNode()
+    private let showInSplitOrPresentButtonNode = VAButtonNode()
     private let descriptionTextNode = VATextNode(
         text: "",
         fontStyle: .body
     )
 
-    override init(viewModel: LoginViewModel) {
-        super.init(viewModel: viewModel)
-
-        bind()
-    }
-
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                loginButtonNode
+                replacePrimartButtonNode
+                showSecondaryButtonNode
+                showInSplitOrPresentButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -40,26 +38,32 @@ class LoginControllerNode: DisplayNode<LoginViewModel> {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Login"
+        controller.title = "Primary"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        loginButtonNode.setTitle("Login", theme: theme)
+        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
+        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
+        replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
         setNeedsLayout()
     }
 
-    private func bind() {
+    override func bind() {
         bindView()
         bindViewModel()
     }
 
+    @MainActor
     private func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
+        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
+        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+        replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     }
 
+    @MainActor
     private func bindViewModel() {
         viewModel.descriptionObs
             .bind(to: descriptionTextNode.rx.text)
@@ -67,19 +71,19 @@ class LoginControllerNode: DisplayNode<LoginViewModel> {
     }
 }
 
-struct LoginEvent: Event {}
+struct ShowSecondaryEvent: Event {}
 
-class LoginViewModel: EventViewModel {
+struct ReplacePrimaryEvent: Event {}
+
+class PrimaryViewModel: EventViewModel {
     struct Context {
-        struct DataSource {
-            let authorize: () -> Void
-        }
-        
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
+            let followReplacePrimary: () -> Void
+            let followShowSplitSecondary: () -> Void
+            let followShowInSplitOrPresent: () -> Void
         }
 
-        let source: DataSource
         let navigation: Navigation
     }
 
@@ -96,10 +100,14 @@ class LoginViewModel: EventViewModel {
 
     override func run(_ event: Event) {
         switch event {
-        case _ as LoginEvent:
-            data.source.authorize()
+        case _ as ReplacePrimaryEvent:
+            data.navigation.followReplacePrimary()
+        case _ as ShowSecondaryEvent:
+            data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
+        case _ as ShowInSplitOrPresentEvent:
+            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }
