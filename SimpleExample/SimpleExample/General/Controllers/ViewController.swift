@@ -13,7 +13,12 @@ class ViewController<View: UIView & ControllerViewProtocol & Responder>: UIViewC
 
     private let shouldHideNavigationBar: Bool
 
-    init(view: View, shouldHideNavigationBar: Bool = true, isNotImportant: Bool = false, title: String? = nil) {
+    init(
+        view: View,
+        shouldHideNavigationBar: Bool = true,
+        isNotImportant: Bool = false,
+        title: String? = nil
+    ) {
         self.contentView = view
         self.shouldHideNavigationBar = shouldHideNavigationBar
         self.isNotImportant = isNotImportant
