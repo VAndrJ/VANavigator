@@ -43,7 +43,7 @@ At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, 
 **Navigation strategies:**
 
 
-- Replace `UIWindow` root view controller
+- Replace `UIWindow` root view controller.
 
 Code example:
 ```
@@ -54,11 +54,11 @@ navigator.navigate(
 ```
 
 
-- Present view controller 
+- Present view controller.
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .present()
 )
@@ -69,40 +69,40 @@ navigator?.navigate(
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .closeToExisting
 )
 ```
 
 
-- Push view controller 
+- Push view controller.
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .push()
 )
 ```
 
 
-- Pops to existing controller
+- Pops to existing controller in `UINavigationController`'s navigation stack.
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .popToExisting()
 )
 ```
 
 
-- Replace the navigation stack with a new controller.
+- Replace the `UINavigationController`'s navigation stack with a new controller.
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .replaceNavigationRoot
 )
@@ -113,7 +113,7 @@ navigator?.navigate(
 
 Code example:
 ```
-navigator?.navigate(
+navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .closeIfTop()
 )
