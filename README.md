@@ -1,6 +1,10 @@
 # VANavigator
 
+
+[![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 [![Support Ukraine](https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&labelColor=005BBB)](https://opensource.fb.com/support-ukraine)
+
+
 [![License](https://img.shields.io/cocoapods/l/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
 [![Platform](https://img.shields.io/cocoapods/p/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
 
