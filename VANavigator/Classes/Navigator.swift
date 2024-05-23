@@ -269,8 +269,8 @@ open class Navigator {
             let tryToDismiss = strategy.tryToDismiss
             if let controller = window?.topController {
                 if tryToPop,
-                    let navigationController = controller.orNavigationController,
-                    navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                   let navigationController = controller.orNavigationController,
+                   navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
@@ -522,171 +522,167 @@ open class Navigator {
                 completion?(nil, false)
             }
         default:
-            if #available(iOS 14.0, *) {
-                switch strategy {
-                case let strategy as SplitNavigationStrategy:
-                    let strategy = strategy.strategy
-                    // MARK: - Plain flow for easier understanding
-                    if let splitController = window?.topController?.splitViewController {
-                        switch strategy {
-                        case let .primary(action):
-                            switch action {
-                            case .replace:
-                                if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
-                                    splitController.show(.primary)
-                                    let controller = getController(destination: destination)
-                                    navigationController.setViewControllers(
-                                        [controller],
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                    // TODO: - fallback?
-                                } else {
-                                    completion?(nil, false)
-                                }
-                            case .pop:
-                                if let controller = splitController.viewController(for: .primary)?.orNavigationController?.findController(destination: destination) {
-                                    splitController.show(.primary)
-                                    navigatorEvent = ResponderPoppedToExistingEvent()
-                                    closeNavigationPresented(
-                                        controller: controller,
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                } else if let fallback {
-                                    navigate(
-                                        to: fallback.destination,
-                                        strategy: fallback.strategy,
-                                        animated: fallback.animated,
-                                        fallback: fallback.fallback,
-                                        event: event,
-                                        completion: completion
-                                    )
-                                } else {
-                                    completion?(nil, false)
-                                }
-                            case .push:
-                                if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
-                                    splitController.show(.primary)
-                                    let controller = getController(destination: destination)
-                                    navigationController.pushViewController(
-                                        controller,
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                    // TODO: - fallback?
-                                } else {
-                                    completion?(nil, false)
-                                }
+            switch strategy {
+            case let strategy as SplitNavigationStrategy:
+                let strategy = strategy.strategy
+                // MARK: - Plain flow for easier understanding
+                if let splitController = window?.topController?.splitViewController {
+                    switch strategy {
+                    case let .primary(action):
+                        switch action {
+                        case .replace:
+                            if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
+                                splitController.show(.primary)
+                                let controller = getController(destination: destination)
+                                navigationController.setViewControllers(
+                                    [controller],
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                                // TODO: - fallback?
+                            } else {
+                                completion?(nil, false)
                             }
-                        case let .secondary(action):
-                            switch action {
-                            case .replace:
-                                if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
-                                    splitController.show(.secondary)
-                                    let controller = getController(destination: destination)
-                                    navigationController.setViewControllers(
-                                        [controller],
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                    // TODO: - fallback?
-                                } else {
-                                    completion?(nil, false)
-                                }
-                            case .pop:
-                                if let controller = splitController.viewController(for: .secondary)?.orNavigationController?.findController(destination: destination) {
-                                    splitController.show(.secondary)
-                                    navigatorEvent = ResponderPoppedToExistingEvent()
-                                    closeNavigationPresented(
-                                        controller: controller,
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                } else if let fallback {
-                                    navigate(
-                                        to: fallback.destination,
-                                        strategy: fallback.strategy,
-                                        animated: fallback.animated,
-                                        fallback: fallback.fallback,
-                                        event: event,
-                                        completion: completion
-                                    )
-                                } else {
-                                    completion?(nil, false)
-                                }
-                            case .push:
-                                if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
-                                    splitController.show(.secondary)
-                                    let controller = getController(destination: destination)
-                                    navigationController.pushViewController(
-                                        controller,
-                                        animated: animated,
-                                        completion: {
-                                            perform(
-                                                event: event,
-                                                navigatorEvent: navigatorEvent,
-                                                on: controller as? UIViewController & Responder
-                                            )
-                                            completion?(controller, true)
-                                        }
-                                    )
-                                } else {
-                                    completion?(nil, false)
-                                }
+                        case .pop:
+                            if let controller = splitController.viewController(for: .primary)?.orNavigationController?.findController(destination: destination) {
+                                splitController.show(.primary)
+                                navigatorEvent = ResponderPoppedToExistingEvent()
+                                closeNavigationPresented(
+                                    controller: controller,
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
+                            } else {
+                                completion?(nil, false)
+                            }
+                        case .push:
+                            if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
+                                splitController.show(.primary)
+                                let controller = getController(destination: destination)
+                                navigationController.pushViewController(
+                                    controller,
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                                // TODO: - fallback?
+                            } else {
+                                completion?(nil, false)
                             }
                         }
-                    } else if let fallback {
-                        navigate(
-                            to: fallback.destination,
-                            strategy: fallback.strategy,
-                            animated: fallback.animated,
-                            fallback: fallback.fallback,
-                            event: event,
-                            completion: completion
-                        )
-                    } else {
-                        completion?(nil, false)
+                    case let .secondary(action):
+                        switch action {
+                        case .replace:
+                            if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
+                                splitController.show(.secondary)
+                                let controller = getController(destination: destination)
+                                navigationController.setViewControllers(
+                                    [controller],
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                                // TODO: - fallback?
+                            } else {
+                                completion?(nil, false)
+                            }
+                        case .pop:
+                            if let controller = splitController.viewController(for: .secondary)?.orNavigationController?.findController(destination: destination) {
+                                splitController.show(.secondary)
+                                navigatorEvent = ResponderPoppedToExistingEvent()
+                                closeNavigationPresented(
+                                    controller: controller,
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
+                            } else {
+                                completion?(nil, false)
+                            }
+                        case .push:
+                            if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
+                                splitController.show(.secondary)
+                                let controller = getController(destination: destination)
+                                navigationController.pushViewController(
+                                    controller,
+                                    animated: animated,
+                                    completion: {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? UIViewController & Responder
+                                        )
+                                        completion?(controller, true)
+                                    }
+                                )
+                            } else {
+                                completion?(nil, false)
+                            }
+                        }
                     }
-                default:
+                } else if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
                     completion?(nil, false)
                 }
-            } else {
+            default:
                 completion?(nil, false)
             }
         }

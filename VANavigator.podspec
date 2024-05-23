@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'VANavigator'
-  s.version          = '1.3.8'
+  s.version          = '2.0.0'
   s.summary          = 'Easy to use UIKit navigation wrapper.'
 
   s.description      = <<-DESC
@@ -14,11 +14,11 @@ At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, 
   s.source           = { :git => 'https://github.com/VAndrJ/VANavigator.git', :tag => s.version.to_s }
   s.social_media_url = 'https://www.linkedin.com/in/vandrj/'
 
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '14.0'
 
   s.source_files = 'VANavigator/Classes/**/*'
 
   s.frameworks = 'UIKit'
 
-  s.swift_versions = '5.7'
+  s.swift_versions = '5.9'
 end
