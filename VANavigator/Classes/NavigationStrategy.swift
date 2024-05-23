@@ -73,14 +73,12 @@ public extension NavigationStrategy {
     }
 
     /// Shows in a `UISplitViewController` with the given `strategy`.
-    @available (iOS 14.0, *)
     static func split(strategy: SplitStrategy) -> NavigationStrategy {
         SplitNavigationStrategy(strategy: strategy)
     }
 }
 
 /// Navigation strategy for `UISplitViewController`.
-@available (iOS 14.0, *)
 public enum SplitStrategy: Equatable {
     public enum SplitActon: Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
@@ -97,7 +95,6 @@ public enum SplitStrategy: Equatable {
     case secondary(action: SplitActon)
 }
 
-@available(iOS 14.0, *)
 class SplitNavigationStrategy: NavigationStrategy {
     let strategy: SplitStrategy
 
