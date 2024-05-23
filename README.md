@@ -19,7 +19,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
-Minimum deployment target: **iOS 13**
+Minimum deployment target: **iOS 14**
 
 ## Installation
 
