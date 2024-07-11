@@ -9,4 +9,4 @@
 import Foundation
 @_exported import Swiftional
 
-extension NSObject: Applyable {}
+extension NSObject: @retroactive Applyable {}
