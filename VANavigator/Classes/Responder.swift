@@ -12,8 +12,8 @@ public protocol ResponderEvent: Sendable {}
 
 public protocol Responder: AnyObject {
     @MainActor
-    var nextEventResponder: Responder? { get set }
+    var nextEventResponder: (any Responder)? { get set }
 
     @MainActor
-    func handle(event: ResponderEvent) async -> Bool
+    func handle(event: any ResponderEvent) async -> Bool
 }

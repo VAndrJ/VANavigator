@@ -74,7 +74,7 @@ extension UIViewController {
     }
 
     public func findController(
-        identity: NavigationIdentity,
+        identity: any NavigationIdentity,
         withPresented: Bool
     ) -> UIViewController? {
         if navigationIdentity?.isEqual(to: identity) == true {
