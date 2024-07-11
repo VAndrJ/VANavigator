@@ -28,7 +28,7 @@ class ExampleNavigationInterceptor: NavigationInterceptor {
     override func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
         switch destination {
         case let .identity(identity):
-            if identity is LoginedOnlyNavigationIdentity {
+            if identity is (any LoginedOnlyNavigationIdentity) {
                 if authorizationService.isAuthorized {
                     return nil
                 } else {

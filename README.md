@@ -13,29 +13,39 @@
 [![SPM](https://img.shields.io/badge/SPM-compatible-limegreen.svg?style=flat)](https://github.com/apple/swift-package-manager)
 &nbsp;[![VANavigator](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml/badge.svg)](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml)
 
+
 ## Example
+
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
+
 ## Requirements
+
 
 Minimum deployment target: **iOS 14**
 
+
 ## Installation
+
 
 VANavigator is available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
+
 
 ```ruby
 pod 'VANavigator'
 ```
 
+
 VANavigator is available through [SPM](https://github.com/apple/swift-package-manager). To install
 it, simply add to your Package Dependencies:
+
 
 ```
 https://github.com/VAndrJ/VANavigator.git
 ```
+
 
 ## Description
 
@@ -49,6 +59,7 @@ At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, 
 
 - Replace `UIWindow` root view controller.
 
+
 Code example:
 ```
 navigator.navigate(
@@ -59,6 +70,7 @@ navigator.navigate(
 
 
 - Present view controller.
+
 
 Code example:
 ```
@@ -71,6 +83,7 @@ navigator.navigate(
 
 - Closes presented controllers to the given controller if it exists.
 
+
 Code example:
 ```
 navigator.navigate(
@@ -82,6 +95,7 @@ navigator.navigate(
 
 - Push view controller.
 
+
 Code example:
 ```
 navigator.navigate(
@@ -92,6 +106,7 @@ navigator.navigate(
 
 
 - Pops to existing controller in `UINavigationController`'s navigation stack.
+
 
 Code example:
 ```
@@ -115,6 +130,7 @@ navigator.navigate(
 
 - Close (pop or dismiss) the controller if it is the top one.
 
+
 Code example:
 ```
 navigator.navigate(
@@ -124,7 +140,8 @@ navigator.navigate(
 ```
 
 
-- *Under development. min iOS 14* Shows in a `UISplitViewController` with the given `strategy`.
+- *Under development. Shows in a `UISplitViewController` with the given `strategy`.
+
 
 Code example:
 ```
@@ -143,8 +160,11 @@ Use the `NavigationInterceptor` to intercept the navigation flow and replace it 
 
 ## Author
 
+
 Volodymyr Andriienko, vandrjios@gmail.com
 
+
 ## License
+
 
 VANavigator is available under the MIT license. See the LICENSE file for more info.

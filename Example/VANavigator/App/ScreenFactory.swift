@@ -17,7 +17,7 @@ class ScreenFactory: NavigatorScreenFactory {
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity
-    func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
+    func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as QueueNavigationIdentity:
             return ViewController(

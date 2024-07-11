@@ -14,15 +14,15 @@ protocol Event {}
 
 class EventViewModel: ViewModel {
     let bag = DisposeBag()
-    let eventRelay = PublishRelay<Event>()
+    let eventRelay = PublishRelay<any Event>()
     var isLoadingObs: Observable<Bool> { isLoadingRelay.asObservable() }
     var isNotLoading: Bool { !isLoadingRelay.value }
     weak var controller: UIViewController?
     var isLoadingRelay = BehaviorRelay(value: false)
 
-    let scheduler: SchedulerType
+    let scheduler: any SchedulerType
 
-    init(scheduler: SchedulerType = MainScheduler.asyncInstance) {
+    init(scheduler: any SchedulerType = MainScheduler.asyncInstance) {
         self.scheduler = scheduler
 
         super.init()
@@ -30,13 +30,13 @@ class EventViewModel: ViewModel {
         bind()
     }
 
-    func run(_ event: Event) {
+    func run(_ event: any Event) {
         #if DEBUG || targetEnvironment(simulator)
         debugPrint("⚠️ [Event not handled] \(event)")
         #endif
     }
 
-    func perform(_ event: Event) {
+    func perform(_ event: any Event) {
         eventRelay.accept(event)
     }
 
@@ -52,9 +52,9 @@ class ViewModel: NSObject, Responder {
 
     // MARK: - Responder
 
-    weak var nextEventResponder: Responder?
+    weak var nextEventResponder: (any Responder)?
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false

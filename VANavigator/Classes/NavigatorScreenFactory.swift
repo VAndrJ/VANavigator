@@ -11,5 +11,5 @@ import UIKit
 @MainActor
 public protocol NavigatorScreenFactory {
 
-    func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController
+    func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController
 }

@@ -11,7 +11,7 @@ import UIKit
 // swiftlint:disable file_length type_body_length
 @MainActor
 open class Navigator {
-    public let screenFactory: NavigatorScreenFactory
+    public let screenFactory: any NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor?
 
     public private(set) weak var window: UIWindow?
@@ -27,7 +27,7 @@ open class Navigator {
 
     public init(
         window: UIWindow?,
-        screenFactory: NavigatorScreenFactory,
+        screenFactory: any NavigatorScreenFactory,
         navigationInterceptor: NavigationInterceptor? = nil
     ) {
         self.window = window
@@ -45,7 +45,7 @@ open class Navigator {
     ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
     public func navigate(
         chain: [NavigationChainLink],
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         linkCompletionResult: (UIViewController?, Bool)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
@@ -119,7 +119,7 @@ open class Navigator {
         strategy: NavigationStrategy,
         animated: Bool = true,
         fallbackStrategies: [NavigationStrategy],
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         navigate(
@@ -151,7 +151,7 @@ open class Navigator {
         strategy: NavigationStrategy,
         animated: Bool = true,
         fallback: NavigationChainLink? = nil,
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         guard !(isChainNavigationInProgress || isNavigationInProgress) else {
@@ -191,7 +191,7 @@ open class Navigator {
         strategy: NavigationStrategy,
         animated: Bool,
         fallback: NavigationChainLink?,
-        event: ResponderEvent?,
+        event: (any ResponderEvent)?,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
@@ -217,9 +217,13 @@ open class Navigator {
             return
         }
 
-        var navigatorEvent: ResponderEvent?
+        var navigatorEvent: (any ResponderEvent)?
 
-        func perform(event: ResponderEvent?, navigatorEvent: ResponderEvent?, on responder: Responder?) {
+        func perform(
+            event: (any ResponderEvent)?,
+            navigatorEvent: (any ResponderEvent)?,
+            on responder: (any Responder)?
+        ) {
             guard let responder else { return }
 
             if let navigatorEvent {
@@ -319,7 +323,7 @@ open class Navigator {
                     perform(
                         event: event,
                         navigatorEvent: navigatorEvent,
-                        on: controller as? UIViewController & Responder
+                        on: controller as? any UIViewController & Responder
                     )
                     completion?(controller, true)
                 }
@@ -344,7 +348,7 @@ open class Navigator {
                             perform(
                                 event: event,
                                 navigatorEvent: navigatorEvent,
-                                on: controller as? UIViewController & Responder
+                                on: controller as? any UIViewController & Responder
                             )
                             completion?(controller, true)
                         }
@@ -370,7 +374,7 @@ open class Navigator {
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
-                                    on: controller as? UIViewController & Responder
+                                    on: controller as? any UIViewController & Responder
                                 )
                                 completion?(controller, true)
                             }
@@ -404,7 +408,7 @@ open class Navigator {
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
-                            on: controller as? UIViewController & Responder
+                            on: controller as? any UIViewController & Responder
                         )
                         completion?(controller, true)
                     } else {
@@ -448,7 +452,7 @@ open class Navigator {
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
-                                    on: controller as? UIViewController & Responder
+                                    on: controller as? any UIViewController & Responder
                                 )
                                 completion?(controller, true)
                             }
@@ -477,7 +481,7 @@ open class Navigator {
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
-                            on: controller as? UIViewController & Responder
+                            on: controller as? any UIViewController & Responder
                         )
                         completion?(controller, true)
                     }
@@ -510,7 +514,7 @@ open class Navigator {
                             perform(
                                 event: event,
                                 navigatorEvent: navigatorEvent,
-                                on: controller as? UIViewController & Responder
+                                on: controller as? any UIViewController & Responder
                             )
                             completion?(controller, true)
                         }
@@ -541,7 +545,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }
@@ -561,7 +565,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }
@@ -589,7 +593,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }
@@ -612,7 +616,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }
@@ -632,7 +636,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }
@@ -660,7 +664,7 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder
                                         )
                                         completion?(controller, true)
                                     }

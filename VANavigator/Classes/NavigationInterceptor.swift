@@ -10,12 +10,12 @@ import UIKit
 
 public struct NavigationInterceptionResult {
     public let chain: [NavigationChainLink]
-    public let event: ResponderEvent?
+    public let event: (any ResponderEvent)?
     public let reason: AnyHashable
 
     public init(
         link: NavigationChainLink,
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         reason: AnyHashable
     ) {
         self.chain = [link]
@@ -25,7 +25,7 @@ public struct NavigationInterceptionResult {
 
     public init(
         chain: [NavigationChainLink],
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         reason: AnyHashable
     ) {
         self.chain = chain
@@ -86,12 +86,12 @@ open class NavigationInterceptor {
 
 class InterceptionDetail {
     var chain: [NavigationChainLink]
-    let event: ResponderEvent?
+    let event: (any ResponderEvent)?
     let completion: ((UIViewController?, Bool) -> Void)?
 
     init(
         chain: [NavigationChainLink],
-        event: ResponderEvent? = nil,
+        event: (any ResponderEvent)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         self.chain = chain

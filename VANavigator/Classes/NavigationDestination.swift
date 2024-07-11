@@ -11,12 +11,12 @@ import UIKit
 @MainActor
 public enum NavigationDestination {
     /// Indicates a navigation destination identified by a `NavigationIdentity`. Used when constructing a controller using a screen factory.
-    case identity(NavigationIdentity)
+    case identity(any NavigationIdentity)
     /// Indicates a navigation destination represented by a specific view controller. Ensure that the corresponding `NavigationIdentity` is set for proper identification.
     case controller(UIViewController)
 
     /// Computed property to extract the navigation identity from the destination.
-    public var identity: NavigationIdentity? {
+    public var identity: (any NavigationIdentity)? {
         switch self {
         case let .identity(identity):
             return identity

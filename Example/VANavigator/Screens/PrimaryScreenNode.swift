@@ -85,7 +85,7 @@ class PrimaryViewModel: EventViewModel {
         super.init()
     }
 
-    override func run(_ event: Event) {
+    override func run(_ event: any Event) {
         switch event {
         case _ as ReplacePrimaryEvent:
             data.navigation.followReplacePrimary()
@@ -100,7 +100,7 @@ class PrimaryViewModel: EventViewModel {
         }
     }
 
-    override func handle(event: ResponderEvent) async -> Bool {
+    override func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: self, event: event)
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:

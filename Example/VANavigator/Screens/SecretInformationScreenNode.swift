@@ -66,7 +66,7 @@ class SecretInformationViewModel: EventViewModel {
         super.init()
     }
 
-    override func run(_ event: Event) {
+    override func run(_ event: any Event) {
         switch event {
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
@@ -75,7 +75,7 @@ class SecretInformationViewModel: EventViewModel {
         }
     }
 
-    override func handle(event: ResponderEvent) async -> Bool {
+    override func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: self, event: event)
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
