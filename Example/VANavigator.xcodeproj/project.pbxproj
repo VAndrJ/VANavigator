@@ -421,13 +421,13 @@
 				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/PINCache/PINCache.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/PINOperation/PINOperation.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/VATextureKit/VATextureKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/VATextureKit/VATextureKitPrivacyInfo.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PINCache.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PINOperation.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/VATextureKit.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/VATextureKitPrivacyInfo.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
