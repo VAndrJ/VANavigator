@@ -117,7 +117,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func prepareNavigationStack(navigator: Navigator, identity: NavigationIdentity) {
+    func prepareNavigationStack(navigator: Navigator, identity: any NavigationIdentity) {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             destination: .identity(identity),

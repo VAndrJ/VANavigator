@@ -297,7 +297,7 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated { // swiftlint:dis
 
     func pushOrPop(
         navigator: Navigator,
-        identity: NavigationIdentity,
+        identity: any NavigationIdentity,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
         let expect = expectation(description: "pushOrPop")

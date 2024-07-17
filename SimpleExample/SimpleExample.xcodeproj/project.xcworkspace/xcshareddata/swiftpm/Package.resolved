@@ -1,5 +1,5 @@
 {
-  "originHash" : "5776880a6b5e93392920bb4839505385f3012a967e330fb49ecfa71adda41b0a",
+  "originHash" : "1056f05857ab3ef17d40062dff1d258f92faaf399c98b301f8bae938810760e2",
   "pins" : [
     {
       "identity" : "swiftional",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "616227ce6fbc30939fcf1af956928effaf4db84e",
         "version" : "2.0.1"
-      }
-    },
-    {
-      "identity" : "vanavigator",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/VAndrJ/VANavigator.git",
-      "state" : {
-        "revision" : "f73d3321976464f019777ef8fcb43e8293f3a300",
-        "version" : "1.3.7"
       }
     }
   ],

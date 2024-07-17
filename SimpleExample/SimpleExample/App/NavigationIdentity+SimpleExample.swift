@@ -11,7 +11,7 @@ protocol DefaultNavigationIdentity: NavigationIdentity {}
 
 extension DefaultNavigationIdentity {
 
-    func isEqual(to other: NavigationIdentity?) -> Bool {
+    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         other is Self
     }
 }
@@ -39,9 +39,9 @@ struct PrimaryNavigationIdentity: DefaultNavigationIdentity {}
 struct SecondaryNavigationIdentity: DefaultNavigationIdentity {}
 
 struct NavNavigationIdentity: NavigationIdentity {
-    var children: [NavigationIdentity]
+    var children: [any NavigationIdentity]
 
-    func isEqual(to other: NavigationIdentity?) -> Bool {
+    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -58,11 +58,11 @@ struct NavNavigationIdentity: NavigationIdentity {
 }
 
 struct SplitNavigationIdentity: NavigationIdentity {
-    var primary: NavigationIdentity
-    var secondary: NavigationIdentity
-    var supplementary: NavigationIdentity?
+    var primary: any NavigationIdentity
+    var secondary: any NavigationIdentity
+    var supplementary: (any NavigationIdentity)?
 
-    func isEqual(to other: NavigationIdentity?) -> Bool {
+    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -76,7 +76,7 @@ struct SplitNavigationIdentity: NavigationIdentity {
 struct DetailsNavigationIdentity: NavigationIdentity {
     let number: Int
 
-    func isEqual(to other: NavigationIdentity?) -> Bool {
+    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -86,9 +86,9 @@ struct DetailsNavigationIdentity: NavigationIdentity {
 }
 
 struct TabNavigationIdentity: NavigationIdentity {
-    var children: [NavigationIdentity]
+    var children: [any NavigationIdentity]
 
-    func isEqual(to other: NavigationIdentity?) -> Bool {
+    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         guard let other = other as? Self else {
             return false
         }

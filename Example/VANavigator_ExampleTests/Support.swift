@@ -12,7 +12,7 @@ import VANavigator
 class MockScreenFactory: NavigatorScreenFactory {
 
     // swiftlint:disable function_body_length
-    func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
+    func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as MockSplitControllerNavigationIdentity:
             let splitController = MockSplitViewController(style: identity.supplementary == nil ? .doubleColumn : .tripleColumn)
@@ -86,12 +86,12 @@ class MockScreenFactory: NavigatorScreenFactory {
 
 class MockNavigationController: UINavigationController, Responder {
 
-    var nextEventResponder: Responder? {
-        get { topController as? Responder }
+    var nextEventResponder: (any Responder)? {
+        get { topController as? (any Responder) }
         set {} // swiftlint:disable:this unused_setter_value
     }
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         await nextEventResponder?.handle(event: event) ?? false
     }
 }
@@ -105,9 +105,9 @@ class MockPopViewController: MockViewController, Responder {
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder?
+    var nextEventResponder: (any Responder)?
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderMockEvent:
             isMockEventHandled = true
@@ -127,9 +127,9 @@ class MockPushViewController: MockViewController, Responder {
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder?
+    var nextEventResponder: (any Responder)?
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderMockEvent:
             isMockEventHandled = true
@@ -146,9 +146,9 @@ class MockRootViewController: MockViewController, Responder {
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder?
+    var nextEventResponder: (any Responder)?
     
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderReplacedWindowRootControllerEvent:
             isReplacedEventHandled = true
@@ -170,12 +170,12 @@ class MockTabBarViewController: UITabBarController, Responder {
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder? {
-        get { selectedViewController as? Responder }
+    var nextEventResponder: (any Responder)? {
+        get { selectedViewController as? (any Responder) }
         set {} // swiftlint:disable:this unused_setter_value
     }
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         await nextEventResponder?.handle(event: event) ?? false
     }
 }
@@ -189,22 +189,22 @@ struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 struct MockControllerNavigationIdentity: DefaultNavigationIdentity {}
 
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
-    let children: [NavigationIdentity]
+    let children: [any NavigationIdentity]
 }
 
 struct MockSplitControllerNavigationIdentity: DefaultNavigationIdentity {
-    let primary: NavigationIdentity
-    let secondary: NavigationIdentity
-    var supplementary: NavigationIdentity?
+    let primary: any NavigationIdentity
+    let secondary: any NavigationIdentity
+    var supplementary: (any NavigationIdentity)?
 }
 
 struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
-    let children: [NavigationIdentity]
+    let children: [any NavigationIdentity]
 }
 
 struct ResponderMockEvent: ResponderEvent {}
 
-func taskDetachedMain(_ fn: @escaping @Sendable () -> Sendable) {
+func taskDetachedMain(_ fn: @escaping @Sendable () -> any Sendable) {
     Task.detached {
         await MainActor.run(body: fn)
     }

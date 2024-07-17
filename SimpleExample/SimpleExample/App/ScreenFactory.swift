@@ -15,7 +15,7 @@ class ScreenFactory: NavigatorScreenFactory {
     }
 
     // swiftlint:disable:next function_body_length
-    func assembleScreen(identity: NavigationIdentity, navigator: Navigator) -> UIViewController {
+    func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as TabPresentExampleNavigationIdentity:
             // TODO: -

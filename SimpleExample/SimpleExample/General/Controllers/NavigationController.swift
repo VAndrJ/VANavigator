@@ -47,12 +47,12 @@ final class NavigationController: UINavigationController, Responder {
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder? {
-        get { topViewController as? Responder }
+    var nextEventResponder: (any Responder)? {
+        get { topViewController as? (any Responder) }
         set {} // swiftlint:disable:this unused_setter_value
     }
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false

@@ -9,7 +9,7 @@ let settings: [SwiftSetting] = [
 let package = Package(
     name: "VANavigator",
     platforms: [
-        .iOS(.v13),
+        .iOS(.v14),
     ],
     products: [
         .library(

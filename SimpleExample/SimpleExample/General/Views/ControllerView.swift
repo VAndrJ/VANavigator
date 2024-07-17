@@ -64,12 +64,12 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder? {
+    var nextEventResponder: (any Responder)? {
         get { viewModel }
         set { viewModel.nextEventResponder = newValue }
     }
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false
@@ -83,13 +83,13 @@ protocol Event: Sendable {}
 class EventViewModel: ViewModel {
     weak var controller: UIViewController?
 
-    func run(_ event: Event) async {
+    func run(_ event: any Event) async {
         #if DEBUG || targetEnvironment(simulator)
         print("⚠️ [Event not handled] \(event)")
         #endif
     }
 
-    final func perform(_ event: Event) {
+    final func perform(_ event: any Event) {
         Task { @MainActor in
             await run(event)
         }
@@ -101,9 +101,9 @@ class ViewModel: NSObject, Responder {
 
     // MARK: - Responder
 
-    weak var nextEventResponder: Responder?
+    weak var nextEventResponder: (any Responder)?
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false

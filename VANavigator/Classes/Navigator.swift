@@ -180,6 +180,7 @@ open class Navigator {
             event: event,
             completion: { [weak self] controller, result in
                 self?.isNavigationInProgress = false
+                
                 completion?(controller, result)
             }
         )
@@ -252,6 +253,7 @@ open class Navigator {
                     )
                 } else if let index = navigationController.viewControllers.firstIndex(where: { $0.navigationIdentity?.isEqual(to: destination.identity) == true }) {
                     navigationController.viewControllers.remove(at: index)
+
                     completion?(nil, true)
                 } else {
                     completion?(nil, false)
@@ -325,6 +327,7 @@ open class Navigator {
                         navigatorEvent: navigatorEvent,
                         on: controller as? any UIViewController & Responder
                     )
+
                     completion?(controller, true)
                 }
             )
@@ -350,6 +353,7 @@ open class Navigator {
                                 navigatorEvent: navigatorEvent,
                                 on: controller as? any UIViewController & Responder
                             )
+
                             completion?(controller, true)
                         }
                     )
@@ -376,6 +380,7 @@ open class Navigator {
                                     navigatorEvent: navigatorEvent,
                                     on: controller as? any UIViewController & Responder
                                 )
+
                                 completion?(controller, true)
                             }
                         )
@@ -410,6 +415,7 @@ open class Navigator {
                             navigatorEvent: navigatorEvent,
                             on: controller as? any UIViewController & Responder
                         )
+
                         completion?(controller, true)
                     } else {
                         if let fallback {
@@ -454,6 +460,7 @@ open class Navigator {
                                     navigatorEvent: navigatorEvent,
                                     on: controller as? any UIViewController & Responder
                                 )
+
                                 completion?(controller, true)
                             }
                         )
@@ -483,6 +490,7 @@ open class Navigator {
                             navigatorEvent: navigatorEvent,
                             on: controller as? any UIViewController & Responder
                         )
+
                         completion?(controller, true)
                     }
                 )
@@ -516,6 +524,7 @@ open class Navigator {
                                 navigatorEvent: navigatorEvent,
                                 on: controller as? any UIViewController & Responder
                             )
+
                             completion?(controller, true)
                         }
                     )
@@ -547,6 +556,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -567,6 +577,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -595,6 +606,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -618,6 +630,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -638,6 +651,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -666,6 +680,7 @@ open class Navigator {
                                             navigatorEvent: navigatorEvent,
                                             on: controller as? any UIViewController & Responder
                                         )
+
                                         completion?(controller, true)
                                     }
                                 )
@@ -756,6 +771,7 @@ open class Navigator {
         if window?.rootViewController == nil {
             window?.rootViewController = controller
             window?.makeKeyAndVisible()
+
             completion?()
         } else {
             window?.set(
@@ -841,6 +857,7 @@ open class Navigator {
                 return
             }
         }
+
         completion?()
     }
 

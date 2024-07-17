@@ -15,7 +15,7 @@ extension UIView {
     }
 
     func addAutolayoutSubviews(_ views: UIView...) {
-        views.forEach(addAutolayoutSubview(_:))
+        views.forEach { addAutolayoutSubview($0) }
     }
 
     func embedIntoScroll(_ views: UIView...) {
@@ -43,6 +43,6 @@ extension UIView {
             containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -spacing * 2),
         ])
         scrollView.contentInset = UIEdgeInsets(all: spacing)
-        views.forEach(containerView.addArrangedSubview(_:))
+        views.forEach { containerView.addArrangedSubview($0) }
     }
 }

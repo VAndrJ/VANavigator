@@ -95,7 +95,7 @@ public enum SplitStrategy: Equatable {
     case secondary(action: SplitActon)
 }
 
-class SplitNavigationStrategy: NavigationStrategy {
+final class SplitNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let strategy: SplitStrategy
 
     init(strategy: SplitStrategy) {
@@ -111,7 +111,7 @@ class SplitNavigationStrategy: NavigationStrategy {
     }
 }
 
-class PopoverNavigationStrategy: NavigationStrategy {
+final class PopoverNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let configure: (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void
     
     init(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) {
@@ -119,9 +119,9 @@ class PopoverNavigationStrategy: NavigationStrategy {
     }
 }
 
-class CloseToExistingNavigationStrategy: NavigationStrategy {}
+final class CloseToExistingNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
 
-class RemoveFromStackNavigationStrategy: NavigationStrategy {}
+final class RemoveFromStackNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
 
 public enum PresentNavigationSource: Sendable, Equatable {
     case topController
@@ -129,7 +129,7 @@ public enum PresentNavigationSource: Sendable, Equatable {
     case tabBarController
 }
 
-class PresentNavigationStrategy: NavigationStrategy {
+final class PresentNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let source: PresentNavigationSource
 
     init(source: PresentNavigationSource) {
@@ -145,9 +145,9 @@ class PresentNavigationStrategy: NavigationStrategy {
     }
 }
 
-class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
+final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
 
-class PopToExistingNavigationStrategy: NavigationStrategy {
+final class PopToExistingNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let includingTabs: Bool
 
     init(includingTabs: Bool) {
@@ -163,7 +163,7 @@ class PopToExistingNavigationStrategy: NavigationStrategy {
     }
 }
 
-class PushNavigationStrategy: NavigationStrategy {
+final class PushNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let navigation: ((UINavigationController) -> Void)?
 
     init(navigation: ((UINavigationController) -> Void)?) {
@@ -171,7 +171,7 @@ class PushNavigationStrategy: NavigationStrategy {
     }
 }
 
-class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
+final class ReplaceWindowRootNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let transition: CATransition?
 
     init(transition: CATransition? = nil) {
@@ -187,7 +187,7 @@ class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     }
 }
 
-class CloseIfTopNavigationStrategy: NavigationStrategy {
+final class CloseIfTopNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     let tryToPop: Bool
     let tryToDismiss: Bool
     let navigation: ((UINavigationController) -> Void)?
