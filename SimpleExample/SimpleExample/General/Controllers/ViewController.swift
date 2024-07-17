@@ -69,12 +69,12 @@ class ViewController<View: UIView & ControllerViewProtocol & Responder>: UIViewC
 
     // MARK: - Responder
 
-    var nextEventResponder: Responder? {
+    var nextEventResponder: (any Responder)? {
         get { contentView }
         set { contentView.nextEventResponder = newValue }
     }
 
-    func handle(event: ResponderEvent) async -> Bool {
+    func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false

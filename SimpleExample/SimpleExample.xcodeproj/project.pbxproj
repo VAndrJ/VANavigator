@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,10 +11,11 @@
 		A3312C572B7BD28600E5D465 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C562B7BD28600E5D465 /* TabBarController.swift */; };
 		A3312C592B7BDF8900E5D465 /* SecretInformationScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C582B7BDF8900E5D465 /* SecretInformationScreenView.swift */; };
 		A3312C5C2B7BE08600E5D465 /* LoginScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C5B2B7BE08600E5D465 /* LoginScreenView.swift */; };
+		A340402B2C481C4E009E3F74 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A340402A2C481C4E009E3F74 /* VANavigator */; };
+		A340402E2C481CE8009E3F74 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A340402D2C481CE8009E3F74 /* VANavigator */; };
 		A380D5F12B7BB85100F79374 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5F02B7BB85100F79374 /* Button.swift */; };
 		A380D5F32B7BBAEE00F79374 /* UIView+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5F22B7BBAEE00F79374 /* UIView+Support.swift */; };
 		A380D5F52B7BBBD600F79374 /* UIStackView+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5F42B7BBBD600F79374 /* UIStackView+Support.swift */; };
-		A380D5FA2B7BC05C00F79374 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A380D5F92B7BC05C00F79374 /* VANavigator */; };
 		A380D5FC2B7BC22300F79374 /* NSObject+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5FB2B7BC22300F79374 /* NSObject+Support.swift */; };
 		A380D5FE2B7BC65800F79374 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5FD2B7BC65800F79374 /* NavigationController.swift */; };
 		A380D6002B7BC81700F79374 /* DetailsScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A380D5FF2B7BC81700F79374 /* DetailsScreenView.swift */; };
@@ -69,8 +70,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A380D5FA2B7BC05C00F79374 /* VANavigator in Frameworks */,
+				A340402E2C481CE8009E3F74 /* VANavigator in Frameworks */,
 				A38B9DA92B7BB0680023AF75 /* Swiftional in Frameworks */,
+				A340402B2C481C4E009E3F74 /* VANavigator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,7 +209,8 @@
 			name = SimpleExample;
 			packageProductDependencies = (
 				A38B9DA82B7BB0680023AF75 /* Swiftional */,
-				A380D5F92B7BC05C00F79374 /* VANavigator */,
+				A340402A2C481C4E009E3F74 /* VANavigator */,
+				A340402D2C481CE8009E3F74 /* VANavigator */,
 			);
 			productName = SimpleExample;
 			productReference = A38B9D7C2B7BA9800023AF75 /* SimpleExample.app */;
@@ -239,7 +242,7 @@
 			mainGroup = A38B9D732B7BA9800023AF75;
 			packageReferences = (
 				A38B9DA72B7BB0680023AF75 /* XCRemoteSwiftPackageReference "Swiftional" */,
-				A380D5F82B7BC05C00F79374 /* XCRemoteSwiftPackageReference "VANavigator" */,
+				A340402C2C481CE8009E3F74 /* XCLocalSwiftPackageReference "../../VANavigator" */,
 			);
 			productRefGroup = A38B9D7D2B7BA9800023AF75 /* Products */;
 			projectDirPath = "";
@@ -358,7 +361,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -367,6 +370,9 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -416,13 +422,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -441,7 +450,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -450,7 +459,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vandrj.SimpleExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -469,7 +478,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -478,7 +487,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vandrj.SimpleExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -506,15 +515,14 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		A380D5F82B7BC05C00F79374 /* XCRemoteSwiftPackageReference "VANavigator" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/VAndrJ/VANavigator.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.7;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		A340402C2C481CE8009E3F74 /* XCLocalSwiftPackageReference "../../VANavigator" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../VANavigator;
 		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
 		A38B9DA72B7BB0680023AF75 /* XCRemoteSwiftPackageReference "Swiftional" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/VAndrJ/Swiftional";
@@ -526,9 +534,12 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A380D5F92B7BC05C00F79374 /* VANavigator */ = {
+		A340402A2C481C4E009E3F74 /* VANavigator */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A380D5F82B7BC05C00F79374 /* XCRemoteSwiftPackageReference "VANavigator" */;
+			productName = VANavigator;
+		};
+		A340402D2C481CE8009E3F74 /* VANavigator */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = VANavigator;
 		};
 		A38B9DA82B7BB0680023AF75 /* Swiftional */ = {

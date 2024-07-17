@@ -54,7 +54,7 @@ class LoginViewModel: EventViewModel {
         self.data = data
     }
 
-    override func run(_ event: Event) async {
+    override func run(_ event: any Event) async {
         switch event {
         case _ as LoginEvent:
             data.source.authorize()
@@ -63,7 +63,7 @@ class LoginViewModel: EventViewModel {
         }
     }
 
-    override func handle(event: ResponderEvent) async -> Bool {
+    override func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
