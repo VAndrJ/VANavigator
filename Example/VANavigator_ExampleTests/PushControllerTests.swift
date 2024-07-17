@@ -209,7 +209,7 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
 
     func push(
         navigator: Navigator,
-        identity: NavigationIdentity,
+        identity: any NavigationIdentity,
         alwaysEmbedded: Bool?,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {

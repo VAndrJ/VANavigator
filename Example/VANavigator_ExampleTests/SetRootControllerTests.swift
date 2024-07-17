@@ -125,7 +125,7 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
 
     func replaceWindowRoot(
         navigator: Navigator,
-        identity: NavigationIdentity,
+        identity: any NavigationIdentity,
         alwaysEmbedded: Bool,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
