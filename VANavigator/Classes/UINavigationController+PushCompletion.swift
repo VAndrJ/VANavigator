@@ -76,7 +76,7 @@ extension UINavigationController {
     }
 }
 
-class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
+final class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
     var completion: (() -> Void)?
 
     func navigationController(

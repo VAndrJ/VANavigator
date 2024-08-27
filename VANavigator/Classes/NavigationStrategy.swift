@@ -28,9 +28,7 @@ public extension NavigationStrategy {
     /// Closes presented controllers to given controller if it exists.
     static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
     /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
-    static var removeFromNavigationStack: NavigationStrategy {
-        RemoveFromStackNavigationStrategy()
-    }
+    static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
     /// - Parameter navigation: UINavigationController to push in.
