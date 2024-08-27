@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A302711C2C7DD5BA004B9712 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = A302711B2C7DD5B8004B9712 /* Label.swift */; };
 		A32DBBB52B9B5252006E7AA7 /* UIEdgeInsets+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32DBBB42B9B5252006E7AA7 /* UIEdgeInsets+Support.swift */; };
 		A3312C572B7BD28600E5D465 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C562B7BD28600E5D465 /* TabBarController.swift */; };
 		A3312C592B7BDF8900E5D465 /* SecretInformationScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3312C582B7BDF8900E5D465 /* SecretInformationScreenView.swift */; };
@@ -37,6 +38,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A302711B2C7DD5B8004B9712 /* Label.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		A32DBBB42B9B5252006E7AA7 /* UIEdgeInsets+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Support.swift"; sourceTree = "<group>"; };
 		A3312C562B7BD28600E5D465 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		A3312C582B7BDF8900E5D465 /* SecretInformationScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretInformationScreenView.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 		A3312C5E2B7BF0E100E5D465 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A302711B2C7DD5B8004B9712 /* Label.swift */,
 				A380D5F02B7BB85100F79374 /* Button.swift */,
 				A38B9DB02B7BB30A0023AF75 /* ControllerView.swift */,
 			);
@@ -281,6 +284,7 @@
 				A38B9DA62B7BAE990023AF75 /* ScreenFactory.swift in Sources */,
 				A38B9DAD2B7BB2850023AF75 /* ViewController.swift in Sources */,
 				A38B9D942B7BAB7E0023AF75 /* CompositionRoot.swift in Sources */,
+				A302711C2C7DD5BA004B9712 /* Label.swift in Sources */,
 				A38B9DAB2B7BB1210023AF75 /* NavigationIdentity+SimpleExample.swift in Sources */,
 				A380D5FE2B7BC65800F79374 /* NavigationController.swift in Sources */,
 				A38B9DB82B7BB4F50023AF75 /* MainScreenView.swift in Sources */,

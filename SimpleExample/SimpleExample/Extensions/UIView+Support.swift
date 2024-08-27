@@ -42,7 +42,7 @@ extension UIView {
             containerView.rightAnchor.constraint(equalTo: scrollView.rightAnchor),
             containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -spacing * 2),
         ])
-        scrollView.contentInset = UIEdgeInsets(all: spacing)
+        scrollView.contentInset = .init(all: spacing)
         views.forEach { containerView.addArrangedSubview($0) }
     }
 }

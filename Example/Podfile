@@ -35,7 +35,6 @@ post_install do |installer|
         config.build_settings['SWIFT_VERSION'] = '6.0'
         config.build_settings['SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY'] = 'YES'
         config.build_settings['SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT'] = 'YES'
-        config.build_settings['SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT'] = 'YES'
         config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'complete'
       end
     end

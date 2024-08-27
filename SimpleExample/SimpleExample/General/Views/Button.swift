@@ -11,19 +11,10 @@ class Button: UIButton {
     var onTap: (() -> Void)?
 
     init(title: String) {
-        super.init(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        super.init(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
         bind()
         setTitle(title, for: .normal)
-        if #available(iOS 15.0, *) {
-            configuration = .plain()
-        }
-    }
-
-    init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
-
-        bind()
         if #available(iOS 15.0, *) {
             configuration = .plain()
         }

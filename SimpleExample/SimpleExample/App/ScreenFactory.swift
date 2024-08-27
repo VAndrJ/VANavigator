@@ -18,11 +18,11 @@ class ScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as TabPresentExampleNavigationIdentity:
-            // TODO: -
+            // TODO: - own view
             return assembleScreen(identity: MainNavigationIdentity(), navigator: navigator).apply {
-                $0.tabBarItem = UITabBarItem(
+                $0.tabBarItem = .init(
                     title: "Present",
-                    image: UIImage(systemName: "p.circle"),
+                    image: .init(systemName: "p.circle"),
                     selectedImage: nil
                 )
             }
@@ -41,11 +41,11 @@ class ScreenFactory: NavigatorScreenFactory {
                 $0.tabBar.backgroundColor = .yellow
             }
         case _ as MainNavigationIdentity:
-            return ViewController(view: MainScreenView(viewModel: .init(data: .init(
+            return MainScreenView(viewModel: .init(data: .init(
                 related: .init(),
                 source: .init(),
                 navigation: .init(
-                    followReplaceRootWithNewMain: self ?> { [weak navigator] in $0.replaceRoot(navigator: navigator) },
+                    followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                     followPushOrPresentDetails: navigator ?> {
                         let identity = DetailsNavigationIdentity(number: -1)
                         $0.navigate(
@@ -74,19 +74,17 @@ class ScreenFactory: NavigatorScreenFactory {
                         )
                     }
                 )
-            )))).apply {
-                $0.tabBarItem = .init(
-                    title: "Main",
-                    image: UIImage(systemName: "house"),
-                    selectedImage: nil
-                )
-            }
+            ))).embedded(tabBarItem: .init(
+                title: "Main",
+                image: .init(systemName: "house"),
+                selectedImage: nil
+            ))
         case let identity as DetailsNavigationIdentity:
-            return ViewController(view: DetailsScreenView(viewModel: .init(data: .init(
+            return DetailsScreenView(viewModel: .init(data: .init(
                 related: .init(number: identity.number),
                 source: .init(),
                 navigation: .init(
-                    followReplaceRootWithNewMain: self ?> { [weak navigator] in $0.replaceRoot(navigator: navigator) },
+                    followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                     followCloseIfTopPushedOrPresented: navigator ?> {
                         $0.navigate(
                             destination: .identity(identity),
@@ -95,37 +93,38 @@ class ScreenFactory: NavigatorScreenFactory {
                         )
                     }
                 )
-            ))))
+            ))).embedded
         case _ as LoginNavigationIdentity:
-            return ViewController(view: LoginScreenView(viewModel: .init(data: .init(
+            return LoginScreenView(viewModel: .init(data: .init(
                 related: .init(),
                 source: .init(authorize: authorizationService ?>> { $0.authorize }),
                 navigation: .init()
-            ))))
+            ))).embedded
         case _ as SecretInformationIdentity:
-            return ViewController(view: SecretInformationScreenView(viewModel: .init(data: .init(
+            return SecretInformationScreenView(viewModel: .init(data: .init(
                 related: .init(),
                 source: .init(),
                 navigation: .init(
-                    followReplaceRootWithNewMain: self ?> { [weak navigator] in $0.replaceRoot(navigator: navigator) }
+                    followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
                 )
-            ))))
+            ))).embedded
         default:
             assertionFailure("Not implemented \(type(of: identity))")
 
             return UIViewController()
         }
     }
+}
 
-    private func replaceRoot(navigator: Navigator?) {
-        guard let navigator else { return }
+@MainActor
+private func replaceRoot(navigator: Navigator?) {
+    guard let navigator else { return }
 
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.type = .reveal
-        navigator.navigate(
-            destination: .identity(MainNavigationIdentity()),
-            strategy: .replaceWindowRoot(transition: transition)
-        )
-    }
+    let transition = CATransition()
+    transition.duration = 0.3
+    transition.type = .reveal
+    navigator.navigate(
+        destination: .identity(MainNavigationIdentity()),
+        strategy: .replaceWindowRoot(transition: transition)
+    )
 }

@@ -8,9 +8,7 @@
 import UIKit
 
 class MainScreenView: ControllerView<MainViewModel> {
-    private let titleLabel = UILabel().apply {
-        $0.text = "Main \(Int.random(in: 0...100))"
-    }
+    private let titleLabel = Label(text: "Main \(Int.random(in: 0...100))")
     private let pushOrPresentDetailsButton = Button(title: "Push or present details")
     private let replaceRootWithTabBarButton = Button(title: "Replace window root with tabs")
     private let showForLoginedOnlyButton = Button(title: "Show for logined only")

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Queue<T> {
+final class Queue<T> {
     private var elements: [T] = []
 
     var isEmpty: Bool { elements.isEmpty }

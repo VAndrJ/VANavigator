@@ -13,9 +13,9 @@ final class ExampleShortcutsService {
     func addShortcuts() {
         UIApplication.shared.shortcutItems?.removeAll()
         UIApplication.shared.shortcutItems = [
-            UIApplicationShortcutItem(type: .main),
-            UIApplicationShortcutItem(type: .details),
-            UIApplicationShortcutItem(type: .alert),
+            .init(type: .main),
+            .init(type: .details),
+            .init(type: .alert),
         ]
     }
 }
@@ -40,23 +40,23 @@ enum Shortcut: String {
 
     var title: String {
         switch self {
-        case .main: return "Main"
-        case .details: return "Details"
-        case .alert: return "Alert"
+        case .main: "Main"
+        case .details: "Details"
+        case .alert: "Alert"
         }
     }
     var subtitle: String? {
         switch self {
-        case .main: return "Replace root with new main"
-        case .details: return "Push or pop to existing"
-        case .alert: return "Display alert"
+        case .main: "Replace root with new main"
+        case .details: "Push or pop to existing"
+        case .alert: "Display alert"
         }
     }
     var icon: UIApplicationShortcutIcon {
         switch self {
-        case .main: return UIApplicationShortcutIcon(type: .home)
-        case .details: return UIApplicationShortcutIcon(type: .task)
-        case .alert: return UIApplicationShortcutIcon(type: .alarm)
+        case .main: .init(type: .home)
+        case .details: .init(type: .task)
+        case .alert: .init(type: .alarm)
         }
     }
 }

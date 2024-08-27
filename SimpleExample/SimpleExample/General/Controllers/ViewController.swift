@@ -27,7 +27,8 @@ class ViewController<View: UIView & ControllerViewProtocol & Responder>: UIViewC
 
         self.title = title
     }
-    
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

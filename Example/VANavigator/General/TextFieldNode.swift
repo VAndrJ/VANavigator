@@ -21,21 +21,4 @@ class TextFieldNode: VASizedViewWrapperNode<UITextField> {
             sizing: .viewHeight
         )
     }
-
-    @MainActor
-    override func isFirstResponder() -> Bool {
-        child.isFirstResponder
-    }
-
-    @discardableResult
-    @MainActor
-    override func becomeFirstResponder() -> Bool {
-        child.becomeFirstResponder()
-    }
-
-    @discardableResult
-    @MainActor
-    override func resignFirstResponder() -> Bool {
-        child.resignFirstResponder()
-    }
 }

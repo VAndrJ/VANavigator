@@ -56,7 +56,7 @@ class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
     }
 
     override func viewDidAppear(in controller: UIViewController, animated: Bool) {
-        inputNode.becomeFirstResponder()
+        inputNode.child.becomeFirstResponder()
     }
 
     override func configureTheme(_ theme: VATheme) {

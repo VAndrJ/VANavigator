@@ -6032,35 +6032,6 @@
 			};
 			name = Debug;
 		};
-		22AC9B0652102E6B4AD604B3D77674F3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E94714A37E658C2C5541FD029EAB3BA8 /* VANavigator.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VANavigator/VANavigator-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				MODULEMAP_FILE = Headers/Public/VANavigator/VANavigator.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VANavigator;
-				PRODUCT_NAME = VANavigator;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
-				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		27BF3AA9408AFE86253E8DB585437BA5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 68F39FD46E71BBB2AD7ED8D9941E7419 /* VATextureKitRx.release.xcconfig */;
@@ -6399,6 +6370,34 @@
 			};
 			name = Release;
 		};
+		77C87650FF0C4B90051B9AA02512D8BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1755616BD5589947C4610D46A180C6B4 /* VANavigator.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VANavigator/VANavigator-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MODULEMAP_FILE = Headers/Public/VANavigator/VANavigator.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VANavigator;
+				PRODUCT_NAME = VANavigator;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		78E20A404EE5E4E399A3F6F297AD0A29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4BA48CABB149CE06F2436261CF0C56A5 /* Pods-VANavigator_ExampleTests.release.xcconfig */;
@@ -6660,34 +6659,6 @@
 			};
 			name = Debug;
 		};
-		BA9B83FD400FCF26A25FA08F45F70AFF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1755616BD5589947C4610D46A180C6B4 /* VANavigator.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/VANavigator/VANavigator-prefix.pch";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				MODULEMAP_FILE = Headers/Public/VANavigator/VANavigator.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = VANavigator;
-				PRODUCT_NAME = VANavigator;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
-				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		BB45407C83CF411C6B9B8DEAC0C65DF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EA8FA6DF6E5297A0C0BFA30F9AB23304 /* VATextureKit.debug.xcconfig */;
@@ -6897,6 +6868,35 @@
 			};
 			name = Debug;
 		};
+		E7BD091409F79068A746D6D7306137F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E94714A37E658C2C5541FD029EAB3BA8 /* VANavigator.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/VANavigator/VANavigator-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MODULEMAP_FILE = Headers/Public/VANavigator/VANavigator.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = VANavigator;
+				PRODUCT_NAME = VANavigator;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
+				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		EF5061BD1D8CA0B18C710FBEB3105BB8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F3739FEB0CA6C5724CE1FE5AF70003C4 /* PINCache.release.xcconfig */;
@@ -6982,8 +6982,8 @@
 		408CFAAC471AC41EC2DC5C82C92D5056 /* Build configuration list for PBXNativeTarget "VANavigator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				BA9B83FD400FCF26A25FA08F45F70AFF /* Debug */,
-				22AC9B0652102E6B4AD604B3D77674F3 /* Release */,
+				77C87650FF0C4B90051B9AA02512D8BF /* Debug */,
+				E7BD091409F79068A746D6D7306137F4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

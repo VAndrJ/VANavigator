@@ -10,10 +10,6 @@ import UIKit
 final class NavigationController: UINavigationController, Responder {
     var onDismissed: (() -> Void)?
 
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
     init(controller: UIViewController) {
         super.init(nibName: nil, bundle: nil)
 
