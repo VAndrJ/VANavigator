@@ -53,7 +53,7 @@ class CompositionRoot {
                     message: "Message",
                     preferredStyle: .alert
                 ).apply {
-                    $0.addAction(UIAlertAction(title: "Close", style: .default))
+                    $0.addAction(.init(title: "Close", style: .default))
                 }),
                 strategy: .present()
             )

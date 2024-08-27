@@ -8,9 +8,7 @@
 import UIKit
 
 class LoginScreenView: ControllerView<LoginViewModel> {
-    private let titleLabel = UILabel().apply {
-        $0.text = "Login screen"
-    }
+    private let titleLabel = Label(text: "Login screen")
     private let loginButton = Button(title: "Login")
 
     override func addElements() {

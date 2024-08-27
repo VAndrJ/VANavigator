@@ -7,26 +7,43 @@
 
 import UIKit
 
+@MainActor
 protocol ControllerViewProtocol: UIView {
-    @MainActor
     func viewDidLoad(in controller: UIViewController)
-    @MainActor
     func viewDidAppear(in controller: UIViewController, animated: Bool)
-    @MainActor
     func viewWillAppear(in controller: UIViewController, animated: Bool)
-    @MainActor
     func viewWillDisappear(in controller: UIViewController, animated: Bool)
-    @MainActor
     func viewDidDisappear(in controller: UIViewController, animated: Bool)
 }
 
 class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol, Responder {
+    var embedded: UIViewController { ViewController(view: self) }
+
+    func embedded(
+        shouldHideNavigationBar: Bool = true,
+        isNotImportant: Bool = false,
+        title: String? = nil,
+        tabBarItem: UITabBarItem? = nil
+    ) -> UIViewController {
+        let controler = ViewController(
+            view: self,
+            shouldHideNavigationBar: shouldHideNavigationBar,
+            isNotImportant: isNotImportant,
+            title: title
+        )
+        if let tabBarItem {
+            controler.tabBarItem = tabBarItem
+        }
+
+        return controler
+    }
+
     let viewModel: ViewModel
 
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
 
-        super.init(frame: CGRect(x: 0, y: 0, width: 320, height: 568))
+        super.init(frame: .init(x: 0, y: 0, width: 320, height: 568))
 
         addElements()
         configure()

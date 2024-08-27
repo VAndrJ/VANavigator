@@ -8,9 +8,7 @@
 import UIKit
 
 class SecretInformationScreenView: ControllerView<SecretInformationViewModel> {
-    private lazy var titleLabel = UILabel().apply {
-        $0.text = "Secret information for authorized users only"
-    }
+    private lazy var titleLabel = Label(text: "Secret information for authorized users only")
     private let replaceRootButton = Button(title: "Replace window root")
 
     override func addElements() {

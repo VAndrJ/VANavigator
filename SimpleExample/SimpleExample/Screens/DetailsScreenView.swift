@@ -8,9 +8,7 @@
 import UIKit
 
 class DetailsScreenView: ControllerView<DetailsViewModel> {
-    private lazy var titleLabel = UILabel().apply {
-        $0.text = "Details \(viewModel.number)"
-    }
+    private lazy var titleLabel = Label(text: "Details \(viewModel.number)")
     private let closeIfTopPushedOrPresentedButton = Button(title: "Close if top pushed or presented")
     private let replaceRootButton = Button(title: "Replace window root")
 
