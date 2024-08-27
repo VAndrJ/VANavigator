@@ -8,11 +8,15 @@
 
 import Foundation
 
+/// A class representing a link in a chain of navigation steps.
 @MainActor
 public final class NavigationChainLink {
     public let destination: NavigationDestination
     public private(set) var strategy: NavigationStrategy
     public let animated: Bool
+    /// An optional fallback navigation link to be used if the current `NavigationDestination` fails.
+    /// This allows for a fallback behavior in case the navigation to the primary `destination`
+    /// does not succeed.
     public let fallback: NavigationChainLink?
 
     public init(
