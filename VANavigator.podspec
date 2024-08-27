@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'VANavigator'
-  s.version          = '2.0.2'
+  s.version          = '2.0.3'
   s.summary          = 'Easy to use UIKit navigation wrapper.'
 
   s.description      = <<-DESC
@@ -20,5 +20,5 @@ At its core, `VANavigator` revolves around the concept of `NavigationIdentity`, 
 
   s.frameworks = 'UIKit'
 
-  s.swift_versions = '5.9'
+  s.swift_versions = '5.10'
 end
