@@ -6,9 +6,11 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
+import RxCocoa
 import VATextureKitRx
 
-class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel> {
+class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var pushNextButtonNode = ButtonNode(
         isEnabledObs: viewModel.isNavigationAvailableObs

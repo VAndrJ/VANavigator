@@ -60,7 +60,9 @@ PODS:
     - Texture (~> 3.2.0)
 
 DEPENDENCIES:
+  - RxCocoa (~> 6.5.0)
   - RxKeyboard (~> 2.0.0)
+  - RxSwift (~> 6.5.0)
   - Swiftional (~> 2.0.0)
   - VANavigator (from `../`)
   - VATextureKitRx (~> 3.0.0)
@@ -101,6 +103,6 @@ SPEC CHECKSUMS:
   VATextureKitRx: d9eb801b6e92c7216a8aba88133afa15ea078889
   VATextureKitSpec: 6df8f0a86140c3a9fd62230979547dff753aec72
 
-PODFILE CHECKSUM: b03565d436792b34aa65537ad1dafc01c57e661e
+PODFILE CHECKSUM: b7b90f0afeddb795e2f08907fbc8530ebd44e66d
 
 COCOAPODS: 1.15.2

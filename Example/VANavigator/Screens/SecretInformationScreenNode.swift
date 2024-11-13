@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel> {
+class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Secret information for authorized users only",
         fontStyle: .headline

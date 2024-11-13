@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel> {
+class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Queue",
         fontStyle: .headline

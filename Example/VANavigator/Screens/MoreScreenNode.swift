@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class MoreScreenNode: ScreenNode<MoreViewModel> {
+class MoreScreenNode: ScreenNode<MoreViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "More",
         fontStyle: .headline

@@ -8,11 +8,11 @@
 
 import VATextureKit
 
-class TextFieldNode: VASizedViewWrapperNode<UITextField> {
+class TextFieldNode: VASizedViewWrapperNode<UITextField>, @unchecked Sendable {
 
     convenience init() {
         self.init(
-            actorChildGetter: {
+            childGetter: {
                 let textField = UITextField()
                 textField.borderStyle = .roundedRect
 

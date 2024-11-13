@@ -7,6 +7,8 @@ target 'VANavigator_Example' do
   pod 'VANavigator', :path => '../'
   pod 'VATextureKitRx', '~> 3.0.0'
   pod 'Swiftional', '~> 2.0.0'
+  pod 'RxSwift', '~> 6.5.0'
+  pod 'RxCocoa', '~> 6.5.0'
   pod 'RxKeyboard', '~> 2.0.0'
 
   target 'VANavigator_ExampleTests' do

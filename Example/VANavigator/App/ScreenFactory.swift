@@ -60,7 +60,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .present(),
                                 completion: { controller, _ in
                                     if let controller {
-                                        mainAsync(after: 1) {
+                                        mainActorAsync(after: 1) {
                                             navigator?.navigate(
                                                 destination: .controller(controller),
                                                 strategy: .closeIfTop()
@@ -79,7 +79,7 @@ class ScreenFactory: NavigatorScreenFactory {
                                 strategy: .present(source: .tabBarController),
                                 completion: { controller, _ in
                                     if let controller {
-                                        mainAsync(after: 1) {
+                                        mainActorAsync(after: 1) {
                                             navigator?.navigate(
                                                 destination: .controller(controller),
                                                 strategy: .closeIfTop()
@@ -112,18 +112,14 @@ class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case let identity as NavNavigationIdentity:
-            let controller = NavigationController()
-            let viewControllers = identity.children.map { identity in
+            return NavigationController(controllers: identity.children.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
 
                 return controller
-            }
-            controller.setViewControllers(viewControllers, animated: false)
-
-            return controller
+            })
         case let identity as TabNavigationIdentity:
-            let controller = VATabBarController()
+            let controller = VATabBarController(nibName: nil, bundle: nil)
             let tabControllers = identity.children.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity

@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class SecondaryScreenNode: ScreenNode<SecondaryViewModel> {
+class SecondaryScreenNode: ScreenNode<SecondaryViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Secondary \(Int.random(in: 0...1000))",
         fontStyle: .headline

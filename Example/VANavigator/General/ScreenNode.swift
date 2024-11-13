@@ -6,10 +6,12 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
+import RxCocoa
 import VATextureKitRx
 import RxKeyboard
 
-class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder {
+class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder, @unchecked Sendable {
     let bag = DisposeBag()
     let viewModel: ViewModel
 
@@ -19,8 +21,8 @@ class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNo
         super.init()
     }
 
-    override func didLoad() {
-        super.didLoad()
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
         configure()
         bind()
