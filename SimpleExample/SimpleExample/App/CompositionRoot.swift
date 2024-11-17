@@ -9,7 +9,7 @@ import UIKit
 import VANavigator
 
 @MainActor
-class CompositionRoot {
+final class CompositionRoot {
     private weak var window: UIWindow?
     private let navigator: Navigator
     private let shortcutService = ExampleShortcutsService()

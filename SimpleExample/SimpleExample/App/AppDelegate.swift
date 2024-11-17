@@ -32,7 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         completionHandler: @escaping (Bool) -> Void
     ) {
         if let compositionRoot {
-            compositionRoot.handleShortcut(item: shortcutItem, completion: completionHandler)
+            compositionRoot.handleShortcut(
+                item: shortcutItem,
+                completion: completionHandler
+            )
         } else {
             completionHandler(false)
         }
