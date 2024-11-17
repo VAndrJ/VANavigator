@@ -26,7 +26,7 @@ jobs:
     
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,OS=18.1,name=iPhone 15']
+        destination: ['platform=iOS Simulator,OS=18.1,name=iPhone 16']
 
     steps:
     - uses: maxim-lobanov/setup-xcode@v1
