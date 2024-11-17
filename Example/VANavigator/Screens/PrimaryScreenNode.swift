@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class PrimaryScreenNode: ScreenNode<PrimaryViewModel> {
+class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Primary \(Int.random(in: 0...100))",
         fontStyle: .headline

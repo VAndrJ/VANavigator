@@ -6,9 +6,10 @@
 //  Copyright © 2024 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class TextNode: VATextNode {
+class TextNode: VATextNode, @unchecked Sendable {
     let bag = DisposeBag()
 
     convenience init(

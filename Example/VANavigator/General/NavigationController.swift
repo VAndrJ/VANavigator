@@ -11,8 +11,17 @@ import VATextureKit
 final class NavigationController: VANavigationController, Responder {
     var onDismissed: (() -> Void)?
 
+    convenience init(controllers: [UIViewController]) {
+        self.init(nibName: nil, bundle: nil)
+
+        setViewControllers(
+            controllers,
+            animated: false
+        )
+    }
+
     convenience init(controller: UIViewController) {
-        self.init()
+        self.init(nibName: nil, bundle: nil)
 
         setViewControllers(
             [controller],

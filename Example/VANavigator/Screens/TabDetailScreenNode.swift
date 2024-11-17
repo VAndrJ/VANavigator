@@ -6,9 +6,11 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
+import RxCocoa
 import VATextureKitRx
 
-class TabDetailScreenNode: ScreenNode<TabDetailViewModel> {
+class TabDetailScreenNode: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Tab Details",
         fontStyle: .headline

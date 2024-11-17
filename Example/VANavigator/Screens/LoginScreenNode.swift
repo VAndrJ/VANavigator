@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class LoginScreenNode: ScreenNode<LoginViewModel> {
+class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Login",
         fontStyle: .headline

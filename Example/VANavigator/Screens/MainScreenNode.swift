@@ -6,9 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import RxSwift
 import VATextureKitRx
 
-class MainScreenNode: ScreenNode<MainViewModel> {
+class MainScreenNode: ScreenNode<MainViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var replaceRootButtonNode = VAButtonNode()
     private lazy var presentDetailsButtonNode = VAButtonNode()

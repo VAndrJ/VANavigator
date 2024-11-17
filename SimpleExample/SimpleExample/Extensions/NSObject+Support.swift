@@ -8,4 +8,4 @@
 import Foundation
 public import Swiftional
 
-extension Foundation.NSObject: Swiftional.Applyable {}
+extension NSObject: @retroactive Applyable {}
