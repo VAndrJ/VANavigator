@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// Represents the result of intercepting a navigation action.
 public struct NavigationInterceptionResult {
     public let chain: [NavigationChainLink]
     public let event: (any ResponderEvent)?
@@ -34,6 +35,7 @@ public struct NavigationInterceptionResult {
     }
 }
 
+/// A class that provides interception capabilities for navigation actions.
 @MainActor
 open class NavigationInterceptor {
     var onInterceptionResolved: ((
@@ -47,10 +49,14 @@ open class NavigationInterceptor {
 
     public init() {}
 
+    /// Allows subclasses to override this method to intercept a navigation action.
+    /// - Parameter destination: The navigation destination being intercepted.
+    /// - Returns: An optional interception result; `nil` if no interception occurs.
     open func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
         nil
     }
 
+    /// Resolves an interception by executing the stored closure.
     public func interceptionResolved(
         reason: AnyHashable,
         newStrategy: NavigationStrategy? = nil,

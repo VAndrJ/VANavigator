@@ -11,6 +11,10 @@ import UIKit
 extension UINavigationController {
     static let completionDelegate = NavigationCompletionDelegate()
 
+    /// Pops the top view controller from the navigation stack.
+    /// - Parameters:
+    ///   - animated: Indicates whether the transition is animated.
+    ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one view controller.
     public func popViewController(
         animated: Bool,
         completion: @escaping (Bool) -> Void
@@ -23,6 +27,11 @@ extension UINavigationController {
         }
     }
 
+    /// Replaces the current view controllers of the navigation stack.
+    /// - Parameters:
+    ///   - controllers: The new array of view controllers.
+    ///   - animated: Indicates whether the transition is animated.
+    ///   - completion: An optional closure executed after the transition finishes.
     public func setViewControllers(
         _ controllers: [UIViewController],
         animated: Bool,
@@ -32,6 +41,11 @@ extension UINavigationController {
         observeCompletion(animated: animated, completion: completion)
     }
 
+    /// Pops view controllers until the specified view controller is at the top of the stack.
+    /// - Parameters:
+    ///   - controller: The view controller to pop to.
+    ///   - animated: Indicates whether the transition is animated.
+    ///   - completion: An optional closure executed after the transition finishes.
     public func popToViewController(
         _ controller: UIViewController,
         animated: Bool,
@@ -45,6 +59,11 @@ extension UINavigationController {
         }
     }
 
+    /// Pushes a view controller onto the navigation stack.
+    /// - Parameters:
+    ///   - viewController: The view controller to push.
+    ///   - animated: Indicates whether the transition is animated.
+    ///   - completion: An optional closure executed after the transition finishes.
     public func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
