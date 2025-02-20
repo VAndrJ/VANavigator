@@ -66,7 +66,11 @@ extension UINavigationController {
                 }
                 delegate = Self.completionDelegate
             } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if let coordinator = transitionCoordinator {
+                    coordinator.animate(alongsideTransition: nil) { _ in
+                        completion?()
+                    }
+                } else {
                     completion?()
                 }
             }
