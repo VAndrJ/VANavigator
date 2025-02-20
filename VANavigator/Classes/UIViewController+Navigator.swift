@@ -9,8 +9,13 @@
 import UIKit
 
 extension UIViewController {
+    /// Returns the current view controller if it's a `UINavigationController`, otherwise returns its `navigationController`.
     public var orNavigationController: UINavigationController? { (self as? UINavigationController) ?? navigationController }
+    /// Returns the current view controller if it's a `UITabBarController`, otherwise returns its `tabBarController`.
     public var orTabBarController: UITabBarController? { (self as? UITabBarController) ?? tabBarController }
+    /// Recursively finds the top-most view controller in the current hierarchy.
+    /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
+    /// the last view controller in `UISplitViewController`, and any presented view controller.
     public var topController: UIViewController {
         var possibleController: UIViewController?
         if let tabBarController = self as? UITabBarController {
@@ -30,6 +35,11 @@ extension UIViewController {
         }
     }
 
+    /// Recursively searches for a specific `UIViewController` instance within the current view controller's hierarchy.
+    /// - Parameters:
+    ///   - controller: The view controller instance to find.
+    ///   - withPresented: If `true`, the search includes presented view controllers.
+    /// - Returns: The found view controller or `nil` if not found.
     public func findController(
         controller: UIViewController,
         withPresented: Bool
@@ -73,6 +83,11 @@ extension UIViewController {
         return nil
     }
 
+    /// Recursively searches for a view controller with a specific navigation identity within the current hierarchy.
+    /// - Parameters:
+    ///   - identity: The navigation identity to match.
+    ///   - withPresented: If `true`, the search includes presented view controllers.
+    /// - Returns: The found view controller or `nil` if not found.
     public func findController(
         identity: any NavigationIdentity,
         withPresented: Bool
@@ -116,6 +131,8 @@ extension UIViewController {
         return nil
     }
 
+    /// Recursively finds the nearest `UITabBarController` in the view controller hierarchy.
+    /// - Returns: The found `UITabBarController` or `nil` if none is found.
     public func findTabBarController() -> UITabBarController? {
         if let tabController = self as? UITabBarController {
             return tabController
@@ -127,7 +144,12 @@ extension UIViewController {
             return nil
         }
     }
-    
+
+    /// Recursively searches for a view controller matching a `NavigationDestination`.
+    /// - Parameters:
+    ///   - destination: The navigation destination to search for.
+    ///   - withPresented: If `true`, the search includes presented view controllers. Defaults to `false`.
+    /// - Returns: The found view controller or `nil` if not found.
     public func findController(
         destination: NavigationDestination,
         withPresented: Bool = false
