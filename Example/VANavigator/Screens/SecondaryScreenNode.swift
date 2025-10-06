@@ -16,7 +16,6 @@ class SecondaryScreenNode: ScreenNode<SecondaryViewModel>, @unchecked Sendable {
     )
     private lazy var showSecondaryButtonNode = VAButtonNode()
     private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
     private lazy var descriptionTextNode = TextNode(
         textObs: viewModel.descriptionObs,
         fontStyle: .body
@@ -27,7 +26,6 @@ class SecondaryScreenNode: ScreenNode<SecondaryViewModel>, @unchecked Sendable {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
                 showSecondaryButtonNode
-                showInSplitOrPresentButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -44,14 +42,12 @@ class SecondaryScreenNode: ScreenNode<SecondaryViewModel>, @unchecked Sendable {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
-        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
         setNeedsLayout()
     }
 
     override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
-        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
     }
 }
 
@@ -60,7 +56,6 @@ class SecondaryViewModel: EventViewModel {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followShowSplitSecondary: () -> Void
-            let followShowInSplitOrPresent: () -> Void
         }
 
         let navigation: Navigation
@@ -83,8 +78,6 @@ class SecondaryViewModel: EventViewModel {
             data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
-        case _ as ShowInSplitOrPresentEvent:
-            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }

@@ -368,21 +368,6 @@ class ScreenFactory: NavigatorScreenFactory {
                                 destination: .identity(SecondaryNavigationIdentity()),
                                 strategy: .split(strategy: .secondary(action: .push))
                             )
-                        },
-                        followShowInSplitOrPresent: { [weak navigator] in
-                            let destination = DetailsNavigationIdentity(number: -1)
-                            navigator?.navigate(
-                                destination: .identity(destination),
-                                strategy: .split(strategy: .secondary(action: .replace)),
-                                fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(
-                                        primary: PrimaryNavigationIdentity(),
-                                        secondary: destination
-                                    )),
-                                    strategy: .present(),
-                                    animated: true
-                                )
-                            )
                         }
                     )
                 ))),
@@ -405,21 +390,6 @@ class ScreenFactory: NavigatorScreenFactory {
                             navigator?.navigate(
                                 destination: .identity(SecondaryNavigationIdentity()),
                                 strategy: .split(strategy: .secondary(action: .push))
-                            )
-                        },
-                        followShowInSplitOrPresent: { [weak navigator] in
-                            let identity = DetailsNavigationIdentity(number: -1)
-                            navigator?.navigate(
-                                destination: .identity(identity),
-                                strategy: .split(strategy: .secondary(action: .replace)),
-                                fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(
-                                        primary: PrimaryNavigationIdentity(),
-                                        secondary: identity
-                                    )),
-                                    strategy: .present(),
-                                    animated: true
-                                )
                             )
                         }
                     )

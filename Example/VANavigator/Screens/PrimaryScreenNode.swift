@@ -17,7 +17,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
     private lazy var replacePrimartButtonNode = VAButtonNode()
     private lazy var showSecondaryButtonNode = VAButtonNode()
     private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
     private lazy var descriptionTextNode = TextNode(
         textObs: viewModel.descriptionObs,
         fontStyle: .body
@@ -29,7 +28,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
                 titleTextNode
                 replacePrimartButtonNode
                 showSecondaryButtonNode
-                showInSplitOrPresentButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -46,7 +44,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
-        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
         replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
         setNeedsLayout()
     }
@@ -54,7 +51,6 @@ class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
     override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
         showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
-        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
         replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     }
 }
@@ -69,7 +65,6 @@ class PrimaryViewModel: EventViewModel {
             let followReplaceRootWithNewMain: () -> Void
             let followReplacePrimary: () -> Void
             let followShowSplitSecondary: () -> Void
-            let followShowInSplitOrPresent: () -> Void
         }
 
         let navigation: Navigation
@@ -94,8 +89,6 @@ class PrimaryViewModel: EventViewModel {
             data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             data.navigation.followReplaceRootWithNewMain()
-        case _ as ShowInSplitOrPresentEvent:
-            data.navigation.followShowInSplitOrPresent()
         default:
             super.run(event)
         }
