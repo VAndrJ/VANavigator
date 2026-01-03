@@ -38,13 +38,16 @@ public struct NavigationInterceptionResult {
 /// A class that provides interception capabilities for navigation actions.
 @MainActor
 open class NavigationInterceptor {
-    var onInterceptionResolved: ((
-        _ reason: AnyHashable,
-        _ newStrategy: NavigationStrategy?,
-        _ prefixNavigationChain: [NavigationChainLink],
-        _ suffixNavigationChain: [NavigationChainLink],
-        _ completion: ((UIViewController?, Bool) -> Void)?
-    ) -> Void)?
+    var onInterceptionResolved:
+        (
+            (
+                _ reason: AnyHashable,
+                _ newStrategy: NavigationStrategy?,
+                _ prefixNavigationChain: [NavigationChainLink],
+                _ suffixNavigationChain: [NavigationChainLink],
+                _ completion: ((UIViewController?, Bool) -> Void)?
+            ) -> Void
+        )?
     var interceptionData: [AnyHashable: InterceptionDetail] = [:]
 
     public init() {}
@@ -53,7 +56,7 @@ open class NavigationInterceptor {
     /// - Parameter destination: The navigation destination being intercepted.
     /// - Returns: An optional interception result; `nil` if no interception occurs.
     open func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
-        nil
+        return nil
     }
 
     /// Resolves an interception by executing the stored closure.
@@ -74,7 +77,7 @@ open class NavigationInterceptor {
     }
 
     public func getInterceptionReasons() -> [AnyHashable] {
-        Array(interceptionData.keys)
+        return Array(interceptionData.keys)
     }
 
     public func removeIfAvailable(reason: AnyHashable) {
@@ -86,7 +89,7 @@ open class NavigationInterceptor {
     }
 
     public func checkIsExists(reason: AnyHashable) -> Bool {
-        interceptionData[reason] != nil
+        return interceptionData[reason] != nil
     }
 }
 

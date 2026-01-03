@@ -8,10 +8,12 @@
 
 import UIKit
 
-public class NavigationStrategy: @unchecked Sendable, Equatable {
+public class NavigationStrategy: Equatable {
     public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
-        lhs.isEqual(to: rhs)
+        return lhs.isEqual(to: rhs)
     }
+
+    init() {}
 
     func isEqual(to other: NavigationStrategy?) -> Bool {
         guard (other as? Self) != nil else {
@@ -22,38 +24,40 @@ public class NavigationStrategy: @unchecked Sendable, Equatable {
     }
 }
 
-public extension NavigationStrategy {
+extension NavigationStrategy {
     /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
-    static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
+    public static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
-    static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
+    public static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
     /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
-    static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
+    public static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
     /// - Parameter navigation: UINavigationController to push in.
     /// - Returns: NavigationStrategy.
-    static func push(navigation: ((UINavigationController) -> Void)? = nil) -> NavigationStrategy {
-        PushNavigationStrategy(navigation: navigation)
+    public static func push(navigation: ((UINavigationController) -> Void)? = nil) -> NavigationStrategy {
+        return PushNavigationStrategy(navigation: navigation)
     }
 
     /// Presents a controller based on source.
-    static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
-        PresentNavigationStrategy(source: source)
+    public static func present(source: PresentNavigationSource = .topController) -> NavigationStrategy {
+        return PresentNavigationStrategy(source: source)
     }
 
     /// Presents a popover.
-    static func popover(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) -> NavigationStrategy {
-        PopoverNavigationStrategy(configure: configure)
+    public static func popover(
+        configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void
+    ) -> NavigationStrategy {
+        return PopoverNavigationStrategy(configure: configure)
     }
 
     /// Close the controller if it is top one
-    static func closeIfTop(
+    public static func closeIfTop(
         tryToPop: Bool = true,
         tryToDismiss: Bool = true,
         navigation: ((UINavigationController) -> Void)? = nil
     ) -> NavigationStrategy {
-        CloseIfTopNavigationStrategy(
+        return CloseIfTopNavigationStrategy(
             tryToPop: tryToPop,
             tryToDismiss: tryToDismiss,
             navigation: navigation
@@ -61,18 +65,18 @@ public extension NavigationStrategy {
     }
 
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
-    static func replaceWindowRoot(transition: CATransition? = nil) -> NavigationStrategy {
-        ReplaceWindowRootNavigationStrategy(transition: transition)
+    public static func replaceWindowRoot(transition: CATransition? = nil) -> NavigationStrategy {
+        return ReplaceWindowRootNavigationStrategy(transition: transition)
     }
 
     /// Pops to existing controller, or uses fallback if no `UINavigationController` is found.
-    static func popToExisting(includingTabs: Bool = true) -> NavigationStrategy {
-        PopToExistingNavigationStrategy(includingTabs: includingTabs)
+    public static func popToExisting(includingTabs: Bool = true) -> NavigationStrategy {
+        return PopToExistingNavigationStrategy(includingTabs: includingTabs)
     }
 
     /// Shows in a `UISplitViewController` with the given `strategy`.
-    static func split(strategy: SplitStrategy) -> NavigationStrategy {
-        SplitNavigationStrategy(strategy: strategy)
+    public static func split(strategy: SplitStrategy) -> NavigationStrategy {
+        return SplitNavigationStrategy(strategy: strategy)
     }
 }
 
@@ -93,7 +97,7 @@ public enum SplitStrategy: Equatable {
     case secondary(action: SplitActon)
 }
 
-final class SplitNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class SplitNavigationStrategy: NavigationStrategy {
     let strategy: SplitStrategy
 
     init(strategy: SplitStrategy) {
@@ -109,17 +113,17 @@ final class SplitNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     }
 }
 
-final class PopoverNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class PopoverNavigationStrategy: NavigationStrategy {
     let configure: (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void
-    
+
     init(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) {
         self.configure = configure
     }
 }
 
-final class CloseToExistingNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
+final class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
-final class RemoveFromStackNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
+final class RemoveFromStackNavigationStrategy: NavigationStrategy {}
 
 public enum PresentNavigationSource: Sendable, Equatable {
     case topController
@@ -127,7 +131,7 @@ public enum PresentNavigationSource: Sendable, Equatable {
     case tabBarController
 }
 
-final class PresentNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class PresentNavigationStrategy: NavigationStrategy {
     let source: PresentNavigationSource
 
     init(source: PresentNavigationSource) {
@@ -143,9 +147,9 @@ final class PresentNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     }
 }
 
-final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy, @unchecked Sendable {}
+final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 
-final class PopToExistingNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class PopToExistingNavigationStrategy: NavigationStrategy {
     let includingTabs: Bool
 
     init(includingTabs: Bool) {
@@ -161,7 +165,7 @@ final class PopToExistingNavigationStrategy: NavigationStrategy, @unchecked Send
     }
 }
 
-final class PushNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class PushNavigationStrategy: NavigationStrategy {
     let navigation: ((UINavigationController) -> Void)?
 
     init(navigation: ((UINavigationController) -> Void)?) {
@@ -169,7 +173,7 @@ final class PushNavigationStrategy: NavigationStrategy, @unchecked Sendable {
     }
 }
 
-final class ReplaceWindowRootNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     let transition: CATransition?
 
     init(transition: CATransition? = nil) {
@@ -185,7 +189,7 @@ final class ReplaceWindowRootNavigationStrategy: NavigationStrategy, @unchecked 
     }
 }
 
-final class CloseIfTopNavigationStrategy: NavigationStrategy, @unchecked Sendable {
+final class CloseIfTopNavigationStrategy: NavigationStrategy {
     let tryToPop: Bool
     let tryToDismiss: Bool
     let navigation: ((UINavigationController) -> Void)?

@@ -9,8 +9,7 @@
 import UIKit
 
 class PopoverDelegate: NSObject, UIPopoverPresentationControllerDelegate {
-
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        .none
+        return .none
     }
 }

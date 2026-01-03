@@ -18,6 +18,6 @@ final class Queue<T> {
     }
 
     func dequeue() -> T? {
-        isEmpty ? nil : elements.removeFirst()
+        return isEmpty ? nil : elements.removeFirst()
     }
 }

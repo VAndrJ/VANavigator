@@ -1,28 +1,29 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.2
 
 import PackageDescription
 
 let settings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency")
+    .enableExperimentalFeature("StrictConcurrency"),
+    .defaultIsolation(MainActor.self),
 ]
 
 let package = Package(
     name: "VANavigator",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v14)
     ],
     products: [
         .library(
             name: "VANavigator",
             targets: ["VANavigator"]
-        ),
+        )
     ],
     targets: [
         .target(
             name: "VANavigator",
             path: "VANavigator/Classes",
             swiftSettings: settings
-        ),
+        )
     ],
-    swiftLanguageVersions: [.version("6")]
+    swiftLanguageModes: [.v6]
 )

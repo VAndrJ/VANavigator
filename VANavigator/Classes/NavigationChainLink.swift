@@ -40,9 +40,9 @@ public final class NavigationChainLink {
             return false
         }
 
-        return destination.isEqual(to: other.destination) &&
-        strategy == other.strategy &&
-        animated == other.animated &&
-        fallback?.isEqual(to: other.fallback) ?? (fallback == nil && other.fallback == nil)
+        return destination.isEqual(to: other.destination)
+            && strategy == other.strategy
+            && animated == other.animated
+            && fallback?.isEqual(to: other.fallback) ?? (fallback == nil && other.fallback == nil)
     }
 }

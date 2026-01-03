@@ -50,11 +50,13 @@ open class Navigator {
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         guard !(isChainNavigationInProgress && linkCompletionResult == nil || isNavigationInProgress) else {
-            navigationQueue.enqueue(InterceptionDetail(
-                chain: chain,
-                event: event,
-                completion: completion
-            ))
+            navigationQueue.enqueue(
+                InterceptionDetail(
+                    chain: chain,
+                    event: event,
+                    completion: completion
+                )
+            )
 
             return
         }
@@ -155,18 +157,20 @@ open class Navigator {
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
         guard !(isChainNavigationInProgress || isNavigationInProgress) else {
-            navigationQueue.enqueue(InterceptionDetail(
-                chain: [
-                    NavigationChainLink(
-                        destination: destination,
-                        strategy: strategy,
-                        animated: animated,
-                        fallback: fallback
-                    ),
-                ],
-                event: event,
-                completion: completion
-            ))
+            navigationQueue.enqueue(
+                InterceptionDetail(
+                    chain: [
+                        NavigationChainLink(
+                            destination: destination,
+                            strategy: strategy,
+                            animated: animated,
+                            fallback: fallback
+                        )
+                    ],
+                    event: event,
+                    completion: completion
+                )
+            )
 
             return
         }
@@ -180,7 +184,7 @@ open class Navigator {
             event: event,
             completion: { [weak self] controller, result in
                 self?.isNavigationInProgress = false
-                
+
                 completion?(controller, result)
             }
         )
@@ -203,7 +207,7 @@ open class Navigator {
                         strategy: strategy,
                         animated: animated,
                         fallback: fallback
-                    ),
+                    )
                 ],
                 event: event
             )
@@ -251,7 +255,9 @@ open class Navigator {
                         event: event,
                         completion: completion
                     )
-                } else if let index = navigationController.viewControllers.firstIndex(where: { $0.navigationIdentity?.isEqual(to: destination.identity) == true }) {
+                } else if let index = navigationController.viewControllers.firstIndex(where: {
+                    $0.navigationIdentity?.isEqual(to: destination.identity) == true
+                }) {
                     navigationController.viewControllers.remove(at: index)
 
                     completion?(nil, true)
@@ -275,8 +281,9 @@ open class Navigator {
             let tryToDismiss = strategy.tryToDismiss
             if let controller = window?.topController {
                 if tryToPop,
-                   let navigationController = controller.orNavigationController,
-                   navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                    let navigationController = controller.orNavigationController,
+                    navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true
+                {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
@@ -439,9 +446,9 @@ open class Navigator {
             func findController() -> UIViewController? {
                 let topController = window?.topController
 
-                return includingTabs ?
-                (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(destination: destination) :
-                topController?.orNavigationController?.findController(destination: destination)
+                return includingTabs
+                    ? (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(destination: destination)
+                    : topController?.orNavigationController?.findController(destination: destination)
             }
 
             if let controller = findController() {
@@ -565,7 +572,8 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.viewController(for: .primary)?.orNavigationController?.findController(destination: destination) {
+                            if let controller = splitController.viewController(for: .primary)?.orNavigationController?.findController(destination: destination)
+                            {
                                 splitController.show(.primary)
                                 navigatorEvent = ResponderPoppedToExistingEvent()
                                 closeNavigationPresented(
@@ -639,7 +647,9 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.viewController(for: .secondary)?.orNavigationController?.findController(destination: destination) {
+                            if let controller = splitController.viewController(for: .secondary)?.orNavigationController?.findController(
+                                destination: destination
+                            ) {
                                 splitController.show(.secondary)
                                 navigatorEvent = ResponderPoppedToExistingEvent()
                                 closeNavigationPresented(
@@ -790,17 +800,21 @@ open class Navigator {
     ///   - completion: A closure to be executed after controllers are dismissed.
     public func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
         if let controller {
-            dismissPresented(in: controller, animated: animated, completion: {
-                if let navigationController = controller.orNavigationController {
-                    navigationController.popToViewController(
-                        controller,
-                        animated: animated,
-                        completion: completion
-                    )
-                } else {
-                    completion?()
+            dismissPresented(
+                in: controller,
+                animated: animated,
+                completion: {
+                    if let navigationController = controller.orNavigationController {
+                        navigationController.popToViewController(
+                            controller,
+                            animated: animated,
+                            completion: completion
+                        )
+                    } else {
+                        completion?()
+                    }
                 }
-            })
+            )
         } else {
             completion?()
         }
@@ -818,17 +832,20 @@ open class Navigator {
         completion: (() -> Void)?
     ) {
         if let presentedViewController = controller?.presentedViewController {
-            presentedViewController.dismiss(animated: animated, completion: { [weak self] in
-                if controller?.presentedViewController != nil {
-                    self?.dismissPresented(
-                        in: controller,
-                        animated: animated,
-                        completion: completion
-                    )
-                } else {
-                    completion?()
+            presentedViewController.dismiss(
+                animated: animated,
+                completion: { [weak self] in
+                    if controller?.presentedViewController != nil {
+                        self?.dismissPresented(
+                            in: controller,
+                            animated: animated,
+                            completion: completion
+                        )
+                    } else {
+                        completion?()
+                    }
                 }
-            })
+            )
         } else {
             completion?()
         }
@@ -844,7 +861,8 @@ open class Navigator {
         completion: (() -> Void)? = nil
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
-            for index in (tabBarController.viewControllers ?? []).indices where tabBarController.viewControllers?[index].findController(controller: controller, withPresented: false) != nil {
+            for index in (tabBarController.viewControllers ?? []).indices
+            where tabBarController.viewControllers?[index].findController(controller: controller, withPresented: false) != nil {
                 if tabBarController.selectedIndex != index {
                     tabBarController.selectedIndex = index
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -853,7 +871,7 @@ open class Navigator {
                 } else {
                     completion?()
                 }
-                
+
                 return
             }
         }
