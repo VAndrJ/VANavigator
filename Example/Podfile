@@ -4,7 +4,6 @@ platform :ios, '14.0'
 
 target 'VANavigator_Example' do
   inhibit_all_warnings!
-  pod 'VANavigator', :path => '../'
   pod 'VATextureKitRx', '~> 3.0.0'
   pod 'Swiftional', '~> 2.0.0'
   pod 'RxSwift', '~> 6.5.0'

@@ -10,7 +10,6 @@
 [![Platform](https://img.shields.io/cocoapods/p/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
 
 
-[![Version](https://img.shields.io/cocoapods/v/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
 [![SPM](https://img.shields.io/badge/SPM-compatible-limegreen.svg?style=flat)](https://github.com/apple/swift-package-manager)
 &nbsp;[![VANavigator](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml/badge.svg)](https://github.com/VAndrJ/VANavigator/actions/workflows/swift.yml)
 
@@ -28,15 +27,6 @@ Minimum deployment target: **iOS 14**
 
 
 ## Installation
-
-
-VANavigator is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-
-```ruby
-pod 'VANavigator'
-```
 
 
 VANavigator is available through [SPM](https://github.com/apple/swift-package-manager). To install

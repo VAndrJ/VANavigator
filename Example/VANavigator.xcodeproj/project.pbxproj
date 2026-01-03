@@ -3,12 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A31B04B9C4399662E6B3B207 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6290286B717C46B78928107F /* libPods-VANavigator_ExampleTests.a */; };
-		ACE63082B383CF0DD57BA792 /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFDB36BA0014665132B5A3B3 /* libPods-VANavigator_Example.a */; };
+		1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */; };
+		40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */; };
+		A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -22,21 +23,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
 		2084627312EB44A8EC56B572 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		305B55E0312B6363F4E5D36D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.release.xcconfig"; sourceTree = "<group>"; };
-		607FACD01AFB9204008FA782 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6290286B717C46B78928107F /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A35200BC2F09E036007578D6 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		EFDB36BA0014665132B5A3B3 /* libPods-VANavigator_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A317D0732E9455EA001AF277 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		A317D0732E9455EA001AF277 /* Exceptions for "VANavigator" folder in "VANavigator_Example" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -46,8 +47,21 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VANavigator_ExampleTests; sourceTree = "<group>"; };
-		A317D0522E9455EA001AF277 /* VANavigator */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A317D0732E9455EA001AF277 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VANavigator; sourceTree = "<group>"; };
+		A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = VANavigator_ExampleTests;
+			sourceTree = "<group>";
+		};
+		A317D0522E9455EA001AF277 /* VANavigator */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A317D0732E9455EA001AF277 /* Exceptions for "VANavigator" folder in "VANavigator_Example" target */,
+			);
+			path = VANavigator;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,7 +69,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACE63082B383CF0DD57BA792 /* libPods-VANavigator_Example.a in Frameworks */,
+				A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */,
+				1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,7 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A31B04B9C4399662E6B3B207 /* libPods-VANavigator_ExampleTests.a in Frameworks */,
+				40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,19 +102,11 @@
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				A317D0522E9455EA001AF277 /* VANavigator */,
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
-				607FACD11AFB9204008FA782 /* Products */,
 				4911D49A603371F50A10A4E4 /* Pods */,
-				C2F917A7D4D1E9C4EE8B2051 /* Frameworks */,
+				A35200BC2F09E036007578D6 /* VANavigator_Example.app */,
+				A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */,
+				E6889555D763F93D974E1BBC /* Frameworks */,
 			);
-			sourceTree = "<group>";
-		};
-		607FACD11AFB9204008FA782 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				607FACD01AFB9204008FA782 /* VANavigator_Example.app */,
-				A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
@@ -112,11 +119,11 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		C2F917A7D4D1E9C4EE8B2051 /* Frameworks */ = {
+		E6889555D763F93D974E1BBC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EFDB36BA0014665132B5A3B3 /* libPods-VANavigator_Example.a */,
-				6290286B717C46B78928107F /* libPods-VANavigator_ExampleTests.a */,
+				0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */,
+				ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -144,7 +151,7 @@
 			);
 			name = VANavigator_Example;
 			productName = VANavigator;
-			productReference = 607FACD01AFB9204008FA782 /* VANavigator_Example.app */;
+			productReference = A35200BC2F09E036007578D6 /* VANavigator_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
@@ -166,7 +173,7 @@
 			);
 			name = VANavigator_ExampleTests;
 			productName = VANavigator_ExampleTests;
-			productReference = A32F5E8D2B210DCF008564F9 /* VANavigator_ExampleTests.xctest */;
+			productReference = A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -177,7 +184,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2620;
 				ORGANIZATIONNAME = "Volodymyr Andriienko";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -191,7 +198,6 @@
 				};
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "VANavigator" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -199,7 +205,11 @@
 				Base,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
-			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
+			packageReferences = (
+				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 607FACC71AFB9204008FA782;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -232,17 +242,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/PINCache/PINCache.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/PINOperation/PINOperation.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/VATextureKit/VATextureKitPrivacyInfo.bundle",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PINCache.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PINOperation.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/VATextureKitPrivacyInfo.bundle",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -411,7 +416,7 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -479,7 +484,7 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -502,7 +507,6 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
@@ -516,7 +520,6 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -539,7 +542,6 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
@@ -553,7 +555,6 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -594,7 +595,6 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
 			};
@@ -633,7 +633,6 @@
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
 				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
 				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
 			};
@@ -670,6 +669,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../VANavigator;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A352007E2F09DEB9007578D6 /* VANavigator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VANavigator;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 607FACC81AFB9204008FA782 /* Project object */;
 }
