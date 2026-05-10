@@ -26,7 +26,7 @@ jobs:
     
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,OS=26.4,name=iPhone Air']
+        destination: ['platform=iOS Simulator,OS=26.4.1,name=iPhone Air']
 
     steps:
     - uses: maxim-lobanov/setup-xcode@v1
