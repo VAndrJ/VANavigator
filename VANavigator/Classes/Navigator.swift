@@ -248,10 +248,10 @@ open class Navigator {
 
             Task { @MainActor in
                 if let navigatorEvent {
-                    await responder.handle(event: navigatorEvent)
+                    _ = await responder.handle(event: navigatorEvent)
                 }
                 if let event {
-                    await responder.handle(event: event)
+                    _ = await responder.handle(event: event)
                 }
                 completion()
             }
