@@ -1,0 +1,44 @@
+{
+  "configurations" : [
+    {
+      "id" : "503305D5-3D7B-4087-A029-830EFD5841AD",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:..",
+          "identifier" : "VANavigator",
+          "name" : "VANavigator"
+        }
+      ]
+    },
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "IS_TESTING"
+      }
+    ],
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:VANavigator.xcodeproj",
+      "identifier" : "607FACCF1AFB9204008FA782",
+      "name" : "VANavigator_Example"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:VANavigator.xcodeproj",
+        "identifier" : "A32F5E8C2B210DCF008564F9",
+        "name" : "VANavigator_ExampleTests"
+      }
+    }
+  ],
+  "version" : 1
+}
