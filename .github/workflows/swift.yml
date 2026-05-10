@@ -21,17 +21,17 @@ jobs:
           
   build:
     name: "Build and test"
-    runs-on: macos-15
+    runs-on: macos-26
     
     
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,OS=18.1,name=iPhone 16']
+        destination: ['platform=iOS Simulator,OS=26.4,name=iPhone Air']
 
     steps:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '16.1.0'
+        xcode-version: '26.4.1'
     - uses: actions/checkout@v3
     - uses: actions/cache@v3
       id: cocoapods-cache
