@@ -593,7 +593,15 @@ open class Navigator {
                                         )
                                     }
                                 )
-                                // TODO: - fallback?
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
                             } else {
                                 completion?(nil, false)
                             }
@@ -646,7 +654,15 @@ open class Navigator {
                                         )
                                     }
                                 )
-                                // TODO: - fallback?
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
                             } else {
                                 completion?(nil, false)
                             }
@@ -671,7 +687,15 @@ open class Navigator {
                                         )
                                     }
                                 )
-                                // TODO: - fallback?
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
                             } else {
                                 completion?(nil, false)
                             }
@@ -724,6 +748,15 @@ open class Navigator {
                                             }
                                         )
                                     }
+                                )
+                            } else if let fallback {
+                                navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
                                 )
                             } else {
                                 completion?(nil, false)

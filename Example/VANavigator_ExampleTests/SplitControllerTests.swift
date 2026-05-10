@@ -502,6 +502,73 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
+    func test_primaryReplace_withoutColumnNavigation_fallback() {
+        assertSplitColumnNavigationFallback(
+            strategy: .primary(action: .replace),
+            failedColumn: .primary
+        )
+    }
+
+    func test_primaryPush_withoutColumnNavigation_fallback() {
+        assertSplitColumnNavigationFallback(
+            strategy: .primary(action: .push),
+            failedColumn: .primary
+        )
+    }
+
+    func test_secondaryReplace_withoutColumnNavigation_fallback() {
+        assertSplitColumnNavigationFallback(
+            strategy: .secondary(action: .replace),
+            failedColumn: .secondary
+        )
+    }
+
+    func test_secondaryPush_withoutColumnNavigation_fallback() {
+        assertSplitColumnNavigationFallback(
+            strategy: .secondary(action: .push),
+            failedColumn: .secondary
+        )
+    }
+
+    func assertSplitColumnNavigationFallback(
+        strategy: SplitStrategy,
+        failedColumn: UISplitViewController.Column,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStackWithMissingColumnNavigation(failedColumn: failedColumn)
+        let splitController = window?.rootViewController as? MissingColumnNavigationSplitViewController
+        let newIdentity = MockPushControllerNavigationIdentity()
+
+        XCTAssertNotNil(splitController, file: file, line: line)
+
+        let expect = expectation(description: "navigation")
+        var responder: UIViewController?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(newIdentity),
+            strategy: .split(strategy: strategy),
+            animated: false,
+            fallback: NavigationChainLink(
+                destination: .identity(newIdentity),
+                strategy: .replaceWindowRoot(),
+                animated: false
+            ),
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result, file: file, line: line)
+        XCTAssertTrue(newIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
+        XCTAssertTrue(newIdentity.isEqual(to: window?.rootViewController?.navigationIdentity), file: file, line: line)
+    }
+
     func prepareNavigationStack(navigator: Navigator) {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
@@ -515,6 +582,24 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         )
 
         wait(for: [expect], timeout: 10)
+    }
+
+    func prepareNavigationStackWithMissingColumnNavigation(failedColumn: UISplitViewController.Column) {
+        let splitController = MissingColumnNavigationSplitViewController(failedColumn: failedColumn)
+        let primaryIdentity = MockRootControllerNavigationIdentity()
+        let secondaryIdentity = MockPopControllerNavigationIdentity()
+        let primary = UIViewController()
+        let secondary = UIViewController()
+        primary.navigationIdentity = primaryIdentity
+        secondary.navigationIdentity = secondaryIdentity
+        splitController.setViewController(primary, for: .primary)
+        splitController.setViewController(secondary, for: .secondary)
+        splitController.navigationIdentity = MockSplitControllerNavigationIdentity(
+            primary: primaryIdentity,
+            secondary: secondaryIdentity
+        )
+        window?.rootViewController = splitController
+        window?.makeKeyAndVisible()
     }
 
     func test_primaryPop_withoutSplit_fallback() {
@@ -565,3 +650,22 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 }
 // swiftlint:enable type_body_length
+
+private final class MissingColumnNavigationSplitViewController: MockSplitViewController {
+    private let failedColumn: UISplitViewController.Column
+
+    init(failedColumn: UISplitViewController.Column) {
+        self.failedColumn = failedColumn
+
+        super.init(style: .doubleColumn)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewController(for column: UISplitViewController.Column) -> UIViewController? {
+        column == failedColumn ? nil : super.viewController(for: column)
+    }
+}
