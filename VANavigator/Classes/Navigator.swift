@@ -28,6 +28,7 @@ open class Navigator {
     private var isChainNavigationInProgress = false {
         didSet { checkQueue() }
     }
+    private var isQueueCheckSuspended = false
     private let popoverDelegate = PopoverDelegate()
 
     public init(
@@ -83,12 +84,14 @@ open class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
-            isChainNavigationInProgress = false
-            navigate(
-                chain: interceptionResult.chain,
-                event: interceptionResult.event,
-                completion: completion
-            )
+            performSuspendingQueueCheck {
+                isChainNavigationInProgress = false
+                navigate(
+                    chain: interceptionResult.chain,
+                    event: interceptionResult.event,
+                    completion: completion
+                )
+            }
 
             return
         }
@@ -217,12 +220,14 @@ open class Navigator {
                 event: event
             )
             navigationInterceptor.interceptionData[interceptionResult.reason] = detail
-            isNavigationInProgress = false
-            navigate(
-                chain: interceptionResult.chain,
-                event: interceptionResult.event,
-                completion: completion
-            )
+            performSuspendingQueueCheck {
+                isNavigationInProgress = false
+                navigate(
+                    chain: interceptionResult.chain,
+                    event: interceptionResult.event,
+                    completion: completion
+                )
+            }
 
             return
         }
@@ -909,6 +914,7 @@ open class Navigator {
     }
 
     private func checkQueue() {
+        guard !isQueueCheckSuspended else { return }
         guard !(isNavigationInProgress || isChainNavigationInProgress) else { return }
         guard let queued = navigationQueue.dequeue() else { return }
 
@@ -917,6 +923,16 @@ open class Navigator {
             event: queued.event,
             completion: queued.completion
         )
+    }
+
+    private func performSuspendingQueueCheck(_ operation: () -> Void) {
+        let wasQueueCheckSuspended = isQueueCheckSuspended
+        isQueueCheckSuspended = true
+        operation()
+        isQueueCheckSuspended = wasQueueCheckSuspended
+        if !wasQueueCheckSuspended {
+            checkQueue()
+        }
     }
 
     private func bind() {

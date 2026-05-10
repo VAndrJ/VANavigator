@@ -96,6 +96,34 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
+    func test_navigationInterception_startsInterceptionChainBeforeQueuedNavigation() {
+        let screenFactory = InterceptionOrderScreenFactory()
+        let navigationInterceptor = QueuingNavigationInterceptor()
+        let navigator = Navigator(
+            window: window,
+            screenFactory: screenFactory,
+            navigationInterceptor: navigationInterceptor
+        )
+        navigationInterceptor.navigator = navigator
+        preparePresented(navigator: navigator)
+
+        let expect = expectation(description: "navigation.interception")
+        let queuedExpect = expectation(description: "navigation.queued")
+        navigationInterceptor.onQueuedNavigationCompleted = {
+            taskDetachedMain { queuedExpect.fulfill() }
+        }
+        navigator.navigate(
+            destination: .identity(SecretInformationIdentity()),
+            strategy: .present(),
+            animated: false,
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+        )
+
+        wait(for: [expect, queuedExpect], timeout: 10)
+
+        XCTAssertEqual(["interception", "queued"], screenFactory.trackedAssemblies)
+    }
+
     func test_navigationInterception_prefixedNavigationChain() {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
@@ -283,6 +311,57 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
 }
 
 class MockEmptyInterceptor: NavigationInterceptor {}
+
+private final class InterceptionOrderScreenFactory: MockScreenFactory {
+    private(set) var trackedAssemblies: [String] = []
+
+    override func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
+        if identity is LoginNavigationIdentity {
+            trackedAssemblies.append("interception")
+        } else if identity is MockControllerNavigationIdentity {
+            trackedAssemblies.append("queued")
+        }
+
+        return super.assembleScreen(identity: identity, navigator: navigator)
+    }
+}
+
+private final class QueuingNavigationInterceptor: NavigationInterceptor {
+    weak var navigator: Navigator?
+    var onQueuedNavigationCompleted: (() -> Void)?
+
+    private var hasQueuedNavigation = false
+
+    override func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
+        guard !hasQueuedNavigation else {
+            return nil
+        }
+
+        switch destination {
+        case let .identity(identity) where identity is SecretInformationIdentity:
+            hasQueuedNavigation = true
+            navigator?.navigate(
+                destination: .identity(MockControllerNavigationIdentity()),
+                strategy: .replaceWindowRoot(),
+                animated: false,
+                completion: { [weak self] _, _ in
+                    self?.onQueuedNavigationCompleted?()
+                }
+            )
+
+            return NavigationInterceptionResult(
+                link: NavigationChainLink(
+                    destination: .identity(LoginNavigationIdentity()),
+                    strategy: .present(),
+                    animated: false
+                ),
+                reason: "QueuedNavigation"
+            )
+        default:
+            return nil
+        }
+    }
+}
 
 class MockNavigationInterceptor: NavigationInterceptor {
     enum Kind {
