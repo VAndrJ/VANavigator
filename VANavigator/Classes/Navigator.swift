@@ -421,7 +421,7 @@ open class Navigator {
             }
         case let strategy as PushNavigationStrategy:
             let controller = getController(destination: destination)
-            let sourceController = controller.topController.orNavigationController
+            let sourceController = window?.topController?.orNavigationController ?? window?.rootViewController
             push(
                 sourceController: sourceController,
                 controller: controller,

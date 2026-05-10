@@ -207,6 +207,54 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
     }
 
+    func test_controllerPush_dismissesPresentedControllerOverNavigationStack() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
+        let rootNavigationController = window?.rootViewController as? UINavigationController
+        let presentedIdentity = MockPopControllerNavigationIdentity()
+        let pushIdentity = MockPushControllerNavigationIdentity()
+
+        let presentExpect = expectation(description: "present")
+        navigator.navigate(
+            destination: .identity(presentedIdentity),
+            strategy: .present(),
+            animated: false,
+            completion: { _, _ in
+                taskDetachedMain { presentExpect.fulfill() }
+            }
+        )
+
+        wait(for: [presentExpect], timeout: 10)
+
+        XCTAssertEqual(1, rootNavigationController?.viewControllers.count)
+        XCTAssertTrue(presentedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+
+        let pushExpect = expectation(description: "push")
+        var responder: UIViewController?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(pushIdentity),
+            strategy: .push(),
+            animated: false,
+            event: ResponderMockEvent(),
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { pushExpect.fulfill() }
+            }
+        )
+
+        wait(for: [pushExpect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertNil(rootNavigationController?.presentedViewController)
+        XCTAssertEqual(2, rootNavigationController?.viewControllers.count)
+        XCTAssertTrue(pushIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        XCTAssertTrue(pushIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertTrue(pushIdentity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
     func push(
         navigator: Navigator,
         identity: any NavigationIdentity,
