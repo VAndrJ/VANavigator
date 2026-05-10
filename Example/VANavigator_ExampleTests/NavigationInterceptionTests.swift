@@ -65,6 +65,37 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
+    func test_navigationInterception_assignedAfterInit() {
+        let authorizationService = AuthorizationService()
+        let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        navigator.navigationInterceptor = navigationInterceptor
+        preparePresented(navigator: navigator)
+        let identity = SecretInformationIdentity()
+        let expect = expectation(description: "navigation.present")
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(),
+            animated: false,
+            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+
+        let expect1 = expectation(description: "navigation.resolved")
+        navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
+        authorizationService.authorize()
+
+        wait(for: [expect1], timeout: 10)
+
+        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
+    }
+
     func test_navigationInterception_prefixedNavigationChain() {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)

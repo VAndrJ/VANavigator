@@ -12,7 +12,12 @@ import UIKit
 @MainActor
 open class Navigator {
     public let screenFactory: any NavigatorScreenFactory
-    public var navigationInterceptor: NavigationInterceptor?
+    public var navigationInterceptor: NavigationInterceptor? {
+        didSet {
+            oldValue?.onInterceptionResolved = nil
+            bind()
+        }
+    }
 
     public private(set) weak var window: UIWindow?
 
@@ -911,10 +916,13 @@ open class Navigator {
     }
 
     private func bind() {
-        navigationInterceptor?.onInterceptionResolved = { [weak self] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
-            guard let self else { return }
+        guard let navigationInterceptor else { return }
 
-            if let data = self.navigationInterceptor?.interceptionData.removeValue(forKey: reason) {
+        navigationInterceptor.onInterceptionResolved = {
+            [weak self, weak navigationInterceptor] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
+            guard let self, let navigationInterceptor else { return }
+
+            if let data = navigationInterceptor.interceptionData.removeValue(forKey: reason) {
                 if let newStrategy, !data.chain.isEmpty {
                     data.chain[0].update(strategy: newStrategy)
                 }
