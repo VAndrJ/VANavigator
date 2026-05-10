@@ -9,8 +9,6 @@
 import UIKit
 
 extension UINavigationController {
-    static let completionDelegate = NavigationCompletionDelegate()
-
     /// Pops the top view controller from the navigation stack.
     /// - Parameters:
     ///   - animated: Indicates whether the transition is animated.
@@ -76,14 +74,9 @@ extension UINavigationController {
     private func observeCompletion(animated: Bool, completion: (() -> Void)?) {
         if animated {
             if delegate == nil {
-                Self.completionDelegate.completion = { [weak self] in
-                    if self?.delegate === Self.completionDelegate {
-                        self?.delegate = nil
-                    }
-                    Self.completionDelegate.completion = nil
-                    completion?()
-                }
-                delegate = Self.completionDelegate
+                let completionDelegate = NavigationCompletionDelegate(completion: completion)
+                NavigationCompletionStore.retain(completionDelegate, for: self)
+                delegate = completionDelegate
             } else {
                 if let coordinator = transitionCoordinator {
                     coordinator.animate(alongsideTransition: nil) { _ in
@@ -99,14 +92,61 @@ extension UINavigationController {
     }
 }
 
-final class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
+private enum NavigationCompletionStore {
+    private static var entries: [ObjectIdentifier: NavigationCompletionEntry] = [:]
+
+    static func retain(
+        _ completionDelegate: NavigationCompletionDelegate,
+        for navigationController: UINavigationController
+    ) {
+        cleanupReleasedControllers()
+        entries[ObjectIdentifier(navigationController)] = NavigationCompletionEntry(
+            navigationController: navigationController,
+            completionDelegate: completionDelegate
+        )
+    }
+
+    static func release(for navigationController: UINavigationController) {
+        entries[ObjectIdentifier(navigationController)] = nil
+        cleanupReleasedControllers()
+    }
+
+    private static func cleanupReleasedControllers() {
+        entries = entries.filter { $0.value.navigationController != nil }
+    }
+}
+
+private final class NavigationCompletionEntry {
+    weak var navigationController: UINavigationController?
+    let completionDelegate: NavigationCompletionDelegate
+
+    init(
+        navigationController: UINavigationController,
+        completionDelegate: NavigationCompletionDelegate
+    ) {
+        self.navigationController = navigationController
+        self.completionDelegate = completionDelegate
+    }
+}
+
+private final class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
     var completion: (() -> Void)?
+
+    init(completion: (() -> Void)?) {
+        self.completion = completion
+    }
 
     func navigationController(
         _ navigationController: UINavigationController,
         didShow viewController: UIViewController,
         animated: Bool
     ) {
+        let completion = completion
+        self.completion = nil
+        if navigationController.delegate === self {
+            navigationController.delegate = nil
+        }
+        NavigationCompletionStore.release(for: navigationController)
         completion?()
     }
 }
