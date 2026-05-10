@@ -114,6 +114,31 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
+    func test_replaceExistingRootController_waitsForResponderEventsBeforeCompletion() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        window?.rootViewController = UIViewController()
+        window?.makeKeyAndVisible()
+        let responder = DelayedResponderViewController()
+
+        let expect = expectation(description: "replace")
+        var handledEventsAtCompletion: [String] = []
+        navigator.navigate(
+            destination: .controller(responder),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: DelayedResponderEvent(),
+            completion: { _, _ in
+                handledEventsAtCompletion = responder.handledEvents
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(["navigator", "user"], handledEventsAtCompletion)
+        XCTAssertEqual(["navigator", "user"], responder.handledEvents)
+    }
+
     func test_setWithoutAnimation() {
         XCTAssertNil(window?.rootViewController)
         UIView.setAnimationsEnabled(false)
@@ -144,5 +169,28 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
         )
         wait(for: [expect], timeout: 10)
         completion?(responder, result)
+    }
+}
+
+private struct DelayedResponderEvent: ResponderEvent {}
+
+private final class DelayedResponderViewController: UIViewController, Responder {
+    var nextEventResponder: (any Responder)?
+    private(set) var handledEvents: [String] = []
+
+    func handle(event: any ResponderEvent) async -> Bool {
+        switch event {
+        case _ as ResponderReplacedWindowRootControllerEvent:
+            handledEvents.append("navigator")
+
+            return true
+        case _ as DelayedResponderEvent:
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            handledEvents.append("user")
+
+            return true
+        default:
+            return false
+        }
     }
 }

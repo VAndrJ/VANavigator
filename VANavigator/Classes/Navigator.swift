@@ -237,19 +237,23 @@ open class Navigator {
         func perform(
             event: (any ResponderEvent)?,
             navigatorEvent: (any ResponderEvent)?,
-            on responder: (any Responder)?
+            on responder: (any Responder)?,
+            completion: @MainActor @escaping () -> Void
         ) {
-            guard let responder else { return }
+            guard let responder, navigatorEvent != nil || event != nil else {
+                completion()
 
-            if let navigatorEvent {
-                Task {
+                return
+            }
+
+            Task { @MainActor in
+                if let navigatorEvent {
                     await responder.handle(event: navigatorEvent)
                 }
-            }
-            if let event {
-                Task {
+                if let event {
                     await responder.handle(event: event)
                 }
+                completion()
             }
         }
 
@@ -346,10 +350,11 @@ open class Navigator {
                     perform(
                         event: event,
                         navigatorEvent: navigatorEvent,
-                        on: controller as? any UIViewController & Responder
+                        on: controller as? any UIViewController & Responder,
+                        completion: {
+                            completion?(controller, true)
+                        }
                     )
-
-                    completion?(controller, true)
                 }
             )
         case let strategy as PresentNavigationStrategy:
@@ -372,10 +377,11 @@ open class Navigator {
                             perform(
                                 event: event,
                                 navigatorEvent: navigatorEvent,
-                                on: controller as? any UIViewController & Responder
+                                on: controller as? any UIViewController & Responder,
+                                completion: {
+                                    completion?(controller, true)
+                                }
                             )
-
-                            completion?(controller, true)
                         }
                     )
                 } else {
@@ -399,10 +405,11 @@ open class Navigator {
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
-                                    on: controller as? any UIViewController & Responder
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
                                 )
-
-                                completion?(controller, true)
                             }
                         )
                     }
@@ -434,10 +441,11 @@ open class Navigator {
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
-                            on: controller as? any UIViewController & Responder
+                            on: controller as? any UIViewController & Responder,
+                            completion: {
+                                completion?(controller, true)
+                            }
                         )
-
-                        completion?(controller, true)
                     } else {
                         if let fallback {
                             self.navigate(
@@ -479,10 +487,11 @@ open class Navigator {
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
-                                    on: controller as? any UIViewController & Responder
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
                                 )
-
-                                completion?(controller, true)
                             }
                         )
                     }
@@ -509,10 +518,11 @@ open class Navigator {
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
-                            on: controller as? any UIViewController & Responder
+                            on: controller as? any UIViewController & Responder,
+                            completion: {
+                                completion?(controller, true)
+                            }
                         )
-
-                        completion?(controller, true)
                     }
                 )
             } else if let fallback {
@@ -543,10 +553,11 @@ open class Navigator {
                             perform(
                                 event: event,
                                 navigatorEvent: navigatorEvent,
-                                on: controller as? any UIViewController & Responder
+                                on: controller as? any UIViewController & Responder,
+                                completion: {
+                                    completion?(controller, true)
+                                }
                             )
-
-                            completion?(controller, true)
                         }
                     )
                 } else {
@@ -575,10 +586,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                                 // TODO: - fallback?
@@ -597,10 +609,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                             } else if let fallback {
@@ -626,10 +639,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                                 // TODO: - fallback?
@@ -650,10 +664,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                                 // TODO: - fallback?
@@ -673,10 +688,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                             } else if let fallback {
@@ -702,10 +718,11 @@ open class Navigator {
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
                                         )
-
-                                        completion?(controller, true)
                                     }
                                 )
                             } else {
