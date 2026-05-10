@@ -48,6 +48,31 @@ class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
+    func test_controllerDismiss_notTop() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        preparePresented(navigator: navigator)
+        let topIdentity = MockPushControllerNavigationIdentity()
+        let requestedIdentity = MockPopControllerNavigationIdentity()
+
+        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+
+        let expect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(requestedIdentity),
+            strategy: .closeIfTop(),
+            completion: { _, isSuccess in
+                result = isSuccess
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+    }
+
     func test_controllerPop_notDismissed() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         preparePresented(navigator: navigator)

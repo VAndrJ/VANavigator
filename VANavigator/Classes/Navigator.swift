@@ -284,10 +284,14 @@ open class Navigator {
         case let strategy as CloseIfTopNavigationStrategy:
             let tryToPop = strategy.tryToPop
             let tryToDismiss = strategy.tryToDismiss
+            func isMatchingDestination(_ controller: UIViewController?) -> Bool {
+                controller.map { destination.isEqual(to: .controller($0)) } ?? false
+            }
+
             if let controller = window?.topController {
                 if tryToPop,
                     let navigationController = controller.orNavigationController,
-                    navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true
+                    isMatchingDestination(navigationController.topViewController)
                 {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
@@ -310,7 +314,7 @@ open class Navigator {
                         }
                     )
                 } else {
-                    if tryToDismiss {
+                    if tryToDismiss, isMatchingDestination(controller) {
                         controller.dismiss(
                             animated: animated,
                             completion: {
