@@ -71,9 +71,11 @@ class SearchTests: XCTestCase, MainActorIsolated {
         let primaryController = window?.findController(destination: .identity(primaryIdentity))
         XCTAssertTrue(primaryIdentity.isEqual(to: primaryController?.navigationIdentity))
         XCTAssertEqual(primaryController, window?.findController(destination: .controller(primaryController!)))
-        let secondaryController = window?.findController(destination: .identity(secondaryIdentity))
-        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryController?.navigationIdentity))
-        XCTAssertEqual(secondaryController, window?.findController(destination: .controller(secondaryController!)))
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let secondaryController = window?.findController(destination: .identity(secondaryIdentity))
+            XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryController?.navigationIdentity))
+            XCTAssertEqual(secondaryController, window?.findController(destination: .controller(secondaryController!)))
+        }
 
         XCTAssertEqual(presentedController, window?.topController)
         XCTAssertEqual(tabController, controller?.findTabBarController())

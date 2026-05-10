@@ -24,6 +24,8 @@ post_install do |installer|
     if target.name == "Texture"
       target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'AS_ENABLE_TEXTNODE=1']
+        config.build_settings['WARNING_CFLAGS'] ||= ['$(inherited)']
+        config.build_settings['WARNING_CFLAGS'] << '-Wno-parentheses'
       end
     end
     if target.name == "VATextureKit"

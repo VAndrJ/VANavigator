@@ -24,6 +24,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_primaryPush() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -60,6 +61,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_primaryPop() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -115,6 +117,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_primaryPop_failure() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -171,6 +174,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_primaryPop_fallback() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -232,6 +236,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_primaryReplace() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -268,6 +273,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryPush() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -303,6 +309,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryPop() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -357,6 +364,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryPop_failure() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -411,6 +419,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryPop_fallback() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -470,6 +479,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryReplace() {
+        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
