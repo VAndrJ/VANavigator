@@ -28,23 +28,21 @@ class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNo
         bind()
     }
 
-    @MainActor
     private func bind() {
         bindView()
         bindViewModel()
     }
 
-    @MainActor
     func bindView() {}
 
-    @MainActor
     func bindViewModel() {}
 
-    @MainActor
     func configure() {}
 
-    @MainActor
-    func bindKeyboardInset(scrollView: UIScrollView, tabBarController: UITabBarController? = nil) {
+    func bindKeyboardInset(
+        scrollView: UIScrollView,
+        tabBarController: UITabBarController? = nil
+    ) {
         let initialBottomInset = scrollView.contentInset.bottom
         let initialIndicatorBottomInset = scrollView.verticalScrollIndicatorInsets.bottom
         Observable

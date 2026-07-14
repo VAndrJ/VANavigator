@@ -10,6 +10,7 @@ import RxCocoa
 import RxSwift
 import VATextureKitRx
 
+@MainActor
 final class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var pushNextButtonNode = ButtonNode(
