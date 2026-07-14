@@ -368,22 +368,69 @@ open class Navigator {
                 case .tabBarController:
                     sourceController = window?.topController?.orTabBarController
                 }
-                if let sourceController {
+                func presentableSource(from controller: UIViewController?) -> UIViewController? {
+                    guard let controller else { return nil }
+                    if controller.viewIfLoaded?.window != nil || controller === window?.rootViewController {
+                        return controller
+                    } else if let navigationController = controller.orNavigationController,
+                        navigationController.viewIfLoaded?.window != nil
+                    {
+                        return navigationController
+                    } else if let tabBarController = controller.orTabBarController,
+                        tabBarController.viewIfLoaded?.window != nil
+                    {
+                        return tabBarController
+                    } else {
+                        var visibleController = window?.rootViewController
+                        while let presentedController = visibleController?.presentedViewController,
+                            !presentedController.isBeingDismissed
+                        {
+                            visibleController = presentedController
+                        }
+
+                        return visibleController
+                    }
+                }
+
+                if let sourceController = presentableSource(from: sourceController) {
                     let controller = getController(destination: destination)
+                    var didComplete = false
+                    func completeOnce(_ presentedController: UIViewController?, _ isSuccess: Bool) {
+                        guard !didComplete else { return }
+
+                        didComplete = true
+                        guard isSuccess else {
+                            completion?(nil, false)
+
+                            return
+                        }
+
+                        perform(
+                            event: event,
+                            navigatorEvent: navigatorEvent,
+                            on: controller as? any UIViewController & Responder,
+                            completion: {
+                                completion?(presentedController, true)
+                            }
+                        )
+                    }
+
                     sourceController.present(
                         controller,
                         animated: animated,
                         completion: {
-                            perform(
-                                event: event,
-                                navigatorEvent: navigatorEvent,
-                                on: controller as? any UIViewController & Responder,
-                                completion: {
-                                    completion?(controller, true)
-                                }
-                            )
+                            let isPresented = controller.presentingViewController != nil
+                                || sourceController.presentedViewController === controller
+                            completeOnce(isPresented ? controller : nil, isPresented)
                         }
                     )
+                    DispatchQueue.main.async {
+                        guard controller.presentingViewController == nil,
+                            sourceController.presentedViewController !== controller
+                        else { return }
+
+                        completeOnce(nil, false)
+                    }
                 } else {
                     completion?(nil, false)
                 }
@@ -933,12 +980,8 @@ open class Navigator {
             where tabBarController.viewControllers?[index].findController(controller: controller, withPresented: false) != nil {
                 if tabBarController.selectedIndex != index {
                     tabBarController.selectedIndex = index
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        completion?()
-                    }
-                } else {
-                    completion?()
                 }
+                completion?()
 
                 return
             }

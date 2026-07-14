@@ -147,6 +147,40 @@ class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
     }
 
+    func test_controller_presented_waitsForCustomTransitionCompletion() {
+        let rootController = UIViewController()
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+
+        let transitionDuration: TimeInterval = 0.8
+        let transitionDelegate = DelayedPresentationTransitioningDelegate(duration: transitionDuration)
+        let controller = UIViewController()
+        controller.modalPresentationStyle = .custom
+        controller.transitioningDelegate = transitionDelegate
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let start = ProcessInfo.processInfo.systemUptime
+        let expect = expectation(description: "custom presentation")
+        var elapsed: TimeInterval?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(controller),
+            strategy: .present(),
+            animated: true,
+            completion: { _, isSuccess in
+                elapsed = ProcessInfo.processInfo.systemUptime - start
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.7)
+        XCTAssertEqual(controller, window?.topController)
+    }
+
     func test_controller_presented_fromNavigationController() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationControllerNavigation(navigator: navigator)
@@ -327,5 +361,46 @@ class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
         )
 
         wait(for: [expect], timeout: 10)
+    }
+}
+
+private final class DelayedPresentationTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    private let animator: DelayedPresentationAnimator
+
+    init(duration: TimeInterval) {
+        animator = DelayedPresentationAnimator(duration: duration)
+    }
+
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController
+    ) -> (any UIViewControllerAnimatedTransitioning)? {
+        animator
+    }
+}
+
+private final class DelayedPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    private let duration: TimeInterval
+
+    init(duration: TimeInterval) {
+        self.duration = duration
+    }
+
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        duration
+    }
+
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        guard let presentedView = transitionContext.view(forKey: .to) else {
+            transitionContext.completeTransition(false)
+
+            return
+        }
+
+        transitionContext.containerView.addSubview(presentedView)
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        }
     }
 }

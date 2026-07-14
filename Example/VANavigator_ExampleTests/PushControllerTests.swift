@@ -255,6 +255,43 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
     }
 
+    func test_pushCompletion_preservesAnimationForVisibleNonKeyWindow() {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first
+        else {
+            XCTFail("Missing window scene")
+
+            return
+        }
+
+        let keyWindow = UIWindow(windowScene: windowScene)
+        keyWindow.rootViewController = UIViewController()
+        keyWindow.makeKeyAndVisible()
+        defer { keyWindow.isHidden = true }
+
+        let navigationController = AnimationRecordingNavigationController(
+            rootViewController: UIViewController()
+        )
+        let nonKeyWindow = UIWindow(windowScene: windowScene)
+        nonKeyWindow.rootViewController = navigationController
+        nonKeyWindow.isHidden = false
+        window = nonKeyWindow
+        navigationController.lastPushAnimated = nil
+
+        XCTAssertEqual(false, nonKeyWindow.isKeyWindow)
+
+        let expect = expectation(description: "push completion")
+        navigationController.pushViewController(
+            UIViewController(),
+            animated: true,
+            completion: { expect.fulfill() }
+        )
+
+        XCTAssertEqual(true, navigationController.lastPushAnimated)
+        wait(for: [expect], timeout: 10)
+    }
+
     func push(
         navigator: Navigator,
         identity: any NavigationIdentity,
@@ -304,3 +341,12 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
 }
 
 private class MockNavigationDelegate: NSObject, UINavigationControllerDelegate {}
+
+private final class AnimationRecordingNavigationController: UINavigationController {
+    var lastPushAnimated: Bool?
+
+    override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        lastPushAnimated = animated
+        super.pushViewController(viewController, animated: animated)
+    }
+}

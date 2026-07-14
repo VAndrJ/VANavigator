@@ -107,6 +107,27 @@ class SearchTests: XCTestCase, MainActorIsolated {
         assertSearchIncludesPresentedController(in: splitViewController)
     }
 
+    func test_splitViewControllerTopController_usesVisibleColumn() {
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        splitViewController.setViewController(UIViewController(), for: .primary)
+        splitViewController.setViewController(UIViewController(), for: .secondary)
+        window?.rootViewController = splitViewController
+        window?.makeKeyAndVisible()
+        splitViewController.view.layoutIfNeeded()
+
+        let visibleController = [
+            UISplitViewController.Column.compact,
+            .secondary,
+            .supplementary,
+            .primary,
+        ]
+            .compactMap { splitViewController.viewController(for: $0) }
+            .first { $0.viewIfLoaded?.window != nil }
+
+        XCTAssertNotNil(visibleController)
+        XCTAssertEqual(visibleController, splitViewController.topController)
+    }
+
     private func assertSearchIncludesPresentedController(
         in container: UIViewController,
         file: StaticString = #filePath,

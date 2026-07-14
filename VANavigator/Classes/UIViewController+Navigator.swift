@@ -15,20 +15,32 @@ extension UIViewController {
     public var orTabBarController: UITabBarController? { (self as? UITabBarController) ?? tabBarController }
     /// Recursively finds the top-most view controller in the current hierarchy.
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
-    /// the last view controller in `UISplitViewController`, and any presented view controller.
+    /// the visible detail column in `UISplitViewController`, and any presented view controller.
     public var topController: UIViewController {
+        if let presentedViewController, !presentedViewController.isBeingDismissed {
+            return presentedViewController.topController
+        }
+
         var possibleController: UIViewController?
         if let tabBarController = self as? UITabBarController {
             possibleController = tabBarController.selectedViewController
         } else if let navigationController = self as? UINavigationController {
             possibleController = navigationController.topViewController
         } else if let splitController = self as? UISplitViewController {
-            possibleController = splitController.viewControllers.last
-        } else if let presentedViewController = presentedViewController {
-            possibleController = presentedViewController
+            let columns: [UISplitViewController.Column] = [
+                .compact,
+                .secondary,
+                .supplementary,
+                .primary,
+            ]
+            possibleController = columns
+                .lazy
+                .compactMap { splitController.viewController(for: $0) }
+                .first { $0.viewIfLoaded?.window != nil }
+                ?? splitController.viewControllers.last
         }
 
-        if let possibleController, !possibleController.isBeingDismissed {
+        if let possibleController, possibleController !== self, !possibleController.isBeingDismissed {
             return possibleController.topController
         } else {
             return self
@@ -73,7 +85,8 @@ extension UIViewController {
                     return target
                 }
             }
-        } else if withPresented, let presentedViewController {
+        }
+        if withPresented, let presentedViewController {
             return presentedViewController.findController(
                 controller: controller,
                 withPresented: withPresented
@@ -121,7 +134,8 @@ extension UIViewController {
                     return target
                 }
             }
-        } else if withPresented, let presentedViewController {
+        }
+        if withPresented, let presentedViewController {
             return presentedViewController.findController(
                 identity: identity,
                 withPresented: withPresented
