@@ -10,9 +10,8 @@ import Foundation
 protocol DefaultNavigationIdentity: NavigationIdentity {}
 
 extension DefaultNavigationIdentity {
-
     func isEqual(to other: (any NavigationIdentity)?) -> Bool {
-        other is Self
+        return other is Self
     }
 }
 
@@ -67,9 +66,9 @@ struct SplitNavigationIdentity: NavigationIdentity {
             return false
         }
 
-        return primary.isEqual(to: other.primary) &&
-        secondary.isEqual(to: other.secondary) &&
-        supplementary?.isEqual(to: other.supplementary) == true
+        return primary.isEqual(to: other.primary)
+            && secondary.isEqual(to: other.secondary)
+            && supplementary?.isEqual(to: other.supplementary) == true
     }
 }
 

@@ -9,7 +9,6 @@ import UIKit
 
 @MainActor
 final class ExampleShortcutsService {
-
     func addShortcuts() {
         UIApplication.shared.shortcutItems?.removeAll()
         UIApplication.shared.shortcutItems = [
@@ -20,9 +19,8 @@ final class ExampleShortcutsService {
     }
 }
 
-private extension UIApplicationShortcutItem {
-
-    convenience init(type source: Shortcut) {
+extension UIApplicationShortcutItem {
+    fileprivate convenience init(type source: Shortcut) {
         self.init(
             type: source.rawValue,
             localizedTitle: source.title,

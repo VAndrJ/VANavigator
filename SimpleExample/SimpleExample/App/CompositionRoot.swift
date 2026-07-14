@@ -16,12 +16,7 @@ final class CompositionRoot {
     private let authorizationService = ExampleAuthorizationService()
     private let navigationInterceptor: ExampleNavigationInterceptor
 
-    init(
-        window: inout UIWindow?,
-        application: UIApplication,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) {
-        window = UIWindow()
+    init(window: UIWindow) {
         self.navigationInterceptor = ExampleNavigationInterceptor(authorizationService: authorizationService)
         self.navigator = Navigator(
             window: window,
@@ -48,13 +43,15 @@ final class CompositionRoot {
         switch shortcut {
         case .alert:
             navigator.navigate(
-                destination: .controller(UIAlertController(
-                    title: "Title",
-                    message: "Message",
-                    preferredStyle: .alert
-                ).apply {
-                    $0.addAction(.init(title: "Close", style: .default))
-                }),
+                destination: .controller(
+                    UIAlertController(
+                        title: "Title",
+                        message: "Message",
+                        preferredStyle: .alert
+                    ).apply {
+                        $0.addAction(.init(title: "Close", style: .default))
+                    }
+                ),
                 strategy: .present()
             )
         case .main:

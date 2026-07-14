@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import VANavigator
 @_exported import Swiftional
+import VANavigator
 
 typealias ResponderEvent = VANavigator.ResponderEvent
 typealias ResponderReplacedWindowRootControllerEvent = VANavigator.ResponderReplacedWindowRootControllerEvent

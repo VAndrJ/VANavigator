@@ -32,7 +32,7 @@ final class NavigationController: UINavigationController, Responder {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
@@ -45,7 +45,7 @@ final class NavigationController: UINavigationController, Responder {
 
     var nextEventResponder: (any Responder)? {
         get { topViewController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}  // swiftlint:disable:this unused_setter_value
     }
 
     func handle(event: any ResponderEvent) async -> Bool {

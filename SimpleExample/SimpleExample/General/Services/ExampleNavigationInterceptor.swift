@@ -34,7 +34,7 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
                                 destination: .identity(LoginNavigationIdentity()),
                                 strategy: .replaceWindowRoot(),
                                 animated: true
-                            ),
+                            )
                         ],
                         reason: LoginRequiredNavigationInterceptionReason()
                     )
@@ -49,13 +49,15 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
 
     private func onAuthorizationChanged(_ isAuthorized: Bool) {
         guard isAuthorized else { return }
-        
+
         interceptionResolved(
             reason: LoginRequiredNavigationInterceptionReason(),
-            newStrategy: .replaceWindowRoot(transition: CATransition().apply {
-                $0.duration = 0.5
-                $0.type = .fade
-            }),
+            newStrategy: .replaceWindowRoot(
+                transition: CATransition().apply {
+                    $0.duration = 0.5
+                    $0.type = .fade
+                }
+            ),
             completion: completion
         )
     }
