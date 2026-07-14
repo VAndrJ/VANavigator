@@ -9,7 +9,6 @@
 import VATextureKit
 
 extension VAButtonNode {
-
     func setTitle(_ title: String, theme: VATheme) {
         setTitle(title, with: nil, with: theme.systemBlue, for: .normal)
         setTitle(title, with: nil, with: theme.systemBlue.withAlphaComponent(0.8), for: .highlighted)

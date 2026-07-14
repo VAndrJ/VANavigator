@@ -6,11 +6,11 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
 import RxCocoa
+import RxSwift
 import VATextureKitRx
 
-class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel>, @unchecked Sendable {
+final class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Tab Present Example",
         fontStyle: .headline
@@ -59,7 +59,7 @@ struct PresentPopoverEvent: Event {
     let source: UIView
 }
 
-class TabPresentExampleViewModel: EventViewModel {
+final class TabPresentExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followPresentFromTop: () -> Void

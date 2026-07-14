@@ -6,10 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
 import RxCocoa
-import VATextureKitRx
 import RxKeyboard
+import RxSwift
+import VATextureKitRx
 
 class ScreenNode<ViewModel: EventViewModel>: VASafeAreaDisplayNode, ControllerNode, Responder, @unchecked Sendable {
     let bag = DisposeBag()

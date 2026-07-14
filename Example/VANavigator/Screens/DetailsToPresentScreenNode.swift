@@ -6,16 +6,18 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
 import RxCocoa
+import RxSwift
 import VATextureKitRx
 
-class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel>, @unchecked Sendable {
+final class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var pushNextButtonNode = ButtonNode(
         isEnabledObs: viewModel.isNavigationAvailableObs
     )
-    private lazy var inputNode = TextFieldNode()
+    private lazy var inputNode = TextFieldNode().apply {
+        $0.child.keyboardType = .numberPad
+    }
     private lazy var detailsTextNode = VATextNode(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         fontStyle: .body
@@ -82,13 +84,17 @@ class DetailsToPresentScreenNode: ScreenNode<DetailsToPresentViewModel>, @unchec
             .bind(to: viewModel.nextNumberRelay)
             .disposed(by: bag)
     }
+
+    override func configure() {
+        removeFromStackButtonNode.isEnabled = viewModel.number != -1
+    }
 }
 
 struct PushNextDetailsEvent: Event {}
 
 struct RemoveFromStackEvent: Event {}
 
-class DetailsToPresentViewModel: EventViewModel {
+final class DetailsToPresentViewModel: EventViewModel {
     struct Context {
         struct Related {
             let value: Int

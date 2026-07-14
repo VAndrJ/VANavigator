@@ -9,7 +9,7 @@
 import VATextureKitRx
 
 // swiftlint:disable type_body_length
-class ScreenFactory: NavigatorScreenFactory {
+final class ScreenFactory: NavigatorScreenFactory {
     let authorizationService: AuthorizationService
 
     init(authorizationService: AuthorizationService) {

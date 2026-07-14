@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class MainScreenNode: ScreenNode<MainViewModel>, @unchecked Sendable {
+final class MainScreenNode: ScreenNode<MainViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var replaceRootButtonNode = VAButtonNode()
     private lazy var presentDetailsButtonNode = VAButtonNode()
@@ -90,7 +90,7 @@ struct ShowInSplitOrPresentEvent: Event {}
 
 struct PresentQueueEvent: Event {}
 
-class MainViewModel: EventViewModel {
+final class MainViewModel: EventViewModel {
     struct Context {
         struct DataSource {
             let authorizedObs: Observable<Bool>

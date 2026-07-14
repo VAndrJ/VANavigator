@@ -6,10 +6,10 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
 import RxCocoa
-import VATextureKitRx
+import RxSwift
 import VANavigator
+import VATextureKitRx
 
 struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
@@ -61,10 +61,12 @@ class ExampleNavigationInterceptor: NavigationInterceptor {
     private func onAuthorized() {
         interceptionResolved(
             reason: LoginRequiredNavigationInterceptionReason(),
-            newStrategy: .replaceWindowRoot(transition: CATransition().apply {
-                $0.duration = 0.5
-                $0.type = .fade
-            }),
+            newStrategy: .replaceWindowRoot(
+                transition: CATransition().apply {
+                    $0.duration = 0.5
+                    $0.type = .fade
+                }
+            ),
             completion: completion
         )
     }

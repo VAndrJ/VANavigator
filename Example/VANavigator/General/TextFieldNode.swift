@@ -9,7 +9,6 @@
 import VATextureKit
 
 class TextFieldNode: VASizedViewWrapperNode<UITextField>, @unchecked Sendable {
-
     convenience init() {
         self.init(
             childGetter: {

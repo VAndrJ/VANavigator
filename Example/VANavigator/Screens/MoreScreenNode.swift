@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class MoreScreenNode: ScreenNode<MoreViewModel>, @unchecked Sendable {
+final class MoreScreenNode: ScreenNode<MoreViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "More",
         fontStyle: .headline
@@ -47,7 +47,7 @@ class MoreScreenNode: ScreenNode<MoreViewModel>, @unchecked Sendable {
     }
 }
 
-class MoreViewModel: EventViewModel {
+final class MoreViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void

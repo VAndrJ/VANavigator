@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
+final class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Login",
         fontStyle: .headline
@@ -53,12 +53,12 @@ class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
 
 struct LoginEvent: Event {}
 
-class LoginViewModel: EventViewModel {
+final class LoginViewModel: EventViewModel {
     struct Context {
         struct DataSource {
             let authorize: () -> Void
         }
-        
+
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
         }

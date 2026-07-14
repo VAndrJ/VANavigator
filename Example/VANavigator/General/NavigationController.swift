@@ -69,7 +69,7 @@ final class NavigationController: VANavigationController, Responder {
 
     var nextEventResponder: (any Responder)? {
         get { topViewController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}  // swiftlint:disable:this unused_setter_value
     }
 
     func handle(event: any ResponderEvent) async -> Bool {

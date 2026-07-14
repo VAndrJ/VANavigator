@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel>, @unchecked Sendable {
+final class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Secret information for authorized users only",
         fontStyle: .headline
@@ -47,7 +47,7 @@ class SecretInformationScreenNode: ScreenNode<SecretInformationViewModel>, @unch
     }
 }
 
-class SecretInformationViewModel: EventViewModel {
+final class SecretInformationViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void

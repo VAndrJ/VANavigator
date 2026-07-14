@@ -9,22 +9,14 @@
 import VATextureKit
 
 @MainActor
-class CompositionRoot {
+final class CompositionRoot {
     private weak var window: UIWindow?
     private let navigator: Navigator
     private let shortcutService = ShortcutsService()
     private let authorizationService = AuthorizationService()
     private let navigationInterceptor: ExampleNavigationInterceptor
 
-    init(
-        window: inout UIWindow?,
-        application: UIApplication,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) {
-        window = VAWindow(
-            standardLightTheme: .vaLight,
-            standardDarkTheme: .vaDark
-        )
+    init(window: VAWindow) {
         self.navigationInterceptor = ExampleNavigationInterceptor(authorizationService: authorizationService)
         self.navigator = Navigator(
             window: window,
@@ -51,13 +43,15 @@ class CompositionRoot {
         switch shortcut {
         case .alert:
             navigator.navigate(
-                destination: .controller(UIAlertController(
-                    title: "Title",
-                    message: "Message",
-                    preferredStyle: .alert
-                ).apply {
-                    $0.addAction(UIAlertAction(title: "Close", style: .default))
-                }),
+                destination: .controller(
+                    UIAlertController(
+                        title: "Title",
+                        message: "Message",
+                        preferredStyle: .alert
+                    ).apply {
+                        $0.addAction(UIAlertAction(title: "Close", style: .default))
+                    }
+                ),
                 strategy: .present()
             )
         case .main:

@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 import VATextureKitRx
 
-class TabDetailScreenNode: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
+final class TabDetailScreenNode: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Tab Details",
         fontStyle: .headline
@@ -73,7 +73,7 @@ class TabDetailScreenNode: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
     }
 }
 
-class TabDetailViewModel: EventViewModel {
+final class TabDetailViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void

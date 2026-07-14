@@ -9,7 +9,6 @@
 import VATextureKit
 
 protocol ControllerNode: ASDisplayNode {
-
     @MainActor
     func viewDidLoad(in controller: UIViewController)
     @MainActor

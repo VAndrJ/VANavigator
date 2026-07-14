@@ -841,7 +841,11 @@ open class Navigator {
     ///   - controller: The view controller to set as the `rootViewController`.
     ///   - transition: Animated transitions when replacing the `rootViewController`.
     ///   - completion: A closure to be executed after the replacement is complete.
-    public func replaceWindowRoot(controller: UIViewController, transition: CATransition?, completion: (() -> Void)?) {
+    public func replaceWindowRoot(
+        controller: UIViewController,
+        transition: CATransition?,
+        completion: (() -> Void)?
+    ) {
         if window?.rootViewController == nil {
             window?.rootViewController = controller
             window?.makeKeyAndVisible()

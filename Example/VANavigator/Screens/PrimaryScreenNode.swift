@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
+final class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Primary \(Int.random(in: 0...100))",
         fontStyle: .headline
@@ -59,7 +59,7 @@ struct ShowSecondaryEvent: Event {}
 
 struct ReplacePrimaryEvent: Event {}
 
-class PrimaryViewModel: EventViewModel {
+final class PrimaryViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void

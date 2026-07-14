@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
+final class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Queue",
         fontStyle: .headline
@@ -54,7 +54,7 @@ class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewMod
 
 struct PresentAndCloseEvent: Event {}
 
-class NavigationQueueExampleViewModel: EventViewModel {
+final class NavigationQueueExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
