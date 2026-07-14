@@ -42,8 +42,8 @@ class SearchTests: XCTestCase, MainActorIsolated {
         navigator.navigate(
             chain: [
                 .init(destination: .identity(splitIdentity), strategy: .replaceWindowRoot(), animated: false),
-                .init(destination: .identity(tabIdentity), strategy: .present(source: .navigationController), animated: false),
-                .init(destination: .identity(presentIdentity), strategy: .present(), animated: true),
+                .init(destination: .identity(tabIdentity), strategy: .present(), animated: false),
+                .init(destination: .identity(presentIdentity), strategy: .present(), animated: false),
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -84,5 +84,76 @@ class SearchTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(tabController, tabController?.findTabBarController())
         XCTAssertEqual(tabController, presentedController?.findTabBarController())
         XCTAssertNil(splitController?.findTabBarController())
+    }
+
+    func test_navigationControllerSearch_includesPresentedController() {
+        assertSearchIncludesPresentedController(
+            in: UINavigationController(rootViewController: UIViewController())
+        )
+    }
+
+    func test_tabBarControllerSearch_includesPresentedController() {
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [UIViewController()]
+
+        assertSearchIncludesPresentedController(in: tabBarController)
+    }
+
+    func test_splitViewControllerSearch_includesPresentedController() {
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        splitViewController.setViewController(UIViewController(), for: .primary)
+        splitViewController.setViewController(UIViewController(), for: .secondary)
+
+        assertSearchIncludesPresentedController(in: splitViewController)
+    }
+
+    private func assertSearchIncludesPresentedController(
+        in container: UIViewController,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let identity = MockPopControllerNavigationIdentity()
+        let presentedController = UIViewController()
+        presentedController.navigationIdentity = identity
+        window?.rootViewController = container
+        window?.makeKeyAndVisible()
+
+        let expect = expectation(description: "present")
+        container.present(presentedController, animated: false) {
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(presentedController, container.presentedViewController, file: file, line: line)
+        XCTAssertEqual(presentedController, container.topController, file: file, line: line)
+        XCTAssertEqual(
+            presentedController,
+            container.findController(controller: presentedController, withPresented: true),
+            file: file,
+            line: line
+        )
+        XCTAssertNil(
+            container.findController(controller: presentedController, withPresented: false),
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            presentedController,
+            container.findController(identity: identity, withPresented: true),
+            file: file,
+            line: line
+        )
+        XCTAssertNil(
+            container.findController(identity: identity, withPresented: false),
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            presentedController,
+            window?.findController(destination: .identity(identity)),
+            file: file,
+            line: line
+        )
     }
 }
