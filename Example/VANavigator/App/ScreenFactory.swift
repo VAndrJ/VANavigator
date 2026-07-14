@@ -8,7 +8,6 @@
 
 import VATextureKitRx
 
-// swiftlint:disable type_body_length
 final class ScreenFactory: NavigatorScreenFactory {
     let authorizationService: AuthorizationService
 
@@ -16,7 +15,6 @@ final class ScreenFactory: NavigatorScreenFactory {
         self.authorizationService = authorizationService
     }
 
-    // swiftlint:disable function_body_length cyclomatic_complexity
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as QueueNavigationIdentity:
@@ -437,6 +435,4 @@ final class ScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
-    // swiftlint:enable function_body_length cyclomatic_complexity
 }
-// swiftlint:enable type_body_length

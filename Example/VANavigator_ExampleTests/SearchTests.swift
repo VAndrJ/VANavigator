@@ -6,10 +6,11 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
 import VANavigator
-@testable import VANavigator_Example
 import VATextureKit
+import XCTest
+
+@testable import VANavigator_Example
 
 // TODO: - Messages
 class SearchTests: XCTestCase, MainActorIsolated {
@@ -23,7 +24,6 @@ class SearchTests: XCTestCase, MainActorIsolated {
         window = nil
     }
 
-    // swiftlint:disable force_unwrapping
     func test_tabSearch() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let primaryIdentity = MockControllerNavigationIdentity()
@@ -85,5 +85,4 @@ class SearchTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(tabController, presentedController?.findTabBarController())
         XCTAssertNil(splitController?.findTabBarController())
     }
-    // swiftlint:enable force_unwrapping
 }

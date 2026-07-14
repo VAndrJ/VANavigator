@@ -10,8 +10,6 @@ import VANavigator
 @testable import VANavigator_Example
 
 class MockScreenFactory: NavigatorScreenFactory {
-
-    // swiftlint:disable function_body_length
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as MockSplitControllerNavigationIdentity:
@@ -81,14 +79,12 @@ class MockScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
-    // swiftlint:enable function_body_length
 }
 
 class MockNavigationController: UINavigationController, Responder {
-
     var nextEventResponder: (any Responder)? {
         get { topController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}
     }
 
     func handle(event: any ResponderEvent) async -> Bool {
@@ -172,7 +168,7 @@ class MockTabBarViewController: UITabBarController, Responder {
 
     var nextEventResponder: (any Responder)? {
         get { selectedViewController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}
     }
 
     func handle(event: any ResponderEvent) async -> Bool {

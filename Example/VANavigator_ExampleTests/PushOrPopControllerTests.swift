@@ -11,7 +11,7 @@ import VANavigator
 import VATextureKit
 
 // TODO: - Messages
-class PushOrPopControllerTests: XCTestCase, MainActorIsolated { // swiftlint:disable:this type_body_length
+class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {

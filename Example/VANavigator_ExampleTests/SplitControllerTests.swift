@@ -11,7 +11,6 @@ import VANavigator
 import VATextureKit
 
 // TODO: - Messages
-// swiftlint:disable type_body_length
 class SplitControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
@@ -659,7 +658,6 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
     }
 }
-// swiftlint:enable type_body_length
 
 private final class MissingColumnNavigationSplitViewController: MockSplitViewController {
     private let failedColumn: UISplitViewController.Column
