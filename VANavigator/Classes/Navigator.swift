@@ -618,12 +618,14 @@ open class Navigator {
             case let strategy as SplitNavigationStrategy:
                 let strategy = strategy.strategy
                 // MARK: - Plain flow for easier understanding
-                if let splitController = window?.topController?.splitViewController {
+                let splitController = window?.topController?.orSplitViewController
+                    ?? window?.rootViewController?.orSplitViewController
+                if let splitController {
                     switch strategy {
                     case let .primary(action):
                         switch action {
                         case .replace:
-                            if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
+                            if let navigationController = splitController.columnNavigationController(for: .primary) {
                                 splitController.show(.primary)
                                 let controller = getController(destination: destination)
                                 navigationController.setViewControllers(
@@ -653,7 +655,7 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.viewController(for: .primary)?.orNavigationController?.findController(destination: destination)
+                            if let controller = splitController.columnNavigationController(for: .primary)?.findController(destination: destination)
                             {
                                 splitController.show(.primary)
                                 navigatorEvent = ResponderPoppedToExistingEvent()
@@ -684,7 +686,7 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .push:
-                            if let navigationController = splitController.viewController(for: .primary)?.orNavigationController {
+                            if let navigationController = splitController.columnNavigationController(for: .primary) {
                                 splitController.show(.primary)
                                 let controller = getController(destination: destination)
                                 navigationController.pushViewController(
@@ -717,7 +719,7 @@ open class Navigator {
                     case let .secondary(action):
                         switch action {
                         case .replace:
-                            if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
+                            if let navigationController = splitController.columnNavigationController(for: .secondary) {
                                 splitController.show(.secondary)
                                 let controller = getController(destination: destination)
                                 navigationController.setViewControllers(
@@ -747,7 +749,7 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.viewController(for: .secondary)?.orNavigationController?.findController(
+                            if let controller = splitController.columnNavigationController(for: .secondary)?.findController(
                                 destination: destination
                             ) {
                                 splitController.show(.secondary)
@@ -779,7 +781,7 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .push:
-                            if let navigationController = splitController.viewController(for: .secondary)?.orNavigationController {
+                            if let navigationController = splitController.columnNavigationController(for: .secondary) {
                                 splitController.show(.secondary)
                                 let controller = getController(destination: destination)
                                 navigationController.pushViewController(

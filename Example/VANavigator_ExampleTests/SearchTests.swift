@@ -17,11 +17,18 @@ class SearchTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {
-        window = UIWindow()
+        super.setUp()
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            XCTFail("A window scene is required to run view-controller search tests")
+            return
+        }
+        window = UIWindow(windowScene: windowScene)
     }
 
     override func tearDown() {
+        window?.isHidden = true
         window = nil
+        super.tearDown()
     }
 
     func test_tabSearch() {
@@ -115,17 +122,44 @@ class SearchTests: XCTestCase, MainActorIsolated {
         window?.makeKeyAndVisible()
         splitViewController.view.layoutIfNeeded()
 
-        let visibleController = [
-            UISplitViewController.Column.compact,
-            .secondary,
-            .supplementary,
-            .primary,
-        ]
-            .compactMap { splitViewController.viewController(for: $0) }
+        let visibleController = splitViewController.testColumns
+            .compactMap {
+                splitViewController.columnNavigationController(for: $0)
+                    ?? splitViewController.viewController(for: $0)
+            }
             .first { $0.viewIfLoaded?.window != nil }
 
         XCTAssertNotNil(visibleController)
-        XCTAssertEqual(visibleController, splitViewController.topController)
+        XCTAssertEqual(visibleController?.topController, splitViewController.topController)
+    }
+
+    func test_splitViewControllerTopController_andSearch_includeGeneratedColumnNavigationStack() throws {
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        splitViewController.setViewController(UIViewController(), for: .primary)
+        splitViewController.setViewController(UIViewController(), for: .secondary)
+        window?.rootViewController = splitViewController
+        window?.makeKeyAndVisible()
+        splitViewController.view.layoutIfNeeded()
+
+        let navigationController = try XCTUnwrap(
+            splitViewController.testColumns
+                .compactMap { splitViewController.columnNavigationController(for: $0) }
+                .first { $0.viewIfLoaded?.window != nil }
+        )
+        let pushedController = UIViewController()
+        let identity = MockPushControllerNavigationIdentity()
+        pushedController.navigationIdentity = identity
+        navigationController.pushViewController(pushedController, animated: false)
+
+        XCTAssertEqual(pushedController, splitViewController.topController)
+        XCTAssertEqual(
+            pushedController,
+            splitViewController.findController(controller: pushedController, withPresented: false)
+        )
+        XCTAssertEqual(
+            pushedController,
+            splitViewController.findController(identity: identity, withPresented: false)
+        )
     }
 
     private func assertSearchIncludesPresentedController(
@@ -176,5 +210,17 @@ class SearchTests: XCTestCase, MainActorIsolated {
             file: file,
             line: line
         )
+    }
+}
+
+private extension UISplitViewController {
+    var testColumns: [Column] {
+        var columns: [Column] = [.compact]
+        if #available(iOS 26.0, *) {
+            columns.append(.inspector)
+        }
+        columns.append(contentsOf: [.secondary, .supplementary, .primary])
+
+        return columns
     }
 }

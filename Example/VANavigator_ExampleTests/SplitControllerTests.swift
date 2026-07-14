@@ -15,15 +15,21 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
     override func setUp() {
-        window = UIWindow()
+        super.setUp()
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            XCTFail("A window scene is required to run split-view tests")
+            return
+        }
+        window = UIWindow(windowScene: windowScene)
     }
 
     override func tearDown() {
+        window?.isHidden = true
         window = nil
+        super.tearDown()
     }
 
     func test_primaryPush() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -51,16 +57,15 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let primaryControllers = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        let primaryControllers = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(2, primaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_primaryPop() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -88,9 +93,9 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let primaryControllers = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        let primaryControllers = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(2, primaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
 
@@ -108,15 +113,14 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
-        let primaryControllers1 = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
+        let primaryControllers1 = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(1, primaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(primaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_primaryPop_failure() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -145,9 +149,9 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let primaryControllers = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        let primaryControllers = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(2, primaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
 
@@ -165,15 +169,14 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(false, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
-        let primaryControllers1 = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
+        let primaryControllers1 = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(2, primaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_primaryPop_fallback() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -202,9 +205,9 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let primaryControllers = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        let primaryControllers = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(2, primaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
 
@@ -227,15 +230,14 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
-        let primaryControllers1 = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
+        let primaryControllers1 = splitController?.columnNavigationController(for: .primary)?.viewControllers
         XCTAssertEqual(1, primaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(primaryIdentity.isEqual(to: primaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(primaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_primaryReplace() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -263,7 +265,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .primary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
         if splitController?.isSingleNavigation == false {
             XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
@@ -272,7 +274,6 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_secondaryPush() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -301,14 +302,13 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let secondaryControllers = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(2, secondaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_secondaryPop() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -337,7 +337,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let secondaryControllers = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(2, secondaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
 
@@ -355,15 +355,14 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
-        let secondaryControllers1 = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .secondary)?.topViewController?.navigationIdentity))
+        let secondaryControllers1 = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(1, secondaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(secondaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_secondaryPop_failure() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -393,14 +392,14 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let secondaryControllers = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(2, secondaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
 
         let expect1 = expectation(description: "navigation1")
         navigator.navigate(
             destination: .identity(failureIdentity),
-            strategy: .split(strategy: .primary(action: .pop)),
+            strategy: .split(strategy: .secondary(action: .pop)),
             completion: {
                 responder = $0
                 result = $1
@@ -411,14 +410,13 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(false, result)
-        let secondaryControllers1 = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers1 = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(2, secondaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_secondaryPop_fallback() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -448,7 +446,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
-        let secondaryControllers = (splitController?.viewController(for: .secondary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(2, secondaryControllers?.filter { !($0 is UINavigationController) }.count)
         XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
 
@@ -471,14 +469,13 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
-        let secondaryControllers1 = (splitController?.viewController(for: .primary)?.navigationController as? UINavigationController)?.viewControllers
+        let secondaryControllers1 = splitController?.columnNavigationController(for: .secondary)?.viewControllers
         XCTAssertEqual(1, secondaryControllers1?.filter { !($0 is UINavigationController) }.count)
-        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers?.first?.navigationIdentity))
+        XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryControllers1?.first?.navigationIdentity))
         XCTAssertTrue(secondaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
     func test_secondaryReplace() {
-        guard #unavailable(iOS 26) else { return }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -506,7 +503,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         wait(for: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
-        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.viewController(for: .secondary)?.navigationIdentity))
+        XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .secondary)?.topViewController?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: responder?.navigationIdentity))
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
@@ -591,6 +588,8 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         )
 
         wait(for: [expect], timeout: 10)
+        window?.rootViewController?.loadViewIfNeeded()
+        window?.rootViewController?.view.layoutIfNeeded()
     }
 
     func prepareNavigationStackWithMissingColumnNavigation(failedColumn: UISplitViewController.Column) {
