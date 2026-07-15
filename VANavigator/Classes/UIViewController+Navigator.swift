@@ -21,7 +21,8 @@ extension UIViewController {
     }
     /// Recursively finds the top-most view controller in the current hierarchy.
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
-    /// the visible detail column in `UISplitViewController`, and any presented view controller.
+    /// the visible detail column in `UISplitViewController`, children of custom containers, and any presented view
+    /// controller.
     public var topController: UIViewController {
         if let presentedViewController, !presentedViewController.isBeingDismissed {
             return presentedViewController.topController
@@ -34,6 +35,10 @@ extension UIViewController {
             possibleController = navigationController.topViewController
         } else if let splitController = self as? UISplitViewController {
             possibleController = splitController.navigatorVisibleViewController
+        } else {
+            possibleController = children.last {
+                !$0.isBeingDismissed && $0.viewIfLoaded?.window != nil
+            } ?? children.last { !$0.isBeingDismissed }
         }
 
         if let possibleController, possibleController !== self, !possibleController.isBeingDismissed {
@@ -54,32 +59,13 @@ extension UIViewController {
     ) -> UIViewController? {
         if self === controller {
             return self
-        } else if let navigation = self as? UINavigationController {
-            for child in navigation.viewControllers {
-                if let target = child.findController(
-                    controller: controller,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
-            }
-        } else if let tab = self as? UITabBarController {
-            for child in (tab.viewControllers ?? []) {
-                if let target = child.findController(
-                    controller: controller,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
-            }
-        } else if let split = self as? UISplitViewController {
-            for child in split.navigatorContainedViewControllers {
-                if let target = child.findController(
-                    controller: controller,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
+        }
+        for child in navigatorSearchChildren {
+            if let target = child.findController(
+                controller: controller,
+                withPresented: withPresented
+            ) {
+                return target
             }
         }
         if withPresented, let presentedViewController {
@@ -103,32 +89,13 @@ extension UIViewController {
     ) -> UIViewController? {
         if navigationIdentity?.isEqual(to: identity) == true {
             return self
-        } else if let navigation = self as? UINavigationController {
-            for controller in navigation.viewControllers {
-                if let target = controller.findController(
-                    identity: identity,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
-            }
-        } else if let tab = self as? UITabBarController {
-            for controller in (tab.viewControllers ?? []) {
-                if let target = controller.findController(
-                    identity: identity,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
-            }
-        } else if let split = self as? UISplitViewController {
-            for controller in split.navigatorContainedViewControllers {
-                if let target = controller.findController(
-                    identity: identity,
-                    withPresented: withPresented
-                ) {
-                    return target
-                }
+        }
+        for controller in navigatorSearchChildren {
+            if let target = controller.findController(
+                identity: identity,
+                withPresented: withPresented
+            ) {
+                return target
             }
         }
         if withPresented, let presentedViewController {
@@ -175,6 +142,18 @@ extension UIViewController {
                 controller: controller,
                 withPresented: withPresented
             )
+        }
+    }
+
+    private var navigatorSearchChildren: [UIViewController] {
+        if let navigationController = self as? UINavigationController {
+            return navigationController.viewControllers
+        } else if let tabBarController = self as? UITabBarController {
+            return tabBarController.viewControllers ?? []
+        } else if let splitViewController = self as? UISplitViewController {
+            return splitViewController.navigatorContainedViewControllers
+        } else {
+            return children
         }
     }
 }

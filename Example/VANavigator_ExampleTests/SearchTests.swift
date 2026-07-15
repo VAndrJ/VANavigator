@@ -165,6 +165,32 @@ class SearchTests: XCTestCase {
         )
     }
 
+    func test_customContainerTopController_andSearch_includeChild() {
+        let container = UIViewController()
+        let child = UIViewController()
+        let identity = MockPushControllerNavigationIdentity()
+        child.navigationIdentity = identity
+        container.addChild(child)
+        container.view.addSubview(child.view)
+        child.didMove(toParent: container)
+        window?.rootViewController = container
+        window?.makeKeyAndVisible()
+
+        XCTAssertIdentical(child, container.topController)
+        XCTAssertIdentical(
+            child,
+            container.findController(controller: child, withPresented: false)
+        )
+        XCTAssertIdentical(
+            child,
+            container.findController(identity: identity, withPresented: false)
+        )
+        XCTAssertIdentical(
+            child,
+            window?.findController(destination: .identity(identity))
+        )
+    }
+
     private func assertSearchIncludesPresentedController(
         in container: UIViewController,
         file: StaticString = #filePath,

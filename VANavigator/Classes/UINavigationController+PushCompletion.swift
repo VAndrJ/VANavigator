@@ -14,7 +14,7 @@ extension UINavigationController {
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one
     ///     view controller.
-    public func popViewController(
+    func popViewController(
         animated: Bool,
         completion: @escaping (Bool) -> Void
     ) {
@@ -44,7 +44,7 @@ extension UINavigationController {
     ///   - controllers: The new array of view controllers.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func setViewControllers(
+    func setViewControllers(
         _ controllers: [UIViewController],
         animated: Bool,
         completion: (() -> Void)?
@@ -62,7 +62,7 @@ extension UINavigationController {
     ///   - controller: The view controller to pop to.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func popToViewController(
+    func popToViewController(
         _ controller: UIViewController,
         animated: Bool,
         completion: (() -> Void)?
@@ -109,7 +109,7 @@ extension UINavigationController {
     ///   - viewController: The view controller to push.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func pushViewController(
+    func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
         completion: (() -> Void)?

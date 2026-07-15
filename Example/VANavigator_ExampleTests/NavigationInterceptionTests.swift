@@ -226,6 +226,39 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertEqual(1, secondController.handledEventCount)
     }
 
+    func test_navigationInterception_strategyOverrideDoesNotMutateOriginalLink() {
+        let navigationInterceptor = RepeatedReasonNavigationInterceptor()
+        let navigator = Navigator(
+            window: window,
+            screenFactory: MockScreenFactory(),
+            navigationInterceptor: navigationInterceptor
+        )
+        let controller = UIViewController()
+        let originalStrategy = NavigationStrategy.present()
+        let link = NavigationChainLink(
+            destination: .controller(controller),
+            strategy: originalStrategy,
+            animated: false
+        )
+        let intercepted = expectation(description: "navigation intercepted")
+        navigator.navigate(chain: [link]) { _, _ in intercepted.fulfill() }
+
+        wait(for: [intercepted], timeout: 10)
+
+        let resolved = expectation(description: "interception resolved")
+        var result: Bool?
+        navigationInterceptor.resolve(newStrategy: .replaceWindowRoot()) { _, isSuccess in
+            result = isSuccess
+            resolved.fulfill()
+        }
+
+        wait(for: [resolved], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertIdentical(controller, window?.rootViewController)
+        XCTAssertIdentical(originalStrategy, link.strategy)
+    }
+
     func test_navigationInterception_prefixedNavigationChain() {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
@@ -472,9 +505,16 @@ private final class RepeatedReasonNavigationInterceptor: NavigationInterceptor {
         return NavigationInterceptionResult(chain: [], reason: reason)
     }
 
-    func resolve(completion: ((UIViewController?, Bool) -> Void)?) {
+    func resolve(
+        newStrategy: NavigationStrategy? = nil,
+        completion: ((UIViewController?, Bool) -> Void)?
+    ) {
         isResolved = true
-        interceptionResolved(reason: reason, completion: completion)
+        interceptionResolved(
+            reason: reason,
+            newStrategy: newStrategy,
+            completion: completion
+        )
     }
 }
 

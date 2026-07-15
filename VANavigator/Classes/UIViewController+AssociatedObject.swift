@@ -21,8 +21,8 @@ extension UIViewController {
 }
 
 @propertyWrapper
-public class UniqueAddress {
-    public var wrappedValue: UnsafeRawPointer { UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque()) }
+final class UniqueAddress {
+    var wrappedValue: UnsafeRawPointer { UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque()) }
 
-    public init() {}
+    init() {}
 }

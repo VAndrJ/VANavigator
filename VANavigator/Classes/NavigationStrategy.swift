@@ -84,7 +84,7 @@ extension NavigationStrategy {
 
 /// Navigation strategy for `UISplitViewController`.
 nonisolated public enum SplitStrategy: Equatable {
-    public enum SplitActon: Equatable {
+    public enum SplitAction: Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -94,9 +94,9 @@ nonisolated public enum SplitStrategy: Equatable {
     }
 
     /// Performs action on the primary view controller in `UISplitViewController`.
-    case primary(action: SplitActon)
+    case primary(action: SplitAction)
     /// Performs action on the secondary view controller in `UISplitViewController`.
-    case secondary(action: SplitActon)
+    case secondary(action: SplitAction)
 }
 
 final class SplitNavigationStrategy: NavigationStrategy {

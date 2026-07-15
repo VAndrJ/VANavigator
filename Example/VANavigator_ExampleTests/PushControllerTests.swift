@@ -7,8 +7,9 @@
 //
 
 import UIKit
-import VANavigator
 import XCTest
+
+@testable import VANavigator
 
 // TODO: - Messages
 @MainActor

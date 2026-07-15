@@ -786,7 +786,7 @@ open class Navigator {
                 let splitController = window?.topController?.orSplitViewController
                     ?? window?.rootViewController?.orSplitViewController
                 let column: UISplitViewController.Column
-                let action: SplitStrategy.SplitActon
+                let action: SplitStrategy.SplitAction
                 switch strategy.strategy {
                 case let .primary(splitAction):
                     column = .primary

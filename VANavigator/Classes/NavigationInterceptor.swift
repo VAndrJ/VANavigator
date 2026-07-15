@@ -73,12 +73,6 @@ open class NavigationInterceptor {
             return
         }
 
-        if let newStrategy {
-            for (detail, _) in details where !detail.chain.isEmpty {
-                detail.chain[0].update(strategy: newStrategy)
-            }
-        }
-
         let completionCoordinator = completion.map {
             InterceptionResolutionCompletion(count: details.count, completion: $0)
         }
@@ -88,7 +82,7 @@ open class NavigationInterceptor {
             let isLast = index == details.index(before: details.endIndex)
             navigator.navigate(
                 chain: (isFirst ? prefixNavigationChain : [])
-                    + detail.chain
+                    + detail.chain(replacingInitialStrategyWith: newStrategy)
                     + (isLast ? suffixNavigationChain : []),
                 event: detail.event,
                 completion: completionCoordinator.map { coordinator in
@@ -149,7 +143,7 @@ open class NavigationInterceptor {
 }
 
 final class InterceptedNavigation {
-    var chain: [NavigationChainLink]
+    let chain: [NavigationChainLink]
     let event: (any ResponderEvent)?
     weak var navigator: Navigator?
 
@@ -161,6 +155,19 @@ final class InterceptedNavigation {
         self.chain = chain
         self.event = event
         self.navigator = navigator
+    }
+
+    func chain(replacingInitialStrategyWith strategy: NavigationStrategy?) -> [NavigationChainLink] {
+        guard let strategy, let firstLink = chain.first else { return chain }
+
+        return [
+            NavigationChainLink(
+                destination: firstLink.destination,
+                strategy: strategy,
+                animated: firstLink.animated,
+                fallback: firstLink.fallback
+            )
+        ] + chain.dropFirst()
     }
 }
 
