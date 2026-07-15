@@ -33,7 +33,7 @@ class SearchTests: XCTestCase {
         try await super.tearDown()
     }
 
-    func test_tabSearch() {
+    func test_tabSearch() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let primaryIdentity = MockControllerNavigationIdentity()
         let secondaryIdentity = LoginNavigationIdentity()
@@ -57,7 +57,7 @@ class SearchTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         let controller = window?.findController(destination: .identity(identity))
         XCTAssertTrue(identity.isEqual(to: controller?.navigationIdentity))
@@ -95,28 +95,28 @@ class SearchTests: XCTestCase {
         XCTAssertNil(splitController?.findTabBarController())
     }
 
-    func test_navigationControllerSearch_includesPresentedController() {
-        assertSearchIncludesPresentedController(
+    func test_navigationControllerSearch_includesPresentedController() async {
+        await assertSearchIncludesPresentedController(
             in: UINavigationController(rootViewController: UIViewController())
         )
     }
 
-    func test_tabBarControllerSearch_includesPresentedController() {
+    func test_tabBarControllerSearch_includesPresentedController() async {
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [UIViewController()]
 
-        assertSearchIncludesPresentedController(in: tabBarController)
+        await assertSearchIncludesPresentedController(in: tabBarController)
     }
 
-    func test_splitViewControllerSearch_includesPresentedController() {
+    func test_splitViewControllerSearch_includesPresentedController() async {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
 
-        assertSearchIncludesPresentedController(in: splitViewController)
+        await assertSearchIncludesPresentedController(in: splitViewController)
     }
 
-    func test_splitViewControllerTopController_usesVisibleColumn() {
+    func test_splitViewControllerTopController_usesVisibleColumn() async {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
@@ -135,7 +135,7 @@ class SearchTests: XCTestCase {
         XCTAssertEqual(visibleController?.topController, splitViewController.topController)
     }
 
-    func test_splitViewControllerTopController_andSearch_includeGeneratedColumnNavigationStack() throws {
+    func test_splitViewControllerTopController_andSearch_includeGeneratedColumnNavigationStack() async throws {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
@@ -164,7 +164,7 @@ class SearchTests: XCTestCase {
         )
     }
 
-    func test_customContainerTopController_andSearch_includeChild() {
+    func test_customContainerTopController_andSearch_includeChild() async {
         let container = UIViewController()
         let child = UIViewController()
         let identity = MockPushControllerNavigationIdentity()
@@ -194,7 +194,7 @@ class SearchTests: XCTestCase {
         in container: UIViewController,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) async {
         let identity = MockPopControllerNavigationIdentity()
         let presentedController = UIViewController()
         presentedController.navigationIdentity = identity
@@ -206,7 +206,7 @@ class SearchTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(presentedController, container.presentedViewController, file: file, line: line)
         XCTAssertEqual(presentedController, container.topController, file: file, line: line)

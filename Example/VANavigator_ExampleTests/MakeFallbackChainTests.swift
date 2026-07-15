@@ -12,7 +12,7 @@ import XCTest
 
 // TODO: - Messages
 class MakeFallbackChainTests: XCTestCase {
-    func test_fallbackChain() {
+    func test_fallbackChain() async {
         let destination = NavigationDestination.identity(MockRootControllerNavigationIdentity())
         let strategy = NavigationStrategy.push()
         let animated = true

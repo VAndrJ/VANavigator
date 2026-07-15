@@ -200,4 +200,6 @@ private final class InterceptionResolutionCompletion {
         self.completion = nil
         completion?(result?.0, result?.1 ?? false)
     }
+
+    nonisolated deinit {}
 }

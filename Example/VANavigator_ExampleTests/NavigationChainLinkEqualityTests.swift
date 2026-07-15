@@ -11,7 +11,7 @@ import VANavigator
 import XCTest
 
 class NavigationChainLinkEqualityTests: XCTestCase {
-    func test_links() {
+    func test_links() async {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
             strategy: .push(),
@@ -45,7 +45,7 @@ class NavigationChainLinkEqualityTests: XCTestCase {
         XCTAssertFalse(expected.isEqual(to: nil))
     }
 
-    func test_links_fallback() {
+    func test_links_fallback() async {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
             strategy: .push(),

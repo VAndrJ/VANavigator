@@ -22,9 +22,9 @@ class QueueTests: XCTestCase {
         window = nil
     }
 
-    func test_navigationWithoutDelay_queue() {
+    func test_navigationWithoutDelay_queue() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigation(navigator: navigator)
+        await prepareNavigation(navigator: navigator)
         let expectedIdentity = MockRootControllerNavigationIdentity()
         let identity = MockPopControllerNavigationIdentity()
 
@@ -86,9 +86,9 @@ class QueueTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationChainWithoutDelay_queue() {
+    func test_navigationChainWithoutDelay_queue() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigation(navigator: navigator)
+        await prepareNavigation(navigator: navigator)
         let expectedIdentity = MockRootControllerNavigationIdentity()
         let identity = MockPopControllerNavigationIdentity()
 
@@ -142,9 +142,9 @@ class QueueTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationCompletion_runsBeforeQueuedNavigationStarts() {
+    func test_navigationCompletion_runsBeforeQueuedNavigationStarts() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigation(navigator: navigator)
+        await prepareNavigation(navigator: navigator)
         let presentedIdentity = MockPopControllerNavigationIdentity()
         let presentExpect = expectation(description: "navigation.present")
         let closeExpect = expectation(description: "navigation.close")
@@ -174,7 +174,7 @@ class QueueTests: XCTestCase {
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_navigationChain_stopsAfterFailedLink() {
+    func test_navigationChain_stopsAfterFailedLink() async {
         let initialController = UIViewController()
         let skippedController = UIViewController()
         window?.rootViewController = initialController
@@ -201,14 +201,14 @@ class QueueTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(false, result)
         XCTAssertIdentical(initialController, window?.rootViewController)
         XCTAssertNotIdentical(skippedController, window?.rootViewController)
     }
 
-    func prepareNavigation(navigator: Navigator) {
+    func prepareNavigation(navigator: Navigator) async {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
@@ -216,6 +216,6 @@ class QueueTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 }

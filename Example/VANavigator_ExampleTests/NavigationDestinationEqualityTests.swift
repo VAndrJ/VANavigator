@@ -13,7 +13,7 @@ import XCTest
 @testable import VANavigator_Example
 
 class NavigationDestinationEqualityTests: XCTestCase {
-    func test_identity_identity() {
+    func test_identity_identity() async {
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
         let expectedToFail: NavigationDestination = .identity(MockPopControllerNavigationIdentity())
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
@@ -23,7 +23,7 @@ class NavigationDestinationEqualityTests: XCTestCase {
         XCTAssertFalse(expected.isEqual(to: nil))
     }
 
-    func test_identity_controller() {
+    func test_identity_controller() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .controller(controller)
@@ -39,7 +39,7 @@ class NavigationDestinationEqualityTests: XCTestCase {
         XCTAssertFalse(expected.isEqual(to: nil))
     }
 
-    func test_controller_controller() {
+    func test_controller_controller() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .controller(controller)
@@ -55,7 +55,7 @@ class NavigationDestinationEqualityTests: XCTestCase {
         XCTAssertFalse(expected.isEqual(to: nil))
     }
 
-    func test_controller_identity() {
+    func test_controller_identity() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
@@ -71,7 +71,7 @@ class NavigationDestinationEqualityTests: XCTestCase {
         XCTAssertFalse(expected.isEqual(to: nil))
     }
 
-    func test_splitIdentity_optionalSupplementaryEquality() {
+    func test_splitIdentity_optionalSupplementaryEquality() async {
         let sut = SplitNavigationIdentity(
             primary: PrimaryNavigationIdentity(),
             secondary: SecondaryNavigationIdentity(),

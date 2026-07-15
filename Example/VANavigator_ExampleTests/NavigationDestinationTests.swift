@@ -11,14 +11,14 @@ import VANavigator
 import XCTest
 
 class NavigationDestinationTests: XCTestCase {
-    func test_identity_equality() {
+    func test_identity_equality() async {
         let identity = MockRootControllerNavigationIdentity()
 
         XCTAssertTrue(identity.isEqual(to: NavigationDestination.identity(MockRootControllerNavigationIdentity()).identity))
         XCTAssertFalse(identity.isEqual(to: NavigationDestination.identity(MockPopControllerNavigationIdentity()).identity))
     }
 
-    func test_controllersIdentity_equality() {
+    func test_controllersIdentity_equality() async {
         let identity = MockRootControllerNavigationIdentity()
 
         let controller = UIViewController()

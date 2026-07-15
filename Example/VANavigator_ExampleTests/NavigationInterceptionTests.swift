@@ -24,13 +24,13 @@ class NavigationInterceptionTests: XCTestCase {
         window = nil
     }
 
-    func test_defaultInterception() {
+    func test_defaultInterception() async {
         let sut = MockEmptyInterceptor()
 
         XCTAssertNil(sut.intercept(destination: .identity(MockControllerNavigationIdentity())))
     }
 
-    func test_navigationInterception() {
+    func test_navigationInterception() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -38,7 +38,7 @@ class NavigationInterceptionTests: XCTestCase {
             screenFactory: MockScreenFactory(),
             navigationInterceptor: navigationInterceptor
         )
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -48,7 +48,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -59,18 +59,18 @@ class NavigationInterceptionTests: XCTestCase {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_assignedAfterInit() {
+    func test_navigationInterception_assignedAfterInit() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         navigator.navigationInterceptor = navigationInterceptor
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -80,7 +80,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -90,13 +90,13 @@ class NavigationInterceptionTests: XCTestCase {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_startsInterceptionChainBeforeQueuedNavigation() {
+    func test_navigationInterception_startsInterceptionChainBeforeQueuedNavigation() async {
         let screenFactory = InterceptionOrderScreenFactory()
         let navigationInterceptor = QueuingNavigationInterceptor()
         let navigator = Navigator(
@@ -105,7 +105,7 @@ class NavigationInterceptionTests: XCTestCase {
             navigationInterceptor: navigationInterceptor
         )
         navigationInterceptor.navigator = navigator
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
 
         let expect = expectation(description: "navigation.interception")
         let queuedExpect = expectation(description: "navigation.queued")
@@ -119,12 +119,12 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect, queuedExpect], timeout: 10)
+        await fulfillment(of: [expect, queuedExpect], timeout: 10)
 
         XCTAssertEqual(["interception", "queued"], screenFactory.trackedAssemblies)
     }
 
-    func test_navigationInterception_resumesEveryNavigationWithTheSameReasonInFIFOOrder() {
+    func test_navigationInterception_resumesEveryNavigationWithTheSameReasonInFIFOOrder() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let navigator = Navigator(
             window: window,
@@ -151,7 +151,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in secondIntercepted.fulfill() }
         )
 
-        wait(for: [firstIntercepted, secondIntercepted], timeout: 10)
+        await fulfillment(of: [firstIntercepted, secondIntercepted], timeout: 10)
 
         XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
 
@@ -162,7 +162,7 @@ class NavigationInterceptionTests: XCTestCase {
             resolved.fulfill()
         }
 
-        wait(for: [resolved], timeout: 10)
+        await fulfillment(of: [resolved], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertEqual(1, firstController.handledEventCount)
@@ -170,7 +170,7 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertIdentical(secondController, window?.rootViewController)
     }
 
-    func test_navigationInterception_sharedInterceptorResumesInOriginatingNavigators() {
+    func test_navigationInterception_sharedInterceptorResumesInOriginatingNavigators() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let firstWindow = UIWindow()
         let secondWindow = UIWindow()
@@ -204,7 +204,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in secondIntercepted.fulfill() }
         )
 
-        wait(for: [firstIntercepted, secondIntercepted], timeout: 10)
+        await fulfillment(of: [firstIntercepted, secondIntercepted], timeout: 10)
 
         let resolved = expectation(description: "interceptions resolved")
         var completedController: UIViewController?
@@ -215,7 +215,7 @@ class NavigationInterceptionTests: XCTestCase {
             resolved.fulfill()
         }
 
-        wait(for: [resolved], timeout: 10)
+        await fulfillment(of: [resolved], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertIdentical(secondController, completedController)
@@ -225,7 +225,7 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertEqual(1, secondController.handledEventCount)
     }
 
-    func test_navigationInterception_strategyOverrideDoesNotMutateOriginalLink() {
+    func test_navigationInterception_strategyOverrideDoesNotMutateOriginalLink() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let navigator = Navigator(
             window: window,
@@ -242,7 +242,7 @@ class NavigationInterceptionTests: XCTestCase {
         let intercepted = expectation(description: "navigation intercepted")
         navigator.navigate(chain: [link]) { _, _ in intercepted.fulfill() }
 
-        wait(for: [intercepted], timeout: 10)
+        await fulfillment(of: [intercepted], timeout: 10)
 
         let resolved = expectation(description: "interception resolved")
         var result: Bool?
@@ -251,14 +251,14 @@ class NavigationInterceptionTests: XCTestCase {
             resolved.fulfill()
         }
 
-        wait(for: [resolved], timeout: 10)
+        await fulfillment(of: [resolved], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertIdentical(controller, window?.rootViewController)
         XCTAssertIdentical(originalStrategy, link.strategy)
     }
 
-    func test_navigationInterception_prefixedNavigationChain() {
+    func test_navigationInterception_prefixedNavigationChain() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
         let navigator = Navigator(
@@ -266,7 +266,7 @@ class NavigationInterceptionTests: XCTestCase {
             screenFactory: MockScreenFactory(),
             navigationInterceptor: navigationInterceptor
         )
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -280,7 +280,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertNotNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
@@ -292,14 +292,14 @@ class NavigationInterceptionTests: XCTestCase {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
         XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_suffixedNavigationChain() {
+    func test_navigationInterception_suffixedNavigationChain() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .suffixed)
         let navigator = Navigator(
@@ -307,7 +307,7 @@ class NavigationInterceptionTests: XCTestCase {
             screenFactory: MockScreenFactory(),
             navigationInterceptor: navigationInterceptor
         )
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -321,7 +321,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertNotNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
@@ -333,7 +333,7 @@ class NavigationInterceptionTests: XCTestCase {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
         XCTAssertNotNil(window?.findController(destination: .identity(identity)))
@@ -341,7 +341,7 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertTrue(MockPopControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_navigationInterception_removeReason() {
+    func test_navigationInterception_removeReason() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -349,7 +349,7 @@ class NavigationInterceptionTests: XCTestCase {
             screenFactory: MockScreenFactory(),
             navigationInterceptor: navigationInterceptor
         )
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -359,7 +359,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -372,7 +372,7 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
     }
 
-    func test_navigationInterception_removeReasons() {
+    func test_navigationInterception_removeReasons() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -380,7 +380,7 @@ class NavigationInterceptionTests: XCTestCase {
             screenFactory: MockScreenFactory(),
             navigationInterceptor: navigationInterceptor
         )
-        preparePresented(navigator: navigator)
+        await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
         let expect = expectation(description: "navigation.present")
         navigator.navigate(
@@ -390,7 +390,7 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -403,7 +403,7 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
     }
 
-    func preparePresented(navigator: Navigator) {
+    func preparePresented(navigator: Navigator) async {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
             chain: [
@@ -416,10 +416,10 @@ class NavigationInterceptionTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func test_resultInit_equality() {
+    func test_resultInit_equality() async {
         let link = NavigationChainLink(
             destination: .identity(MainNavigationIdentity()),
             strategy: .push(),
@@ -443,12 +443,11 @@ class NavigationInterceptionTests: XCTestCase {
         XCTAssertEqual(sut.reason, expected.reason)
     }
 
-    func test_releasedNavigator_removesInterceptedNavigationAndDestination() {
+    func test_releasedNavigator_removesInterceptedNavigationAndDestination() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         weak var releasedNavigator: Navigator?
         weak var releasedController: UIViewController?
-
-        autoreleasepool {
+        await Task {
             let navigator = Navigator(
                 window: window,
                 screenFactory: MockScreenFactory(),
@@ -465,11 +464,10 @@ class NavigationInterceptionTests: XCTestCase {
                 animated: false,
                 completion: { _, _ in expect.fulfill() }
             )
-
-            wait(for: [expect], timeout: 10)
+            await fulfillment(of: [expect], timeout: 10)
             XCTAssertNotNil(releasedController)
             XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
-        }
+        }.value
 
         XCTAssertNil(releasedNavigator)
         XCTAssertNil(releasedController)
@@ -633,7 +631,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                         destination: .identity(interceptionIdentity),
                         strategy: .closeIfTop(),
                         animated: true
-                    ),
+                    )
                 ],
                 completion: completion
             )

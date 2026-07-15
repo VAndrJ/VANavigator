@@ -22,7 +22,7 @@ class SetRootControllerTests: XCTestCase {
         window = nil
     }
 
-    func test_setRootController() {
+    func test_setRootController() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
         XCTAssertNil(window?.rootViewController)
@@ -31,7 +31,7 @@ class SetRootControllerTests: XCTestCase {
         var responder: UIViewController?
         let expect = expectation(description: "replace")
         var result: Bool?
-        replaceWindowRoot(
+        await replaceWindowRoot(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: false,
@@ -42,7 +42,7 @@ class SetRootControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
@@ -56,13 +56,13 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    func test_setRootController_embeddingInNavigation() {
+    func test_setRootController_embeddingInNavigation() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
         XCTAssertNil(window?.rootViewController)
 
         let identity = MockRootControllerNavigationIdentity()
-        replaceWindowRoot(
+        await replaceWindowRoot(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: true,
@@ -82,7 +82,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertEqual(false, (window?.topController as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    func test_replaceExistingRootController() {
+    func test_replaceExistingRootController() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         window?.rootViewController = UIViewController()
         window?.makeKeyAndVisible()
@@ -92,7 +92,7 @@ class SetRootControllerTests: XCTestCase {
         let identity = MockRootControllerNavigationIdentity()
         var responder: UIViewController?
         let expect = expectation(description: "replace")
-        replaceWindowRoot(
+        await replaceWindowRoot(
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: false,
@@ -101,7 +101,7 @@ class SetRootControllerTests: XCTestCase {
                 expect.fulfill()
             }
         )
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
@@ -114,7 +114,7 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
     }
 
-    func test_replaceExistingRootController_waitsForResponderEventsBeforeCompletion() {
+    func test_replaceExistingRootController_waitsForResponderEventsBeforeCompletion() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         window?.rootViewController = UIViewController()
         window?.makeKeyAndVisible()
@@ -133,13 +133,13 @@ class SetRootControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(["navigator", "user"], handledEventsAtCompletion)
         XCTAssertEqual(["navigator", "user"], responder.handledEvents)
     }
 
-    func test_replaceWindowRoot_withoutWindowReportsFailure() {
+    func test_replaceWindowRoot_withoutWindowReportsFailure() async {
         let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
         let controller = UIViewController()
         let expect = expectation(description: "replace without window")
@@ -157,13 +157,13 @@ class SetRootControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertNil(responder)
         XCTAssertEqual(false, result)
     }
 
-    func test_setRootController_transitionCompletionWaitsForAnimation() {
+    func test_setRootController_transitionCompletionWaitsForAnimation() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
@@ -192,12 +192,12 @@ class SetRootControllerTests: XCTestCase {
 
         XCTAssertIdentical(newController, window?.rootViewController)
         XCTAssertNil(elapsed)
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.15)
     }
 
-    func test_setRootController_transitionRetainsAndForwardsDelegate() {
+    func test_setRootController_transitionRetainsAndForwardsDelegate() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
@@ -236,7 +236,7 @@ class SetRootControllerTests: XCTestCase {
         wait(for: [forwarded, completed], timeout: 10)
     }
 
-    func test_setWithoutAnimation() {
+    func test_setWithoutAnimation() async {
         XCTAssertNil(window?.rootViewController)
         UIView.setAnimationsEnabled(false)
 
@@ -250,7 +250,7 @@ class SetRootControllerTests: XCTestCase {
         identity: any NavigationIdentity,
         alwaysEmbedded: Bool,
         completion: ((UIViewController?, Bool) -> Void)?
-    ) {
+    ) async {
         let expect = expectation(description: "navigation")
         var responder: UIViewController?
         var result = false
@@ -264,7 +264,7 @@ class SetRootControllerTests: XCTestCase {
                 taskDetachedMain { expect.fulfill() }
             }
         )
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
         completion?(responder, result)
     }
 }

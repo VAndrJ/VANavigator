@@ -21,13 +21,13 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
         window = nil
     }
 
-    func test_controllerPop_fail() {
+    func test_controllerPop_fail() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         let identity = MockNavControllerNavigationIdentity(children: [
             childIdentity
         ])
-        prepareNavigationStack(navigator: navigator, identity: identity)
+        await prepareNavigationStack(navigator: navigator, identity: identity)
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
@@ -45,17 +45,17 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(false, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertTrue(childIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
     }
 
-    func test_controllerPop_singleFallback() {
+    func test_controllerPop_singleFallback() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
-        prepareNavigationStack(navigator: navigator, identity: childIdentity)
+        await prepareNavigationStack(navigator: navigator, identity: childIdentity)
         let expectedIdentity = MockPushControllerNavigationIdentity()
 
         XCTAssertTrue(childIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
@@ -77,13 +77,13 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_controller_multipleRemove() {
+    func test_controller_multipleRemove() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         let expectedIdentity = MockPushControllerNavigationIdentity()
@@ -91,7 +91,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             childIdentity,
             expectedIdentity,
         ])
-        prepareNavigationStack(navigator: navigator, identity: identity)
+        await prepareNavigationStack(navigator: navigator, identity: identity)
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
@@ -109,7 +109,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
@@ -117,7 +117,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerDestination_withoutIdentityRemovesExactInstance() {
+    func test_controllerDestination_withoutIdentityRemovesExactInstance() async {
         let rootController = UIViewController()
         let controllerToRemove = UIViewController()
         let topController = UIViewController()
@@ -139,7 +139,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertEqual(2, navigationController.viewControllers.count)
@@ -148,7 +148,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
         XCTAssertFalse(navigationController.viewControllers.contains { $0 === controllerToRemove })
     }
 
-    func prepareNavigationStack(navigator: Navigator, identity: any NavigationIdentity) {
+    func prepareNavigationStack(navigator: Navigator, identity: any NavigationIdentity) async {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             destination: .identity(identity),
@@ -156,6 +156,6 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 }
