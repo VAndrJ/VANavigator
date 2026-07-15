@@ -41,7 +41,7 @@ open class Navigator {
     /// - Parameters:
     ///   - chain: An array of navigation links representing the navigation chain with destination and strategy.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
-    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
+    ///   - completion: A closure called with the responder and result after navigation completes.
     public func navigate(
         chain: [NavigationChainLink],
         event: (any ResponderEvent)? = nil,
@@ -113,7 +113,10 @@ open class Navigator {
 
         var chain = chain
         let link = chain.removeFirst()
-        if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: link.destination) {
+        if let navigationInterceptor,
+            let interceptionResult = navigationInterceptor.intercept(
+                destination: link.destination
+            ) {
             let chain = CollectionOfOne(link) + chain
             let detail = InterceptedNavigation(
                 chain: chain,
@@ -158,7 +161,7 @@ open class Navigator {
     ///   - animated: A flag indicating whether the navigation should be animated.
     ///   - fallbackStrategies: The fallback navigation strategies.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
-    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
+    ///   - completion: A closure called with the responder and result after navigation completes.
     public func navigate(
         destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -190,7 +193,7 @@ open class Navigator {
     ///   - animated: A flag indicating whether the navigation should be animated.
     ///   - fallback: The fallback navigation chain link.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
-    ///   - completion: A closure to be executed after the navigation is complete. Contains responder and navigation result.
+    ///   - completion: A closure called with the responder and result after navigation completes.
     public func navigate(
         destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -242,7 +245,10 @@ open class Navigator {
         event: (any ResponderEvent)?,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
-        if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
+        if let navigationInterceptor,
+            let interceptionResult = navigationInterceptor.intercept(
+                destination: destination
+            ) {
             let detail = InterceptedNavigation(
                 chain: [
                     NavigationChainLink(
@@ -336,8 +342,7 @@ open class Navigator {
             }
             func presentedContainer(for controller: UIViewController) -> UIViewController? {
                 if let navigationController = controller.orNavigationController,
-                    navigationController.presentingViewController != nil
-                {
+                    navigationController.presentingViewController != nil {
                     return navigationController
                 } else if controller.presentingViewController != nil {
                     return controller
@@ -363,8 +368,7 @@ open class Navigator {
             if let controller = window?.topController {
                 if tryToPop,
                     let navigationController = controller.orNavigationController,
-                    isMatchingDestination(navigationController.topViewController)
-                {
+                    isMatchingDestination(navigationController.topViewController) {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
@@ -386,8 +390,7 @@ open class Navigator {
                 } else {
                     if tryToDismiss,
                         isMatchingDestination(controller),
-                        let presentedController = presentedContainer(for: controller)
-                    {
+                        let presentedController = presentedContainer(for: controller) {
                         presentedController.dismiss(
                             animated: animated,
                             completion: {
@@ -469,18 +472,15 @@ open class Navigator {
                     if controller.viewIfLoaded?.window != nil || controller === window?.rootViewController {
                         return controller
                     } else if let navigationController = controller.orNavigationController,
-                        navigationController.viewIfLoaded?.window != nil
-                    {
+                        navigationController.viewIfLoaded?.window != nil {
                         return navigationController
                     } else if let tabBarController = controller.orTabBarController,
-                        tabBarController.viewIfLoaded?.window != nil
-                    {
+                        tabBarController.viewIfLoaded?.window != nil {
                         return tabBarController
                     } else {
                         var visibleController = window?.rootViewController
                         while let presentedController = visibleController?.presentedViewController,
-                            !presentedController.isBeingDismissed
-                        {
+                            !presentedController.isBeingDismissed {
                             visibleController = presentedController
                         }
 
@@ -609,7 +609,9 @@ open class Navigator {
                 let topController = window?.topController
 
                 return includingTabs
-                    ? (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(destination: destination)
+                    ? (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(
+                        destination: destination
+                    )
                     : topController?.orNavigationController?.findController(destination: destination)
             }
 
@@ -694,8 +696,7 @@ open class Navigator {
             }
 
             if let sourceController = window?.topController,
-                sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
-            {
+                sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController {
                 let controller = getController(destination: destination)
                 guard controller !== sourceController,
                     controller.parent == nil,
@@ -785,8 +786,8 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.columnNavigationController(for: .primary)?.findController(destination: destination)
-                            {
+                            if let navigationController = splitController.columnNavigationController(for: .primary),
+                                let controller = navigationController.findController(destination: destination) {
                                 splitController.show(.primary)
                                 navigatorEvent = ResponderPoppedToExistingEvent()
                                 closeNavigationPresented(
@@ -819,10 +820,31 @@ open class Navigator {
                             if let navigationController = splitController.columnNavigationController(for: .primary) {
                                 splitController.show(.primary)
                                 let controller = getController(destination: destination)
-                                navigationController.pushViewController(
-                                    controller,
+                                push(
+                                    controller: controller,
+                                    to: navigationController,
                                     animated: animated,
-                                    completion: {
+                                    navigation: nil,
+                                    completion: { [weak self] isSuccess in
+                                        guard let self else { return }
+
+                                        guard isSuccess else {
+                                            if let fallback {
+                                                self.navigate(
+                                                    to: fallback.destination,
+                                                    strategy: fallback.strategy,
+                                                    animated: fallback.animated,
+                                                    fallback: fallback.fallback,
+                                                    event: event,
+                                                    completion: completion
+                                                )
+                                            } else {
+                                                completion?(nil, false)
+                                            }
+
+                                            return
+                                        }
+
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
@@ -879,9 +901,8 @@ open class Navigator {
                                 completion?(nil, false)
                             }
                         case .pop:
-                            if let controller = splitController.columnNavigationController(for: .secondary)?.findController(
-                                destination: destination
-                            ) {
+                            if let navigationController = splitController.columnNavigationController(for: .secondary),
+                                let controller = navigationController.findController(destination: destination) {
                                 splitController.show(.secondary)
                                 navigatorEvent = ResponderPoppedToExistingEvent()
                                 closeNavigationPresented(
@@ -914,10 +935,31 @@ open class Navigator {
                             if let navigationController = splitController.columnNavigationController(for: .secondary) {
                                 splitController.show(.secondary)
                                 let controller = getController(destination: destination)
-                                navigationController.pushViewController(
-                                    controller,
+                                push(
+                                    controller: controller,
+                                    to: navigationController,
                                     animated: animated,
-                                    completion: {
+                                    navigation: nil,
+                                    completion: { [weak self] isSuccess in
+                                        guard let self else { return }
+
+                                        guard isSuccess else {
+                                            if let fallback {
+                                                self.navigate(
+                                                    to: fallback.destination,
+                                                    strategy: fallback.strategy,
+                                                    animated: fallback.animated,
+                                                    fallback: fallback.fallback,
+                                                    event: event,
+                                                    completion: completion
+                                                )
+                                            } else {
+                                                completion?(nil, false)
+                                            }
+
+                                            return
+                                        }
+
                                         perform(
                                             event: event,
                                             navigatorEvent: navigatorEvent,
@@ -963,7 +1005,7 @@ open class Navigator {
 
     /// Retrieves a view controller based on the provided navigation destination.
     ///
-    /// - Parameter destination: The navigation destination indicating whether to assemble a screen using an identity or use an existing controller.
+    /// - Parameter destination: A destination that either assembles a screen by identity or supplies a controller.
     /// - Returns: The view controller corresponding to the given navigation destination.
     func getController(destination: NavigationDestination) -> UIViewController {
         switch destination {
@@ -977,14 +1019,13 @@ open class Navigator {
         }
     }
 
-    /// Pushes a view controller onto the navigation stack of the top view controller in the window, dismissing presented controllers in the process.
+    /// Pushes a view controller onto the top navigation stack after dismissing presented controllers.
     ///
     /// - Parameters:
     ///   - sourceController: The source controller from which presented controllers will be dismissed.
     ///   - controller: The view controller to push onto the navigation stack.
     ///   - animated: Should be animated or not.
-    ///   - completion: A closure to be executed after the push is complete. `true` if successful, `false` if a navigation controller was not found.
-    /// - Returns: A boolean value indicating whether the push operation was successful. `true` if successful, `false` if a navigation controller was not found.
+    ///   - completion: A closure called with `true` after a successful push, or `false` if the push is invalid.
     public func push(
         sourceController: UIViewController?,
         controller: UIViewController,
@@ -998,18 +1039,43 @@ open class Navigator {
             completion: { [weak self] in
                 guard let self else { return }
 
-                if !(controller is UINavigationController), let navigationController = self.window?.topController?.orNavigationController {
-                    navigation?(navigationController)
-                    navigationController.pushViewController(
-                        controller,
+                if let navigationController = self.window?.topController?.orNavigationController {
+                    self.push(
+                        controller: controller,
+                        to: navigationController,
                         animated: animated,
-                        completion: {
-                            completion?(true)
-                        }
+                        navigation: navigation,
+                        completion: completion
                     )
                 } else {
                     completion?(false)
                 }
+            }
+        )
+    }
+
+    private func push(
+        controller: UIViewController,
+        to navigationController: UINavigationController,
+        animated: Bool,
+        navigation: ((UINavigationController) -> Void)?,
+        completion: ((Bool) -> Void)?
+    ) {
+        navigation?(navigationController)
+        guard navigationController.canPushViewController(controller) else {
+            completion?(false)
+
+            return
+        }
+
+        navigationController.pushViewController(
+            controller,
+            animated: animated,
+            completion: {
+                completion?(
+                    navigationController.topViewController === controller
+                        && navigationController.viewControllers.contains(where: { $0 === controller })
+                )
             }
         )
     }
@@ -1045,7 +1111,7 @@ open class Navigator {
         }
     }
 
-    /// Dismisses all presented view controllers within the given controller while they are being presented and pops back to the specified controller in the navigation stack if it exists.
+    /// Dismisses presented view controllers and pops to the specified controller when it belongs to the stack.
     ///
     /// - Parameters:
     ///   - controller: Controller with presented controllers to dismiss and the target for navigation stack pop.
@@ -1058,11 +1124,26 @@ open class Navigator {
                 animated: animated,
                 completion: {
                     if let navigationController = controller.orNavigationController {
-                        navigationController.popToViewController(
-                            controller,
-                            animated: animated,
-                            completion: completion
-                        )
+                        let popTarget: UIViewController?
+                        if controller === navigationController {
+                            popTarget = nil
+                        } else if navigationController.viewControllers.contains(where: { $0 === controller }) {
+                            popTarget = controller
+                        } else {
+                            popTarget = navigationController.viewControllers.first {
+                                $0.findController(controller: controller, withPresented: false) != nil
+                            }
+                        }
+
+                        if let popTarget {
+                            navigationController.popToViewController(
+                                popTarget,
+                                animated: animated,
+                                completion: completion
+                            )
+                        } else {
+                            completion?()
+                        }
                     } else {
                         completion?()
                     }
@@ -1115,7 +1196,10 @@ open class Navigator {
     ) {
         if let controller, let tabBarController = controller.findTabBarController() {
             for index in (tabBarController.viewControllers ?? []).indices
-            where tabBarController.viewControllers?[index].findController(controller: controller, withPresented: false) != nil {
+            where tabBarController.viewControllers?[index].findController(
+                controller: controller,
+                withPresented: false
+            ) != nil {
                 if tabBarController.selectedIndex != index {
                     tabBarController.selectedIndex = index
                 }

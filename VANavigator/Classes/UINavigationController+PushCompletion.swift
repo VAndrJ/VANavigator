@@ -12,7 +12,8 @@ extension UINavigationController {
     /// Pops the top view controller from the navigation stack.
     /// - Parameters:
     ///   - animated: Indicates whether the transition is animated.
-    ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one view controller.
+    ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one
+    ///     view controller.
     public func popViewController(
         animated: Bool,
         completion: @escaping (Bool) -> Void
@@ -57,6 +58,12 @@ extension UINavigationController {
         animated: Bool,
         completion: (() -> Void)?
     ) {
+        guard viewControllers.contains(where: { $0 === controller }) else {
+            completion?()
+
+            return
+        }
+
         if topViewController == controller {
             completion?()
         } else {
@@ -79,12 +86,28 @@ extension UINavigationController {
         animated: Bool,
         completion: (() -> Void)?
     ) {
+        guard canPushViewController(viewController) else {
+            completion?()
+
+            return
+        }
+
         let shouldAnimate = animated && canAnimateNavigationTransition
         observeCompletion(
             animated: shouldAnimate,
             operation: { pushViewController(viewController, animated: shouldAnimate) },
             completion: completion
         )
+    }
+
+    func canPushViewController(_ viewController: UIViewController) -> Bool {
+        return !(viewController is UINavigationController)
+            && !(viewController is UITabBarController)
+            && viewController !== self
+            && viewController.parent == nil
+            && viewController.navigationController == nil
+            && viewController.presentingViewController == nil
+            && !viewControllers.contains(where: { $0 === viewController })
     }
 
     private var canAnimateNavigationTransition: Bool {

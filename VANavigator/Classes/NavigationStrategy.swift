@@ -25,11 +25,13 @@ public class NavigationStrategy: Equatable {
 }
 
 extension NavigationStrategy {
-    /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
+    /// Replaces the navigation stack with the given controller as the root or uses fallback if no
+    /// `UINavigationController` is found.
     public static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     public static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
-    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
+    /// Removes an existing controller from the `UINavigationController` stack, or uses fallback if no navigation
+    /// controller is found. Does nothing if the target is the last controller.
     public static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
@@ -119,6 +121,10 @@ final class PopoverNavigationStrategy: NavigationStrategy {
     init(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) {
         self.configure = configure
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        return self === other
+    }
 }
 
 final class CloseToExistingNavigationStrategy: NavigationStrategy {}
@@ -171,6 +177,14 @@ final class PushNavigationStrategy: NavigationStrategy {
     init(navigation: ((UINavigationController) -> Void)?) {
         self.navigation = navigation
     }
+
+    override func isEqual(to other: NavigationStrategy?) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return (navigation == nil && other.navigation == nil) || self === other
+    }
 }
 
 final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
@@ -209,6 +223,8 @@ final class CloseIfTopNavigationStrategy: NavigationStrategy {
             return false
         }
 
-        return tryToDismiss == other.tryToDismiss && tryToPop == other.tryToPop
+        return tryToDismiss == other.tryToDismiss
+            && tryToPop == other.tryToPop
+            && ((navigation == nil && other.navigation == nil) || self === other)
     }
 }

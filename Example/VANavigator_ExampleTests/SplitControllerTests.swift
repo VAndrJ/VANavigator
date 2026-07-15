@@ -65,6 +65,39 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
+    func test_primaryPush_existingControllerFailsWithoutCallingUIKit() {
+        let existingController = UIViewController()
+        let navigationController = SplitPushInvocationRecordingNavigationController()
+        navigationController.setViewControllers([existingController], animated: false)
+        let splitController = MockSplitViewController(style: .doubleColumn)
+        splitController.setViewController(navigationController, for: .primary)
+        splitController.setViewController(UIViewController(), for: .secondary)
+        window?.rootViewController = splitController
+        window?.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "navigation")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(existingController),
+            strategy: .split(strategy: .primary(action: .push)),
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                taskDetachedMain { expect.fulfill() }
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertNil(responder)
+        XCTAssertEqual(0, navigationController.pushInvocationCount)
+        XCTAssertEqual([existingController], navigationController.viewControllers)
+    }
+
     func test_primaryPop() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
@@ -674,5 +707,14 @@ private final class MissingColumnNavigationSplitViewController: MockSplitViewCon
 
     override func viewController(for column: UISplitViewController.Column) -> UIViewController? {
         column == failedColumn ? nil : super.viewController(for: column)
+    }
+}
+
+private final class SplitPushInvocationRecordingNavigationController: UINavigationController {
+    private(set) var pushInvocationCount = 0
+
+    override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        pushInvocationCount += 1
+        super.pushViewController(viewController, animated: animated)
     }
 }

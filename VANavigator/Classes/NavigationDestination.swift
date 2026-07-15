@@ -12,9 +12,10 @@ import UIKit
 /// A destination can either be identified by a `NavigationIdentity` or represented directly by a `UIViewController`.
 @MainActor
 public enum NavigationDestination {
-    /// Indicates a navigation destination identified by a `NavigationIdentity`. Used when constructing a controller using a screen factory.
+    /// Indicates a destination identified by a `NavigationIdentity` and constructed using a screen factory.
     case identity(any NavigationIdentity)
-    /// Indicates a navigation destination represented by a specific view controller. Ensure that the corresponding `NavigationIdentity` is set for proper identification.
+    /// Indicates a destination represented by a specific view controller.
+    /// Set the corresponding `NavigationIdentity` when identity-based lookup is required.
     case controller(UIViewController)
 
     /// Computed property to extract the navigation identity from the destination.

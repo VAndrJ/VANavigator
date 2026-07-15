@@ -21,6 +21,22 @@ class NavigationStrategyEqualityTests: XCTestCase, MainActorIsolated {
         XCTAssertNotEqual(expectedToFail, sut)
     }
 
+    func test_pushWithConfigurationClosure_comparesByInstance() {
+        let expected: NavigationStrategy = .push(navigation: { _ in })
+        let sut: NavigationStrategy = .push(navigation: { _ in })
+
+        XCTAssertNotEqual(expected, sut)
+        XCTAssertEqual(expected, expected)
+    }
+
+    func test_popover_comparesByInstance() {
+        let expected: NavigationStrategy = .popover(configure: { _, _ in })
+        let sut: NavigationStrategy = .popover(configure: { _, _ in })
+
+        XCTAssertNotEqual(expected, sut)
+        XCTAssertEqual(expected, expected)
+    }
+
     func test_pop() {
         let expected: NavigationStrategy = .popToExisting()
         let expectedToFail: NavigationStrategy = .popToExisting(includingTabs: false)
@@ -87,6 +103,14 @@ class NavigationStrategyEqualityTests: XCTestCase, MainActorIsolated {
         XCTAssertNotEqual(expectedToFail1, sut)
         XCTAssertNotEqual(expectedToFail2, sut)
         XCTAssertNotEqual(expectedToFail3, sut)
+    }
+
+    func test_closeIfTopWithNavigationClosure_comparesByInstance() {
+        let expected: NavigationStrategy = .closeIfTop(navigation: { _ in })
+        let sut: NavigationStrategy = .closeIfTop(navigation: { _ in })
+
+        XCTAssertNotEqual(expected, sut)
+        XCTAssertEqual(expected, expected)
     }
 
     func test_split() {

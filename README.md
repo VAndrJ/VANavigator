@@ -6,8 +6,8 @@
 
 
 [![Language](https://img.shields.io/badge/language-Swift%206.2-orangered.svg?style=flat)](https://www.swift.org)
-[![License](https://img.shields.io/cocoapods/l/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
-[![Platform](https://img.shields.io/cocoapods/p/VANavigator.svg?style=flat)](https://cocoapods.org/pods/VANavigator)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-iOS%2015%2B-lightgrey.svg)](Package.swift)
 
 
 [![SPM](https://img.shields.io/badge/SPM-compatible-limegreen.svg?style=flat)](https://github.com/apple/swift-package-manager)
@@ -17,13 +17,13 @@
 ## Example
 
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+To run the example project, clone the repo and open `Example/VANavigator.xcodeproj`. Xcode resolves its Swift package dependencies automatically.
 
 
 ## Requirements
 
 
-Minimum deployment target: **iOS 14**
+Minimum deployment target: **iOS 15**
 
 
 ## Installation
@@ -131,7 +131,7 @@ navigator.navigate(
 ```
 
 
-- *Under development. Shows in a `UISplitViewController` with the given `strategy`.
+- Shows in a `UISplitViewController` with the given `strategy`.
 
 
 Code example:

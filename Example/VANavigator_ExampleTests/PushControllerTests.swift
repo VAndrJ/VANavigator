@@ -91,6 +91,87 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
+    func test_controllerPush_existingInstanceFailsWithoutCallingUIKit() {
+        let existingController = UIViewController()
+        let navigationController = PushInvocationRecordingNavigationController()
+        navigationController.setViewControllers([existingController], animated: false)
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "push")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(existingController),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertEqual(0, navigationController.pushInvocationCount)
+        XCTAssertEqual([existingController], navigationController.viewControllers)
+    }
+
+    func test_controllerPush_reportsFailureWhenNavigationControllerRejectsPush() {
+        let rootController = UIViewController()
+        let pushedController = UIViewController()
+        let navigationController = PushInvocationRecordingNavigationController()
+        navigationController.setViewControllers([rootController], animated: false)
+        navigationController.performsPush = false
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "push")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(pushedController),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertEqual(1, navigationController.pushInvocationCount)
+        XCTAssertEqual([rootController], navigationController.viewControllers)
+    }
+
+    func test_controllerPush_tabBarControllerFailsWithoutCallingUIKit() {
+        let rootController = UIViewController()
+        let tabBarController = UITabBarController()
+        let navigationController = PushInvocationRecordingNavigationController()
+        navigationController.setViewControllers([rootController], animated: false)
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "push")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(tabBarController),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertEqual(0, navigationController.pushInvocationCount)
+        XCTAssertEqual([rootController], navigationController.viewControllers)
+    }
+
     func test_controllerPresentWithNavigation() {
         controllerPresentWithNavigation(alwaysEmbedded: false)
     }
@@ -115,7 +196,7 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
             alwaysEmbedded: alwaysEmbedded,
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
-        
+
         wait(for: [expect], timeout: 10)
 
         // Check that controller was presented
@@ -348,5 +429,17 @@ private final class AnimationRecordingNavigationController: UINavigationControll
     override func pushViewController(_ viewController: UIViewController, animated: Bool) {
         lastPushAnimated = animated
         super.pushViewController(viewController, animated: animated)
+    }
+}
+
+private final class PushInvocationRecordingNavigationController: UINavigationController {
+    var performsPush = true
+    private(set) var pushInvocationCount = 0
+
+    override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        pushInvocationCount += 1
+        if performsPush {
+            super.pushViewController(viewController, animated: animated)
+        }
     }
 }

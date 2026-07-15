@@ -74,6 +74,37 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
     }
 
+    func test_popToExisting_navigationContainerDoesNotPopToItself() {
+        let identity = MockNavControllerNavigationIdentity(children: [])
+        let childController = UIViewController()
+        let navigationController = PopInvocationRecordingNavigationController()
+        navigationController.setViewControllers([childController], animated: false)
+        navigationController.navigationIdentity = identity
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertIdentical(navigationController, responder)
+        XCTAssertEqual(0, navigationController.popInvocationCount)
+        XCTAssertEqual([childController], navigationController.viewControllers)
+    }
+
     func test_controllerPop_single() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
@@ -284,7 +315,7 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
         // Check that controller was popped
         // and it is the top view controller.
         let expectedIdentity = identity
-        
+
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
@@ -383,5 +414,18 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
         )
 
         wait(for: [expect], timeout: 10)
+    }
+}
+
+private final class PopInvocationRecordingNavigationController: UINavigationController {
+    private(set) var popInvocationCount = 0
+
+    override func popToViewController(
+        _ viewController: UIViewController,
+        animated: Bool
+    ) -> [UIViewController]? {
+        popInvocationCount += 1
+
+        return super.popToViewController(viewController, animated: animated)
     }
 }

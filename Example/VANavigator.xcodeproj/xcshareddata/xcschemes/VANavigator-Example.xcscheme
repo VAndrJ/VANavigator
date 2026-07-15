@@ -20,20 +20,6 @@
                ReferencedContainer = "container:VANavigator.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "VANavigator_Tests.xctest"
-               BlueprintName = "VANavigator_Tests"
-               ReferencedContainer = "container:VANavigator.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -58,15 +44,6 @@
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
-      <CodeCoverageTargets>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CCDF91B37A590F405840ADF01BAAD744"
-            BuildableName = "libVANavigator.a"
-            BlueprintName = "VANavigator"
-            ReferencedContainer = "container:Pods/Pods.xcodeproj">
-         </BuildableReference>
-      </CodeCoverageTargets>
       <TestPlans>
          <TestPlanReference
             reference = "container:VANavigator-Example.xctestplan"

@@ -9,12 +9,16 @@
 import UIKit
 
 extension UIViewController {
-    /// Returns the current view controller if it's a `UINavigationController`, otherwise returns its `navigationController`.
-    public var orNavigationController: UINavigationController? { (self as? UINavigationController) ?? navigationController }
-    /// Returns the current view controller if it's a `UITabBarController`, otherwise returns its `tabBarController`.
+    /// Returns the receiver when it is a `UINavigationController`; otherwise returns its `navigationController`.
+    public var orNavigationController: UINavigationController? {
+        (self as? UINavigationController) ?? navigationController
+    }
+    /// Returns the receiver when it is a `UITabBarController`; otherwise returns its `tabBarController`.
     public var orTabBarController: UITabBarController? { (self as? UITabBarController) ?? tabBarController }
-    /// Returns the current view controller if it's a `UISplitViewController`, otherwise returns its `splitViewController`.
-    public var orSplitViewController: UISplitViewController? { (self as? UISplitViewController) ?? splitViewController }
+    /// Returns the receiver when it is a `UISplitViewController`; otherwise returns its `splitViewController`.
+    public var orSplitViewController: UISplitViewController? {
+        (self as? UISplitViewController) ?? splitViewController
+    }
     /// Recursively finds the top-most view controller in the current hierarchy.
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
     /// the visible detail column in `UISplitViewController`, and any presented view controller.

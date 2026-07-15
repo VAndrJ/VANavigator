@@ -66,9 +66,19 @@ struct SplitNavigationIdentity: NavigationIdentity {
             return false
         }
 
+        let isSupplementaryEqual: Bool
+        switch (supplementary, other.supplementary) {
+        case (nil, nil):
+            isSupplementaryEqual = true
+        case let (lhs?, rhs?):
+            isSupplementaryEqual = lhs.isEqual(to: rhs)
+        default:
+            isSupplementaryEqual = false
+        }
+
         return primary.isEqual(to: other.primary)
             && secondary.isEqual(to: other.secondary)
-            && supplementary?.isEqual(to: other.supplementary) == true
+            && isSupplementaryEqual
     }
 }
 

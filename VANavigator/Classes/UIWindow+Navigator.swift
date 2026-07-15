@@ -67,8 +67,7 @@ extension UIWindow {
     private var topMostViewController: UIViewController? {
         var topmostViewController = rootViewController
         while let presentedViewController = topmostViewController?.presentedViewController,
-            !presentedViewController.isBeingDismissed
-        {
+            !presentedViewController.isBeingDismissed {
             topmostViewController = presentedViewController
         }
 

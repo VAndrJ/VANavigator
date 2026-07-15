@@ -10,8 +10,8 @@ import UIKit
 
 /// A protocol that defines a factory responsible for assembling view controllers for navigation.
 ///
-/// Conforming types must implement a method to create and return a `UIViewController` based on the provided identity and navigator.
-/// This protocol is restricted to the `@MainActor` to ensure all UI-related operations are performed on the main thread.
+/// Conforming types create and return a `UIViewController` based on the provided identity and navigator.
+/// The protocol is restricted to `@MainActor` so UI-related operations run on the main thread.
 @MainActor
 public protocol NavigatorScreenFactory {
 

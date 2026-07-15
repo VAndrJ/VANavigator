@@ -10,6 +10,8 @@ import XCTest
 import VANavigator
 import UIKit
 
+@testable import VANavigator_Example
+
 class NavigationDestinationEqualityTests: XCTestCase, MainActorIsolated {
 
     func test_identity_identity() {
@@ -68,5 +70,26 @@ class NavigationDestinationEqualityTests: XCTestCase, MainActorIsolated {
         XCTAssertFalse(expectedToFail.isEqual(to: sut))
         XCTAssertFalse(expectedToFail1.isEqual(to: sut))
         XCTAssertFalse(expected.isEqual(to: nil))
+    }
+
+    func test_splitIdentity_optionalSupplementaryEquality() {
+        let sut = SplitNavigationIdentity(
+            primary: PrimaryNavigationIdentity(),
+            secondary: SecondaryNavigationIdentity(),
+            supplementary: nil
+        )
+        let expected = SplitNavigationIdentity(
+            primary: PrimaryNavigationIdentity(),
+            secondary: SecondaryNavigationIdentity(),
+            supplementary: nil
+        )
+        let expectedToFail = SplitNavigationIdentity(
+            primary: PrimaryNavigationIdentity(),
+            secondary: SecondaryNavigationIdentity(),
+            supplementary: MoreNavigationIdentity()
+        )
+
+        XCTAssertTrue(sut.isEqual(to: expected))
+        XCTAssertFalse(sut.isEqual(to: expectedToFail))
     }
 }
