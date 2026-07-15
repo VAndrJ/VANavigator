@@ -427,7 +427,6 @@ final class ScreenFactory: NavigatorScreenFactory {
     }
 }
 
-@MainActor
 private func replaceRoot(navigator: Navigator?) {
     guard let navigator else { return }
 

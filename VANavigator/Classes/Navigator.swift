@@ -9,7 +9,6 @@
 import UIKit
 
 // swiftlint:disable file_length type_body_length
-@MainActor
 open class Navigator {
     public let screenFactory: any NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor?
@@ -120,7 +119,8 @@ open class Navigator {
         if let navigationInterceptor,
             let interceptionResult = navigationInterceptor.intercept(
                 destination: link.destination
-            ) {
+            )
+        {
             let chain = CollectionOfOne(link) + chain
             let detail = InterceptedNavigation(
                 chain: chain,
@@ -260,7 +260,8 @@ open class Navigator {
         if let navigationInterceptor,
             let interceptionResult = navigationInterceptor.intercept(
                 destination: destination
-            ) {
+            )
+        {
             let detail = InterceptedNavigation(
                 chain: [
                     NavigationChainLink(
@@ -292,7 +293,7 @@ open class Navigator {
             event: (any ResponderEvent)?,
             navigatorEvent: (any ResponderEvent)?,
             on responder: (any Responder)?,
-            completion: @MainActor @escaping () -> Void
+            completion: @escaping () -> Void
         ) {
             guard let responder, navigatorEvent != nil || event != nil else {
                 completion()
@@ -300,7 +301,7 @@ open class Navigator {
                 return
             }
 
-            Task { @MainActor in
+            Task {
                 if let navigatorEvent {
                     _ = await responder.handle(event: navigatorEvent)
                 }
@@ -354,7 +355,8 @@ open class Navigator {
             }
             func presentedContainer(for controller: UIViewController) -> UIViewController? {
                 if let navigationController = controller.orNavigationController,
-                    navigationController.presentingViewController != nil {
+                    navigationController.presentingViewController != nil
+                {
                     return navigationController
                 } else if controller.presentingViewController != nil {
                     return controller
@@ -380,7 +382,8 @@ open class Navigator {
             if let controller = window?.topController {
                 if tryToPop,
                     let navigationController = controller.orNavigationController,
-                    isMatchingDestination(navigationController.topViewController) {
+                    isMatchingDestination(navigationController.topViewController)
+                {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
@@ -402,7 +405,8 @@ open class Navigator {
                 } else {
                     if tryToDismiss,
                         isMatchingDestination(controller),
-                        let presentedController = presentedContainer(for: controller) {
+                        let presentedController = presentedContainer(for: controller)
+                    {
                         presentedController.dismiss(
                             animated: animated,
                             completion: {
@@ -484,15 +488,18 @@ open class Navigator {
                     if controller.viewIfLoaded?.window != nil || controller === window?.rootViewController {
                         return controller
                     } else if let navigationController = controller.orNavigationController,
-                        navigationController.viewIfLoaded?.window != nil {
+                        navigationController.viewIfLoaded?.window != nil
+                    {
                         return navigationController
                     } else if let tabBarController = controller.orTabBarController,
-                        tabBarController.viewIfLoaded?.window != nil {
+                        tabBarController.viewIfLoaded?.window != nil
+                    {
                         return tabBarController
                     } else {
                         var visibleController = window?.rootViewController
                         while let presentedController = visibleController?.presentedViewController,
-                            !presentedController.isBeingDismissed {
+                            !presentedController.isBeingDismissed
+                        {
                             visibleController = presentedController
                         }
 
@@ -518,7 +525,8 @@ open class Navigator {
                         controller,
                         animated: animated,
                         completion: {
-                            let isPresented = controller.presentingViewController != nil
+                            let isPresented =
+                                controller.presentingViewController != nil
                                 || sourceController.presentedViewController === controller
                             guard isPresented else {
                                 completePresentationFailure()
@@ -648,12 +656,14 @@ open class Navigator {
                 var sourceController = window?.topController
                 var searchedContainers = Set<ObjectIdentifier>()
                 while let source = sourceController {
-                    let container = includingTabs
+                    let container =
+                        includingTabs
                         ? source.orTabBarController ?? source.orNavigationController
                         : source.orNavigationController
                     if let container,
                         searchedContainers.insert(ObjectIdentifier(container)).inserted,
-                        let controller = container.findController(destination: destination) {
+                        let controller = container.findController(destination: destination)
+                    {
                         return controller
                     }
                     sourceController = source.presentingViewController
@@ -776,7 +786,8 @@ open class Navigator {
             }
 
             if let sourceController = window?.topController,
-                sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController {
+                sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
+            {
                 let controller = getController(destination: destination)
                 guard controller !== sourceController,
                     controller.parent == nil,
@@ -800,7 +811,8 @@ open class Navigator {
                         controller,
                         animated: animated,
                         completion: {
-                            let isPresented = controller.presentingViewController != nil
+                            let isPresented =
+                                controller.presentingViewController != nil
                                 || sourceController.presentedViewController === controller
                             guard isPresented else {
                                 completePopoverFailure()
@@ -827,7 +839,8 @@ open class Navigator {
         default:
             switch strategy {
             case let strategy as SplitNavigationStrategy:
-                let splitController = window?.topController?.orSplitViewController
+                let splitController =
+                    window?.topController?.orSplitViewController
                     ?? window?.rootViewController?.orSplitViewController
                 let column: UISplitViewController.Column
                 let action: SplitStrategy.SplitAction

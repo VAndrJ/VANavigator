@@ -12,7 +12,6 @@ import XCTest
 @testable import VANavigator
 
 // TODO: - Messages
-@MainActor
 class PushControllerTests: XCTestCase {
     var window: UIWindow?
 

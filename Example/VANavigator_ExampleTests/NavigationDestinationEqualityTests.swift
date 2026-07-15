@@ -12,7 +12,6 @@ import XCTest
 
 @testable import VANavigator_Example
 
-@MainActor
 class NavigationDestinationEqualityTests: XCTestCase {
     func test_identity_identity() {
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())

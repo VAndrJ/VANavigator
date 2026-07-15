@@ -11,7 +11,6 @@ import VANavigator
 import XCTest
 
 // TODO: - Messages
-@MainActor
 class PresentOrCloseToExistingControllerTests: XCTestCase {
     var window: UIWindow?
 

@@ -8,7 +8,6 @@
 
 import UIKit
 
-@MainActor
 final class ShortcutsService {
     func addShortcuts() {
         UIApplication.shared.shortcutItems?.removeAll()

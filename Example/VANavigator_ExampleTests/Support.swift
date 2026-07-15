@@ -12,6 +12,8 @@ import VANavigator
 @testable import VANavigator_Example
 
 class MockScreenFactory: NavigatorScreenFactory {
+    init() {}
+
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as MockSplitControllerNavigationIdentity:

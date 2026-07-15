@@ -11,9 +11,7 @@ import Foundation
 public protocol ResponderEvent: Sendable {}
 
 public protocol Responder: AnyObject {
-    @MainActor
     var nextEventResponder: (any Responder)? { get set }
 
-    @MainActor
     func handle(event: any ResponderEvent) async -> Bool
 }

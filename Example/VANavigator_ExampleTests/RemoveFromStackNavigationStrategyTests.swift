@@ -10,7 +10,6 @@ import UIKit
 import VANavigator
 import XCTest
 
-@MainActor
 class RemoveFromStackNavigationStrategyTests: XCTestCase {
     var window: UIWindow?
 

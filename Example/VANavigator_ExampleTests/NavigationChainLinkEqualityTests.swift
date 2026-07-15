@@ -10,7 +10,6 @@ import UIKit
 import VANavigator
 import XCTest
 
-@MainActor
 class NavigationChainLinkEqualityTests: XCTestCase {
     func test_links() {
         let expected = NavigationChainLink(

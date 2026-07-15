@@ -9,7 +9,6 @@
 import UIKit
 
 /// Represents the result of intercepting a navigation action.
-@MainActor
 public struct NavigationInterceptionResult {
     public let chain: [NavigationChainLink]
     public let event: (any ResponderEvent)?
@@ -37,7 +36,6 @@ public struct NavigationInterceptionResult {
 }
 
 /// A class that provides interception capabilities for navigation actions.
-@MainActor
 open class NavigationInterceptor {
     private var interceptionData: [AnyHashable: [InterceptedNavigation]] = [:]
 

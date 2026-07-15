@@ -10,7 +10,6 @@ import UIKit
 import VANavigator
 import XCTest
 
-@MainActor
 class NavigationStrategyEqualityTests: XCTestCase {
     func test_push() {
         let expected: NavigationStrategy = .push()

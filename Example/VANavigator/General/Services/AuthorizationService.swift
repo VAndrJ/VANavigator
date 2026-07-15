@@ -9,7 +9,6 @@
 import Observation
 
 @Observable
-@MainActor
 final class AuthorizationService {
     private(set) var isAuthorized = false
 

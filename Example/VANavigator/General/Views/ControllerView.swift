@@ -8,7 +8,6 @@
 
 import UIKit
 
-@MainActor
 protocol ScreenProtocol: UIView {
     func viewDidLoad(in controller: UIViewController)
     func viewDidAppear(in controller: UIViewController, animated: Bool)

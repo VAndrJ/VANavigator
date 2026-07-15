@@ -10,7 +10,6 @@ import UIKit
 
 /// An enum representing a navigation destination within a navigation flow.
 /// A destination can either be identified by a `NavigationIdentity` or represented directly by a `UIViewController`.
-@MainActor
 public enum NavigationDestination {
     /// Indicates a destination identified by a `NavigationIdentity` and constructed using a screen factory.
     case identity(any NavigationIdentity)

@@ -8,7 +8,6 @@
 
 import UIKit
 
-@MainActor
 private final class RootTransitionCompletionDelegate: NSObject, @preconcurrency CAAnimationDelegate {
     private var forwardedDelegate: (any CAAnimationDelegate)?
     private var onCompletion: ((RootTransitionCompletionDelegate) -> Void)?
@@ -34,7 +33,6 @@ private final class RootTransitionCompletionDelegate: NSObject, @preconcurrency 
     }
 }
 
-@MainActor
 private final class RootTransitionCompletionStore: NSObject {
     var delegates: [RootTransitionCompletionDelegate] = []
 }

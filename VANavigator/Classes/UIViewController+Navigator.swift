@@ -243,7 +243,7 @@ extension UISplitViewController {
 
     func showNavigatorColumn(
         _ column: Column,
-        completion: @MainActor @escaping () -> Void
+        completion: @escaping () -> Void
     ) {
         navigatorActiveColumn = column
         show(column)
@@ -254,12 +254,12 @@ extension UISplitViewController {
         }
 
         let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
-            Task { @MainActor in
+            Task {
                 completion()
             }
         }
         if !registeredCompletion {
-            Task { @MainActor in
+            Task {
                 completion()
             }
         }

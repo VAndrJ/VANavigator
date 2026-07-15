@@ -11,7 +11,6 @@ import VANavigator
 import XCTest
 
 // TODO: - Messages
-@MainActor
 class CloseIfTopControllerTests: XCTestCase {
     var window: UIWindow?
 

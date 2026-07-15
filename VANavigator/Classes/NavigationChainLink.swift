@@ -9,7 +9,6 @@
 import Foundation
 
 /// A class representing a link in a chain of navigation steps.
-@MainActor
 public final class NavigationChainLink {
     public let destination: NavigationDestination
     public let strategy: NavigationStrategy

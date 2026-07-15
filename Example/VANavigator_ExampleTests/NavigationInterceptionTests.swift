@@ -13,7 +13,6 @@ import XCTest
 
 @testable import VANavigator_Example
 
-@MainActor
 class NavigationInterceptionTests: XCTestCase {
     var window: UIWindow?
 

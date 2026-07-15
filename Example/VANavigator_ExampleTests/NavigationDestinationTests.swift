@@ -10,7 +10,6 @@ import UIKit
 import VANavigator
 import XCTest
 
-@MainActor
 class NavigationDestinationTests: XCTestCase {
     func test_identity_equality() {
         let identity = MockRootControllerNavigationIdentity()

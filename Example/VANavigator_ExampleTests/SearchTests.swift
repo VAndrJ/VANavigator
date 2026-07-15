@@ -13,7 +13,6 @@ import XCTest
 @testable import VANavigator_Example
 
 // TODO: - Messages
-@MainActor
 class SearchTests: XCTestCase {
     var window: UIWindow?
 
