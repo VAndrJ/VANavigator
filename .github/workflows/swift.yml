@@ -8,20 +8,55 @@ on:
 
 jobs:
   test:
-    name: "Build and test"
-    runs-on: macos-26
+    name: "Build and test (${{ matrix.name }})"
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
       matrix:
-        destination:
-          - 'platform=iOS Simulator,OS=26.4.1,name=iPhone Air'
-          - 'platform=iOS Simulator,OS=26.4.1,name=iPad Pro 13-inch (M4)'
+        include:
+          - name: iOS 26.4.1 iPhone
+            runner: macos-26
+            xcode: '26.4.1'
+            runtime: ''
+            destination: 'platform=iOS Simulator,OS=26.4.1,name=iPhone Air'
+          - name: iOS 26.4.1 iPad
+            runner: macos-26
+            xcode: '26.4.1'
+            runtime: ''
+            destination: 'platform=iOS Simulator,OS=26.4.1,name=iPad Pro 13-inch (M4)'
+          - name: iOS 18.5 iPhone
+            runner: macos-15
+            xcode: '26.3'
+            runtime: ''
+            destination: 'platform=iOS Simulator,OS=18.5,name=iPhone 16'
+          - name: iOS 18.5 iPad
+            runner: macos-15
+            xcode: '26.3'
+            runtime: ''
+            destination: 'platform=iOS Simulator,OS=18.5,name=iPad Pro 13-inch (M4)'
+          - name: iOS 17.5 iPhone
+            runner: macos-15
+            xcode: '26.3'
+            runtime: '17.5'
+            destination: 'platform=iOS Simulator,OS=17.5,name=iPhone 15'
+          - name: iOS 17.5 iPad
+            runner: macos-15
+            xcode: '26.3'
+            runtime: '17.5'
+            destination: 'platform=iOS Simulator,OS=17.5,name=iPad Pro 13-inch (M4)'
 
     steps:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '26.4.1'
+        xcode-version: ${{ matrix.xcode }}
+    - name: Install simulator runtime
+      if: matrix.runtime != ''
+      env:
+        runtime: ${{ matrix.runtime }}
+      run: |
+        xcrun simctl list > /dev/null
+        xcodebuild -downloadPlatform iOS -buildVersion "${runtime}"
     - uses: actions/checkout@v7
     - name: Build and test
       run: |
