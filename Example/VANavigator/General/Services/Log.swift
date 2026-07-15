@@ -19,6 +19,6 @@ extension OSLog {
 @MainActor
 func logResponder(from: Any, event: any ResponderEvent) {
     #if DEBUG || targetEnvironment(simulator)
-    os_log("%{public}@ %{public}@", log: OSLog.responderChain, type: .info, String(describing: from), String(describing: event))
+    os_log("[ %{public}@ ]: %{public}@", log: OSLog.responderChain, type: .info, String(describing: from), String(describing: event))
     #endif
 }

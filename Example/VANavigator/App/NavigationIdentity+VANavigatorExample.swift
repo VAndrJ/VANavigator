@@ -11,9 +11,8 @@ import Foundation
 protocol DefaultNavigationIdentity: NavigationIdentity {}
 
 extension DefaultNavigationIdentity {
-
     func isEqual(to other: (any NavigationIdentity)?) -> Bool {
-        other is Self
+        return other is Self
     }
 }
 
@@ -49,7 +48,6 @@ struct NavNavigationIdentity: NavigationIdentity {
         guard children.count == other.children.count else {
             return false
         }
-
         for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
             return false
         }
@@ -68,9 +66,9 @@ struct SplitNavigationIdentity: NavigationIdentity {
             return false
         }
 
-        return primary.isEqual(to: other.primary) &&
-        secondary.isEqual(to: other.secondary) &&
-        supplementary?.isEqual(to: other.supplementary) == true
+        return primary.isEqual(to: other.primary)
+            && secondary.isEqual(to: other.secondary)
+            && supplementary?.isEqual(to: other.supplementary) == true
     }
 }
 
@@ -96,7 +94,6 @@ struct TabNavigationIdentity: NavigationIdentity {
         guard children.count == other.children.count else {
             return false
         }
-
         for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
             return false
         }

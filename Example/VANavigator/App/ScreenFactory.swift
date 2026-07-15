@@ -21,15 +21,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             return ViewController(
                 node: NavigationQueueExampleScreenNode(viewModel: .init(data: .init(
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followPresentAndClose: { [weak navigator] in
                             for _ in 0..<$0 {
                                 navigator?.navigate(
@@ -135,15 +127,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                         authorizedObs: authorizationService.isAuthorizedObs
                     ),
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followPushOrPresentDetails: { [weak navigator] in
                             let identity = DetailsNavigationIdentity(number: -1)
                             navigator?.navigate(
@@ -219,15 +203,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             return ViewController(
                 node: TabDetailScreenNode(viewModel: .init(data: .init(
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followPushOrPopNext: { [weak navigator] value in
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
@@ -253,20 +229,16 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case _ as MoreNavigationIdentity:
-            return ViewController(
-                node: MoreScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
+            return BaseViewController(
+                view: MoreScreenView(
+                    viewModel: .init(
+                        data: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
                             )
-                        }
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             ).apply {
                 $0.tabBarItem = UITabBarItem(
@@ -282,15 +254,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                         value: identity.number
                     ),
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .fade
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followPushOrPopNext: { [weak navigator] value in
                             navigator?.navigate(chain: value.map {
                                 NavigationChainLink(
@@ -345,15 +309,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             return ViewController(
                 node: PrimaryScreenNode(viewModel: .init(data: .init(
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followReplacePrimary: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(PrimaryNavigationIdentity()),
@@ -375,15 +331,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             return ViewController(
                 node: SecondaryScreenNode(viewModel: .init(data: .init(
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        },
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
                         followShowSplitSecondary: { [weak navigator] in
                             navigator?.navigate(
                                 destination: .identity(SecondaryNavigationIdentity()),
@@ -400,15 +348,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                     source: .init(authorize: { [weak authorizationService] in
                         authorizationService?.authorize()
                     }),
-                    navigation: .init(followReplaceRootWithNewMain: { [weak navigator] in
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = .reveal
-                        navigator?.navigate(
-                            destination: .identity(MainNavigationIdentity()),
-                            strategy: .replaceWindowRoot(transition: transition)
-                        )
-                    })
+                    navigation: .init(followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) })
                 ))),
                 shouldHideNavigationBar: false
             )
@@ -416,15 +356,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             return ViewController(
                 node: SecretInformationScreenNode(viewModel: .init(data: .init(
                     navigation: .init(
-                        followReplaceRootWithNewMain: { [weak navigator] in
-                            let transition = CATransition()
-                            transition.duration = 0.3
-                            transition.type = .reveal
-                            navigator?.navigate(
-                                destination: .identity(MainNavigationIdentity()),
-                                strategy: .replaceWindowRoot(transition: transition)
-                            )
-                        }
+                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
                     )
                 ))),
                 shouldHideNavigationBar: false
@@ -435,4 +367,17 @@ final class ScreenFactory: NavigatorScreenFactory {
             return UIViewController()
         }
     }
+}
+
+@MainActor
+private func replaceRoot(navigator: Navigator?) {
+    guard let navigator else { return }
+
+    let transition = CATransition()
+    transition.duration = 0.3
+    transition.type = .reveal
+    navigator.navigate(
+        destination: .identity(MainNavigationIdentity()),
+        strategy: .replaceWindowRoot(transition: transition)
+    )
 }

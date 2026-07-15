@@ -33,7 +33,10 @@ final class CompositionRoot {
         )
     }
 
-    func handleShortcut(item: UIApplicationShortcutItem, completion: @escaping (Bool) -> Void) {
+    func handleShortcut(
+        item: UIApplicationShortcutItem,
+        completion: @escaping (Bool) -> Void
+    ) {
         guard let shortcut = Shortcut(rawValue: item.type) else {
             completion(false)
 

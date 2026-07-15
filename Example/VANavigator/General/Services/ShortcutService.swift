@@ -13,9 +13,9 @@ final class ShortcutsService {
     func addShortcuts() {
         UIApplication.shared.shortcutItems?.removeAll()
         UIApplication.shared.shortcutItems = [
-            UIApplicationShortcutItem(type: .main),
-            UIApplicationShortcutItem(type: .details),
-            UIApplicationShortcutItem(type: .alert),
+            .init(type: .main),
+            .init(type: .details),
+            .init(type: .alert),
         ]
     }
 }
@@ -53,9 +53,9 @@ enum Shortcut: String {
     }
     var icon: UIApplicationShortcutIcon {
         switch self {
-        case .main: UIApplicationShortcutIcon(type: .home)
-        case .details: UIApplicationShortcutIcon(type: .task)
-        case .alert: UIApplicationShortcutIcon(type: .alarm)
+        case .main: .init(type: .home)
+        case .details: .init(type: .task)
+        case .alert: .init(type: .alarm)
         }
     }
 }

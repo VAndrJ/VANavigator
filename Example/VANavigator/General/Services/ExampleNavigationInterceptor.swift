@@ -1,19 +1,25 @@
 //
 //  ExampleNavigationInterceptor.swift
-//  SimpleExample
+//  VANavigator_Example
 //
-//  Created by VAndrJ on 13.02.2024.
+//  Created by VAndrJ on 04.12.2023.
+//  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import UIKit
+import RxCocoa
+import RxSwift
+import VANavigator
+import VATextureKitRx
 
 struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 final class ExampleNavigationInterceptor: NavigationInterceptor {
-    let authorizationService: ExampleAuthorizationService
+    let authorizationService: AuthorizationService
     var completion: ((UIViewController?, Bool) -> Void)?
 
-    init(authorizationService: ExampleAuthorizationService) {
+    private let bag = DisposeBag()
+
+    init(authorizationService: AuthorizationService) {
         self.authorizationService = authorizationService
 
         super.init()
@@ -29,13 +35,11 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
                     return nil
                 } else {
                     return NavigationInterceptionResult(
-                        chain: [
-                            NavigationChainLink(
-                                destination: .identity(LoginNavigationIdentity()),
-                                strategy: .replaceWindowRoot(),
-                                animated: true
-                            )
-                        ],
+                        link: NavigationChainLink(
+                            destination: .identity(LoginNavigationIdentity()),
+                            strategy: .replaceWindowRoot(),
+                            animated: true
+                        ),
                         reason: LoginRequiredNavigationInterceptionReason()
                     )
                 }
@@ -47,9 +51,14 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
         }
     }
 
-    private func onAuthorizationChanged(_ isAuthorized: Bool) {
-        guard isAuthorized else { return }
+    private func bind() {
+        authorizationService.isAuthorizedObs
+            .filter { $0 }
+            .subscribe(onNext: self ?> { $0.onAuthorized() })
+            .disposed(by: bag)
+    }
 
+    private func onAuthorized() {
         interceptionResolved(
             reason: LoginRequiredNavigationInterceptionReason(),
             newStrategy: .replaceWindowRoot(
@@ -60,9 +69,5 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
             ),
             completion: completion
         )
-    }
-
-    private func bind() {
-        authorizationService.onAuthorizationChanged = self ?>> { $0.onAuthorizationChanged(_:) }
     }
 }

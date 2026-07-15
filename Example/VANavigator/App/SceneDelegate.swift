@@ -39,7 +39,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
 
         if let shortcutItem = connectionOptions.shortcutItem {
-            compositionRoot?.handleShortcut(item: shortcutItem) { _ in }
+            handleShortcut(item: shortcutItem)
         }
     }
 
@@ -48,10 +48,22 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         performActionFor shortcutItem: UIApplicationShortcutItem,
         completionHandler: @escaping (Bool) -> Void
     ) {
+        handleShortcut(item: shortcutItem, completion: completionHandler)
+    }
+
+    private func handleShortcut(
+        item: UIApplicationShortcutItem,
+        completion: ((Bool) -> Void)? = nil
+    ) {
         if let compositionRoot {
-            compositionRoot.handleShortcut(item: shortcutItem, completion: completionHandler)
+            compositionRoot.handleShortcut(
+                item: item,
+                completion: { handled in
+                    completion?(handled)
+                }
+            )
         } else {
-            completionHandler(false)
+            completion?(false)
         }
     }
 }

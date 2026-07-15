@@ -9,7 +9,7 @@
 import RxSwift
 import VATextureKitRx
 
-class AuthorizationService {
+final class AuthorizationService {
     @Obs.Relay(value: false)
     var isAuthorizedObs: Observable<Bool>
     var isAuthorized: Bool { _isAuthorizedObs.value }

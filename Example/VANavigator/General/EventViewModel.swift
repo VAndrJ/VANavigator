@@ -57,7 +57,7 @@ class ViewModel: NSObject, Responder {
     weak var nextEventResponder: (any Responder)?
 
     func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
+        logResponder(from: Self.self, event: event)
 
         return await nextEventResponder?.handle(event: event) ?? false
     }

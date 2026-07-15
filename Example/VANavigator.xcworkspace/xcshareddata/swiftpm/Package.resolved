@@ -1,0 +1,24 @@
+{
+  "originHash" : "e2dc1cb2593526ae3dd4e055dcd9112a6dd071d27dfc0a891b6c2871bfbbcb35",
+  "pins" : [
+    {
+      "identity" : "observationtracking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VAndrJ/ObservationTracking",
+      "state" : {
+        "revision" : "07ccf3ceaba2d59dba32cf3af3f655b39ec06850",
+        "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

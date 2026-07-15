@@ -10,6 +10,7 @@
 		1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */; };
 		40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */; };
 		A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
+		A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6DD300780E300D8A4CD /* ObservationTracking */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,8 +50,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = VANavigator_ExampleTests;
 			sourceTree = "<group>";
 		};
@@ -71,6 +70,7 @@
 			files = (
 				A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */,
 				1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */,
+				A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,7 +205,8 @@
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
-				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */,
+				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "../../VANavigator" */,
+				A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 607FACC71AFB9204008FA782;
@@ -244,9 +245,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -376,7 +381,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -440,7 +445,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -627,16 +632,32 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */ = {
+		A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "../../VANavigator" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../VANavigator;
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/VAndrJ/ObservationTracking";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		A352007E2F09DEB9007578D6 /* VANavigator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VANavigator;
+		};
+		A36FD6DD300780E300D8A4CD /* ObservationTracking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */;
+			productName = ObservationTracking;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

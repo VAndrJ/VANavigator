@@ -1,52 +1,52 @@
 //
-//  MoreScreenNode.swift
+//  MoreScreenView.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class MoreScreenNode: ScreenNode<MoreViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class MoreScreenView: ControllerView<MoreViewModel> {
+    private lazy var titleLabel = Label(
         text: "More",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
+    private lazy var replaceRootButtonNode = Button(title: "Replace root with new main")
+    private lazy var descriptionLabel = Label(
+        textStyle: .body
     )
 
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
-                descriptionTextNode
-            }
-            .padding(.all(16))
-        }
+    override func addElements() {
+        embedIntoScroll(
+            titleLabel,
+            replaceRootButtonNode,
+            descriptionLabel,
+        )
     }
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "More"
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        setNeedsLayout()
+    override func configure() {
+        backgroundColor = .systemBackground
     }
 
     override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
+    }
 }
 
+@Observable
 final class MoreViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -56,8 +56,7 @@ final class MoreViewModel: EventViewModel {
         let navigation: Navigation
     }
 
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
+    private(set) var openType = ""
 
     private let data: Context
 
@@ -80,11 +79,11 @@ final class MoreViewModel: EventViewModel {
         logResponder(from: self, event: event)
         switch event {
         case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
+            openType = "Opened from shortcut"
 
             return true
         case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
+            openType = "Popped to existing"
 
             return true
         default:

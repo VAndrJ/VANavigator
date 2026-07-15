@@ -1,8 +1,9 @@
 //
 //  ControllerView.swift
-//  SimpleExample
+//  VANavigator
 //
-//  Created by VAndrJ on 13.02.2024.
+//  Created by VAndrJ on 15.07.2026.
+//  Copyright © 2026 Volodymyr Andriienko. All rights reserved.
 //
 
 import UIKit
@@ -17,7 +18,7 @@ protocol ControllerViewProtocol: UIView {
 }
 
 class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol, Responder {
-    var embedded: UIViewController { ViewController(view: self) }
+    var embedded: UIViewController { BaseViewController(view: self) }
 
     func embedded(
         shouldHideNavigationBar: Bool = true,
@@ -25,7 +26,7 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
         title: String? = nil,
         tabBarItem: UITabBarItem? = nil
     ) -> UIViewController {
-        let controler = ViewController(
+        let controler = BaseViewController(
             view: self,
             shouldHideNavigationBar: shouldHideNavigationBar,
             isNotImportant: isNotImportant,
@@ -55,15 +56,18 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bindView() {}
-
-    private func bind() {
-        bindView()
-    }
+    func addElements() {}
 
     func configure() {}
 
-    func addElements() {}
+    private func bind() {
+        bindView()
+        bindViewModel()
+    }
+
+    func bindView() {}
+
+    func bindViewModel() {}
 
     // MARK: - ControllerViewProtocol
 
@@ -85,40 +89,6 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol,
         get { viewModel }
         set { viewModel.nextEventResponder = newValue }
     }
-
-    func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: Self.self, event: event)
-
-        return await nextEventResponder?.handle(event: event) ?? false
-    }
-}
-
-struct BecomeVisibleEvent: Event {}
-
-protocol Event: Sendable {}
-
-class EventViewModel: ViewModel {
-    weak var controller: UIViewController?
-
-    func run(_ event: any Event) async {
-        #if DEBUG || targetEnvironment(simulator)
-        print("⚠️ [Event not handled] \(event)")
-        #endif
-    }
-
-    final func perform(_ event: any Event) {
-        Task { @MainActor in
-            await run(event)
-        }
-    }
-}
-
-@MainActor
-class ViewModel: NSObject, Responder {
-
-    // MARK: - Responder
-
-    weak var nextEventResponder: (any Responder)?
 
     func handle(event: any ResponderEvent) async -> Bool {
         logResponder(from: Self.self, event: event)
