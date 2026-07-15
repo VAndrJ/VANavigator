@@ -54,7 +54,7 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: SecretInformationScreen(
                     viewModel: SecretInformationViewModel(
                         context: .init(

@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
@@ -12,7 +12,7 @@ protocol NavigationClosable: UIViewController {
     var isNotImportant: Bool { get }
 }
 
-class BaseViewController<Screen: UIView & ScreenProtocol & Responder>: UIViewController, NavigationClosable, Responder {
+class ViewController<Screen: UIView & ScreenProtocol & Responder>: UIViewController, NavigationClosable, Responder {
     let isNotImportant: Bool
     let contentView: Screen
 
@@ -86,4 +86,6 @@ class BaseViewController<Screen: UIView & ScreenProtocol & Responder>: UIViewCon
 
         return await nextEventResponder?.handle(event: event) ?? false
     }
+
+    nonisolated deinit {}
 }

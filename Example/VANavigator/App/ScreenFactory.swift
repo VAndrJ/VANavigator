@@ -18,7 +18,7 @@ final class ScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as QueueNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: NavigationQueueExampleScreen(
                     viewModel: .init(
                         context: .init(
@@ -42,7 +42,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             )
         case _ as TabPresentExampleNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: TabPresentExampleScreen(
                     viewModel: .init(
                         context: .init(
@@ -137,7 +137,7 @@ final class ScreenFactory: NavigatorScreenFactory {
 
             return controller
         case _ as MainNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: MainScreen(
                     viewModel: .init(
                         context: .init(
@@ -228,7 +228,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             )
         case _ as TabDetailNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: TabDetailScreen(
                     viewModel: .init(
                         context: .init(
@@ -263,7 +263,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case _ as MoreNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: MoreScreen(
                     viewModel: .init(
                         context: .init(
@@ -282,7 +282,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case let identity as DetailsNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: DetailsToPresentScreen(
                     viewModel: .init(
                         context: .init(
@@ -346,7 +346,7 @@ final class ScreenFactory: NavigatorScreenFactory {
 
             return controller
         case _ as PrimaryNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: PrimaryScreen(
                     viewModel: .init(
                         context: .init(
@@ -372,7 +372,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false
             )
         case _ as SecondaryNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: SecondaryScreen(
                     viewModel: .init(
                         context: .init(
@@ -391,7 +391,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false
             )
         case _ as LoginNavigationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: LoginScreen(
                     viewModel: .init(
                         context: .init(
@@ -407,7 +407,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false
             )
         case _ as SecretInformationIdentity:
-            return BaseViewController(
+            return ViewController(
                 screen: SecretInformationScreen(
                     viewModel: .init(
                         context: .init(
