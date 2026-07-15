@@ -6,24 +6,27 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 @testable import VANavigator_Example
 
-class NavigationDestinationEqualityTests: XCTestCase {
-    func test_identity_identity() async {
+@Suite(.serialized)
+final class NavigationDestinationEqualityTests {
+    @Test
+    func `Identity destinations compare equally`() async {
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
         let expectedToFail: NavigationDestination = .identity(MockPopControllerNavigationIdentity())
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 
-    func test_identity_controller() async {
+    @Test
+    func `Identity and controller destinations compare equally`() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .controller(controller)
@@ -33,13 +36,14 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expectedToFail1.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 
-    func test_controller_controller() async {
+    @Test
+    func `Controller destinations compare equally`() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .controller(controller)
@@ -49,13 +53,14 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expectedToFail1.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 
-    func test_controller_identity() async {
+    @Test
+    func `Controller and identity destinations compare equally`() async {
         let controller = UIViewController()
         controller.navigationIdentity = MockRootControllerNavigationIdentity()
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
@@ -65,13 +70,14 @@ class NavigationDestinationEqualityTests: XCTestCase {
         let expectedToFail1: NavigationDestination = .controller(controller1)
         let sut: NavigationDestination = .controller(controller)
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expectedToFail1.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 
-    func test_splitIdentity_optionalSupplementaryEquality() async {
+    @Test
+    func `Split identity equality includes optional supplementary identity`() async {
         let sut = SplitNavigationIdentity(
             primary: PrimaryNavigationIdentity(),
             secondary: SecondaryNavigationIdentity(),
@@ -88,7 +94,7 @@ class NavigationDestinationEqualityTests: XCTestCase {
             supplementary: MoreNavigationIdentity()
         )
 
-        XCTAssertTrue(sut.isEqual(to: expected))
-        XCTAssertFalse(sut.isEqual(to: expectedToFail))
+        #expect(sut.isEqual(to: expected))
+        #expect(!(sut.isEqual(to: expectedToFail)))
     }
 }

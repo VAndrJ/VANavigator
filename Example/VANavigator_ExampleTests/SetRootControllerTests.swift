@@ -6,26 +6,20 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class SetRootControllerTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class SetRootControllerTests {
+    var window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_setRootController() async {
+    @Test
+    func `Sets window root controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
-        XCTAssertNil(window?.rootViewController)
+        #expect((window?.rootViewController) == nil)
 
         let identity = MockRootControllerNavigationIdentity()
         var responder: UIViewController?
@@ -48,18 +42,19 @@ class SetRootControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(false, (responder as? MockRootViewController)?.isReplacedEventHandled)
+        #expect((true) == (result))
+        #expect(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((false) == ((responder as? MockRootViewController)?.isReplacedEventHandled))
     }
 
-    func test_setRootController_embeddingInNavigation() async {
+    @Test
+    func `Sets root controller embedded in navigation`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
-        XCTAssertNil(window?.rootViewController)
+        #expect((window?.rootViewController) == nil)
 
         let identity = MockRootControllerNavigationIdentity()
         await replaceWindowRoot(
@@ -74,20 +69,21 @@ class SetRootControllerTests: XCTestCase {
         let rootNavigationController = window?.rootViewController as? UINavigationController
         let expectedIdentity = identity
 
-        XCTAssertNotNil(rootNavigationController)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (window?.topController as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(false, (window?.topController as? MockRootViewController)?.isReplacedEventHandled)
+        #expect((rootNavigationController) != nil)
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((window?.topController as? MockViewController)?.isMockEventHandled))
+        #expect((false) == ((window?.topController as? MockRootViewController)?.isReplacedEventHandled))
     }
 
-    func test_replaceExistingRootController() async {
+    @Test
+    func `Replaces existing root controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         window?.rootViewController = UIViewController()
         window?.makeKeyAndVisible()
 
-        XCTAssertNotNil(window?.rootViewController)
+        #expect((window?.rootViewController) != nil)
 
         let identity = MockRootControllerNavigationIdentity()
         var responder: UIViewController?
@@ -107,14 +103,15 @@ class SetRootControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(true, (responder as? MockRootViewController)?.isReplacedEventHandled)
+        #expect(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((true) == ((responder as? MockRootViewController)?.isReplacedEventHandled))
     }
 
-    func test_replaceExistingRootController_waitsForResponderEventsBeforeCompletion() async {
+    @Test
+    func `Replacement waits for responder events before completion`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         window?.rootViewController = UIViewController()
         window?.makeKeyAndVisible()
@@ -135,11 +132,12 @@ class SetRootControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(["navigator", "user"], handledEventsAtCompletion)
-        XCTAssertEqual(["navigator", "user"], responder.handledEvents)
+        #expect((["navigator", "user"]) == (handledEventsAtCompletion))
+        #expect((["navigator", "user"]) == (responder.handledEvents))
     }
 
-    func test_replaceWindowRoot_withoutWindowReportsFailure() async {
+    @Test
+    func `Replacement without window reports failure`() async {
         let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
         let controller = UIViewController()
         let expect = expectation(description: "replace without window")
@@ -159,13 +157,14 @@ class SetRootControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertNil(responder)
-        XCTAssertEqual(false, result)
+        #expect((responder) == nil)
+        #expect((false) == (result))
     }
 
-    func test_replaceWindowRoot_animatedFalseIgnoresConfiguredTransition() async {
+    @Test
+    func `Replacement without animation ignores configured transition`() async {
         guard let window else {
-            XCTFail("Missing window")
+            Issue.record("Missing window")
 
             return
         }
@@ -186,26 +185,27 @@ class SetRootControllerTests: XCTestCase {
             completion: { completedController, isSuccess in
                 completionWasSynchronous = true
                 result = isSuccess
-                XCTAssertIdentical(controller, completedController)
+                #expect((controller) === (completedController))
                 expect.fulfill()
             }
         )
 
-        XCTAssertTrue(completionWasSynchronous)
-        XCTAssertNil(window.layer.animation(forKey: kCATransition))
+        #expect(completionWasSynchronous)
+        #expect((window.layer.animation(forKey: kCATransition)) == nil)
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertIdentical(controller, window.rootViewController)
+        #expect((true) == (result))
+        #expect((controller) === (window.rootViewController))
     }
 
-    func test_setRootController_transitionCompletionWaitsForAnimation() async {
+    @Test
+    func `Transition completion waits for animation`() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first
         else {
-            XCTFail("Missing window scene")
+            Issue.record("Missing window scene")
 
             return
         }
@@ -226,20 +226,21 @@ class SetRootControllerTests: XCTestCase {
             expect.fulfill()
         }
 
-        XCTAssertIdentical(newController, window?.rootViewController)
-        XCTAssertNil(elapsed)
+        #expect((newController) === (window?.rootViewController))
+        #expect((elapsed) == nil)
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.15)
+        #expect((elapsed ?? 0) >= (0.15))
     }
 
-    func test_setRootController_transitionRetainsAndForwardsDelegate() async {
+    @Test
+    func `Transition retains and forwards delegate`() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first
         else {
-            XCTFail("Missing window scene")
+            Issue.record("Missing window scene")
 
             return
         }
@@ -268,19 +269,20 @@ class SetRootControllerTests: XCTestCase {
 
         startTransition()
 
-        XCTAssertNotNil(retainedDelegate)
+        #expect((retainedDelegate) != nil)
         await fulfillment(of: [forwarded, completed], timeout: 10)
     }
 
-    func test_setWithoutAnimation() async {
-        XCTAssertNil(window?.rootViewController)
+    @Test
+    func `Sets root controller while animations are disabled`() async {
+        #expect((window?.rootViewController) == nil)
         let animationsWereEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
 
         window?.set(rootViewController: UIViewController())
 
-        XCTAssertNotNil(window?.rootViewController)
+        #expect((window?.rootViewController) != nil)
     }
 
     func replaceWindowRoot(

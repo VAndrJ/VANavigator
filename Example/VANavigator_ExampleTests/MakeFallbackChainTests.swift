@@ -6,13 +6,15 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class MakeFallbackChainTests: XCTestCase {
-    func test_fallbackChain() async {
+@Suite(.serialized)
+final class MakeFallbackChainTests {
+    @Test
+    func `Builds fallback chain in strategy order`() async {
         let destination = NavigationDestination.identity(MockRootControllerNavigationIdentity())
         let strategy = NavigationStrategy.push()
         let animated = true
@@ -61,7 +63,7 @@ class MakeFallbackChainTests: XCTestCase {
             ]
         )
         while !(expected == nil && sut == nil) {
-            XCTAssertEqual(true, expected?.isEqual(to: sut))
+            #expect((true) == (expected?.isEqual(to: sut)))
             expected = expected?.fallback
             sut = sut?.fallback
         }

@@ -6,22 +6,16 @@
 //  Copyright © 2024 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
-class RemoveFromStackNavigationStrategyTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class RemoveFromStackNavigationStrategyTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_controllerPop_fail() async {
+    @Test
+    func `Removing the only controller fails`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         let identity = MockNavControllerNavigationIdentity(children: [
@@ -30,8 +24,8 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
         await prepareNavigationStack(navigator: navigator, identity: identity)
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(childIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(childIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
         let expect = expectation(description: "removeFromStack")
         var result: Bool?
@@ -47,18 +41,19 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(childIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(childIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
     }
 
-    func test_controllerPop_singleFallback() async {
+    @Test
+    func `Removing the only controller uses fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         await prepareNavigationStack(navigator: navigator, identity: childIdentity)
         let expectedIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertTrue(childIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(childIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let expect = expectation(description: "removeFromStack")
         var result: Bool?
@@ -79,11 +74,12 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_controller_multipleRemove() async {
+    @Test
+    func `Removes a matching controller from a navigation stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         let expectedIdentity = MockPushControllerNavigationIdentity()
@@ -94,8 +90,8 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
         await prepareNavigationStack(navigator: navigator, identity: identity)
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(rootNavigationController?.viewControllers.count == 2)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
         let expect = expectation(description: "removeFromStack")
         var result: Bool?
@@ -111,13 +107,14 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerDestination_withoutIdentityRemovesExactInstance() async {
+    @Test
+    func `Controller destination without identity removes exact instance`() async {
         let rootController = UIViewController()
         let controllerToRemove = UIViewController()
         let topController = UIViewController()
@@ -141,11 +138,11 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertEqual(2, navigationController.viewControllers.count)
-        XCTAssertIdentical(rootController, navigationController.viewControllers.first)
-        XCTAssertIdentical(topController, navigationController.topViewController)
-        XCTAssertFalse(navigationController.viewControllers.contains { $0 === controllerToRemove })
+        #expect((true) == (result))
+        #expect((2) == (navigationController.viewControllers.count))
+        #expect((rootController) === (navigationController.viewControllers.first))
+        #expect((topController) === (navigationController.topViewController))
+        #expect(!(navigationController.viewControllers.contains { $0 === controllerToRemove }))
     }
 
     func prepareNavigationStack(navigator: Navigator, identity: any NavigationIdentity) async {

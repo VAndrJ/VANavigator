@@ -6,34 +6,28 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 @testable import VANavigator_Example
 
 // TODO: - Messages
-class SearchTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class SearchTests {
+    let window: UIWindow?
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() {
         guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
-            XCTFail("A window scene is required to run view-controller search tests")
+            Issue.record("A window scene is required to run view-controller search tests")
+            window = nil
             return
         }
         window = UIWindow(windowScene: windowScene)
     }
 
-    override func tearDown() async throws {
-        window?.isHidden = true
-        window = nil
-
-        try await super.tearDown()
-    }
-
-    func test_tabSearch() async {
+    @Test
+    func `Finds controllers across tab hierarchy`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let primaryIdentity = MockControllerNavigationIdentity()
         let secondaryIdentity = LoginNavigationIdentity()
@@ -60,55 +54,58 @@ class SearchTests: XCTestCase {
         await fulfillment(of: [expect], timeout: 10)
 
         let controller = window?.findController(destination: .identity(identity))
-        XCTAssertTrue(identity.isEqual(to: controller?.navigationIdentity))
-        XCTAssertEqual(controller, window?.findController(destination: .controller(controller!)))
+        #expect(identity.isEqual(to: controller?.navigationIdentity))
+        #expect((controller) == (window?.findController(destination: .controller(controller!))))
         let controller1 = window?.findController(destination: .identity(identity1))
-        XCTAssertTrue(identity1.isEqual(to: controller1?.navigationIdentity))
-        XCTAssertEqual(controller1, window?.findController(destination: .controller(controller1!)))
+        #expect(identity1.isEqual(to: controller1?.navigationIdentity))
+        #expect((controller1) == (window?.findController(destination: .controller(controller1!))))
         let navController = window?.findController(destination: .identity(navIdentity))
-        XCTAssertTrue(navIdentity.isEqual(to: navController?.navigationIdentity))
-        XCTAssertEqual(navController, window?.findController(destination: .controller(navController!)))
+        #expect(navIdentity.isEqual(to: navController?.navigationIdentity))
+        #expect((navController) == (window?.findController(destination: .controller(navController!))))
         let tabController = window?.findController(destination: .identity(tabIdentity))
-        XCTAssertTrue(tabIdentity.isEqual(to: tabController?.navigationIdentity))
-        XCTAssertEqual(tabController, window?.findController(destination: .controller(tabController!)))
+        #expect(tabIdentity.isEqual(to: tabController?.navigationIdentity))
+        #expect((tabController) == (window?.findController(destination: .controller(tabController!))))
         let presentedController = window?.findController(destination: .identity(presentIdentity))
-        XCTAssertTrue(presentIdentity.isEqual(to: presentedController?.navigationIdentity))
-        XCTAssertEqual(presentedController, window?.findController(destination: .controller(presentedController!)))
+        #expect(presentIdentity.isEqual(to: presentedController?.navigationIdentity))
+        #expect((presentedController) == (window?.findController(destination: .controller(presentedController!))))
         let splitController = window?.findController(destination: .identity(splitIdentity))
-        XCTAssertTrue(splitIdentity.isEqual(to: splitController?.navigationIdentity))
-        XCTAssertEqual(splitController, window?.findController(destination: .controller(splitController!)))
+        #expect(splitIdentity.isEqual(to: splitController?.navigationIdentity))
+        #expect((splitController) == (window?.findController(destination: .controller(splitController!))))
         let primaryController = window?.findController(destination: .identity(primaryIdentity))
-        XCTAssertTrue(primaryIdentity.isEqual(to: primaryController?.navigationIdentity))
-        XCTAssertEqual(primaryController, window?.findController(destination: .controller(primaryController!)))
+        #expect(primaryIdentity.isEqual(to: primaryController?.navigationIdentity))
+        #expect((primaryController) == (window?.findController(destination: .controller(primaryController!))))
         if UIDevice.current.userInterfaceIdiom == .pad {
             let secondaryController = window?.findController(destination: .identity(secondaryIdentity))
-            XCTAssertTrue(secondaryIdentity.isEqual(to: secondaryController?.navigationIdentity))
-            XCTAssertEqual(secondaryController, window?.findController(destination: .controller(secondaryController!)))
+            #expect(secondaryIdentity.isEqual(to: secondaryController?.navigationIdentity))
+            #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController!))))
         }
 
-        XCTAssertEqual(presentedController, window?.topController)
-        XCTAssertEqual(tabController, controller?.findTabBarController())
-        XCTAssertEqual(tabController, controller1?.findTabBarController())
-        XCTAssertEqual(tabController, navController?.findTabBarController())
-        XCTAssertEqual(tabController, tabController?.findTabBarController())
-        XCTAssertEqual(tabController, presentedController?.findTabBarController())
-        XCTAssertNil(splitController?.findTabBarController())
+        #expect((presentedController) == (window?.topController))
+        #expect((tabController) == (controller?.findTabBarController()))
+        #expect((tabController) == (controller1?.findTabBarController()))
+        #expect((tabController) == (navController?.findTabBarController()))
+        #expect((tabController) == (tabController?.findTabBarController()))
+        #expect((tabController) == (presentedController?.findTabBarController()))
+        #expect((splitController?.findTabBarController()) == nil)
     }
 
-    func test_navigationControllerSearch_includesPresentedController() async {
+    @Test
+    func `Navigation controller search includes presented controller`() async {
         await assertSearchIncludesPresentedController(
             in: UINavigationController(rootViewController: UIViewController())
         )
     }
 
-    func test_tabBarControllerSearch_includesPresentedController() async {
+    @Test
+    func `Tab bar controller search includes presented controller`() async {
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [UIViewController()]
 
         await assertSearchIncludesPresentedController(in: tabBarController)
     }
 
-    func test_splitViewControllerSearch_includesPresentedController() async {
+    @Test
+    func `Split view controller search includes presented controller`() async {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
@@ -116,7 +113,8 @@ class SearchTests: XCTestCase {
         await assertSearchIncludesPresentedController(in: splitViewController)
     }
 
-    func test_splitViewControllerTopController_usesVisibleColumn() async {
+    @Test
+    func `Split view top controller uses visible column`() async {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
@@ -131,11 +129,12 @@ class SearchTests: XCTestCase {
             }
             .first { $0.viewIfLoaded?.window != nil }
 
-        XCTAssertNotNil(visibleController)
-        XCTAssertEqual(visibleController?.topController, splitViewController.topController)
+        #expect((visibleController) != nil)
+        #expect((visibleController?.topController) == (splitViewController.topController))
     }
 
-    func test_splitViewControllerTopController_andSearch_includeGeneratedColumnNavigationStack() async throws {
+    @Test
+    func `Split view search includes generated column navigation stack`() async throws {
         let splitViewController = UISplitViewController(style: .doubleColumn)
         splitViewController.setViewController(UIViewController(), for: .primary)
         splitViewController.setViewController(UIViewController(), for: .secondary)
@@ -143,7 +142,7 @@ class SearchTests: XCTestCase {
         window?.makeKeyAndVisible()
         splitViewController.view.layoutIfNeeded()
 
-        let navigationController = try XCTUnwrap(
+        let navigationController = try #require(
             splitViewController.testColumns
                 .compactMap { splitViewController.columnNavigationController(for: $0) }
                 .first { $0.viewIfLoaded?.window != nil }
@@ -153,18 +152,13 @@ class SearchTests: XCTestCase {
         pushedController.navigationIdentity = identity
         navigationController.pushViewController(pushedController, animated: false)
 
-        XCTAssertEqual(pushedController, splitViewController.topController)
-        XCTAssertEqual(
-            pushedController,
-            splitViewController.findController(controller: pushedController, withPresented: false)
-        )
-        XCTAssertEqual(
-            pushedController,
-            splitViewController.findController(identity: identity, withPresented: false)
-        )
+        #expect((pushedController) == (splitViewController.topController))
+        #expect((pushedController) == (splitViewController.findController(controller: pushedController, withPresented: false)))
+        #expect((pushedController) == (splitViewController.findController(identity: identity, withPresented: false)))
     }
 
-    func test_customContainerTopController_andSearch_includeChild() async {
+    @Test
+    func `Custom container search includes child controller`() async {
         let container = UIViewController()
         let child = UIViewController()
         let identity = MockPushControllerNavigationIdentity()
@@ -175,19 +169,10 @@ class SearchTests: XCTestCase {
         window?.rootViewController = container
         window?.makeKeyAndVisible()
 
-        XCTAssertIdentical(child, container.topController)
-        XCTAssertIdentical(
-            child,
-            container.findController(controller: child, withPresented: false)
-        )
-        XCTAssertIdentical(
-            child,
-            container.findController(identity: identity, withPresented: false)
-        )
-        XCTAssertIdentical(
-            child,
-            window?.findController(destination: .identity(identity))
-        )
+        #expect((child) === (container.topController))
+        #expect((child) === (container.findController(controller: child, withPresented: false)))
+        #expect((child) === (container.findController(identity: identity, withPresented: false)))
+        #expect((child) === (window?.findController(destination: .identity(identity))))
     }
 
     private func assertSearchIncludesPresentedController(
@@ -208,35 +193,33 @@ class SearchTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(presentedController, container.presentedViewController, file: file, line: line)
-        XCTAssertEqual(presentedController, container.topController, file: file, line: line)
-        XCTAssertEqual(
-            presentedController,
-            container.findController(controller: presentedController, withPresented: true),
-            file: file,
-            line: line
+        #expect(
+            (presentedController) == (container.presentedViewController),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
         )
-        XCTAssertNil(
-            container.findController(controller: presentedController, withPresented: false),
-            file: file,
-            line: line
+        #expect(
+            (presentedController) == (container.topController),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
         )
-        XCTAssertEqual(
-            presentedController,
-            container.findController(identity: identity, withPresented: true),
-            file: file,
-            line: line
+        #expect(
+            (presentedController) == (container.findController(controller: presentedController, withPresented: true)),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
         )
-        XCTAssertNil(
-            container.findController(identity: identity, withPresented: false),
-            file: file,
-            line: line
+        #expect(
+            (container.findController(controller: presentedController, withPresented: false)) == nil,
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
         )
-        XCTAssertEqual(
-            presentedController,
-            window?.findController(destination: .identity(identity)),
-            file: file,
-            line: line
+        #expect(
+            (presentedController) == (container.findController(identity: identity, withPresented: true)),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            (container.findController(identity: identity, withPresented: false)) == nil,
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            (presentedController) == (window?.findController(destination: .identity(identity))),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
         )
     }
 }

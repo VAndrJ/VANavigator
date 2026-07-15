@@ -6,29 +6,23 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class PresentOrCloseToExistingControllerTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class PresentOrCloseToExistingControllerTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_controllerCloseToExisting() async {
+    @Test
+    func `Closes to existing controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
         let identity = MockRootControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNotNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) != nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -51,19 +45,20 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (window?.topController as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((window?.topController as? MockViewController)?.isMockEventHandled))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controllerCloseToExisting_presented() async {
+    @Test
+    func `Presents fallback when existing controller is absent`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -86,18 +81,19 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controllerCloseToExisting_failure() async {
+    @Test
+    func `Close to existing reports failure without fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var result: Bool?
@@ -113,18 +109,19 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect((false) == (result))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
     }
 
-    func test_controller_presented() async {
+    @Test
+    func `Presents controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -142,12 +139,13 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controller_presented_waitsForCustomTransitionCompletion() async {
+    @Test
+    func `Presentation waits for custom transition completion`() async {
         let rootController = UIViewController()
         window?.rootViewController = rootController
         window?.makeKeyAndVisible()
@@ -176,19 +174,20 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.7)
-        XCTAssertEqual(controller, window?.topController)
+        #expect((true) == (result))
+        #expect((elapsed ?? 0) >= (0.7))
+        #expect((controller) == (window?.topController))
     }
 
-    func test_controller_presented_fromNavigationController() async {
+    @Test
+    func `Presents from navigation controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationControllerNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertTrue(window?.rootViewController is UINavigationController)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(window?.rootViewController is UINavigationController)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -206,19 +205,20 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controller_presented_fromTabBarController() async {
+    @Test
+    func `Presents from tab bar controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareTabBar(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertTrue(window?.rootViewController is UITabBarController)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(window?.rootViewController is UITabBarController)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -236,18 +236,19 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controller_presenting_fromTabBarNavControllerFailure() async {
+    @Test
+    func `Presentation from tab bar navigation controller reports failure`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -266,13 +267,14 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertNil(responder)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect((false) == (result))
+        #expect((responder) == nil)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
     }
 
-    func test_controller_presenting_usesFallbackWhenRequestedSourceIsUnavailable() async {
+    @Test
+    func `Presentation uses fallback when requested source is unavailable`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationControllerNavigation(navigator: navigator)
         let identity = MockPopControllerNavigationIdentity()
@@ -294,17 +296,18 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controller_presenting_withoutWindowFailure() async {
+    @Test
+    func `Presentation without window reports failure`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let identity = MockPopControllerNavigationIdentity()
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -326,10 +329,10 @@ class PresentOrCloseToExistingControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertNil(responder)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertNil(window?.findController(destination: .identity(identity)))
+        #expect((false) == (result))
+        #expect((responder) == nil)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect((window?.findController(destination: .identity(identity))) == nil)
     }
 
     func prepareTabBar(navigator: Navigator) async {

@@ -6,28 +6,22 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class CloseIfTopControllerTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class CloseIfTopControllerTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_controllerDismiss() async {
+    @Test
+    func `Dismisses matching top controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await preparePresented(navigator: navigator)
         let topIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation.closeIfTop")
         var result: Bool?
@@ -44,17 +38,18 @@ class CloseIfTopControllerTests: XCTestCase {
 
         let expectedIdentity = MockPopControllerNavigationIdentity()
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerDismiss_notTop() async {
+    @Test
+    func `Does not dismiss when controller is not on top`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await preparePresented(navigator: navigator)
         let topIdentity = MockPushControllerNavigationIdentity()
         let requestedIdentity = MockPopControllerNavigationIdentity()
 
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation.closeIfTop")
         var result: Bool?
@@ -69,16 +64,17 @@ class CloseIfTopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerPop_notDismissed() async {
+    @Test
+    func `Does not dismiss target inside navigation stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await preparePresented(navigator: navigator)
         let topIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let expect = expectation(description: "navigation.closeIfTop")
         var result: Bool?
@@ -95,15 +91,16 @@ class CloseIfTopControllerTests: XCTestCase {
 
         let expectedIdentity = topIdentity
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerClose_withoutWindow() async {
+    @Test
+    func `Closing without window reports failure`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let topIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertNil(window?.topController)
+        #expect((window?.topController) == nil)
 
         let expect = expectation(description: "navigation.closeIfTop")
         var result: Bool?
@@ -118,17 +115,18 @@ class CloseIfTopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
+        #expect((false) == (result))
     }
 
-    func test_controllerPop() async {
+    @Test
+    func `Pops matching top controller from navigation stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator)
         let topIdentity = MockPushControllerNavigationIdentity()
         let navigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(3, navigationController?.viewControllers.count)
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((3) == (navigationController?.viewControllers.count))
 
         let expect = expectation(description: "navigation.closeIfTop")
         var result: Bool?
@@ -146,13 +144,14 @@ class CloseIfTopControllerTests: XCTestCase {
 
         let expectedIdentity = MockPopControllerNavigationIdentity()
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(2, navigationController?.viewControllers.count)
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((2) == (navigationController?.viewControllers.count))
+        #expect(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
     }
 
-    func test_controllerPop_reportsFailureWhenUIKitRejectsPop() async {
+    @Test
+    func `Rejected UIKit pop reports failure`() async {
         let rootController = UIViewController()
         let topController = UIViewController()
         let navigationController = TopPopRejectingNavigationController()
@@ -174,19 +173,20 @@ class CloseIfTopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertEqual([rootController, topController], navigationController.viewControllers)
-        XCTAssertIdentical(topController, navigationController.topViewController)
+        #expect((false) == (result))
+        #expect(([rootController, topController]) == (navigationController.viewControllers))
+        #expect((topController) === (navigationController.topViewController))
     }
 
-    func test_controllerPop_notPopped() async {
+    @Test
+    func `Does not pop controller below the top controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator)
         let topIdentity = MockPushControllerNavigationIdentity()
         let navigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(3, navigationController?.viewControllers.count)
+        #expect(topIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((3) == (navigationController?.viewControllers.count))
 
         let expect = expectation(description: "navigation.closeIfTop")
         navigator.navigate(
@@ -200,12 +200,13 @@ class CloseIfTopControllerTests: XCTestCase {
 
         let expectedIdentity = topIdentity
 
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(3, navigationController?.viewControllers.count)
-        XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((3) == (navigationController?.viewControllers.count))
+        #expect(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
     }
 
-    func test_controllerDismissesPresentedNavigationControllerWhenMatchingControllerIsItsRoot() async {
+    @Test
+    func `Dismisses presented navigation when matching controller is its root`() async {
         let rootController = UIViewController()
         let presentedController = UIViewController()
         let navigationController = UINavigationController(rootViewController: presentedController)
@@ -233,9 +234,9 @@ class CloseIfTopControllerTests: XCTestCase {
 
         await fulfillment(of: [closeExpect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertNil(rootController.presentedViewController)
-        XCTAssertIdentical(rootController, window?.topController)
+        #expect((true) == (result))
+        #expect((rootController.presentedViewController) == nil)
+        #expect((rootController) === (window?.topController))
     }
 
     func prepareNavigationStack(navigator: Navigator) async {

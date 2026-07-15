@@ -6,27 +6,21 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class PopoverTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class PopoverTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_popover() async {
+    @Test
+    func `Popover navigation succeeds`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
 
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
 
         let identity = MockPushControllerNavigationIdentity()
         let expect = expectation(description: "popover")
@@ -37,7 +31,7 @@ class PopoverTests: XCTestCase {
             destination: .identity(identity),
             strategy: .popover(configure: { popover, controller in
                 popover.sourceView = self.window?.topController?.view
-                XCTAssertEqual(controller.popoverPresentationController, popover)
+                #expect((controller.popoverPresentationController) == (popover))
                 expect.fulfill()
             }),
             completion: { controller, isSuccess in
@@ -49,16 +43,17 @@ class PopoverTests: XCTestCase {
 
         await fulfillment(of: [expect, expect1], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(responder, window?.topController)
+        #expect((true) == (result))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((responder) == (window?.topController))
     }
 
-    func test_popover_failure() async {
+    @Test
+    func `Popover navigation reports failure`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
 
-        XCTAssertNil(window?.rootViewController)
+        #expect((window?.rootViewController) == nil)
 
         let identity = MockPushControllerNavigationIdentity()
         let expect = expectation(description: "presentation")
@@ -67,7 +62,7 @@ class PopoverTests: XCTestCase {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .popover(configure: { _, _ in
-                XCTFail("Should not be called")
+                Issue.record("Should not be called")
             }),
             completion: { controller, isSuccess in
                 responder = controller
@@ -78,11 +73,12 @@ class PopoverTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertNil(responder)
+        #expect((false) == (result))
+        #expect((responder) == nil)
     }
 
-    func test_popover_failureUsesFallback() async {
+    @Test
+    func `Popover failure uses fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let fallbackIdentity = MockRootControllerNavigationIdentity()
         let expect = expectation(description: "fallback")
@@ -92,7 +88,7 @@ class PopoverTests: XCTestCase {
         navigator.navigate(
             destination: .identity(MockPushControllerNavigationIdentity()),
             strategy: .popover(configure: { _, _ in
-                XCTFail("Should not be called")
+                Issue.record("Should not be called")
             }),
             fallback: NavigationChainLink(
                 destination: .identity(fallbackIdentity),
@@ -108,9 +104,9 @@ class PopoverTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(fallbackIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertTrue(fallbackIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(fallbackIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect(fallbackIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
     func prepareNavigation(navigator: Navigator) async {

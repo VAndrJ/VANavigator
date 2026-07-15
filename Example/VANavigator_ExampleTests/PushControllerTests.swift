@@ -6,32 +6,28 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
-import XCTest
 
 @testable import VANavigator
 
 // TODO: - Messages
-class PushControllerTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class PushControllerTests {
+    var window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_controllerPushOntoNavigationStack() async {
+    @Test
+    func `Pushes controller onto navigation stack`() async {
         await controllerPushOntoNavigationStack(alwaysEmbedded: false)
     }
 
-    func test_controllerPushOntoNavigationStack_fallbackPresentNavigation() async {
+    @Test
+    func `Presents fallback navigation stack when needed`() async {
         await controllerPushOntoNavigationStack(alwaysEmbedded: true)
     }
 
-    func test_controllerPushOntoNavigationStack_failWithoutFallback() async {
+    @Test
+    func `Push fails without fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
@@ -50,12 +46,13 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerPushOntoNavigationStack_failPushNavigation() async {
+    @Test
+    func `Repeated push fallbacks eventually report failure`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: false)
 
@@ -87,12 +84,13 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerPush_existingInstanceFailsWithoutCallingUIKit() async {
+    @Test
+    func `Existing controller instance fails before UIKit push`() async {
         let existingController = UIViewController()
         let navigationController = PushInvocationRecordingNavigationController()
         navigationController.setViewControllers([existingController], animated: false)
@@ -113,12 +111,13 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertEqual(0, navigationController.pushInvocationCount)
-        XCTAssertEqual([existingController], navigationController.viewControllers)
+        #expect((false) == (result))
+        #expect((0) == (navigationController.pushInvocationCount))
+        #expect(([existingController]) == (navigationController.viewControllers))
     }
 
-    func test_controllerPush_reportsFailureWhenNavigationControllerRejectsPush() async {
+    @Test
+    func `Rejected UIKit push reports failure`() async {
         let rootController = UIViewController()
         let pushedController = UIViewController()
         let navigationController = PushInvocationRecordingNavigationController()
@@ -141,12 +140,13 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertEqual(1, navigationController.pushInvocationCount)
-        XCTAssertEqual([rootController], navigationController.viewControllers)
+        #expect((false) == (result))
+        #expect((1) == (navigationController.pushInvocationCount))
+        #expect(([rootController]) == (navigationController.viewControllers))
     }
 
-    func test_controllerPush_tabBarControllerFailsWithoutCallingUIKit() async {
+    @Test
+    func `Tab bar controller fails before UIKit push`() async {
         let rootController = UIViewController()
         let tabBarController = UITabBarController()
         let navigationController = PushInvocationRecordingNavigationController()
@@ -168,16 +168,18 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertEqual(0, navigationController.pushInvocationCount)
-        XCTAssertEqual([rootController], navigationController.viewControllers)
+        #expect((false) == (result))
+        #expect((0) == (navigationController.pushInvocationCount))
+        #expect(([rootController]) == (navigationController.viewControllers))
     }
 
-    func test_controllerPresentWithNavigation() async {
+    @Test
+    func `Presents controller without navigation embedding`() async {
         await controllerPresentWithNavigation(alwaysEmbedded: false)
     }
 
-    func test_controllerPresentWithNavigation_embedded() async {
+    @Test
+    func `Presents controller embedded in navigation`() async {
         await controllerPresentWithNavigation(alwaysEmbedded: true)
     }
 
@@ -204,23 +206,40 @@ class PushControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertNil(window?.rootViewController as? UINavigationController, file: file, line: line)
+        #expect(
+            (window?.rootViewController as? UINavigationController) == nil,
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
         if alwaysEmbedded {
             let navigationController = window?.rootViewController?.presentedViewController as? UINavigationController
 
-            XCTAssertNotNil(navigationController, file: file, line: line)
-            XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
-            XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
+            #expect(
+                (navigationController) != nil,
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
+            #expect(
+                navigationController?.viewControllers.count == 1,
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
+            #expect(
+                expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity),
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
         } else {
-            XCTAssertTrue(
+            #expect(
                 expectedIdentity.isEqual(to: window?.rootViewController?.presentedViewController?.navigationIdentity),
                 "expected not equal to top",
-                file: file,
-                line: line
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
             )
         }
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertEqual(true, (window?.topController as? MockViewController)?.isMockEventHandled, file: file, line: line)
+        #expect(
+            expectedIdentity.isEqual(to: window?.topController?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            (true) == ((window?.topController as? MockViewController)?.isMockEventHandled),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
     }
 
     func controllerPushOntoNavigationStack(
@@ -252,15 +271,31 @@ class PushControllerTests: XCTestCase {
         let rootNavigationController = window?.rootViewController as? UINavigationController
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
+        #expect((true) == (result))
+        #expect(
+            rootNavigationController?.viewControllers.count == 2,
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: window?.topController?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: responder?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            (true) == ((responder as? MockViewController)?.isMockEventHandled),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
     }
 
-    func test_controllerPushOntoNavigationStack_delegate() async {
+    @Test
+    func `Push notifies navigation delegate`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let delegate = MockNavigationDelegate()
@@ -286,15 +321,16 @@ class PushControllerTests: XCTestCase {
         let rootNavigationController = window?.rootViewController as? UINavigationController
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 2)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controllerPush_dismissesPresentedControllerOverNavigationStack() async {
+    @Test
+    func `Push dismisses presented controller over navigation stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let rootNavigationController = window?.rootViewController as? UINavigationController
@@ -313,8 +349,8 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [presentExpect], timeout: 10)
 
-        XCTAssertEqual(1, rootNavigationController?.viewControllers.count)
-        XCTAssertTrue(presentedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((1) == (rootNavigationController?.viewControllers.count))
+        #expect(presentedIdentity.isEqual(to: window?.topController?.navigationIdentity))
 
         let pushExpect = expectation(description: "push")
         var responder: UIViewController?
@@ -333,22 +369,23 @@ class PushControllerTests: XCTestCase {
 
         await fulfillment(of: [pushExpect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertNil(rootNavigationController?.presentedViewController)
-        XCTAssertEqual(2, rootNavigationController?.viewControllers.count)
-        XCTAssertTrue(pushIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(pushIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(pushIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((true) == (result))
+        #expect((rootNavigationController?.presentedViewController) == nil)
+        #expect((2) == (rootNavigationController?.viewControllers.count))
+        #expect(pushIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(pushIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(pushIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_pushCompletion_preservesAnimationForVisibleNonKeyWindow() async {
+    @Test
+    func `Push completion preserves animation for visible window that is not key`() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first
         else {
-            XCTFail("Missing window scene")
+            Issue.record("Missing window scene")
 
             return
         }
@@ -367,7 +404,7 @@ class PushControllerTests: XCTestCase {
         window = nonKeyWindow
         navigationController.lastPushAnimated = nil
 
-        XCTAssertEqual(false, nonKeyWindow.isKeyWindow)
+        #expect((false) == (nonKeyWindow.isKeyWindow))
 
         let expect = expectation(description: "push completion")
         navigationController.pushViewController(
@@ -376,7 +413,7 @@ class PushControllerTests: XCTestCase {
             completion: { expect.fulfill() }
         )
 
-        XCTAssertEqual(true, navigationController.lastPushAnimated)
+        #expect((true) == (navigationController.lastPushAnimated))
         await fulfillment(of: [expect], timeout: 10)
     }
 

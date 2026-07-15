@@ -6,10 +6,50 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
 
 @testable import VANavigator_Example
+
+nonisolated final class TestExpectation: @unchecked Sendable {
+    let description: String
+    private let lock = NSLock()
+    private var fulfilled = false
+
+    var isFulfilled: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return fulfilled
+    }
+
+    init(description: String) {
+        self.description = description
+    }
+
+    func fulfill() {
+        lock.lock()
+        fulfilled = true
+        lock.unlock()
+    }
+}
+
+func expectation(description: String) -> TestExpectation {
+    TestExpectation(description: description)
+}
+
+func fulfillment(of expectations: [TestExpectation], timeout: TimeInterval) async {
+    let start = DispatchTime.now().uptimeNanoseconds
+    let timeoutNanoseconds = UInt64(timeout * 1_000_000_000)
+
+    while let pendingExpectation = expectations.first(where: { !$0.isFulfilled }) {
+        if DispatchTime.now().uptimeNanoseconds - start >= timeoutNanoseconds {
+            Issue.record("Timed out waiting for '\(pendingExpectation.description)'")
+            return
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
 
 class MockScreenFactory: NavigatorScreenFactory {
     init() {}

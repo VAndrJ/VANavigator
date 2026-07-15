@@ -6,90 +6,100 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
-class NavigationStrategyEqualityTests: XCTestCase {
-    func test_push() async {
+@Suite(.serialized)
+final class NavigationStrategyEqualityTests {
+    @Test
+    func `Push strategies compare by value`() async {
         let expected: NavigationStrategy = .push()
         let expectedToFail: NavigationStrategy = .popToExisting()
         let sut: NavigationStrategy = .push()
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
     }
 
-    func test_pushWithConfigurationClosure_comparesByInstance() async {
+    @Test
+    func `Push strategies with configuration closures compare by instance`() async {
         let expected: NavigationStrategy = .push(navigation: { _ in })
         let sut: NavigationStrategy = .push(navigation: { _ in })
 
-        XCTAssertNotEqual(expected, sut)
-        XCTAssertEqual(expected, expected)
+        #expect((expected) != (sut))
+        #expect((expected) == (expected))
     }
 
-    func test_popover_comparesByInstance() async {
+    @Test
+    func `Popover strategies compare by instance`() async {
         let expected: NavigationStrategy = .popover(configure: { _, _ in })
         let sut: NavigationStrategy = .popover(configure: { _, _ in })
 
-        XCTAssertNotEqual(expected, sut)
-        XCTAssertEqual(expected, expected)
+        #expect((expected) != (sut))
+        #expect((expected) == (expected))
     }
 
-    func test_pop() async {
+    @Test
+    func `Pop strategies compare by value`() async {
         let expected: NavigationStrategy = .popToExisting()
         let expectedToFail: NavigationStrategy = .popToExisting(includingTabs: false)
         let expectedToFail1: NavigationStrategy = .present()
         let sut: NavigationStrategy = .popToExisting()
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
+        #expect((expectedToFail1) != (sut))
     }
 
-    func test_replaceNavigationRoot() async {
+    @Test
+    func `Navigation root replacement strategies compare by value`() async {
         let expected: NavigationStrategy = .replaceNavigationRoot
         let expectedToFail: NavigationStrategy = .replaceWindowRoot()
         let sut: NavigationStrategy = .replaceNavigationRoot
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
     }
 
-    func test_present() async {
+    @Test
+    func `Presentation strategies compare by value`() async {
         let expected: NavigationStrategy = .present()
         let expectedToFail: NavigationStrategy = .present(source: .navigationController)
         let expectedToFail1: NavigationStrategy = .present(source: .tabBarController)
         let expectedToFail2: NavigationStrategy = .replaceNavigationRoot
         let sut: NavigationStrategy = .present()
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
-        XCTAssertNotEqual(expectedToFail2, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
+        #expect((expectedToFail1) != (sut))
+        #expect((expectedToFail2) != (sut))
     }
 
-    func test_replaceWindowRoot() async {
+    @Test
+    func `Window root replacement strategies compare by value`() async {
         let expected: NavigationStrategy = .replaceWindowRoot()
         let expectedToFail: NavigationStrategy = .replaceWindowRoot(transition: CATransition())
         let expectedToFail1: NavigationStrategy = .closeToExisting
         let sut: NavigationStrategy = .replaceWindowRoot()
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
+        #expect((expectedToFail1) != (sut))
     }
 
-    func test_closeToExisting() async {
+    @Test
+    func `Close to existing strategies compare by value`() async {
         let expected: NavigationStrategy = .closeToExisting
         let expectedToFail: NavigationStrategy = .closeIfTop()
         let sut: NavigationStrategy = .closeToExisting
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
     }
 
-    func test_closeIfTop() async {
+    @Test
+    func `Close if top strategies compare by value`() async {
         let expected: NavigationStrategy = .closeIfTop()
         let expectedToFail: NavigationStrategy = .closeIfTop(tryToPop: false, tryToDismiss: true)
         let expectedToFail1: NavigationStrategy = .closeIfTop(tryToPop: false, tryToDismiss: false)
@@ -97,22 +107,24 @@ class NavigationStrategyEqualityTests: XCTestCase {
         let expectedToFail3: NavigationStrategy = .split(strategy: .primary(action: .pop))
         let sut: NavigationStrategy = .closeIfTop()
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
-        XCTAssertNotEqual(expectedToFail2, sut)
-        XCTAssertNotEqual(expectedToFail3, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
+        #expect((expectedToFail1) != (sut))
+        #expect((expectedToFail2) != (sut))
+        #expect((expectedToFail3) != (sut))
     }
 
-    func test_closeIfTopWithNavigationClosure_comparesByInstance() async {
+    @Test
+    func `Close if top strategies with navigation closures compare by instance`() async {
         let expected: NavigationStrategy = .closeIfTop(navigation: { _ in })
         let sut: NavigationStrategy = .closeIfTop(navigation: { _ in })
 
-        XCTAssertNotEqual(expected, sut)
-        XCTAssertEqual(expected, expected)
+        #expect((expected) != (sut))
+        #expect((expected) == (expected))
     }
 
-    func test_split() async {
+    @Test
+    func `Split strategies compare by value`() async {
         let expected: NavigationStrategy = .split(strategy: .primary(action: .push))
         let expectedToFail: NavigationStrategy = .split(strategy: .primary(action: .pop))
         let expectedToFail1: NavigationStrategy = .split(strategy: .secondary(action: .push))
@@ -120,10 +132,10 @@ class NavigationStrategyEqualityTests: XCTestCase {
         let expectedToFail3: NavigationStrategy = .push()
         let sut: NavigationStrategy = .split(strategy: .primary(action: .push))
 
-        XCTAssertEqual(expected, sut)
-        XCTAssertNotEqual(expectedToFail, sut)
-        XCTAssertNotEqual(expectedToFail1, sut)
-        XCTAssertNotEqual(expectedToFail2, sut)
-        XCTAssertNotEqual(expectedToFail3, sut)
+        #expect((expected) == (sut))
+        #expect((expectedToFail) != (sut))
+        #expect((expectedToFail1) != (sut))
+        #expect((expectedToFail2) != (sut))
+        #expect((expectedToFail3) != (sut))
     }
 }

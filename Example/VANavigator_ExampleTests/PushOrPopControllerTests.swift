@@ -6,39 +6,35 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 // TODO: - Messages
-class PushOrPopControllerTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class PushOrPopControllerTests {
+    var window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_controllerPop() async {
+    @Test
+    func `Pops to existing controller`() async {
         await controllerPopInNavigationStack(isTop: false)
     }
 
-    func test_controllerPop_notPoppedWhenTop() async {
+    @Test
+    func `Does not pop when controller is already on top`() async {
         await controllerPopInNavigationStack(isTop: true)
     }
 
-    func test_controllerPush_whenNotInStack() async {
+    @Test
+    func `Pushes when controller is not in stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let identity = MockPopControllerNavigationIdentity()
 
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(!(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity)))
 
         let expect = expectation(description: "pushOrPop")
         var responder: UIViewController?
@@ -65,16 +61,17 @@ class PushOrPopControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(false, (responder as? MockPopViewController)?.isPoppedEventHandled)
+        #expect((true) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 2)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((false) == ((responder as? MockPopViewController)?.isPoppedEventHandled))
     }
 
-    func test_popToExisting_navigationContainerDoesNotPopToItself() async {
+    @Test
+    func `Navigation container does not pop to itself`() async {
         let identity = MockNavControllerNavigationIdentity(children: [])
         let childController = UIViewController()
         let navigationController = PopInvocationRecordingNavigationController()
@@ -99,13 +96,14 @@ class PushOrPopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertIdentical(navigationController, responder)
-        XCTAssertEqual(0, navigationController.popInvocationCount)
-        XCTAssertEqual([childController], navigationController.viewControllers)
+        #expect((true) == (result))
+        #expect((navigationController) === (responder))
+        #expect((0) == (navigationController.popInvocationCount))
+        #expect(([childController]) == (navigationController.viewControllers))
     }
 
-    func test_popToExisting_reportsFailureWhenUIKitRejectsPop() async {
+    @Test
+    func `Rejected UIKit pop reports failure`() async {
         let targetController = UIViewController()
         let topController = UIViewController()
         let navigationController = PopRejectingNavigationController()
@@ -127,14 +125,15 @@ class PushOrPopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(false, result)
-        XCTAssertEqual([targetController, topController], navigationController.viewControllers)
-        XCTAssertIdentical(topController, navigationController.topViewController)
+        #expect((false) == (result))
+        #expect(([targetController, topController]) == (navigationController.viewControllers))
+        #expect((topController) === (navigationController.topViewController))
     }
 
-    func test_popToExisting_findsNavigationStackBehindPresentedController() async {
+    @Test
+    func `Finds navigation stack behind presented controller`() async {
         guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
-            XCTFail("A window scene is required to test presentation traversal")
+            Issue.record("A window scene is required to test presentation traversal")
 
             return
         }
@@ -170,22 +169,23 @@ class PushOrPopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertIdentical(targetController, responder)
-        XCTAssertIdentical(targetController, navigationController.topViewController)
-        XCTAssertNil(navigationController.presentedViewController)
-        XCTAssertNil(presentedController.presentingViewController)
+        #expect((true) == (result))
+        #expect((targetController) === (responder))
+        #expect((targetController) === (navigationController.topViewController))
+        #expect((navigationController.presentedViewController) == nil)
+        #expect((presentedController.presentingViewController) == nil)
     }
 
-    func test_controllerPop_single() async {
+    @Test
+    func `Close if top fails for single controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let identity = MockRootControllerNavigationIdentity()
 
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
         let expect = expectation(description: "pushOrPop")
         var result: Bool?
@@ -205,21 +205,22 @@ class PushOrPopControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((false) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerPop_singleFallback() async {
+    @Test
+    func `Close if top uses fallback for single controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let identity = MockRootControllerNavigationIdentity()
 
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
-        XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(rootNavigationController?.viewControllers.count == 1)
+        #expect(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
 
         let expect = expectation(description: "pushOrPop")
         var result: Bool?
@@ -242,21 +243,22 @@ class PushOrPopControllerTests: XCTestCase {
 
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == (result))
+        #expect(rootNavigationController?.viewControllers.count == 2)
+        #expect(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_controllerPop_selectingTab() async {
+    @Test
+    func `Pop to existing selects containing tab`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareTabNavigationStack(navigator: navigator, isTop: false)
         let identity = MockPopControllerNavigationIdentity()
         let rootTabController = window?.rootViewController as? UITabBarController
 
-        XCTAssertTrue(rootTabController?.viewControllers?.count == 3)
-        XCTAssertTrue(rootTabController?.selectedIndex == 2)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(rootTabController?.viewControllers?.count == 3)
+        #expect(rootTabController?.selectedIndex == 2)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
 
         let expect = expectation(description: "popSelecting")
         var responder: UIViewController?
@@ -276,24 +278,25 @@ class PushOrPopControllerTests: XCTestCase {
 
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootTabController?.selectedIndex == 0)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(true, (responder as? MockPopViewController)?.isPoppedEventHandled)
+        #expect((true) == (result))
+        #expect(rootTabController?.selectedIndex == 0)
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((true) == ((responder as? MockPopViewController)?.isPoppedEventHandled))
     }
 
-    func test_controllerPop_selectingTabStaying() async {
+    @Test
+    func `Pop to existing stays on selected tab`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareTabNavigationStack(navigator: navigator, isTop: false)
         let identity = MockPopControllerNavigationIdentity()
         let rootTabController = window?.rootViewController as? UITabBarController
         rootTabController?.selectedIndex = 0
 
-        XCTAssertTrue(rootTabController?.viewControllers?.count == 3)
-        XCTAssertTrue(rootTabController?.selectedIndex == 0)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(rootTabController?.viewControllers?.count == 3)
+        #expect(rootTabController?.selectedIndex == 0)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
 
         let expect = expectation(description: "popSelecting")
         var responder: UIViewController?
@@ -313,23 +316,24 @@ class PushOrPopControllerTests: XCTestCase {
 
         let expectedIdentity = identity
 
-        XCTAssertEqual(true, result)
-        XCTAssertTrue(rootTabController?.selectedIndex == 0)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
-        XCTAssertEqual(true, (responder as? MockPopViewController)?.isPoppedEventHandled)
+        #expect((true) == (result))
+        #expect(rootTabController?.selectedIndex == 0)
+        #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((true) == ((responder as? MockPopViewController)?.isPoppedEventHandled))
     }
 
-    func test_controllerPop_selectingTabFail() async {
+    @Test
+    func `Missing controller leaves selected tab unchanged`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareTabNavigationStack(navigator: navigator, isTop: true)
         let identity = MockPushControllerNavigationIdentity()
         let rootTabController = window?.rootViewController as? UITabBarController
 
-        XCTAssertTrue(rootTabController?.viewControllers?.count == 3)
-        XCTAssertTrue(rootTabController?.selectedIndex == 2)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(rootTabController?.viewControllers?.count == 3)
+        #expect(rootTabController?.selectedIndex == 2)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
 
         let expect = expectation(description: "popSelecting")
         var responder: UIViewController?
@@ -347,12 +351,12 @@ class PushOrPopControllerTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertNil(responder)
-        XCTAssertEqual(false, result)
-        XCTAssertTrue(rootTabController?.selectedIndex == 2)
-        XCTAssertTrue(rootTabController?.viewControllers?.count == 3)
-        XCTAssertTrue(rootTabController?.selectedIndex == 2)
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((responder) == nil)
+        #expect((false) == (result))
+        #expect(rootTabController?.selectedIndex == 2)
+        #expect(rootTabController?.viewControllers?.count == 3)
+        #expect(rootTabController?.selectedIndex == 2)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
     }
 
     func controllerPopInNavigationStack(
@@ -366,11 +370,20 @@ class PushOrPopControllerTests: XCTestCase {
 
         let rootNavigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == (isTop ? 2 : 3), file: file, line: line)
+        #expect(
+            rootNavigationController?.viewControllers.count == (isTop ? 2 : 3),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
         if isTop {
-            XCTAssertTrue(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
+            #expect(
+                identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity),
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
         } else {
-            XCTAssertFalse(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
+            #expect(
+                !(identity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity)),
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
         }
 
         var responder: UIViewController?
@@ -388,13 +401,31 @@ class PushOrPopControllerTests: XCTestCase {
         // and it is the top view controller.
         let expectedIdentity = identity
 
-        XCTAssertTrue(rootNavigationController?.viewControllers.count == 2, file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
-        XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity), file: file, line: line)
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled, file: file, line: line)
+        #expect(
+            rootNavigationController?.viewControllers.count == 2,
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: window?.topController?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            expectedIdentity.isEqual(to: responder?.navigationIdentity),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
+        #expect(
+            (true) == ((responder as? MockViewController)?.isMockEventHandled),
+            sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+        )
         if !isTop {
-            XCTAssertEqual(true, (responder as? MockPopViewController)?.isPoppedEventHandled, file: file, line: line)
+            #expect(
+                (true) == ((responder as? MockPopViewController)?.isPoppedEventHandled),
+                sourceLocation: SourceLocation(fileID: String(describing: file), filePath: String(describing: file), line: Int(line), column: 1)
+            )
         }
     }
 

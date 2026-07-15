@@ -7,30 +7,25 @@
 //
 
 import ObservationTracking
+import Testing
 import UIKit
 import VANavigator
-import XCTest
 
 @testable import VANavigator_Example
 
-class NavigationInterceptionTests: XCTestCase {
-    var window: UIWindow?
+@Suite(.serialized)
+final class NavigationInterceptionTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() async throws {
-        window = UIWindow()
-    }
-
-    override func tearDown() async throws {
-        window = nil
-    }
-
-    func test_defaultInterception() async {
+    @Test
+    func `Default interceptor does not intercept`() async {
         let sut = MockEmptyInterceptor()
 
-        XCTAssertNil(sut.intercept(destination: .identity(MockControllerNavigationIdentity())))
+        #expect((sut.intercept(destination: .identity(MockControllerNavigationIdentity()))) == nil)
     }
 
-    func test_navigationInterception() async {
+    @Test
+    func `Intercepted navigation resumes after resolution`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -50,10 +45,10 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(([navigationInterceptor.interceptionReason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let expect1 = expectation(description: "navigation.resolved")
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
@@ -61,11 +56,12 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect1], timeout: 10)
 
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_assignedAfterInit() async {
+    @Test
+    func `Interceptor assigned after initialization intercepts navigation`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
@@ -82,9 +78,9 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
 
         let expect1 = expectation(description: "navigation.resolved")
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
@@ -92,11 +88,12 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect1], timeout: 10)
 
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_startsInterceptionChainBeforeQueuedNavigation() async {
+    @Test
+    func `Interception chain starts before queued navigation`() async {
         let screenFactory = InterceptionOrderScreenFactory()
         let navigationInterceptor = QueuingNavigationInterceptor()
         let navigator = Navigator(
@@ -121,10 +118,11 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect, queuedExpect], timeout: 10)
 
-        XCTAssertEqual(["interception", "queued"], screenFactory.trackedAssemblies)
+        #expect((["interception", "queued"]) == (screenFactory.trackedAssemblies))
     }
 
-    func test_navigationInterception_resumesEveryNavigationWithTheSameReasonInFIFOOrder() async {
+    @Test
+    func `Navigations with the same reason resume in FIFO order`() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let navigator = Navigator(
             window: window,
@@ -153,7 +151,7 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [firstIntercepted, secondIntercepted], timeout: 10)
 
-        XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
+        #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let resolved = expectation(description: "interceptions resolved")
         var result: Bool?
@@ -164,13 +162,14 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [resolved], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertEqual(1, firstController.handledEventCount)
-        XCTAssertEqual(1, secondController.handledEventCount)
-        XCTAssertIdentical(secondController, window?.rootViewController)
+        #expect((true) == (result))
+        #expect((1) == (firstController.handledEventCount))
+        #expect((1) == (secondController.handledEventCount))
+        #expect((secondController) === (window?.rootViewController))
     }
 
-    func test_navigationInterception_sharedInterceptorResumesInOriginatingNavigators() async {
+    @Test
+    func `Shared interceptor resumes navigation in originating navigators`() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let firstWindow = UIWindow()
         let secondWindow = UIWindow()
@@ -217,15 +216,16 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [resolved], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertIdentical(secondController, completedController)
-        XCTAssertIdentical(firstController, firstWindow.rootViewController)
-        XCTAssertIdentical(secondController, secondWindow.rootViewController)
-        XCTAssertEqual(1, firstController.handledEventCount)
-        XCTAssertEqual(1, secondController.handledEventCount)
+        #expect((true) == (result))
+        #expect((secondController) === (completedController))
+        #expect((firstController) === (firstWindow.rootViewController))
+        #expect((secondController) === (secondWindow.rootViewController))
+        #expect((1) == (firstController.handledEventCount))
+        #expect((1) == (secondController.handledEventCount))
     }
 
-    func test_navigationInterception_strategyOverrideDoesNotMutateOriginalLink() async {
+    @Test
+    func `Strategy override leaves original link unchanged`() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         let navigator = Navigator(
             window: window,
@@ -253,12 +253,13 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [resolved], timeout: 10)
 
-        XCTAssertEqual(true, result)
-        XCTAssertIdentical(controller, window?.rootViewController)
-        XCTAssertIdentical(originalStrategy, link.strategy)
+        #expect((true) == (result))
+        #expect((controller) === (window?.rootViewController))
+        #expect((originalStrategy) === (link.strategy))
     }
 
-    func test_navigationInterception_prefixedNavigationChain() async {
+    @Test
+    func `Interception prefix is prepended to navigation chain`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
         let navigator = Navigator(
@@ -282,11 +283,11 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertNotNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
+        #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) != nil)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(([navigationInterceptor.interceptionReason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let expect1 = expectation(description: "navigation.resolved")
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
@@ -294,12 +295,13 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect1], timeout: 10)
 
-        XCTAssertNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
-        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) == nil)
+        #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
-    func test_navigationInterception_suffixedNavigationChain() async {
+    @Test
+    func `Interception suffix is appended to navigation chain`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .suffixed)
         let navigator = Navigator(
@@ -323,11 +325,11 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertNotNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
+        #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) != nil)
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(([navigationInterceptor.interceptionReason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let expect1 = expectation(description: "navigation.resolved")
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
@@ -335,13 +337,14 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect1], timeout: 10)
 
-        XCTAssertNil(window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity)))
-        XCTAssertNotNil(window?.findController(destination: .identity(identity)))
-        XCTAssertTrue(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(MockPopControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+        #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) == nil)
+        #expect((window?.findController(destination: .identity(identity))) != nil)
+        #expect(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(MockPopControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_navigationInterception_removeReason() async {
+    @Test
+    func `Removes a specific interception reason`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -361,18 +364,19 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(([navigationInterceptor.interceptionReason]) == (navigationInterceptor.getInterceptionReasons()))
 
         navigationInterceptor.removeIfAvailable(reason: navigationInterceptor.interceptionReason)
 
-        XCTAssertFalse(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
+        #expect(!(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)))
+        #expect(([]) == (navigationInterceptor.getInterceptionReasons()))
     }
 
-    func test_navigationInterception_removeReasons() async {
+    @Test
+    func `Removes all interception reasons`() async {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
@@ -392,15 +396,15 @@ class NavigationInterceptionTests: XCTestCase {
 
         await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertFalse(identity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([navigationInterceptor.interceptionReason], navigationInterceptor.getInterceptionReasons())
+        #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
+        #expect(([navigationInterceptor.interceptionReason]) == (navigationInterceptor.getInterceptionReasons()))
 
         navigationInterceptor.removeAllReasons()
 
-        XCTAssertFalse(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
-        XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
+        #expect(!(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)))
+        #expect(([]) == (navigationInterceptor.getInterceptionReasons()))
     }
 
     func preparePresented(navigator: Navigator) async {
@@ -419,7 +423,8 @@ class NavigationInterceptionTests: XCTestCase {
         await fulfillment(of: [expect], timeout: 10)
     }
 
-    func test_resultInit_equality() async {
+    @Test
+    func `Interception results compare by value`() async {
         let link = NavigationChainLink(
             destination: .identity(MainNavigationIdentity()),
             strategy: .push(),
@@ -437,13 +442,14 @@ class NavigationInterceptionTests: XCTestCase {
             reason: reason
         )
 
-        XCTAssertEqual(sut.chain.count, expected.chain.count)
-        XCTAssertEqual(true, sut.chain.first?.isEqual(to: expected.chain.first))
-        XCTAssertEqual(String(describing: sut.event), String(describing: expected.event))
-        XCTAssertEqual(sut.reason, expected.reason)
+        #expect((sut.chain.count) == (expected.chain.count))
+        #expect((true) == (sut.chain.first?.isEqual(to: expected.chain.first)))
+        #expect((String(describing: sut.event)) == (String(describing: expected.event)))
+        #expect((sut.reason) == (expected.reason))
     }
 
-    func test_releasedNavigator_removesInterceptedNavigationAndDestination() async {
+    @Test
+    func `Releasing navigator removes intercepted navigation and destination`() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()
         weak var releasedNavigator: Navigator?
         weak var releasedController: UIViewController?
@@ -465,13 +471,13 @@ class NavigationInterceptionTests: XCTestCase {
                 completion: { _, _ in expect.fulfill() }
             )
             await fulfillment(of: [expect], timeout: 10)
-            XCTAssertNotNil(releasedController)
-            XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
+            #expect((releasedController) != nil)
+            #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
         }.value
 
-        XCTAssertNil(releasedNavigator)
-        XCTAssertNil(releasedController)
-        XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
+        #expect((releasedNavigator) == nil)
+        #expect((releasedController) == nil)
+        #expect(([]) == (navigationInterceptor.getInterceptionReasons()))
     }
 }
 
