@@ -110,6 +110,35 @@ class ReplaceNavigationRootControllerTests: XCTestCase {
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
+    func test_replaceNavigationRoot_rejectsNavigationControllerDestination() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationStack(navigator: navigator)
+        let navigationController = window?.rootViewController as? UINavigationController
+        let originalControllers = navigationController?.viewControllers
+        let nestedNavigationController = UINavigationController(rootViewController: UIViewController())
+        let expect = expectation(description: "replace rejected")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(nestedNavigationController),
+            strategy: .replaceNavigationRoot,
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertNil(responder)
+        XCTAssertEqual(originalControllers, navigationController?.viewControllers)
+        XCTAssertNil(nestedNavigationController.parent)
+    }
+
     func test_closeNavigationPresented_completionCalledWithNilController() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let expect = expectation(description: "navigation.close")

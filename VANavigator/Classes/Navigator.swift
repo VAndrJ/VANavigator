@@ -16,7 +16,7 @@ open class Navigator {
 
     public private(set) weak var window: UIWindow?
 
-    private let navigationQueue = Queue<QueuedNavigation>()
+    private var navigationQueue = Queue<QueuedNavigation>()
     private var isNavigationInProgress = false {
         didSet { checkQueue() }
     }
@@ -645,13 +645,21 @@ open class Navigator {
             }
 
             func findController() -> UIViewController? {
-                let topController = window?.topController
+                var sourceController = window?.topController
+                var searchedContainers = Set<ObjectIdentifier>()
+                while let source = sourceController {
+                    let container = includingTabs
+                        ? source.orTabBarController ?? source.orNavigationController
+                        : source.orNavigationController
+                    if let container,
+                        searchedContainers.insert(ObjectIdentifier(container)).inserted,
+                        let controller = container.findController(destination: destination) {
+                        return controller
+                    }
+                    sourceController = source.presentingViewController
+                }
 
-                return includingTabs
-                    ? (topController?.orTabBarController ?? topController?.orNavigationController)?.findController(
-                        destination: destination
-                    )
-                    : topController?.orNavigationController?.findController(destination: destination)
+                return nil
             }
 
             if let controller = findController() {
@@ -689,10 +697,46 @@ open class Navigator {
         case _ as ReplaceNavigationRootNavigationStrategy:
             if let navigationController = window?.topController?.orNavigationController {
                 let controller = getController(destination: destination)
+                guard navigationController.canSetNavigationRoot(controller) else {
+                    if let fallback {
+                        navigate(
+                            to: fallback.destination,
+                            strategy: fallback.strategy,
+                            animated: fallback.animated,
+                            fallback: fallback.fallback,
+                            event: event,
+                            completion: completion
+                        )
+                    } else {
+                        completion?(nil, false)
+                    }
+
+                    return
+                }
+
                 navigationController.setViewControllers(
                     [controller],
                     animated: animated,
                     completion: {
+                        guard navigationController.viewControllers.count == 1,
+                            navigationController.topViewController === controller
+                        else {
+                            if let fallback {
+                                self.navigate(
+                                    to: fallback.destination,
+                                    strategy: fallback.strategy,
+                                    animated: fallback.animated,
+                                    fallback: fallback.fallback,
+                                    event: event,
+                                    completion: completion
+                                )
+                            } else {
+                                completion?(nil, false)
+                            }
+
+                            return
+                        }
+
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
@@ -821,6 +865,13 @@ open class Navigator {
 
                 switch action {
                 case .replace:
+                    let controller = getController(destination: destination)
+                    guard initialNavigationController.canSetNavigationRoot(controller) else {
+                        completeSplitFailure()
+
+                        return
+                    }
+
                     splitController.showNavigatorColumn(column) {
                         guard let navigationController = splitController.columnNavigationController(for: column) else {
                             completeSplitFailure()
@@ -828,11 +879,24 @@ open class Navigator {
                             return
                         }
 
-                        let controller = self.getController(destination: destination)
+                        guard navigationController.canSetNavigationRoot(controller) else {
+                            completeSplitFailure()
+
+                            return
+                        }
+
                         navigationController.setViewControllers(
                             [controller],
                             animated: animated,
                             completion: {
+                                guard navigationController.viewControllers.count == 1,
+                                    navigationController.topViewController === controller
+                                else {
+                                    completeSplitFailure()
+
+                                    return
+                                }
+
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,

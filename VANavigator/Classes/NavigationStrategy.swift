@@ -8,14 +8,15 @@
 
 import UIKit
 
-public class NavigationStrategy: @MainActor Equatable {
-    public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
+@MainActor
+public class NavigationStrategy: Equatable {
+    nonisolated public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
         return lhs.isEqual(to: rhs)
     }
 
     init() {}
 
-    func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated func isEqual(to other: NavigationStrategy?) -> Bool {
         guard (other as? Self) != nil else {
             return false
         }
@@ -83,8 +84,8 @@ extension NavigationStrategy {
 }
 
 /// Navigation strategy for `UISplitViewController`.
-nonisolated public enum SplitStrategy: Equatable {
-    public enum SplitAction: Equatable {
+nonisolated public enum SplitStrategy: Sendable, Equatable {
+    public enum SplitAction: Sendable, Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -100,13 +101,13 @@ nonisolated public enum SplitStrategy: Equatable {
 }
 
 final class SplitNavigationStrategy: NavigationStrategy {
-    let strategy: SplitStrategy
+    nonisolated let strategy: SplitStrategy
 
     init(strategy: SplitStrategy) {
         self.strategy = strategy
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -122,7 +123,7 @@ final class PopoverNavigationStrategy: NavigationStrategy {
         self.configure = configure
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         return self === other
     }
 }
@@ -138,13 +139,13 @@ nonisolated public enum PresentNavigationSource: Sendable, Equatable {
 }
 
 final class PresentNavigationStrategy: NavigationStrategy {
-    let source: PresentNavigationSource
+    nonisolated let source: PresentNavigationSource
 
     init(source: PresentNavigationSource) {
         self.source = source
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -156,13 +157,13 @@ final class PresentNavigationStrategy: NavigationStrategy {
 final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 
 final class PopToExistingNavigationStrategy: NavigationStrategy {
-    let includingTabs: Bool
+    nonisolated let includingTabs: Bool
 
     init(includingTabs: Bool) {
         self.includingTabs = includingTabs
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
@@ -173,40 +174,45 @@ final class PopToExistingNavigationStrategy: NavigationStrategy {
 
 final class PushNavigationStrategy: NavigationStrategy {
     let navigation: ((UINavigationController) -> Void)?
+    nonisolated let hasNavigation: Bool
 
     init(navigation: ((UINavigationController) -> Void)?) {
         self.navigation = navigation
+        self.hasNavigation = navigation != nil
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
 
-        return (navigation == nil && other.navigation == nil) || self === other
+        return (!hasNavigation && !other.hasNavigation) || self === other
     }
 }
 
 final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
     let transition: CATransition?
+    nonisolated let transitionIdentifier: ObjectIdentifier?
 
     init(transition: CATransition? = nil) {
         self.transition = transition
+        self.transitionIdentifier = transition.map(ObjectIdentifier.init)
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
 
-        return transition == other.transition
+        return transitionIdentifier == other.transitionIdentifier
     }
 }
 
 final class CloseIfTopNavigationStrategy: NavigationStrategy {
-    let tryToPop: Bool
-    let tryToDismiss: Bool
+    nonisolated let tryToPop: Bool
+    nonisolated let tryToDismiss: Bool
     let navigation: ((UINavigationController) -> Void)?
+    nonisolated let hasNavigation: Bool
 
     init(
         tryToPop: Bool,
@@ -216,15 +222,16 @@ final class CloseIfTopNavigationStrategy: NavigationStrategy {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss
         self.navigation = navigation
+        self.hasNavigation = navigation != nil
     }
 
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
+    nonisolated override func isEqual(to other: NavigationStrategy?) -> Bool {
         guard let other = other as? Self else {
             return false
         }
 
         return tryToDismiss == other.tryToDismiss
             && tryToPop == other.tryToPop
-            && ((navigation == nil && other.navigation == nil) || self === other)
+            && ((!hasNavigation && !other.hasNavigation) || self === other)
     }
 }

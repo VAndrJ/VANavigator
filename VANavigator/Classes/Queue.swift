@@ -8,16 +8,16 @@
 
 import Foundation
 
-final class Queue<T> {
+struct Queue<T> {
     private var elements: [T] = []
 
     var isEmpty: Bool { elements.isEmpty }
 
-    func enqueue(_ element: T) {
+    mutating func enqueue(_ element: T) {
         elements.append(element)
     }
 
-    func dequeue() -> T? {
+    mutating func dequeue() -> T? {
         return isEmpty ? nil : elements.removeFirst()
     }
 }

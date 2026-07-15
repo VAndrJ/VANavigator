@@ -133,6 +133,51 @@ class PushOrPopControllerTests: XCTestCase {
         XCTAssertIdentical(topController, navigationController.topViewController)
     }
 
+    func test_popToExisting_findsNavigationStackBehindPresentedController() {
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            XCTFail("A window scene is required to test presentation traversal")
+
+            return
+        }
+
+        window = UIWindow(windowScene: windowScene)
+        let targetController = UIViewController()
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.setViewControllers([targetController, topController], animated: false)
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        let presentedController = UIViewController()
+        let presentedExpectation = expectation(description: "presented")
+        navigationController.present(presentedController, animated: false) {
+            presentedExpectation.fulfill()
+        }
+        wait(for: [presentedExpectation], timeout: 10)
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop behind presentation")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(targetController),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertIdentical(targetController, responder)
+        XCTAssertIdentical(targetController, navigationController.topViewController)
+        XCTAssertNil(navigationController.presentedViewController)
+        XCTAssertNil(presentedController.presentingViewController)
+    }
+
     func test_controllerPop_single() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)

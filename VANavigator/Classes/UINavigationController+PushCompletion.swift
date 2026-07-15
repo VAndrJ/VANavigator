@@ -138,6 +138,17 @@ extension UINavigationController {
             && !viewControllers.contains(where: { $0 === viewController })
     }
 
+    func canSetNavigationRoot(_ viewController: UIViewController) -> Bool {
+        return !(viewController is UINavigationController)
+            && !(viewController is UITabBarController)
+            && viewController !== self
+            && (viewController.parent == nil || viewController.parent === self)
+            && (viewController.navigationController == nil || viewController.navigationController === self)
+            && viewController.presentingViewController == nil
+            && !viewController.isBeingDismissed
+            && !viewController.isBeingPresented
+    }
+
     private var canAnimateNavigationTransition: Bool {
         guard let window = viewIfLoaded?.window else { return false }
 

@@ -100,6 +100,38 @@ class SplitControllerTests: XCTestCase {
         XCTAssertEqual([existingController], navigationController.viewControllers)
     }
 
+    func test_primaryReplace_rejectsNavigationControllerDestination() {
+        let existingController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: existingController)
+        let splitController = MockSplitViewController(style: .doubleColumn)
+        splitController.setViewController(navigationController, for: .primary)
+        splitController.setViewController(UIViewController(), for: .secondary)
+        window?.rootViewController = splitController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let nestedNavigationController = UINavigationController(rootViewController: UIViewController())
+        let expect = expectation(description: "split replace rejected")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(nestedNavigationController),
+            strategy: .split(strategy: .primary(action: .replace)),
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertNil(responder)
+        XCTAssertEqual([existingController], navigationController.viewControllers)
+        XCTAssertNil(nestedNavigationController.parent)
+    }
+
     func test_primaryPop() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
