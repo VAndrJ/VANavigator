@@ -238,7 +238,9 @@ class SetRootControllerTests: XCTestCase {
 
     func test_setWithoutAnimation() async {
         XCTAssertNil(window?.rootViewController)
+        let animationsWereEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
+        defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
 
         window?.set(rootViewController: UIViewController())
 
