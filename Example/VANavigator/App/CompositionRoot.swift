@@ -2,7 +2,7 @@
 //  CompositionRoot.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
@@ -25,7 +25,6 @@ final class CompositionRoot {
         self.window = window
 
         shortcutService.addShortcuts()
-
         navigator.navigate(
             destination: .identity(MainNavigationIdentity()),
             strategy: .replaceWindowRoot()

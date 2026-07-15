@@ -73,4 +73,6 @@ class ControllerView<ViewModel: EventViewModel>: UIView, ScreenProtocol, Respond
 
         return await nextEventResponder?.handle(event: event) ?? false
     }
+
+    nonisolated deinit {}
 }

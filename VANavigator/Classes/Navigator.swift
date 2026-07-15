@@ -8,7 +8,7 @@
 
 import UIKit
 
-// swiftlint:disable file_length type_body_length
+@MainActor // Default isolation issue workaround.
 open class Navigator {
     public let screenFactory: any NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor? {
@@ -275,7 +275,6 @@ open class Navigator {
         )
     }
 
-    // swiftlint:disable function_body_length cyclomatic_complexity
     private func navigate(
         to destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -1030,7 +1029,6 @@ open class Navigator {
             }
         }
     }
-    // swiftlint:enable function_body_length cyclomatic_complexity
 
     /// Retrieves a view controller based on the provided navigation destination.
     ///
@@ -1308,4 +1306,3 @@ private struct QueuedNavigation {
     let completion: ((UIViewController?, Bool) -> Void)?
     let initialResult: (UIViewController?, Bool)?
 }
-// swiftlint:enable file_length type_body_length
