@@ -1,15 +1,15 @@
 //
-//  MainScreenNode.swift
+//  MainScreen.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import RxSwift
 import VATextureKitRx
 
-final class MainScreenNode: ScreenNode<MainViewModel>, @unchecked Sendable {
+final class MainScreen: ScreenNode<MainViewModel>, @unchecked Sendable {
     private let titleTextNode: VATextNode
     private lazy var replaceRootButtonNode = VAButtonNode()
     private lazy var presentDetailsButtonNode = VAButtonNode()
@@ -82,6 +82,8 @@ struct PresentLoginedOnlyEvent: Event {}
 
 struct ReplaceRootWithNewMainEvent: Event {}
 
+struct PushNextDetailsEvent: Event {}
+
 struct PresentTabsEvent: Event {}
 
 struct PresentSplitEvent: Event {}
@@ -111,34 +113,34 @@ final class MainViewModel: EventViewModel {
     }
 
     var authorizationStatusObs: Observable<String> {
-        data.source.authorizedObs
+        context.source.authorizedObs
             .map { $0 ? "Authorized" : "Not authorized " }
     }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
     }
 
     override func run(_ event: any Event) {
         switch event {
         case _ as PresentQueueEvent:
-            data.navigation.followQueue()
+            context.navigation.followQueue()
         case _ as PresentLoginedOnlyEvent:
-            data.navigation.followLoginedContent()
+            context.navigation.followLoginedContent()
         case _ as ShowInSplitOrPresentEvent:
-            data.navigation.followShowInSplitOrPresent()
+            context.navigation.followShowInSplitOrPresent()
         case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
+            context.navigation.followReplaceRootWithNewMain()
         case _ as PushNextDetailsEvent:
-            data.navigation.followPushOrPresentDetails()
+            context.navigation.followPushOrPresentDetails()
         case _ as PresentTabsEvent:
-            data.navigation.followTabs()
+            context.navigation.followTabs()
         case _ as PresentSplitEvent:
-            data.navigation.followSplit()
+            context.navigation.followSplit()
         default:
             super.run(event)
         }

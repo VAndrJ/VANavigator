@@ -1,8 +1,8 @@
 //
-//  MoreScreenView.swift
+//  LoginScreen.swift
 //  VANavigator_Example
 //
-//  Created by Volodymyr Andriienko on 03.12.2023.
+//  Created by Volodymyr Andriienko on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
@@ -10,26 +10,32 @@ import Observation
 import ObservationTracking
 import UIKit
 
-final class MoreScreenView: ControllerView<MoreViewModel> {
-    private lazy var titleLabel = Label(
-        text: "More",
+final class LoginScreen: ControllerView<LoginViewModel> {
+    private lazy var titlelabel = Label(
+        text: "Login",
         textStyle: .headline
     )
-    private lazy var replaceRootButtonNode = Button(title: "Replace root with new main")
-    private lazy var descriptionLabel = Label(
-        textStyle: .body
-    )
+    private lazy var replaceRootButton = Button(title: "Replace root with new main")
+    private lazy var loginButton = Button(title: "Login")
+    private lazy var descriptionLabel = Label(textStyle: .body)
+
+    override func viewDidLoad(in controller: UIViewController) {
+        controller.title = "Login"
+    }
 
     override func addElements() {
         embedIntoScroll(
-            titleLabel,
-            replaceRootButtonNode,
-            descriptionLabel,
+            titlelabel,
+            Spacing(
+                value: 32,
+                child: loginButton
+            ),
+            Spacing(
+                value: 16,
+                child: replaceRootButton
+            ),
+            descriptionLabel
         )
-    }
-
-    override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "More"
     }
 
     override func configure() {
@@ -37,7 +43,8 @@ final class MoreScreenView: ControllerView<MoreViewModel> {
     }
 
     override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+        replaceRootButton.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+        loginButton.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }
 
     @ObservationTracking
@@ -46,30 +53,39 @@ final class MoreScreenView: ControllerView<MoreViewModel> {
     }
 }
 
+private struct LoginEvent: Event {}
+
 @Observable
-final class MoreViewModel: EventViewModel {
+final class LoginViewModel: EventViewModel {
     struct Context {
+        struct DataSource {
+            let authorize: () -> Void
+        }
+
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
         }
 
+        let source: DataSource
         let navigation: Navigation
     }
 
-    private(set) var openType = ""
+    var openType = ""
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
 
         super.init()
     }
 
     override func run(_ event: any Event) {
         switch event {
+        case _ as LoginEvent:
+            context.source.authorize()
         case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
+            context.navigation.followReplaceRootWithNewMain()
         default:
             super.run(event)
         }

@@ -1,21 +1,20 @@
 //
-//  PrimaryScreenNode.swift
+//  NavigationQueueExampleScreen.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 04.12.2023.
+//  Created by Volodymyr Andriienko on 23.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import RxSwift
 import VATextureKitRx
 
-final class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
+final class NavigationQueueExampleScreen: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
-        text: "Primary \(Int.random(in: 0...100))",
+        text: "Queue",
         fontStyle: .headline
     )
-    private lazy var replacePrimartButtonNode = VAButtonNode()
-    private lazy var showSecondaryButtonNode = VAButtonNode()
+    private lazy var presentAndCloseButtonNode = VAButtonNode()
     private lazy var replaceRootButtonNode = VAButtonNode()
     private lazy var descriptionTextNode = TextNode(
         textObs: viewModel.descriptionObs,
@@ -26,45 +25,40 @@ final class PrimaryScreenNode: ScreenNode<PrimaryViewModel>, @unchecked Sendable
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                replacePrimartButtonNode
-                showSecondaryButtonNode
+                    .padding(.bottom(32))
+                presentAndCloseButtonNode
                 replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
                 descriptionTextNode
+                    .padding(.top(16))
             }
             .padding(.all(16))
         }
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Primary"
+        controller.title = "Queue"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
-        replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
+        presentAndCloseButtonNode.setTitle(#"Present and close "More" controller N times sequentially without delay"#, theme: theme)
+        replaceRootButtonNode.setTitle("Replace root", theme: theme)
         setNeedsLayout()
     }
 
     override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
-        replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
+        presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
     }
 }
 
-struct ShowSecondaryEvent: Event {}
+struct PresentAndCloseEvent: Event {}
 
-struct ReplacePrimaryEvent: Event {}
-
-final class PrimaryViewModel: EventViewModel {
+final class NavigationQueueExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followReplacePrimary: () -> Void
-            let followShowSplitSecondary: () -> Void
+            let followPresentAndClose: (Int) -> Void
         }
 
         let navigation: Navigation
@@ -73,22 +67,20 @@ final class PrimaryViewModel: EventViewModel {
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
 
         super.init()
     }
 
     override func run(_ event: any Event) {
         switch event {
-        case _ as ReplacePrimaryEvent:
-            data.navigation.followReplacePrimary()
-        case _ as ShowSecondaryEvent:
-            data.navigation.followShowSplitSecondary()
         case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
+            context.navigation.followReplaceRootWithNewMain()
+        case _ as PresentAndCloseEvent:
+            context.navigation.followPresentAndClose(5)
         default:
             super.run(event)
         }

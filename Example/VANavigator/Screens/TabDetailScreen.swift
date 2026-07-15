@@ -1,20 +1,28 @@
 //
-//  NavigationQueueExampleScreenNode.swift
+//  TabDetailScreen.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 23.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import RxSwift
+import RxCocoa
 import VATextureKitRx
 
-final class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
+final class TabDetailScreen: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
-        text: "Queue",
+        text: "Tab Details",
         fontStyle: .headline
     )
-    private lazy var presentAndCloseButtonNode = VAButtonNode()
+    private lazy var pushNextButtonNode = ButtonNode(
+        isEnabledObs: viewModel.isNavigationAvailableObs
+    )
+    private lazy var inputNode = TextFieldNode()
+    private lazy var detailsTextNode = VATextNode(
+        text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
+        fontStyle: .body
+    )
     private lazy var replaceRootButtonNode = VAButtonNode()
     private lazy var descriptionTextNode = TextNode(
         textObs: viewModel.descriptionObs,
@@ -25,52 +33,65 @@ final class NavigationQueueExampleScreenNode: ScreenNode<NavigationQueueExampleV
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                    .padding(.bottom(32))
-                presentAndCloseButtonNode
+                pushNextButtonNode
+                inputNode
+                detailsTextNode
                 replaceRootButtonNode
+                    .padding(.top(32), .bottom(16))
                 descriptionTextNode
-                    .padding(.top(16))
             }
             .padding(.all(16))
         }
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Queue"
+        controller.title = "Tab details"
+    }
+
+    override func viewDidAppear(in controller: UIViewController, animated: Bool) {
+        inputNode.child.becomeFirstResponder()
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
-        presentAndCloseButtonNode.setTitle(#"Present and close "More" controller N times sequentially without delay"#, theme: theme)
-        replaceRootButtonNode.setTitle("Replace root", theme: theme)
+        pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
+        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
         setNeedsLayout()
     }
 
     override func bindView() {
+        pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
+        inputNode.child.rx.text
+            .map {
+                $0.flatMap {
+                    $0.components(separatedBy: " ").compactMap { Int($0) }
+                } ?? []
+            }
+            .bind(to: viewModel.nextNumberRelay)
+            .disposed(by: bag)
     }
 }
 
-struct PresentAndCloseEvent: Event {}
-
-final class NavigationQueueExampleViewModel: EventViewModel {
+final class TabDetailViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
-            let followPresentAndClose: (Int) -> Void
+            let followPushOrPopNext: ([Int]) -> Void
         }
 
         let navigation: Navigation
     }
 
+    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
+    var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
 
         super.init()
     }
@@ -78,9 +99,9 @@ final class NavigationQueueExampleViewModel: EventViewModel {
     override func run(_ event: any Event) {
         switch event {
         case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
-        case _ as PresentAndCloseEvent:
-            data.navigation.followPresentAndClose(5)
+            context.navigation.followReplaceRootWithNewMain()
+        case _ as PushNextDetailsEvent:
+            context.navigation.followPushOrPopNext(nextNumberRelay.value)
         default:
             super.run(event)
         }

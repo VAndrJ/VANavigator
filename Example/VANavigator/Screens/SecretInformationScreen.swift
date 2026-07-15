@@ -1,21 +1,20 @@
 //
-//  LoginScreenNode.swift
+//  SecretInformationScreen.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 04.12.2023.
+//  Created by Volodymyr Andriienko on 04.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
 import RxSwift
 import VATextureKitRx
 
-final class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
+final class SecretInformationScreen: ScreenNode<SecretInformationViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
-        text: "Login",
+        text: "Secret information for authorized users only",
         fontStyle: .headline
     )
     private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var loginButtonNode = VAButtonNode()
     private lazy var descriptionTextNode = TextNode(
         textObs: viewModel.descriptionObs,
         fontStyle: .body
@@ -25,7 +24,6 @@ final class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
         SafeArea {
             Column(spacing: 16, cross: .stretch) {
                 titleTextNode
-                loginButtonNode
                 replaceRootButtonNode
                     .padding(.top(32), .bottom(16))
                 descriptionTextNode
@@ -35,55 +33,44 @@ final class LoginScreenNode: ScreenNode<LoginViewModel>, @unchecked Sendable {
     }
 
     override func viewDidLoad(in controller: UIViewController) {
-        controller.title = "Login"
+        controller.title = "Secret"
     }
 
     override func configureTheme(_ theme: VATheme) {
         backgroundColor = theme.systemBackground
         replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        loginButtonNode.setTitle("Login", theme: theme)
         setNeedsLayout()
     }
 
     override func bindView() {
         replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        loginButtonNode.onTap = viewModel ?> { $0.perform(LoginEvent()) }
     }
 }
 
-struct LoginEvent: Event {}
-
-final class LoginViewModel: EventViewModel {
+final class SecretInformationViewModel: EventViewModel {
     struct Context {
-        struct DataSource {
-            let authorize: () -> Void
-        }
-
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
         }
 
-        let source: DataSource
         let navigation: Navigation
     }
 
     @Obs.Relay(value: "Normally opened")
     var descriptionObs: Observable<String>
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
 
         super.init()
     }
 
     override func run(_ event: any Event) {
         switch event {
-        case _ as LoginEvent:
-            data.source.authorize()
         case _ as ReplaceRootWithNewMainEvent:
-            data.navigation.followReplaceRootWithNewMain()
+            context.navigation.followReplaceRootWithNewMain()
         default:
             super.run(event)
         }

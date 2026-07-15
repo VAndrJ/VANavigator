@@ -14,6 +14,7 @@ class Label: UILabel {
 
         self.text = text
         self.font = UIFont.preferredFont(forTextStyle: textStyle)
+        self.numberOfLines = 0
     }
 
     @available(*, unavailable)

@@ -19,80 +19,94 @@ final class ScreenFactory: NavigatorScreenFactory {
         switch identity {
         case _ as QueueNavigationIdentity:
             return ViewController(
-                node: NavigationQueueExampleScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followPresentAndClose: { [weak navigator] in
-                            for _ in 0..<$0 {
-                                navigator?.navigate(
-                                    destination: .identity(MoreNavigationIdentity()),
-                                    strategy: .present()
-                                )
-                                navigator?.navigate(
-                                    destination: .identity(MoreNavigationIdentity()),
-                                    strategy: .closeIfTop()
-                                )
-                            }
-                        }
+                node: NavigationQueueExampleScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followPresentAndClose: { [weak navigator] in
+                                    for _ in 0..<$0 {
+                                        navigator?.navigate(
+                                            destination: .identity(MoreNavigationIdentity()),
+                                            strategy: .present()
+                                        )
+                                        navigator?.navigate(
+                                            destination: .identity(MoreNavigationIdentity()),
+                                            strategy: .closeIfTop()
+                                        )
+                                    }
+                                }
+                            )
+                        )
                     )
-                )))
+                )
             )
         case _ as TabPresentExampleNavigationIdentity:
             return ViewController(
-                node: TabPresentExampleScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followPresentFromTop: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .controller(UIViewController().apply {
-                                    $0.view.backgroundColor = .blue.withAlphaComponent(0.3)
-                                    $0.modalPresentationStyle = .overCurrentContext
-                                }),
-                                strategy: .present(),
-                                completion: { controller, _ in
-                                    if let controller {
-                                        mainActorAsync(after: 1) {
-                                            navigator?.navigate(
-                                                destination: .controller(controller),
-                                                strategy: .closeIfTop()
-                                            )
+                node: TabPresentExampleScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followPresentFromTop: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .controller(
+                                            UIViewController().apply {
+                                                $0.view.backgroundColor = .blue.withAlphaComponent(0.3)
+                                                $0.modalPresentationStyle = .overCurrentContext
+                                            }
+                                        ),
+                                        strategy: .present(),
+                                        completion: { controller, _ in
+                                            if let controller {
+                                                mainActorAsync(after: 1) {
+                                                    navigator?.navigate(
+                                                        destination: .controller(controller),
+                                                        strategy: .closeIfTop()
+                                                    )
+                                                }
+                                            }
                                         }
-                                    }
+                                    )
+                                },
+                                followPresentFromTab: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .controller(
+                                            UIViewController().apply {
+                                                $0.view.backgroundColor = .green.withAlphaComponent(0.3)
+                                                $0.modalPresentationStyle = .overCurrentContext
+                                            }
+                                        ),
+                                        strategy: .present(source: .tabBarController),
+                                        completion: { controller, _ in
+                                            if let controller {
+                                                mainActorAsync(after: 1) {
+                                                    navigator?.navigate(
+                                                        destination: .controller(controller),
+                                                        strategy: .closeIfTop()
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
+                                },
+                                followPresentPopover: { [weak navigator] source in
+                                    navigator?.navigate(
+                                        destination: .identity(
+                                            NavNavigationIdentity(children: [
+                                                DetailsNavigationIdentity(number: 11),
+                                                DetailsNavigationIdentity(number: 12),
+                                            ])
+                                        ),
+                                        strategy: .popover(configure: { [weak source] popover, _ in
+                                            popover.permittedArrowDirections = .up
+                                            popover.sourceView = source
+                                        })
+                                    )
                                 }
                             )
-                        },
-                        followPresentFromTab: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .controller(UIViewController().apply {
-                                    $0.view.backgroundColor = .green.withAlphaComponent(0.3)
-                                    $0.modalPresentationStyle = .overCurrentContext
-                                }),
-                                strategy: .present(source: .tabBarController),
-                                completion: { controller, _ in
-                                    if let controller {
-                                        mainActorAsync(after: 1) {
-                                            navigator?.navigate(
-                                                destination: .controller(controller),
-                                                strategy: .closeIfTop()
-                                            )
-                                        }
-                                    }
-                                }
-                            )
-                        },
-                        followPresentPopover: { [weak navigator] source in
-                            navigator?.navigate(
-                                destination: .identity(NavNavigationIdentity(children: [
-                                    DetailsNavigationIdentity(number: 11),
-                                    DetailsNavigationIdentity(number: 12),
-                                ])),
-                                strategy: .popover(configure: { [weak source] popover, _ in
-                                    popover.permittedArrowDirections = .up
-                                    popover.sourceView = source
-                                })
-                            )
-                        }
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             ).apply {
                 $0.tabBarItem = UITabBarItem(
@@ -102,12 +116,14 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case let identity as NavNavigationIdentity:
-            return NavigationController(controllers: identity.children.map { identity in
-                let controller = assembleScreen(identity: identity, navigator: navigator)
-                controller.navigationIdentity = identity
+            return NavigationController(
+                controllers: identity.children.map { identity in
+                    let controller = assembleScreen(identity: identity, navigator: navigator)
+                    controller.navigationIdentity = identity
 
-                return controller
-            })
+                    return controller
+                }
+            )
         case let identity as TabNavigationIdentity:
             let controller = VATabBarController(nibName: nil, bundle: nil)
             let tabControllers = identity.children.map { identity in
@@ -122,104 +138,122 @@ final class ScreenFactory: NavigatorScreenFactory {
             return controller
         case _ as MainNavigationIdentity:
             return ViewController(
-                node: MainScreenNode(viewModel: .init(data: .init(
-                    source: .init(
-                        authorizedObs: authorizationService.isAuthorizedObs
-                    ),
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followPushOrPresentDetails: { [weak navigator] in
-                            let identity = DetailsNavigationIdentity(number: -1)
-                            navigator?.navigate(
-                                destination: .identity(identity),
-                                strategy: .popToExisting(),
-                                fallback: NavigationChainLink(
-                                    destination: .identity(NavNavigationIdentity(children: [
-                                        identity,
-                                    ])),
-                                    strategy: .present(),
-                                    animated: true
-                                )
+                node: MainScreen(
+                    viewModel: .init(
+                        context: .init(
+                            source: .init(
+                                authorizedObs: authorizationService.isAuthorizedObs
+                            ),
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followPushOrPresentDetails: { [weak navigator] in
+                                    let identity = DetailsNavigationIdentity(number: -1)
+                                    navigator?.navigate(
+                                        destination: .identity(identity),
+                                        strategy: .popToExisting(),
+                                        fallback: NavigationChainLink(
+                                            destination: .identity(
+                                                NavNavigationIdentity(children: [
+                                                    identity
+                                                ])
+                                            ),
+                                            strategy: .present(),
+                                            animated: true
+                                        )
+                                    )
+                                },
+                                followTabs: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(
+                                            TabNavigationIdentity(children: [
+                                                TabDetailNavigationIdentity(),
+                                                MoreNavigationIdentity(),
+                                                TabPresentExampleNavigationIdentity(),
+                                            ])
+                                        ),
+                                        strategy: .closeToExisting,
+                                        fallbackStrategies: [.replaceWindowRoot()]
+                                    )
+                                },
+                                followSplit: { [weak navigator] in
+                                    let destination: NavigationDestination = .identity(
+                                        SplitNavigationIdentity(
+                                            primary: PrimaryNavigationIdentity(),
+                                            secondary: MoreNavigationIdentity(),
+                                            supplementary: SecondaryNavigationIdentity()
+                                        )
+                                    )
+                                    navigator?.navigate(
+                                        destination: destination,
+                                        strategy: .closeToExisting,
+                                        fallback: NavigationChainLink(
+                                            destination: destination,
+                                            strategy: .present(),
+                                            animated: true
+                                        )
+                                    )
+                                },
+                                followShowInSplitOrPresent: { [weak navigator] in
+                                    let destination = DetailsNavigationIdentity(number: -1)
+                                    navigator?.navigate(
+                                        destination: .identity(destination),
+                                        strategy: .split(strategy: .secondary(action: .replace)),
+                                        fallback: NavigationChainLink(
+                                            destination: .identity(
+                                                SplitNavigationIdentity(
+                                                    primary: PrimaryNavigationIdentity(),
+                                                    secondary: destination
+                                                )
+                                            ),
+                                            strategy: .present(),
+                                            animated: true
+                                        )
+                                    )
+                                },
+                                followLoginedContent: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(SecretInformationIdentity()),
+                                        strategy: .present()
+                                    )
+                                },
+                                followQueue: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(QueueNavigationIdentity()),
+                                        strategy: .present()
+                                    )
+                                }
                             )
-                        },
-                        followTabs: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(TabNavigationIdentity(children: [
-                                    TabDetailNavigationIdentity(),
-                                    MoreNavigationIdentity(),
-                                    TabPresentExampleNavigationIdentity(),
-                                ])),
-                                strategy: .closeToExisting,
-                                fallbackStrategies: [.replaceWindowRoot()]
-                            )
-                        },
-                        followSplit: { [weak navigator] in
-                            let destination: NavigationDestination = .identity(SplitNavigationIdentity(
-                                primary: PrimaryNavigationIdentity(),
-                                secondary: MoreNavigationIdentity(),
-                                supplementary: SecondaryNavigationIdentity()
-                            ))
-                            navigator?.navigate(
-                                destination: destination,
-                                strategy: .closeToExisting,
-                                fallback: NavigationChainLink(
-                                    destination: destination,
-                                    strategy: .present(),
-                                    animated: true
-                                )
-                            )
-                        },
-                        followShowInSplitOrPresent: { [weak navigator] in
-                            let destination = DetailsNavigationIdentity(number: -1)
-                            navigator?.navigate(
-                                destination: .identity(destination),
-                                strategy: .split(strategy: .secondary(action: .replace)),
-                                fallback: NavigationChainLink(
-                                    destination: .identity(SplitNavigationIdentity(
-                                        primary: PrimaryNavigationIdentity(),
-                                        secondary: destination
-                                    )),
-                                    strategy: .present(),
-                                    animated: true
-                                )
-                            )
-                        },
-                        followLoginedContent: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(SecretInformationIdentity()),
-                                strategy: .present()
-                            )
-                        },
-                        followQueue: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(QueueNavigationIdentity()),
-                                strategy: .present()
-                            )
-                        }
+                        )
                     )
-                )))
+                )
             )
         case _ as TabDetailNavigationIdentity:
             return ViewController(
-                node: TabDetailScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followPushOrPopNext: { [weak navigator] value in
-                            navigator?.navigate(chain: value.map {
-                                NavigationChainLink(
-                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .popToExisting(),
-                                    animated: true,
-                                    fallback: NavigationChainLink(
-                                        destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                        strategy: .push(),
-                                        animated: true
+                node: TabDetailScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followPushOrPopNext: { [weak navigator] value in
+                                    navigator?.navigate(
+                                        chain: value.map {
+                                            NavigationChainLink(
+                                                destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                                strategy: .popToExisting(),
+                                                animated: true,
+                                                fallback: NavigationChainLink(
+                                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                                    strategy: .push(),
+                                                    animated: true
+                                                )
+                                            )
+                                        }
                                     )
-                                )
-                            })
-                        }
+                                }
+                            )
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             ).apply {
                 $0.tabBarItem = UITabBarItem(
@@ -230,9 +264,9 @@ final class ScreenFactory: NavigatorScreenFactory {
             }
         case _ as MoreNavigationIdentity:
             return BaseViewController(
-                view: MoreScreenView(
+                view: MoreScreen(
                     viewModel: .init(
-                        data: .init(
+                        context: .init(
                             navigation: .init(
                                 followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
                             )
@@ -248,35 +282,41 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             }
         case let identity as DetailsNavigationIdentity:
-            return ViewController(
-                node: DetailsToPresentScreenNode(viewModel: .init(data: .init(
-                    related: .init(
-                        value: identity.number
-                    ),
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followPushOrPopNext: { [weak navigator] value in
-                            navigator?.navigate(chain: value.map {
-                                NavigationChainLink(
-                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                    strategy: .popToExisting(),
-                                    animated: true,
-                                    fallback: NavigationChainLink(
-                                        destination: .identity(DetailsNavigationIdentity(number: $0)),
-                                        strategy: .push(),
-                                        animated: true
+            return BaseViewController(
+                view: DetailsToPresentScreen(
+                    viewModel: .init(
+                        context: .init(
+                            related: .init(
+                                value: identity.number
+                            ),
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followPushOrPopNext: { [weak navigator] value in
+                                    navigator?.navigate(
+                                        chain: value.map {
+                                            NavigationChainLink(
+                                                destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                                strategy: .popToExisting(),
+                                                animated: true,
+                                                fallback: NavigationChainLink(
+                                                    destination: .identity(DetailsNavigationIdentity(number: $0)),
+                                                    strategy: .push(),
+                                                    animated: true
+                                                )
+                                            )
+                                        }
                                     )
-                                )
-                            })
-                        },
-                        followRemoveFromStack: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(DetailsNavigationIdentity(number: -1)),
-                                strategy: .removeFromNavigationStack
+                                },
+                                followRemoveFromStack: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(DetailsNavigationIdentity(number: -1)),
+                                        strategy: .removeFromNavigationStack
+                                    )
+                                }
                             )
-                        }
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false,
                 isNotImportant: true
             )
@@ -303,62 +343,80 @@ final class ScreenFactory: NavigatorScreenFactory {
                 controller.setViewController(supplementaryController, for: .supplementary)
             }
             controller.preferredPrimaryColumnWidthFraction = 0.33
-            
+
             return controller
         case _ as PrimaryNavigationIdentity:
             return ViewController(
-                node: PrimaryScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followReplacePrimary: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(PrimaryNavigationIdentity()),
-                                strategy: .split(strategy: .primary(action: .replace)),
-                                animated: false
+                node: PrimaryScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followReplacePrimary: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(PrimaryNavigationIdentity()),
+                                        strategy: .split(strategy: .primary(action: .replace)),
+                                        animated: false
+                                    )
+                                },
+                                followShowSplitSecondary: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(SecondaryNavigationIdentity()),
+                                        strategy: .split(strategy: .secondary(action: .push))
+                                    )
+                                }
                             )
-                        },
-                        followShowSplitSecondary: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(SecondaryNavigationIdentity()),
-                                strategy: .split(strategy: .secondary(action: .push))
-                            )
-                        }
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             )
         case _ as SecondaryNavigationIdentity:
             return ViewController(
-                node: SecondaryScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
-                        followShowSplitSecondary: { [weak navigator] in
-                            navigator?.navigate(
-                                destination: .identity(SecondaryNavigationIdentity()),
-                                strategy: .split(strategy: .secondary(action: .push))
+                node: SecondaryScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
+                                followShowSplitSecondary: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(SecondaryNavigationIdentity()),
+                                        strategy: .split(strategy: .secondary(action: .push))
+                                    )
+                                }
                             )
-                        }
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             )
         case _ as LoginNavigationIdentity:
-            return ViewController(
-                node: LoginScreenNode(viewModel: .init(data: .init(
-                    source: .init(authorize: { [weak authorizationService] in
-                        authorizationService?.authorize()
-                    }),
-                    navigation: .init(followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) })
-                ))),
+            return BaseViewController(
+                view: LoginScreen(
+                    viewModel: .init(
+                        context: .init(
+                            source: .init(
+                                authorize: authorizationService ?> { $0.authorize() }
+                            ),
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
+                            )
+                        )
+                    )
+                ),
                 shouldHideNavigationBar: false
             )
         case _ as SecretInformationIdentity:
             return ViewController(
-                node: SecretInformationScreenNode(viewModel: .init(data: .init(
-                    navigation: .init(
-                        followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
+                node: SecretInformationScreen(
+                    viewModel: .init(
+                        context: .init(
+                            navigation: .init(
+                                followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) }
+                            )
+                        )
                     )
-                ))),
+                ),
                 shouldHideNavigationBar: false
             )
         default:

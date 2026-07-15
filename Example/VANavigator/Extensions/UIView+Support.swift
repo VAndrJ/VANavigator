@@ -18,7 +18,7 @@ extension UIView {
         views.forEach { addAutolayoutSubview($0) }
     }
 
-    func embedIntoScroll(_ views: UIView...) {
+    func embedIntoScroll(_ views: any LayoutElement...) {
         let spacing: CGFloat = 16
         let scrollView = UIScrollView().apply {
             $0.alwaysBounceVertical = true
@@ -43,6 +43,37 @@ extension UIView {
             containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -spacing * 2),
         ])
         scrollView.contentInset = .init(all: spacing)
-        views.forEach { containerView.addArrangedSubview($0) }
+        views.forEach {
+            if let view = $0 as? UIView {
+                containerView.addArrangedSubview(view)
+            }
+            if let spacing = $0 as? Spacing {
+                containerView.addArrangedSubview(spacing.child)
+                containerView.setCustomSpacing(spacing.value, after: spacing.child)
+            }
+        }
+    }
+}
+
+extension UIView: LayoutElement {}
+
+struct Spacing: LayoutElement {
+    let value: CGFloat
+    let child: UIView
+}
+
+protocol LayoutElement {}
+
+extension UITextField {
+    var onEditingChanged: ((String?) -> Void)? {
+        get { nil }
+        set {
+            addAction(
+                UIAction { [weak self] _ in
+                    newValue?(self?.text)
+                },
+                for: .editingChanged
+            )
+        }
     }
 }

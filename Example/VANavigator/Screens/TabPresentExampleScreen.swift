@@ -1,16 +1,19 @@
 //
-//  TabPresentExampleScreenNode.swift
+//  TabPresentExampleScreen.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 20.12.2023.
+//  Created by Volodymyr Andriienko on 20.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Observation
+import ObservationTracking
 import RxCocoa
 import RxSwift
+import UIKit
 import VATextureKitRx
 
-final class TabPresentExampleScreenNode: ScreenNode<TabPresentExampleViewModel>, @unchecked Sendable {
+final class TabPresentExampleScreen: ScreenNode<TabPresentExampleViewModel>, @unchecked Sendable {
     private lazy var titleTextNode = VATextNode(
         text: "Tab Present Example",
         fontStyle: .headline
@@ -75,10 +78,10 @@ final class TabPresentExampleViewModel: EventViewModel {
     var descriptionObs: Observable<String>
     var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
-    private let data: Context
+    private let context: Context
 
-    init(data: Context) {
-        self.data = data
+    init(context: Context) {
+        self.context = context
 
         super.init()
     }
@@ -86,11 +89,11 @@ final class TabPresentExampleViewModel: EventViewModel {
     override func run(_ event: any Event) {
         switch event {
         case let event as PresentPopoverEvent:
-            data.navigation.followPresentPopover(event.source)
+            context.navigation.followPresentPopover(event.source)
         case _ as PresentFromTopEvent:
-            data.navigation.followPresentFromTop()
+            context.navigation.followPresentFromTop()
         case _ as PresentFromTabEvent:
-            data.navigation.followPresentFromTab()
+            context.navigation.followPresentFromTab()
         default:
             super.run(event)
         }
