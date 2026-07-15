@@ -80,7 +80,7 @@ class QueueTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect8.fulfill() } }
         )
 
-        wait(for: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
+        await fulfillment(of: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
 
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
@@ -136,7 +136,7 @@ class QueueTests: XCTestCase {
             completion: { _, _ in taskDetachedMain { expect8.fulfill() } }
         )
 
-        wait(for: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
+        await fulfillment(of: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
 
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
@@ -168,7 +168,7 @@ class QueueTests: XCTestCase {
             }
         )
 
-        wait(for: [presentExpect, closeExpect], timeout: 10)
+        await fulfillment(of: [presentExpect, closeExpect], timeout: 10)
 
         XCTAssertTrue(wasPresentedAtCompletion)
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))

@@ -311,7 +311,7 @@ class PushControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [presentExpect], timeout: 10)
+        await fulfillment(of: [presentExpect], timeout: 10)
 
         XCTAssertEqual(1, rootNavigationController?.viewControllers.count)
         XCTAssertTrue(presentedIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -331,7 +331,7 @@ class PushControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [pushExpect], timeout: 10)
+        await fulfillment(of: [pushExpect], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertNil(rootNavigationController?.presentedViewController)

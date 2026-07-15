@@ -5,6 +5,7 @@ import PackageDescription
 let settings: [SwiftSetting] = [
     .enableExperimentalFeature("StrictConcurrency"),
     .defaultIsolation(MainActor.self),
+    .define("VANAVIGATOR_DEINIT_WORKAROUND", .when(configuration: .debug)),
 ]
 
 let package = Package(

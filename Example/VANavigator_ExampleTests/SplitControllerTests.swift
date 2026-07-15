@@ -176,7 +176,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
@@ -232,7 +232,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(false, result)
         XCTAssertTrue(newPrimaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
@@ -293,7 +293,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(primaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .primary)?.topViewController?.navigationIdentity))
@@ -418,7 +418,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
         XCTAssertTrue(secondaryIdentity.isEqual(to: splitController?.columnNavigationController(for: .secondary)?.topViewController?.navigationIdentity))
@@ -473,7 +473,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(false, result)
         let secondaryControllers1 = splitController?.columnNavigationController(for: .secondary)?.viewControllers
@@ -532,7 +532,7 @@ class SplitControllerTests: XCTestCase {
             }
         )
 
-        wait(for: [expect1], timeout: 10)
+        await fulfillment(of: [expect1], timeout: 10)
 
         XCTAssertEqual(true, result)
         let secondaryControllers1 = splitController?.columnNavigationController(for: .secondary)?.viewControllers

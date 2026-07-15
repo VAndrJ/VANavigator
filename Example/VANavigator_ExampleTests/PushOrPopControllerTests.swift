@@ -151,7 +151,7 @@ class PushOrPopControllerTests: XCTestCase {
         navigationController.present(presentedController, animated: false) {
             presentedExpectation.fulfill()
         }
-        wait(for: [presentedExpectation], timeout: 10)
+        await fulfillment(of: [presentedExpectation], timeout: 10)
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let expect = expectation(description: "pop behind presentation")
         var responder: UIViewController?

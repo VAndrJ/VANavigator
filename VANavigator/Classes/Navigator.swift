@@ -35,9 +35,30 @@ open class Navigator {
         self.navigationInterceptor = navigationInterceptor
     }
 
+    #if VANAVIGATOR_DEINIT_WORKAROUND
+    // Workaround swiftlang/swift#85663 when XCTest releases an isolated object.
+    nonisolated deinit {
+        guard Thread.isMainThread else { return }
+
+        MainActor.assumeIsolated {
+            let actorIsolatedStorage = (
+                screenFactory,
+                navigationInterceptor,
+                navigationQueue,
+                popoverDelegate
+            )
+            Task { @MainActor in
+                withExtendedLifetime(actorIsolatedStorage) {}
+            }
+
+            navigationInterceptor?.removeNavigations(for: self)
+        }
+    }
+    #else
     isolated deinit {
         navigationInterceptor?.removeNavigations(for: self)
     }
+    #endif
 
     /// Navigates through a chain of destinations.
     ///

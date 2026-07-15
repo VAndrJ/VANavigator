@@ -233,7 +233,7 @@ class SetRootControllerTests: XCTestCase {
         startTransition()
 
         XCTAssertNotNil(retainedDelegate)
-        wait(for: [forwarded, completed], timeout: 10)
+        await fulfillment(of: [forwarded, completed], timeout: 10)
     }
 
     func test_setWithoutAnimation() async {
