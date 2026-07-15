@@ -23,8 +23,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A35200BC2F09E036007578D6 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = VANavigator_Example.app; path = "/Users/vandrj/VANavigator/Example/build/Debug-iphoneos/VANavigator_Example.app"; sourceTree = "<absolute>"; };
-		A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = VANavigator_ExampleTests.xctest; path = "/Users/vandrj/VANavigator/Example/build/Debug-iphoneos/VANavigator_Example.app/PlugIns/VANavigator_ExampleTests.xctest"; sourceTree = "<absolute>"; };
+		A340AC103007C4BC00D67C69 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -79,6 +79,8 @@
 			children = (
 				A317D0522E9455EA001AF277 /* VANavigator */,
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
+				A340AC103007C4BC00D67C69 /* VANavigator_Example.app */,
+				A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,7 +104,7 @@
 			);
 			name = VANavigator_Example;
 			productName = VANavigator;
-			productReference = A35200BC2F09E036007578D6 /* VANavigator_Example.app */;
+			productReference = A340AC103007C4BC00D67C69 /* VANavigator_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
@@ -123,7 +125,7 @@
 			);
 			name = VANavigator_ExampleTests;
 			productName = VANavigator_ExampleTests;
-			productReference = A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */;
+			productReference = A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -524,7 +526,7 @@
 			repositoryURL = "https://github.com/VAndrJ/ObservationTracking";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.1;
+				minimumVersion = 1.1.2;
 			};
 		};
 		A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */ = {

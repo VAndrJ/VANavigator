@@ -6,6 +6,8 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Observation
+import ObservationTracking
 import UIKit
 import VANavigator
 
@@ -47,9 +49,10 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
         }
     }
 
+    @ObservationTracking
     private func bind() {
-        authorizationService.onAuthorized = { [weak self] in
-            self?.onAuthorized()
+        if authorizationService.isAuthorized {
+            onAuthorized()
         }
     }
 

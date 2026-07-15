@@ -8,7 +8,7 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 class NavigationStrategyEqualityTests: XCTestCase, MainActorIsolated {
 

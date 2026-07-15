@@ -10,7 +10,7 @@ import UIKit
 
 @MainActor
 private final class RootTransitionCompletionDelegate: NSObject, @preconcurrency CAAnimationDelegate {
-    private weak var forwardedDelegate: (any CAAnimationDelegate)?
+    private var forwardedDelegate: (any CAAnimationDelegate)?
     private var onCompletion: ((RootTransitionCompletionDelegate) -> Void)?
 
     init(
@@ -27,6 +27,7 @@ private final class RootTransitionCompletionDelegate: NSObject, @preconcurrency 
 
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         forwardedDelegate?.animationDidStop?(anim, finished: flag)
+        forwardedDelegate = nil
         let onCompletion = self.onCompletion
         self.onCompletion = nil
         onCompletion?(self)

@@ -8,19 +8,18 @@
 
 import XCTest
 import VANavigator
-import RxSwift
-import RxCocoa
+import ObservationTracking
+import UIKit
 @testable import VANavigator_Example
-import VATextureKit
 
 class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
+    override func setUp() async throws {
         window = UIWindow()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window = nil
     }
 
@@ -168,6 +167,61 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(1, firstController.handledEventCount)
         XCTAssertEqual(1, secondController.handledEventCount)
         XCTAssertIdentical(secondController, window?.rootViewController)
+    }
+
+    func test_navigationInterception_sharedInterceptorResumesInOriginatingNavigators() {
+        let navigationInterceptor = RepeatedReasonNavigationInterceptor()
+        let firstWindow = UIWindow()
+        let secondWindow = UIWindow()
+        let firstNavigator = Navigator(
+            window: firstWindow,
+            screenFactory: MockScreenFactory(),
+            navigationInterceptor: navigationInterceptor
+        )
+        let secondNavigator = Navigator(
+            window: secondWindow,
+            screenFactory: MockScreenFactory(),
+            navigationInterceptor: navigationInterceptor
+        )
+        let firstController = InterceptionTrackingViewController()
+        let secondController = InterceptionTrackingViewController()
+        let firstIntercepted = expectation(description: "first intercepted")
+        let secondIntercepted = expectation(description: "second intercepted")
+
+        firstNavigator.navigate(
+            destination: .controller(firstController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: RepeatedReasonNavigationEvent(),
+            completion: { _, _ in firstIntercepted.fulfill() }
+        )
+        secondNavigator.navigate(
+            destination: .controller(secondController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: RepeatedReasonNavigationEvent(),
+            completion: { _, _ in secondIntercepted.fulfill() }
+        )
+
+        wait(for: [firstIntercepted, secondIntercepted], timeout: 10)
+
+        let resolved = expectation(description: "interceptions resolved")
+        var completedController: UIViewController?
+        var result: Bool?
+        navigationInterceptor.resolve { controller, isSuccess in
+            completedController = controller
+            result = isSuccess
+            resolved.fulfill()
+        }
+
+        wait(for: [resolved], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertIdentical(secondController, completedController)
+        XCTAssertIdentical(firstController, firstWindow.rootViewController)
+        XCTAssertIdentical(secondController, secondWindow.rootViewController)
+        XCTAssertEqual(1, firstController.handledEventCount)
+        XCTAssertEqual(1, secondController.handledEventCount)
     }
 
     func test_navigationInterception_prefixedNavigationChain() {
@@ -453,8 +507,6 @@ class MockNavigationInterceptor: NavigationInterceptor {
     var completion: ((UIViewController?, Bool) -> Void)?
     let kind: Kind
 
-    private let bag = DisposeBag()
-
     init(authorizationService: AuthorizationService, kind: Kind = .replace) {
         self.authorizationService = authorizationService
         self.kind = kind
@@ -490,11 +542,11 @@ class MockNavigationInterceptor: NavigationInterceptor {
         }
     }
 
+    @ObservationTracking
     private func bind() {
-        authorizationService.isAuthorizedObs
-            .filter { $0 }
-            .subscribe(onNext: self ?> { $0.onAuthorized() })
-            .disposed(by: bag)
+        if authorizationService.isAuthorized {
+            onAuthorized()
+        }
     }
 
     private func onAuthorized() {
@@ -535,12 +587,12 @@ class MockNavigationInterceptor: NavigationInterceptor {
                 completion: completion
             )
         case .replace:
+            let transition = CATransition()
+            transition.duration = 0.5
+            transition.type = .fade
             interceptionResolved(
                 reason: interceptionReason,
-                newStrategy: .replaceWindowRoot(transition: CATransition().apply {
-                    $0.duration = 0.5
-                    $0.type = .fade
-                }),
+                newStrategy: .replaceWindowRoot(transition: transition),
                 completion: completion
             )
         }

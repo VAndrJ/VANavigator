@@ -8,17 +8,17 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 // TODO: - Messages
 class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
+    override func setUp() async throws {
         window = UIWindow()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window = nil
     }
 

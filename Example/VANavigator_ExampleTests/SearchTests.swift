@@ -7,8 +7,8 @@
 //
 
 import VANavigator
-import VATextureKit
 import XCTest
+import UIKit
 
 @testable import VANavigator_Example
 
@@ -16,8 +16,8 @@ import XCTest
 class SearchTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
             XCTFail("A window scene is required to run view-controller search tests")
             return
@@ -25,10 +25,10 @@ class SearchTests: XCTestCase, MainActorIsolated {
         window = UIWindow(windowScene: windowScene)
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window?.isHidden = true
         window = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func test_tabSearch() {

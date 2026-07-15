@@ -11,15 +11,7 @@ import Observation
 @Observable
 @MainActor
 final class AuthorizationService {
-    var onAuthorized: (() -> Void)?
-
-    private(set) var isAuthorized = false {
-        didSet {
-            if isAuthorized {
-                onAuthorized?()
-            }
-        }
-    }
+    private(set) var isAuthorized = false
 
     func authorize() {
         isAuthorized = true

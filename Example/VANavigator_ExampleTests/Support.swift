@@ -6,8 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import UIKit
 import VANavigator
+
 @testable import VANavigator_Example
+
+@MainActor
+protocol MainActorIsolated {}
 
 class MockScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
@@ -50,10 +55,14 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
-            return ViewController(
-                node: SecretInformationScreenNode(viewModel: SecretInformationViewModel(data: .init(
-                    navigation: .init(followReplaceRootWithNewMain: {}))
-                ))
+            return BaseViewController(
+                screen: SecretInformationScreen(
+                    viewModel: SecretInformationViewModel(
+                        context: .init(
+                            navigation: .init(followReplaceRootWithNewMain: {})
+                        )
+                    )
+                )
             )
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
@@ -73,7 +82,7 @@ class MockScreenFactory: NavigatorScreenFactory {
                 animated: false
             )
             controller.navigationIdentity = identity
-            
+
             return controller
         default:
             return UIViewController()
@@ -143,12 +152,12 @@ class MockRootViewController: MockViewController, Responder {
     // MARK: - Responder
 
     var nextEventResponder: (any Responder)?
-    
+
     func handle(event: any ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderReplacedWindowRootControllerEvent:
             isReplacedEventHandled = true
-            
+
             return true
         case _ as ResponderMockEvent:
             isMockEventHandled = true

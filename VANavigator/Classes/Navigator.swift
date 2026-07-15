@@ -12,16 +12,11 @@ import UIKit
 @MainActor
 open class Navigator {
     public let screenFactory: any NavigatorScreenFactory
-    public var navigationInterceptor: NavigationInterceptor? {
-        didSet {
-            oldValue?.onInterceptionResolved = nil
-            bind()
-        }
-    }
+    public var navigationInterceptor: NavigationInterceptor?
 
     public private(set) weak var window: UIWindow?
 
-    private let navigationQueue = Queue<InterceptionDetail>()
+    private let navigationQueue = Queue<QueuedNavigation>()
     private var isNavigationInProgress = false {
         didSet { checkQueue() }
     }
@@ -39,8 +34,6 @@ open class Navigator {
         self.window = window
         self.screenFactory = screenFactory
         self.navigationInterceptor = navigationInterceptor
-
-        bind()
     }
 
     /// Navigates through a chain of destinations.
@@ -52,15 +45,44 @@ open class Navigator {
     public func navigate(
         chain: [NavigationChainLink],
         event: (any ResponderEvent)? = nil,
-        linkCompletionResult: (UIViewController?, Bool)? = nil,
         completion: ((UIViewController?, Bool) -> Void)? = nil
     ) {
-        guard !(isChainNavigationInProgress && linkCompletionResult == nil || isNavigationInProgress) else {
+        enqueueOrStartNavigationChain(
+            chain: chain,
+            event: event,
+            initialResult: nil,
+            completion: completion
+        )
+    }
+
+    @available(*, deprecated, message: "linkCompletionResult is internal navigation state and is no longer needed")
+    public func navigate(
+        chain: [NavigationChainLink],
+        event: (any ResponderEvent)? = nil,
+        linkCompletionResult: (UIViewController?, Bool)?,
+        completion: ((UIViewController?, Bool) -> Void)? = nil
+    ) {
+        enqueueOrStartNavigationChain(
+            chain: chain,
+            event: event,
+            initialResult: linkCompletionResult,
+            completion: completion
+        )
+    }
+
+    private func enqueueOrStartNavigationChain(
+        chain: [NavigationChainLink],
+        event: (any ResponderEvent)?,
+        initialResult: (UIViewController?, Bool)?,
+        completion: ((UIViewController?, Bool) -> Void)?
+    ) {
+        guard !(isChainNavigationInProgress || isNavigationInProgress) else {
             navigationQueue.enqueue(
-                InterceptionDetail(
+                QueuedNavigation(
                     chain: chain,
                     event: event,
-                    completion: completion
+                    completion: completion,
+                    initialResult: initialResult
                 )
             )
 
@@ -68,6 +90,20 @@ open class Navigator {
         }
 
         isChainNavigationInProgress = true
+        continueNavigationChain(
+            chain: chain,
+            event: event,
+            linkCompletionResult: initialResult,
+            completion: completion
+        )
+    }
+
+    private func continueNavigationChain(
+        chain: [NavigationChainLink],
+        event: (any ResponderEvent)?,
+        linkCompletionResult: (UIViewController?, Bool)?,
+        completion: ((UIViewController?, Bool) -> Void)?
+    ) {
         guard !chain.isEmpty else {
             completion?(linkCompletionResult?.0, linkCompletionResult?.1 ?? false)
             isChainNavigationInProgress = false
@@ -79,9 +115,10 @@ open class Navigator {
         let link = chain.removeFirst()
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: link.destination) {
             let chain = CollectionOfOne(link) + chain
-            let detail = InterceptionDetail(
+            let detail = InterceptedNavigation(
                 chain: chain,
-                event: event
+                event: event,
+                navigator: self
             )
             navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
             performSuspendingQueueCheck {
@@ -103,14 +140,12 @@ open class Navigator {
             fallback: link.fallback,
             event: event,
             completion: { [weak self] controller, result in
-                DispatchQueue.main.async {
-                    self?.navigate(
-                        chain: chain,
-                        event: event,
-                        linkCompletionResult: (controller, result),
-                        completion: completion
-                    )
-                }
+                self?.continueNavigationChain(
+                    chain: chain,
+                    event: event,
+                    linkCompletionResult: (controller, result),
+                    completion: completion
+                )
             }
         )
     }
@@ -166,7 +201,7 @@ open class Navigator {
     ) {
         guard !(isChainNavigationInProgress || isNavigationInProgress) else {
             navigationQueue.enqueue(
-                InterceptionDetail(
+                QueuedNavigation(
                     chain: [
                         NavigationChainLink(
                             destination: destination,
@@ -176,7 +211,8 @@ open class Navigator {
                         )
                     ],
                     event: event,
-                    completion: completion
+                    completion: completion,
+                    initialResult: nil
                 )
             )
 
@@ -207,7 +243,7 @@ open class Navigator {
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
         if let navigationInterceptor, let interceptionResult = navigationInterceptor.intercept(destination: destination) {
-            let detail = InterceptionDetail(
+            let detail = InterceptedNavigation(
                 chain: [
                     NavigationChainLink(
                         destination: destination,
@@ -216,7 +252,8 @@ open class Navigator {
                         fallback: fallback
                     )
                 ],
-                event: event
+                event: event,
+                navigator: self
             )
             navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
             performSuspendingQueueCheck {
@@ -259,7 +296,9 @@ open class Navigator {
         switch strategy {
         case _ as RemoveFromStackNavigationStrategy:
             if let navigationController = window?.topController?.orNavigationController {
-                if navigationController.topViewController?.navigationIdentity?.isEqual(to: destination.identity) == true {
+                if navigationController.topViewController.map({
+                    destination.isEqual(to: .controller($0))
+                }) == true {
                     navigate(
                         to: destination,
                         strategy: .closeIfTop(),
@@ -268,9 +307,9 @@ open class Navigator {
                         event: event,
                         completion: completion
                     )
-                } else if let index = navigationController.viewControllers.firstIndex(where: {
-                    $0.navigationIdentity?.isEqual(to: destination.identity) == true
-                }) {
+                } else if let index = navigationController.viewControllers.firstIndex(
+                    where: { destination.isEqual(to: .controller($0)) }
+                ) {
                     navigationController.viewControllers.remove(at: index)
 
                     completion?(nil, true)
@@ -639,8 +678,37 @@ open class Navigator {
                 completion?(nil, false)
             }
         case let strategy as PopoverNavigationStrategy:
-            if let sourceController = window?.topController {
+            func completePopoverFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
+            if let sourceController = window?.topController,
+                sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
+            {
                 let controller = getController(destination: destination)
+                guard controller !== sourceController,
+                    controller.parent == nil,
+                    controller.presentingViewController == nil,
+                    sourceController.presentedViewController == nil,
+                    !sourceController.isBeingDismissed,
+                    !sourceController.isBeingPresented
+                else {
+                    completePopoverFailure()
+
+                    return
+                }
+
                 controller.modalPresentationStyle = .popover
                 if let popover = controller.popoverPresentationController {
                     strategy.configure(popover, controller)
@@ -651,6 +719,14 @@ open class Navigator {
                         controller,
                         animated: animated,
                         completion: {
+                            let isPresented = controller.presentingViewController != nil
+                                || sourceController.presentedViewController === controller
+                            guard isPresented else {
+                                completePopoverFailure()
+
+                                return
+                            }
+
                             perform(
                                 event: event,
                                 navigatorEvent: navigatorEvent,
@@ -662,10 +738,10 @@ open class Navigator {
                         }
                     )
                 } else {
-                    completion?(nil, false)
+                    completePopoverFailure()
                 }
             } else {
-                completion?(nil, false)
+                completePopoverFailure()
             }
         default:
             switch strategy {
@@ -1077,9 +1153,10 @@ open class Navigator {
         guard !(isNavigationInProgress || isChainNavigationInProgress) else { return }
         guard let queued = navigationQueue.dequeue() else { return }
 
-        navigate(
+        enqueueOrStartNavigationChain(
             chain: queued.chain,
             event: queued.event,
+            initialResult: queued.initialResult,
             completion: queued.completion
         )
     }
@@ -1094,33 +1171,12 @@ open class Navigator {
         }
     }
 
-    private func bind() {
-        guard let navigationInterceptor else { return }
+}
 
-        navigationInterceptor.onInterceptionResolved = {
-            [weak self, weak navigationInterceptor] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
-            guard let self, let navigationInterceptor else { return }
-
-            if let details = navigationInterceptor.interceptionData.removeValue(forKey: reason), !details.isEmpty {
-                if let newStrategy {
-                    for detail in details where !detail.chain.isEmpty {
-                        detail.chain[0].update(strategy: newStrategy)
-                    }
-                }
-
-                for (index, detail) in details.enumerated() {
-                    let isFirst = index == details.startIndex
-                    let isLast = index == details.index(before: details.endIndex)
-                    self.navigate(
-                        chain: (isFirst ? prefixNavigationChain : [])
-                            + detail.chain
-                            + (isLast ? suffixNavigationChain : []),
-                        event: detail.event,
-                        completion: isLast ? completion : nil
-                    )
-                }
-            }
-        }
-    }
+private struct QueuedNavigation {
+    let chain: [NavigationChainLink]
+    let event: (any ResponderEvent)?
+    let completion: ((UIViewController?, Bool) -> Void)?
+    let initialResult: (UIViewController?, Bool)?
 }
 // swiftlint:enable file_length type_body_length

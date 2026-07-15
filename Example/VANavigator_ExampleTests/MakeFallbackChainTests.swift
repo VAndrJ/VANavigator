@@ -8,7 +8,7 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 // TODO: - Messages
 class MakeFallbackChainTests: XCTestCase, MainActorIsolated {

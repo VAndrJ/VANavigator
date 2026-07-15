@@ -8,17 +8,17 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 // TODO: - Messages
 class PopoverTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
+    override func setUp() async throws {
         window = UIWindow()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window = nil
     }
 
@@ -80,6 +80,37 @@ class PopoverTests: XCTestCase, MainActorIsolated {
 
         XCTAssertEqual(false, result)
         XCTAssertNil(responder)
+    }
+
+    func test_popover_failureUsesFallback() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let fallbackIdentity = MockRootControllerNavigationIdentity()
+        let expect = expectation(description: "fallback")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .identity(MockPushControllerNavigationIdentity()),
+            strategy: .popover(configure: { _, _ in
+                XCTFail("Should not be called")
+            }),
+            fallback: NavigationChainLink(
+                destination: .identity(fallbackIdentity),
+                strategy: .replaceWindowRoot(),
+                animated: false
+            ),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(fallbackIdentity.isEqual(to: responder?.navigationIdentity))
+        XCTAssertTrue(fallbackIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
     func prepareNavigation(navigator: Navigator) {

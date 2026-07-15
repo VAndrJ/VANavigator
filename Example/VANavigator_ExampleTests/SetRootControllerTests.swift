@@ -8,17 +8,17 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 // TODO: - Messages
 class SetRootControllerTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
+    override func setUp() async throws {
         window = UIWindow()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window = nil
     }
 
@@ -196,6 +196,44 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.15)
     }
 
+    func test_setRootController_transitionRetainsAndForwardsDelegate() {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first
+        else {
+            XCTFail("Missing window scene")
+
+            return
+        }
+
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = UIViewController()
+        window?.makeKeyAndVisible()
+        let forwarded = expectation(description: "forwarded animation delegate")
+        let completed = expectation(description: "root transition")
+        weak var retainedDelegate: RootTransitionDelegate?
+
+        func startTransition() {
+            let transition = CATransition()
+            transition.duration = 0.1
+            let delegate = RootTransitionDelegate {
+                forwarded.fulfill()
+            }
+            retainedDelegate = delegate
+            transition.delegate = delegate
+            window?.set(
+                rootViewController: UIViewController(),
+                transition: transition,
+                completion: { completed.fulfill() }
+            )
+        }
+
+        startTransition()
+
+        XCTAssertNotNil(retainedDelegate)
+        wait(for: [forwarded, completed], timeout: 10)
+    }
+
     func test_setWithoutAnimation() {
         XCTAssertNil(window?.rootViewController)
         UIView.setAnimationsEnabled(false)
@@ -249,5 +287,17 @@ private final class DelayedResponderViewController: UIViewController, Responder 
         default:
             return false
         }
+    }
+}
+
+private final class RootTransitionDelegate: NSObject, CAAnimationDelegate {
+    private let onStop: () -> Void
+
+    init(onStop: @escaping () -> Void) {
+        self.onStop = onStop
+    }
+
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        onStop()
     }
 }

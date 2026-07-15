@@ -8,16 +8,16 @@
 
 import XCTest
 import VANavigator
-import VATextureKit
+import UIKit
 
 class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
     var window: UIWindow?
 
-    override func setUp() {
+    override func setUp() async throws {
         window = UIWindow()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         window = nil
     }
 
@@ -115,6 +115,37 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(rootNavigationController?.viewControllers.count == 1)
         XCTAssertTrue(expectedIdentity.isEqual(to: rootNavigationController?.topViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
+    }
+
+    func test_controllerDestination_withoutIdentityRemovesExactInstance() {
+        let rootController = UIViewController()
+        let controllerToRemove = UIViewController()
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.viewControllers = [rootController, controllerToRemove, topController]
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "remove exact controller")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(controllerToRemove),
+            strategy: .removeFromNavigationStack,
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertEqual(2, navigationController.viewControllers.count)
+        XCTAssertIdentical(rootController, navigationController.viewControllers.first)
+        XCTAssertIdentical(topController, navigationController.topViewController)
+        XCTAssertFalse(navigationController.viewControllers.contains { $0 === controllerToRemove })
     }
 
     func prepareNavigationStack(navigator: Navigator, identity: any NavigationIdentity) {
