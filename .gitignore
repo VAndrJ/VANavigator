@@ -35,3 +35,6 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 Pods/
+Packages/
+Package.pins
+Package.resolved
