@@ -6,12 +6,12 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
-class NavigationStrategyEqualityTests: XCTestCase, MainActorIsolated {
-
+@MainActor
+class NavigationStrategyEqualityTests: XCTestCase {
     func test_push() {
         let expected: NavigationStrategy = .push()
         let expectedToFail: NavigationStrategy = .popToExisting()

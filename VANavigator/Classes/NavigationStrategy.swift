@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class NavigationStrategy: Equatable {
+public class NavigationStrategy: @MainActor Equatable {
     public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
         return lhs.isEqual(to: rhs)
     }
@@ -83,7 +83,7 @@ extension NavigationStrategy {
 }
 
 /// Navigation strategy for `UISplitViewController`.
-public enum SplitStrategy: Equatable {
+nonisolated public enum SplitStrategy: Equatable {
     public enum SplitActon: Equatable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
@@ -131,7 +131,7 @@ final class CloseToExistingNavigationStrategy: NavigationStrategy {}
 
 final class RemoveFromStackNavigationStrategy: NavigationStrategy {}
 
-public enum PresentNavigationSource: Sendable, Equatable {
+nonisolated public enum PresentNavigationSource: Sendable, Equatable {
     case topController
     case navigationController
     case tabBarController

@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class PresentOrCloseToExistingControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -340,7 +341,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
                     destination: .controller(UITabBarController()),
                     strategy: .replaceWindowRoot(),
                     animated: true
-                ),
+                )
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -356,7 +357,7 @@ class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
                     destination: .identity(MockNavControllerNavigationIdentity(children: [MockRootControllerNavigationIdentity()])),
                     strategy: .replaceWindowRoot(),
                     animated: true
-                ),
+                )
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )

@@ -6,16 +6,18 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class SplitControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class SplitControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
         try await super.setUp()
+
         guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
             XCTFail("A window scene is required to run split-view tests")
             return
@@ -26,6 +28,7 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     override func tearDown() async throws {
         window?.isHidden = true
         window = nil
+
         try await super.tearDown()
     }
 
@@ -73,7 +76,6 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
         splitController.setViewController(navigationController, for: .primary)
         splitController.setViewController(UIViewController(), for: .secondary)
         window?.rootViewController = splitController
-        window?.makeKeyAndVisible()
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let expect = expectation(description: "navigation")
         var responder: UIViewController?
@@ -611,10 +613,12 @@ class SplitControllerTests: XCTestCase, MainActorIsolated {
     func prepareNavigationStack(navigator: Navigator) {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
-            destination: .identity(MockSplitControllerNavigationIdentity(
-                primary: MockRootControllerNavigationIdentity(),
-                secondary: MockPopControllerNavigationIdentity()
-            )),
+            destination: .identity(
+                MockSplitControllerNavigationIdentity(
+                    primary: MockRootControllerNavigationIdentity(),
+                    secondary: MockPopControllerNavigationIdentity()
+                )
+            ),
             strategy: .replaceWindowRoot(),
             animated: false,
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }

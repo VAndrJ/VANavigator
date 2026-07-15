@@ -6,13 +6,15 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import ObservationTracking
 import UIKit
+import VANavigator
+import XCTest
+
 @testable import VANavigator_Example
 
-class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
+@MainActor
+class NavigationInterceptionTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -241,7 +243,7 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
                     destination: .identity(identity),
                     strategy: .present(),
                     animated: false
-                ),
+                )
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -282,7 +284,7 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
                     destination: .identity(identity),
                     strategy: .present(),
                     animated: false
-                ),
+                )
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -377,7 +379,7 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
                     destination: .identity(MockRootControllerNavigationIdentity()),
                     strategy: .replaceWindowRoot(),
                     animated: false
-                ),
+                )
             ],
             completion: { _, _ in taskDetachedMain { expect.fulfill() } }
         )
@@ -407,6 +409,39 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(true, sut.chain.first?.isEqual(to: expected.chain.first))
         XCTAssertEqual(String(describing: sut.event), String(describing: expected.event))
         XCTAssertEqual(sut.reason, expected.reason)
+    }
+
+    func test_releasedNavigator_removesInterceptedNavigationAndDestination() {
+        let navigationInterceptor = RepeatedReasonNavigationInterceptor()
+        weak var releasedNavigator: Navigator?
+        weak var releasedController: UIViewController?
+
+        autoreleasepool {
+            let navigator = Navigator(
+                window: window,
+                screenFactory: MockScreenFactory(),
+                navigationInterceptor: navigationInterceptor
+            )
+            let controller = UIViewController()
+            releasedNavigator = navigator
+            releasedController = controller
+            let expect = expectation(description: "navigation.intercepted")
+
+            navigator.navigate(
+                destination: .controller(controller),
+                strategy: .replaceWindowRoot(),
+                animated: false,
+                completion: { _, _ in expect.fulfill() }
+            )
+
+            wait(for: [expect], timeout: 10)
+            XCTAssertNotNil(releasedController)
+            XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
+        }
+
+        XCTAssertNil(releasedNavigator)
+        XCTAssertNil(releasedController)
+        XCTAssertEqual([], navigationInterceptor.getInterceptionReasons())
     }
 }
 
@@ -529,7 +564,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                                 destination: .identity(interceptionIdentity),
                                 strategy: .present(),
                                 animated: true
-                            ),
+                            )
                         ],
                         reason: interceptionReason
                     )
@@ -560,16 +595,6 @@ class MockNavigationInterceptor: NavigationInterceptor {
                         strategy: .closeIfTop(),
                         animated: true
                     ),
-                    NavigationChainLink(
-                        destination: .identity(MockNavControllerNavigationIdentity(children: [])),
-                        strategy: .closeIfTop(),
-                        animated: true
-                    ),
-                    NavigationChainLink(
-                        destination: .identity(MockPopControllerNavigationIdentity()),
-                        strategy: .closeIfTop(),
-                        animated: true
-                    ),
                 ],
                 completion: completion
             )
@@ -582,7 +607,7 @@ class MockNavigationInterceptor: NavigationInterceptor {
                         destination: .identity(MockPopControllerNavigationIdentity()),
                         strategy: .present(),
                         animated: true
-                    ),
+                    )
                 ],
                 completion: completion
             )

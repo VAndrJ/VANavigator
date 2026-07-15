@@ -18,16 +18,25 @@ extension UINavigationController {
         animated: Bool,
         completion: @escaping (Bool) -> Void
     ) {
-        if viewControllers.count > 1 {
-            let shouldAnimate = animated && canAnimateNavigationTransition
-            observeCompletion(
-                animated: shouldAnimate,
-                operation: { popViewController(animated: shouldAnimate) },
-                completion: { completion(true) }
-            )
-        } else {
+        guard viewControllers.count > 1, let previousTop = topViewController else {
             completion(false)
+
+            return
         }
+
+        let shouldAnimate = animated && canAnimateNavigationTransition
+        var poppedController: UIViewController?
+        observeCompletion(
+            animated: shouldAnimate,
+            operation: { poppedController = popViewController(animated: shouldAnimate) },
+            completion: {
+                completion(
+                    poppedController === previousTop
+                        && self.topViewController !== previousTop
+                        && !self.viewControllers.contains(where: { $0 === previousTop })
+                )
+            }
+        )
     }
 
     /// Replaces the current view controllers of the navigation stack.
@@ -58,20 +67,39 @@ extension UINavigationController {
         animated: Bool,
         completion: (() -> Void)?
     ) {
+        popToViewController(
+            controller,
+            animated: animated,
+            resultCompletion: { _ in completion?() }
+        )
+    }
+
+    func popToViewController(
+        _ controller: UIViewController,
+        animated: Bool,
+        resultCompletion: @escaping (Bool) -> Void
+    ) {
         guard viewControllers.contains(where: { $0 === controller }) else {
-            completion?()
+            resultCompletion(false)
 
             return
         }
 
         if topViewController == controller {
-            completion?()
+            resultCompletion(true)
         } else {
             let shouldAnimate = animated && canAnimateNavigationTransition
+            var poppedControllers: [UIViewController]?
             observeCompletion(
                 animated: shouldAnimate,
-                operation: { popToViewController(controller, animated: shouldAnimate) },
-                completion: completion
+                operation: { poppedControllers = popToViewController(controller, animated: shouldAnimate) },
+                completion: {
+                    resultCompletion(
+                        poppedControllers != nil
+                            && self.topViewController === controller
+                            && self.viewControllers.contains(where: { $0 === controller })
+                    )
+                }
             )
         }
     }
@@ -130,7 +158,10 @@ extension UINavigationController {
             return
         }
 
-        coordinator.animate(alongsideTransition: nil) { _ in
+        let registeredCompletion = coordinator.animate(alongsideTransition: nil) { _ in
+            completion?()
+        }
+        if !registeredCompletion {
             completion?()
         }
     }

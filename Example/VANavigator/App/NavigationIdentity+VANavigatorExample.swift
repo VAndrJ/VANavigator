@@ -8,15 +8,15 @@
 
 import Foundation
 
-protocol DefaultNavigationIdentity: NavigationIdentity {}
+nonisolated protocol DefaultNavigationIdentity: NavigationIdentity {}
 
 extension DefaultNavigationIdentity {
-    func isEqual(to other: (any NavigationIdentity)?) -> Bool {
+    nonisolated func isEqual(to other: (any NavigationIdentity)?) -> Bool {
         return other is Self
     }
 }
 
-protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
+nonisolated protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
 
 // MARK: - Identities
 

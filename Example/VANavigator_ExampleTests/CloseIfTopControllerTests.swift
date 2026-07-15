@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class CloseIfTopControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -152,6 +153,33 @@ class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
     }
 
+    func test_controllerPop_reportsFailureWhenUIKitRejectsPop() {
+        let rootController = UIViewController()
+        let topController = UIViewController()
+        let navigationController = TopPopRejectingNavigationController()
+        navigationController.setViewControllers([rootController, topController], animated: false)
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop rejected")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(topController),
+            strategy: .closeIfTop(tryToDismiss: false),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertEqual([rootController, topController], navigationController.viewControllers)
+        XCTAssertIdentical(topController, navigationController.topViewController)
+    }
+
     func test_controllerPop_notPopped() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         prepareNavigationStack(navigator: navigator)
@@ -216,9 +244,11 @@ class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
         navigator.navigate(
             chain: [
                 NavigationChainLink(
-                    destination: .identity(MockNavControllerNavigationIdentity(children: [
-                        MockRootControllerNavigationIdentity(),
-                    ])),
+                    destination: .identity(
+                        MockNavControllerNavigationIdentity(children: [
+                            MockRootControllerNavigationIdentity()
+                        ])
+                    ),
                     strategy: .replaceWindowRoot(),
                     animated: false
                 ),
@@ -263,5 +293,11 @@ class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
         )
 
         wait(for: [expect], timeout: 10)
+    }
+}
+
+private final class TopPopRejectingNavigationController: UINavigationController {
+    override func popViewController(animated: Bool) -> UIViewController? {
+        return nil
     }
 }

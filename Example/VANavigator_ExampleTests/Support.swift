@@ -11,9 +11,6 @@ import VANavigator
 
 @testable import VANavigator_Example
 
-@MainActor
-protocol MainActorIsolated {}
-
 class MockScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {

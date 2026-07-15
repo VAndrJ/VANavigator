@@ -180,6 +180,8 @@ extension UIViewController {
 }
 
 extension UISplitViewController {
+    @UniqueAddress private static var navigatorActiveColumnKey
+
     /// Returns the navigation controller UIKit uses for a split-view column.
     ///
     /// UIKit creates this controller when a non-navigation controller is assigned to a column. Starting in iOS 26,
@@ -215,6 +217,16 @@ extension UISplitViewController {
     }
 
     fileprivate var navigatorVisibleViewController: UIViewController? {
+        if let compactController = navigatorVisibleController(for: .compact) {
+            return compactController
+        }
+
+        if let activeColumn = navigatorActiveColumn,
+            let activeController = columnNavigationController(for: activeColumn) ?? viewController(for: activeColumn),
+            activeController.viewIfLoaded?.window != nil {
+            return activeController
+        }
+
         let visibleController = navigatorColumns
             .lazy
             .compactMap { self.columnNavigationController(for: $0) ?? self.viewController(for: $0) }
@@ -234,5 +246,57 @@ extension UISplitViewController {
         columns.append(contentsOf: [.secondary, .supplementary, .primary])
 
         return columns
+    }
+
+    private var navigatorActiveColumn: Column? {
+        get {
+            (objc_getAssociatedObject(self, Self.navigatorActiveColumnKey) as? NavigatorSplitColumn)?.value
+        }
+        set {
+            objc_setAssociatedObject(
+                self,
+                Self.navigatorActiveColumnKey,
+                newValue.map(NavigatorSplitColumn.init),
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+        }
+    }
+
+    func showNavigatorColumn(
+        _ column: Column,
+        completion: @MainActor @escaping () -> Void
+    ) {
+        navigatorActiveColumn = column
+        show(column)
+        guard let transitionCoordinator else {
+            completion()
+
+            return
+        }
+
+        let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
+            Task { @MainActor in
+                completion()
+            }
+        }
+        if !registeredCompletion {
+            Task { @MainActor in
+                completion()
+            }
+        }
+    }
+
+    private func navigatorVisibleController(for column: Column) -> UIViewController? {
+        let controller = columnNavigationController(for: column) ?? viewController(for: column)
+
+        return controller?.viewIfLoaded?.window == nil ? nil : controller
+    }
+}
+
+private final class NavigatorSplitColumn: NSObject {
+    let value: UISplitViewController.Column
+
+    init(_ value: UISplitViewController.Column) {
+        self.value = value
     }
 }

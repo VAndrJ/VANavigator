@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class QueueTests: XCTestCase, MainActorIsolated {
+@MainActor
+class QueueTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -172,6 +173,40 @@ class QueueTests: XCTestCase, MainActorIsolated {
 
         XCTAssertTrue(wasPresentedAtCompletion)
         XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+    }
+
+    func test_navigationChain_stopsAfterFailedLink() {
+        let initialController = UIViewController()
+        let skippedController = UIViewController()
+        window?.rootViewController = initialController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "navigation.chain")
+        var result: Bool?
+
+        navigator.navigate(
+            chain: [
+                NavigationChainLink(
+                    destination: .identity(MockControllerNavigationIdentity()),
+                    strategy: .popToExisting(includingTabs: false),
+                    animated: false
+                ),
+                NavigationChainLink(
+                    destination: .controller(skippedController),
+                    strategy: .replaceWindowRoot(),
+                    animated: false
+                ),
+            ],
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertIdentical(initialController, window?.rootViewController)
+        XCTAssertNotIdentical(skippedController, window?.rootViewController)
     }
 
     func prepareNavigation(navigator: Navigator) {

@@ -6,18 +6,20 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import UIKit
 import VANavigator
 import XCTest
-import UIKit
 
 @testable import VANavigator_Example
 
 // TODO: - Messages
-class SearchTests: XCTestCase, MainActorIsolated {
+@MainActor
+class SearchTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
         try await super.setUp()
+
         guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
             XCTFail("A window scene is required to run view-controller search tests")
             return
@@ -28,6 +30,7 @@ class SearchTests: XCTestCase, MainActorIsolated {
     override func tearDown() async throws {
         window?.isHidden = true
         window = nil
+
         try await super.tearDown()
     }
 
@@ -213,8 +216,8 @@ class SearchTests: XCTestCase, MainActorIsolated {
     }
 }
 
-private extension UISplitViewController {
-    var testColumns: [Column] {
+extension UISplitViewController {
+    fileprivate var testColumns: [Column] {
         var columns: [Column] = [.compact]
         if #available(iOS 26.0, *) {
             columns.append(.inspector)

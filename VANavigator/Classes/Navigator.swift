@@ -36,6 +36,10 @@ open class Navigator {
         self.navigationInterceptor = navigationInterceptor
     }
 
+    isolated deinit {
+        navigationInterceptor?.removeNavigations(for: self)
+    }
+
     /// Navigates through a chain of destinations.
     ///
     /// - Parameters:
@@ -123,7 +127,7 @@ open class Navigator {
                 event: event,
                 navigator: self
             )
-            navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
+            navigationInterceptor.store(detail, reason: interceptionResult.reason)
             performSuspendingQueueCheck {
                 isChainNavigationInProgress = false
                 navigate(
@@ -143,7 +147,15 @@ open class Navigator {
             fallback: link.fallback,
             event: event,
             completion: { [weak self] controller, result in
-                self?.continueNavigationChain(
+                guard let self else { return }
+                guard result else {
+                    completion?(controller, false)
+                    self.isChainNavigationInProgress = false
+
+                    return
+                }
+
+                self.continueNavigationChain(
                     chain: chain,
                     event: event,
                     linkCompletionResult: (controller, result),
@@ -261,7 +273,7 @@ open class Navigator {
                 event: event,
                 navigator: self
             )
-            navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
+            navigationInterceptor.store(detail, reason: interceptionResult.reason)
             performSuspendingQueueCheck {
                 isNavigationInProgress = false
                 navigate(
@@ -531,6 +543,21 @@ open class Navigator {
                 completePresentationFailure()
             }
         case _ as CloseToExistingNavigationStrategy:
+            func completeCloseFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
             if let controller = window?.findController(destination: destination) {
                 navigatorEvent = ResponderClosedToExistingEvent()
                 selectTabIfNeeded(
@@ -538,10 +565,16 @@ open class Navigator {
                     completion: { [weak self] in
                         guard let self else { return }
 
-                        self.closeNavigationPresented(
+                        self.closeNavigationPresentedResult(
                             controller: controller,
                             animated: animated,
-                            completion: {
+                            completion: { isSuccess in
+                                guard isSuccess else {
+                                    completeCloseFailure()
+
+                                    return
+                                }
+
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
@@ -554,17 +587,8 @@ open class Navigator {
                         )
                     }
                 )
-            } else if let fallback {
-                navigate(
-                    to: fallback.destination,
-                    strategy: fallback.strategy,
-                    animated: fallback.animated,
-                    fallback: fallback.fallback,
-                    event: event,
-                    completion: completion
-                )
             } else {
-                completion?(nil, false)
+                completeCloseFailure()
             }
         case let strategy as PushNavigationStrategy:
             let controller = getController(destination: destination)
@@ -605,6 +629,21 @@ open class Navigator {
         case let strategy as PopToExistingNavigationStrategy:
             let includingTabs = strategy.includingTabs
 
+            func completePopFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
             func findController() -> UIViewController? {
                 let topController = window?.topController
 
@@ -622,10 +661,16 @@ open class Navigator {
                     completion: { [weak self] in
                         guard let self else { return }
 
-                        self.closeNavigationPresented(
+                        self.closeNavigationPresentedResult(
                             controller: controller,
                             animated: animated,
-                            completion: {
+                            completion: { isSuccess in
+                                guard isSuccess else {
+                                    completePopFailure()
+
+                                    return
+                                }
+
                                 perform(
                                     event: event,
                                     navigatorEvent: navigatorEvent,
@@ -638,17 +683,8 @@ open class Navigator {
                         )
                     }
                 )
-            } else if let fallback {
-                navigate(
-                    to: fallback.destination,
-                    strategy: fallback.strategy,
-                    animated: fallback.animated,
-                    fallback: fallback.fallback,
-                    event: event,
-                    completion: completion
-                )
             } else {
-                completion?(nil, false)
+                completePopFailure()
             }
         case _ as ReplaceNavigationRootNavigationStrategy:
             if let navigationController = window?.topController?.orNavigationController {
@@ -747,254 +783,143 @@ open class Navigator {
         default:
             switch strategy {
             case let strategy as SplitNavigationStrategy:
-                let strategy = strategy.strategy
-                // MARK: - Plain flow for easier understanding
                 let splitController = window?.topController?.orSplitViewController
                     ?? window?.rootViewController?.orSplitViewController
-                if let splitController {
-                    switch strategy {
-                    case let .primary(action):
-                        switch action {
-                        case .replace:
-                            if let navigationController = splitController.columnNavigationController(for: .primary) {
-                                splitController.show(.primary)
-                                let controller = getController(destination: destination)
-                                navigationController.setViewControllers(
-                                    [controller],
-                                    animated: animated,
-                                    completion: {
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        case .pop:
-                            if let navigationController = splitController.columnNavigationController(for: .primary),
-                                let controller = navigationController.findController(destination: destination) {
-                                splitController.show(.primary)
-                                navigatorEvent = ResponderPoppedToExistingEvent()
-                                closeNavigationPresented(
-                                    controller: controller,
-                                    animated: animated,
-                                    completion: {
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        case .push:
-                            if let navigationController = splitController.columnNavigationController(for: .primary) {
-                                splitController.show(.primary)
-                                let controller = getController(destination: destination)
-                                push(
-                                    controller: controller,
-                                    to: navigationController,
-                                    animated: animated,
-                                    navigation: nil,
-                                    completion: { [weak self] isSuccess in
-                                        guard let self else { return }
+                let column: UISplitViewController.Column
+                let action: SplitStrategy.SplitActon
+                switch strategy.strategy {
+                case let .primary(splitAction):
+                    column = .primary
+                    action = splitAction
+                case let .secondary(splitAction):
+                    column = .secondary
+                    action = splitAction
+                }
 
-                                        guard isSuccess else {
-                                            if let fallback {
-                                                self.navigate(
-                                                    to: fallback.destination,
-                                                    strategy: fallback.strategy,
-                                                    animated: fallback.animated,
-                                                    fallback: fallback.fallback,
-                                                    event: event,
-                                                    completion: completion
-                                                )
-                                            } else {
-                                                completion?(nil, false)
-                                            }
-
-                                            return
-                                        }
-
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        }
-                    case let .secondary(action):
-                        switch action {
-                        case .replace:
-                            if let navigationController = splitController.columnNavigationController(for: .secondary) {
-                                splitController.show(.secondary)
-                                let controller = getController(destination: destination)
-                                navigationController.setViewControllers(
-                                    [controller],
-                                    animated: animated,
-                                    completion: {
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        case .pop:
-                            if let navigationController = splitController.columnNavigationController(for: .secondary),
-                                let controller = navigationController.findController(destination: destination) {
-                                splitController.show(.secondary)
-                                navigatorEvent = ResponderPoppedToExistingEvent()
-                                closeNavigationPresented(
-                                    controller: controller,
-                                    animated: animated,
-                                    completion: {
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        case .push:
-                            if let navigationController = splitController.columnNavigationController(for: .secondary) {
-                                splitController.show(.secondary)
-                                let controller = getController(destination: destination)
-                                push(
-                                    controller: controller,
-                                    to: navigationController,
-                                    animated: animated,
-                                    navigation: nil,
-                                    completion: { [weak self] isSuccess in
-                                        guard let self else { return }
-
-                                        guard isSuccess else {
-                                            if let fallback {
-                                                self.navigate(
-                                                    to: fallback.destination,
-                                                    strategy: fallback.strategy,
-                                                    animated: fallback.animated,
-                                                    fallback: fallback.fallback,
-                                                    event: event,
-                                                    completion: completion
-                                                )
-                                            } else {
-                                                completion?(nil, false)
-                                            }
-
-                                            return
-                                        }
-
-                                        perform(
-                                            event: event,
-                                            navigatorEvent: navigatorEvent,
-                                            on: controller as? any UIViewController & Responder,
-                                            completion: {
-                                                completion?(controller, true)
-                                            }
-                                        )
-                                    }
-                                )
-                            } else if let fallback {
-                                navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
-                        }
+                func completeSplitFailure() {
+                    if let fallback {
+                        navigate(
+                            to: fallback.destination,
+                            strategy: fallback.strategy,
+                            animated: fallback.animated,
+                            fallback: fallback.fallback,
+                            event: event,
+                            completion: completion
+                        )
+                    } else {
+                        completion?(nil, false)
                     }
-                } else if let fallback {
-                    navigate(
-                        to: fallback.destination,
-                        strategy: fallback.strategy,
-                        animated: fallback.animated,
-                        fallback: fallback.fallback,
-                        event: event,
-                        completion: completion
-                    )
-                } else {
-                    completion?(nil, false)
+                }
+
+                guard let splitController,
+                    let initialNavigationController = splitController.columnNavigationController(for: column)
+                else {
+                    completeSplitFailure()
+
+                    return
+                }
+
+                switch action {
+                case .replace:
+                    splitController.showNavigatorColumn(column) {
+                        guard let navigationController = splitController.columnNavigationController(for: column) else {
+                            completeSplitFailure()
+
+                            return
+                        }
+
+                        let controller = self.getController(destination: destination)
+                        navigationController.setViewControllers(
+                            [controller],
+                            animated: animated,
+                            completion: {
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
+                                )
+                            }
+                        )
+                    }
+                case .pop:
+                    guard initialNavigationController.findController(destination: destination) != nil else {
+                        completeSplitFailure()
+
+                        return
+                    }
+
+                    splitController.showNavigatorColumn(column) {
+                        guard let navigationController = splitController.columnNavigationController(for: column),
+                            let controller = navigationController.findController(destination: destination)
+                        else {
+                            completeSplitFailure()
+
+                            return
+                        }
+
+                        navigatorEvent = ResponderPoppedToExistingEvent()
+                        self.closeNavigationPresentedResult(
+                            controller: controller,
+                            animated: animated,
+                            completion: { isSuccess in
+                                guard isSuccess else {
+                                    completeSplitFailure()
+
+                                    return
+                                }
+
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
+                                )
+                            }
+                        )
+                    }
+                case .push:
+                    let controller = self.getController(destination: destination)
+                    guard initialNavigationController.canPushViewController(controller) else {
+                        completeSplitFailure()
+
+                        return
+                    }
+
+                    splitController.showNavigatorColumn(column) {
+                        guard let navigationController = splitController.columnNavigationController(for: column) else {
+                            completeSplitFailure()
+
+                            return
+                        }
+
+                        self.push(
+                            controller: controller,
+                            to: navigationController,
+                            animated: animated,
+                            navigation: nil,
+                            completion: { isSuccess in
+                                guard isSuccess else {
+                                    completeSplitFailure()
+
+                                    return
+                                }
+
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
             default:
                 completion?(nil, false)
@@ -1118,40 +1043,56 @@ open class Navigator {
     ///   - animated: Should be animated or not.
     ///   - completion: A closure to be executed after controllers are dismissed.
     public func closeNavigationPresented(controller: UIViewController?, animated: Bool, completion: (() -> Void)?) {
-        if let controller {
-            dismissPresented(
-                in: controller,
-                animated: animated,
-                completion: {
-                    if let navigationController = controller.orNavigationController {
-                        let popTarget: UIViewController?
-                        if controller === navigationController {
-                            popTarget = nil
-                        } else if navigationController.viewControllers.contains(where: { $0 === controller }) {
-                            popTarget = controller
-                        } else {
-                            popTarget = navigationController.viewControllers.first {
-                                $0.findController(controller: controller, withPresented: false) != nil
-                            }
-                        }
+        closeNavigationPresentedResult(
+            controller: controller,
+            animated: animated,
+            completion: { _ in completion?() }
+        )
+    }
 
-                        if let popTarget {
-                            navigationController.popToViewController(
-                                popTarget,
-                                animated: animated,
-                                completion: completion
-                            )
-                        } else {
-                            completion?()
-                        }
-                    } else {
-                        completion?()
-                    }
-                }
-            )
-        } else {
-            completion?()
+    private func closeNavigationPresentedResult(
+        controller: UIViewController?,
+        animated: Bool,
+        completion: @escaping (Bool) -> Void
+    ) {
+        guard let controller else {
+            completion(false)
+
+            return
         }
+
+        dismissPresented(
+            in: controller,
+            animated: animated,
+            completion: {
+                guard let navigationController = controller.orNavigationController else {
+                    completion(true)
+
+                    return
+                }
+
+                if controller === navigationController {
+                    completion(true)
+
+                    return
+                }
+
+                let popTarget = navigationController.viewControllers.first {
+                    $0 === controller || $0.findController(controller: controller, withPresented: false) != nil
+                }
+                guard let popTarget else {
+                    completion(false)
+
+                    return
+                }
+
+                navigationController.popToViewController(
+                    popTarget,
+                    animated: animated,
+                    resultCompletion: completion
+                )
+            }
+        )
     }
 
     /// Dismisses all presented view controllers within the given controller while they are being presented.

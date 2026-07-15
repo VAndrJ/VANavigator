@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class SetRootControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class SetRootControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -106,7 +107,7 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
         // Сhecking that the `UIWindow`'s root view controller identity is equal to given
         // and it is the top view controller.
         let expectedIdentity = identity
-        
+
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         XCTAssertTrue(expectedIdentity.isEqual(to: responder?.navigationIdentity))
@@ -164,9 +165,10 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_setRootController_transitionCompletionWaitsForAnimation() {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first
         else {
             XCTFail("Missing window scene")
 
@@ -197,9 +199,10 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_setRootController_transitionRetainsAndForwardsDelegate() {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first
         else {
             XCTFail("Missing window scene")
 

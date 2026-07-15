@@ -6,14 +6,14 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 @testable import VANavigator_Example
 
-class NavigationDestinationEqualityTests: XCTestCase, MainActorIsolated {
-
+@MainActor
+class NavigationDestinationEqualityTests: XCTestCase {
     func test_identity_identity() {
         let expected: NavigationDestination = .identity(MockRootControllerNavigationIdentity())
         let expectedToFail: NavigationDestination = .identity(MockPopControllerNavigationIdentity())

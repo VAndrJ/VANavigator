@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class PushOrPopControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -103,6 +104,33 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertIdentical(navigationController, responder)
         XCTAssertEqual(0, navigationController.popInvocationCount)
         XCTAssertEqual([childController], navigationController.viewControllers)
+    }
+
+    func test_popToExisting_reportsFailureWhenUIKitRejectsPop() {
+        let targetController = UIViewController()
+        let topController = UIViewController()
+        let navigationController = PopRejectingNavigationController()
+        navigationController.setViewControllers([targetController, topController], animated: false)
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop rejected")
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(targetController),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(false, result)
+        XCTAssertEqual([targetController, topController], navigationController.viewControllers)
+        XCTAssertIdentical(topController, navigationController.topViewController)
     }
 
     func test_controllerPop_single() {
@@ -365,11 +393,13 @@ class PushOrPopControllerTests: XCTestCase, MainActorIsolated {
         }
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
-            destination: .identity(MockTabControllerNavigationIdentity(children: [
-                identity,
-                MockNavControllerNavigationIdentity(children: []),
-                MockNavControllerNavigationIdentity(children: []),
-            ])),
+            destination: .identity(
+                MockTabControllerNavigationIdentity(children: [
+                    identity,
+                    MockNavControllerNavigationIdentity(children: []),
+                    MockNavControllerNavigationIdentity(children: []),
+                ])
+            ),
             strategy: .replaceWindowRoot(),
             completion: { controller, _ in
                 (controller as? UITabBarController)?.selectedIndex = 2
@@ -427,5 +457,14 @@ private final class PopInvocationRecordingNavigationController: UINavigationCont
         popInvocationCount += 1
 
         return super.popToViewController(viewController, animated: animated)
+    }
+}
+
+private final class PopRejectingNavigationController: UINavigationController {
+    override func popToViewController(
+        _ viewController: UIViewController,
+        animated: Bool
+    ) -> [UIViewController]? {
+        return nil
     }
 }

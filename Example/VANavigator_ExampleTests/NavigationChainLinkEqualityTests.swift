@@ -6,12 +6,12 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
-class NavigationChainLinkEqualityTests: XCTestCase, MainActorIsolated {
-
+@MainActor
+class NavigationChainLinkEqualityTests: XCTestCase {
     func test_links() {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),

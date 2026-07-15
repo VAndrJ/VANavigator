@@ -6,11 +6,12 @@
 //  Copyright © 2024 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
-class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
+@MainActor
+class RemoveFromStackNavigationStrategyTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -25,7 +26,7 @@ class RemoveFromStackNavigationStrategyTests: XCTestCase, MainActorIsolated {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let childIdentity = MockRootControllerNavigationIdentity()
         let identity = MockNavControllerNavigationIdentity(children: [
-            childIdentity,
+            childIdentity
         ])
         prepareNavigationStack(navigator: navigator, identity: identity)
         let rootNavigationController = window?.rootViewController as? UINavigationController

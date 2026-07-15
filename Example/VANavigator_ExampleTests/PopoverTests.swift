@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class PopoverTests: XCTestCase, MainActorIsolated {
+@MainActor
+class PopoverTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {

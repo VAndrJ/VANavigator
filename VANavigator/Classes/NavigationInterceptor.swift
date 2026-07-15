@@ -38,7 +38,7 @@ public struct NavigationInterceptionResult {
 /// A class that provides interception capabilities for navigation actions.
 @MainActor
 open class NavigationInterceptor {
-    var interceptionData: [AnyHashable: [InterceptedNavigation]] = [:]
+    private var interceptionData: [AnyHashable: [InterceptedNavigation]] = [:]
 
     public init() {}
 
@@ -57,6 +57,7 @@ open class NavigationInterceptor {
         suffixNavigationChain: [NavigationChainLink] = [],
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
+        removeReleasedNavigators()
         guard let storedDetails = interceptionData.removeValue(forKey: reason) else {
             completion?(nil, false)
 
@@ -104,6 +105,8 @@ open class NavigationInterceptor {
     }
 
     public func getInterceptionReasons() -> [AnyHashable] {
+        removeReleasedNavigators()
+
         return Array(interceptionData.keys)
     }
 
@@ -116,7 +119,32 @@ open class NavigationInterceptor {
     }
 
     public func checkIsExists(reason: AnyHashable) -> Bool {
+        removeReleasedNavigators()
+
         return interceptionData[reason] != nil
+    }
+
+    func store(_ navigation: InterceptedNavigation, reason: AnyHashable) {
+        removeReleasedNavigators()
+        interceptionData[reason, default: []].append(navigation)
+    }
+
+    func removeNavigations(for navigator: Navigator) {
+        interceptionData = interceptionData.reduce(into: [:]) { result, item in
+            let activeNavigations = item.value.filter { $0.navigator !== navigator && $0.navigator != nil }
+            if !activeNavigations.isEmpty {
+                result[item.key] = activeNavigations
+            }
+        }
+    }
+
+    private func removeReleasedNavigators() {
+        interceptionData = interceptionData.reduce(into: [:]) { result, item in
+            let activeNavigations = item.value.filter { $0.navigator != nil }
+            if !activeNavigations.isEmpty {
+                result[item.key] = activeNavigations
+            }
+        }
     }
 }
 

@@ -6,13 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class MakeFallbackChainTests: XCTestCase, MainActorIsolated {
-
+@MainActor
+class MakeFallbackChainTests: XCTestCase {
     func test_fallbackChain() {
         let destination = NavigationDestination.identity(MockRootControllerNavigationIdentity())
         let strategy = NavigationStrategy.push()

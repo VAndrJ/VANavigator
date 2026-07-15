@@ -6,12 +6,13 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
-import VANavigator
 import UIKit
+import VANavigator
+import XCTest
 
 // TODO: - Messages
-class PushControllerTests: XCTestCase, MainActorIsolated {
+@MainActor
+class PushControllerTests: XCTestCase {
     var window: UIWindow?
 
     override func setUp() async throws {
@@ -211,7 +212,12 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
             XCTAssertTrue(navigationController?.viewControllers.count == 1, file: file, line: line)
             XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity), file: file, line: line)
         } else {
-            XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.presentedViewController?.navigationIdentity), "expected not equal to top", file: file, line: line)
+            XCTAssertTrue(
+                expectedIdentity.isEqual(to: window?.rootViewController?.presentedViewController?.navigationIdentity),
+                "expected not equal to top",
+                file: file,
+                line: line
+            )
         }
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity), file: file, line: line)
         XCTAssertEqual(true, (window?.topController as? MockViewController)?.isMockEventHandled, file: file, line: line)
@@ -337,9 +343,10 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
     }
 
     func test_pushCompletion_preservesAnimationForVisibleNonKeyWindow() {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first
         else {
             XCTFail("Missing window scene")
 
@@ -386,15 +393,17 @@ class PushControllerTests: XCTestCase, MainActorIsolated {
             destination: .identity(identity),
             strategy: .push(),
             fallback: alwaysEmbedded.map {
-                $0 ? NavigationChainLink(
-                    destination: .identity(MockNavControllerNavigationIdentity(children: [identity])),
-                    strategy: .present(),
-                    animated: true
-                ) : NavigationChainLink(
-                    destination: .identity(identity),
-                    strategy: .present(),
-                    animated: true
-                )
+                $0
+                    ? NavigationChainLink(
+                        destination: .identity(MockNavControllerNavigationIdentity(children: [identity])),
+                        strategy: .present(),
+                        animated: true
+                    )
+                    : NavigationChainLink(
+                        destination: .identity(identity),
+                        strategy: .present(),
+                        animated: true
+                    )
             },
             event: ResponderMockEvent(),
             completion: {
