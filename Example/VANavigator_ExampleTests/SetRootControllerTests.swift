@@ -139,6 +139,63 @@ class SetRootControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(["navigator", "user"], responder.handledEvents)
     }
 
+    func test_replaceWindowRoot_withoutWindowReportsFailure() {
+        let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
+        let controller = UIViewController()
+        let expect = expectation(description: "replace without window")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(controller),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { completedController, isSuccess in
+                responder = completedController
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertNil(responder)
+        XCTAssertEqual(false, result)
+    }
+
+    func test_setRootController_transitionCompletionWaitsForAnimation() {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first
+        else {
+            XCTFail("Missing window scene")
+
+            return
+        }
+
+        window = UIWindow(windowScene: windowScene)
+        let previousController = UIViewController()
+        let newController = UIViewController()
+        window?.rootViewController = previousController
+        window?.makeKeyAndVisible()
+        let transition = CATransition()
+        transition.duration = 0.25
+        let expect = expectation(description: "root transition")
+        let start = ProcessInfo.processInfo.systemUptime
+        var elapsed: TimeInterval?
+
+        window?.set(rootViewController: newController, transition: transition) {
+            elapsed = ProcessInfo.processInfo.systemUptime - start
+            expect.fulfill()
+        }
+
+        XCTAssertIdentical(newController, window?.rootViewController)
+        XCTAssertNil(elapsed)
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertGreaterThanOrEqual(elapsed ?? 0, 0.15)
+    }
+
     func test_setWithoutAnimation() {
         XCTAssertNil(window?.rootViewController)
         UIView.setAnimationsEnabled(false)

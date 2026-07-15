@@ -142,6 +142,38 @@ class QueueTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
 
+    func test_navigationCompletion_runsBeforeQueuedNavigationStarts() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigation(navigator: navigator)
+        let presentedIdentity = MockPopControllerNavigationIdentity()
+        let presentExpect = expectation(description: "navigation.present")
+        let closeExpect = expectation(description: "navigation.close")
+        var wasPresentedAtCompletion = false
+
+        navigator.navigate(
+            destination: .identity(presentedIdentity),
+            strategy: .present(),
+            animated: false,
+            completion: { [weak self] _, _ in
+                wasPresentedAtCompletion = presentedIdentity.isEqual(to: self?.window?.topController?.navigationIdentity)
+                presentExpect.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .identity(presentedIdentity),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, _ in
+                closeExpect.fulfill()
+            }
+        )
+
+        wait(for: [presentExpect, closeExpect], timeout: 10)
+
+        XCTAssertTrue(wasPresentedAtCompletion)
+        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+    }
+
     func prepareNavigation(navigator: Navigator) {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(

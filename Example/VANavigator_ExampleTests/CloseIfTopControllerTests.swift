@@ -178,6 +178,39 @@ class CloseIfTopControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertTrue(expectedIdentity.isEqual(to: navigationController?.topViewController?.navigationIdentity))
     }
 
+    func test_controllerDismissesPresentedNavigationControllerWhenMatchingControllerIsItsRoot() {
+        let rootController = UIViewController()
+        let presentedController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: presentedController)
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+
+        let presentExpect = expectation(description: "navigation.present")
+        rootController.present(navigationController, animated: false) {
+            presentExpect.fulfill()
+        }
+        wait(for: [presentExpect], timeout: 10)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let closeExpect = expectation(description: "navigation.closeIfTop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .controller(presentedController),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                closeExpect.fulfill()
+            }
+        )
+
+        wait(for: [closeExpect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertNil(rootController.presentedViewController)
+        XCTAssertIdentical(rootController, window?.topController)
+    }
+
     func prepareNavigationStack(navigator: Navigator) {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(

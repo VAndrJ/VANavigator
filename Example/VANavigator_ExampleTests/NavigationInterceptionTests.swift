@@ -124,6 +124,52 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
         XCTAssertEqual(["interception", "queued"], screenFactory.trackedAssemblies)
     }
 
+    func test_navigationInterception_resumesEveryNavigationWithTheSameReasonInFIFOOrder() {
+        let navigationInterceptor = RepeatedReasonNavigationInterceptor()
+        let navigator = Navigator(
+            window: window,
+            screenFactory: MockScreenFactory(),
+            navigationInterceptor: navigationInterceptor
+        )
+        let firstController = InterceptionTrackingViewController()
+        let secondController = InterceptionTrackingViewController()
+        let firstIntercepted = expectation(description: "first intercepted")
+        let secondIntercepted = expectation(description: "second intercepted")
+
+        navigator.navigate(
+            destination: .controller(firstController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: RepeatedReasonNavigationEvent(),
+            completion: { _, _ in firstIntercepted.fulfill() }
+        )
+        navigator.navigate(
+            destination: .controller(secondController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: RepeatedReasonNavigationEvent(),
+            completion: { _, _ in secondIntercepted.fulfill() }
+        )
+
+        wait(for: [firstIntercepted, secondIntercepted], timeout: 10)
+
+        XCTAssertEqual([navigationInterceptor.reason], navigationInterceptor.getInterceptionReasons())
+
+        let resolved = expectation(description: "interceptions resolved")
+        var result: Bool?
+        navigationInterceptor.resolve { _, isSuccess in
+            result = isSuccess
+            resolved.fulfill()
+        }
+
+        wait(for: [resolved], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertEqual(1, firstController.handledEventCount)
+        XCTAssertEqual(1, secondController.handledEventCount)
+        XCTAssertIdentical(secondController, window?.rootViewController)
+    }
+
     func test_navigationInterception_prefixedNavigationChain() {
         let authorizationService = AuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
@@ -311,6 +357,37 @@ class NavigationInterceptionTests: XCTestCase, MainActorIsolated {
 }
 
 class MockEmptyInterceptor: NavigationInterceptor {}
+
+private struct RepeatedReasonNavigationEvent: ResponderEvent {}
+
+private final class InterceptionTrackingViewController: UIViewController, Responder {
+    var nextEventResponder: (any Responder)?
+    private(set) var handledEventCount = 0
+
+    func handle(event: any ResponderEvent) async -> Bool {
+        guard event is RepeatedReasonNavigationEvent else { return false }
+
+        handledEventCount += 1
+
+        return true
+    }
+}
+
+private final class RepeatedReasonNavigationInterceptor: NavigationInterceptor {
+    let reason = "RepeatedReason"
+    private var isResolved = false
+
+    override func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
+        guard !isResolved else { return nil }
+
+        return NavigationInterceptionResult(chain: [], reason: reason)
+    }
+
+    func resolve(completion: ((UIViewController?, Bool) -> Void)?) {
+        isResolved = true
+        interceptionResolved(reason: reason, completion: completion)
+    }
+}
 
 private final class InterceptionOrderScreenFactory: MockScreenFactory {
     private(set) var trackedAssemblies: [String] = []

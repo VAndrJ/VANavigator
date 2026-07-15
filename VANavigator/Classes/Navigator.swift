@@ -69,8 +69,8 @@ open class Navigator {
 
         isChainNavigationInProgress = true
         guard !chain.isEmpty else {
-            isChainNavigationInProgress = false
             completion?(linkCompletionResult?.0, linkCompletionResult?.1 ?? false)
+            isChainNavigationInProgress = false
 
             return
         }
@@ -83,7 +83,7 @@ open class Navigator {
                 chain: chain,
                 event: event
             )
-            navigationInterceptor.interceptionData[interceptionResult.reason] = detail
+            navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
             performSuspendingQueueCheck {
                 isChainNavigationInProgress = false
                 navigate(
@@ -191,9 +191,8 @@ open class Navigator {
             fallback: fallback,
             event: event,
             completion: { [weak self] controller, result in
-                self?.isNavigationInProgress = false
-
                 completion?(controller, result)
+                self?.isNavigationInProgress = false
             }
         )
     }
@@ -219,7 +218,7 @@ open class Navigator {
                 ],
                 event: event
             )
-            navigationInterceptor.interceptionData[interceptionResult.reason] = detail
+            navigationInterceptor.interceptionData[interceptionResult.reason, default: []].append(detail)
             performSuspendingQueueCheck {
                 isNavigationInProgress = false
                 navigate(
@@ -296,6 +295,31 @@ open class Navigator {
             func isMatchingDestination(_ controller: UIViewController?) -> Bool {
                 controller.map { destination.isEqual(to: .controller($0)) } ?? false
             }
+            func presentedContainer(for controller: UIViewController) -> UIViewController? {
+                if let navigationController = controller.orNavigationController,
+                    navigationController.presentingViewController != nil
+                {
+                    return navigationController
+                } else if controller.presentingViewController != nil {
+                    return controller
+                }
+
+                return nil
+            }
+            func completeCloseFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
 
             if let controller = window?.topController {
                 if tryToPop,
@@ -305,39 +329,57 @@ open class Navigator {
                     strategy.navigation?(navigationController)
                     navigationController.popViewController(
                         animated: animated,
-                        completion: { [weak self] isSuccess in
-                            guard let self else { return }
-
-                            if !isSuccess, let fallback {
-                                self.navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    completion: completion
+                        completion: { isSuccess in
+                            if isSuccess {
+                                completion?(nil, true)
+                            } else if tryToDismiss, let presentedController = presentedContainer(for: controller) {
+                                presentedController.dismiss(
+                                    animated: animated,
+                                    completion: {
+                                        completion?(nil, true)
+                                    }
                                 )
                             } else {
-                                completion?(nil, isSuccess)
+                                completeCloseFailure()
                             }
                         }
                     )
                 } else {
-                    if tryToDismiss, isMatchingDestination(controller) {
-                        controller.dismiss(
+                    if tryToDismiss,
+                        isMatchingDestination(controller),
+                        let presentedController = presentedContainer(for: controller)
+                    {
+                        presentedController.dismiss(
                             animated: animated,
                             completion: {
                                 completion?(nil, true)
                             }
                         )
                     } else {
-                        completion?(nil, false)
+                        completeCloseFailure()
                     }
                 }
             } else {
-                completion?(nil, false)
+                completeCloseFailure()
             }
         case let strategy as ReplaceWindowRootNavigationStrategy:
+            guard window != nil else {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+
+                return
+            }
+
             let transition = strategy.transition
             let controller = getController(destination: destination)
             if window?.rootViewController != nil {
@@ -358,6 +400,21 @@ open class Navigator {
                 }
             )
         case let strategy as PresentNavigationStrategy:
+            func completePresentationFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
             if window?.rootViewController != nil {
                 let sourceController: UIViewController?
                 switch strategy.source {
@@ -394,25 +451,16 @@ open class Navigator {
 
                 if let sourceController = presentableSource(from: sourceController) {
                     let controller = getController(destination: destination)
-                    var didComplete = false
-                    func completeOnce(_ presentedController: UIViewController?, _ isSuccess: Bool) {
-                        guard !didComplete else { return }
+                    guard controller !== sourceController,
+                        controller.parent == nil,
+                        controller.presentingViewController == nil,
+                        sourceController.presentedViewController == nil,
+                        !sourceController.isBeingDismissed,
+                        !sourceController.isBeingPresented
+                    else {
+                        completePresentationFailure()
 
-                        didComplete = true
-                        guard isSuccess else {
-                            completion?(nil, false)
-
-                            return
-                        }
-
-                        perform(
-                            event: event,
-                            navigatorEvent: navigatorEvent,
-                            on: controller as? any UIViewController & Responder,
-                            completion: {
-                                completion?(presentedController, true)
-                            }
-                        )
+                        return
                     }
 
                     sourceController.present(
@@ -421,21 +469,27 @@ open class Navigator {
                         completion: {
                             let isPresented = controller.presentingViewController != nil
                                 || sourceController.presentedViewController === controller
-                            completeOnce(isPresented ? controller : nil, isPresented)
+                            guard isPresented else {
+                                completePresentationFailure()
+
+                                return
+                            }
+
+                            perform(
+                                event: event,
+                                navigatorEvent: navigatorEvent,
+                                on: controller as? any UIViewController & Responder,
+                                completion: {
+                                    completion?(controller, true)
+                                }
+                            )
                         }
                     )
-                    DispatchQueue.main.async {
-                        guard controller.presentingViewController == nil,
-                            sourceController.presentedViewController !== controller
-                        else { return }
-
-                        completeOnce(nil, false)
-                    }
                 } else {
-                    completion?(nil, false)
+                    completePresentationFailure()
                 }
             } else {
-                completion?(nil, false)
+                completePresentationFailure()
             }
         case _ as CloseToExistingNavigationStrategy:
             if let controller = window?.findController(destination: destination) {
@@ -895,13 +949,19 @@ open class Navigator {
         transition: CATransition?,
         completion: (() -> Void)?
     ) {
-        if window?.rootViewController == nil {
-            window?.rootViewController = controller
-            window?.makeKeyAndVisible()
+        guard let window else {
+            completion?()
+
+            return
+        }
+
+        if window.rootViewController == nil {
+            window.rootViewController = controller
+            window.makeKeyAndVisible()
 
             completion?()
         } else {
-            window?.set(
+            window.set(
                 rootViewController: controller,
                 transition: transition,
                 completion: completion
@@ -1041,16 +1101,24 @@ open class Navigator {
             [weak self, weak navigationInterceptor] reason, newStrategy, prefixNavigationChain, suffixNavigationChain, completion in
             guard let self, let navigationInterceptor else { return }
 
-            if let data = navigationInterceptor.interceptionData.removeValue(forKey: reason) {
-                if let newStrategy, !data.chain.isEmpty {
-                    data.chain[0].update(strategy: newStrategy)
+            if let details = navigationInterceptor.interceptionData.removeValue(forKey: reason), !details.isEmpty {
+                if let newStrategy {
+                    for detail in details where !detail.chain.isEmpty {
+                        detail.chain[0].update(strategy: newStrategy)
+                    }
                 }
 
-                self.navigate(
-                    chain: prefixNavigationChain + data.chain + suffixNavigationChain,
-                    event: data.event,
-                    completion: completion
-                )
+                for (index, detail) in details.enumerated() {
+                    let isFirst = index == details.startIndex
+                    let isLast = index == details.index(before: details.endIndex)
+                    self.navigate(
+                        chain: (isFirst ? prefixNavigationChain : [])
+                            + detail.chain
+                            + (isLast ? suffixNavigationChain : []),
+                        event: detail.event,
+                        completion: isLast ? completion : nil
+                    )
+                }
             }
         }
     }

@@ -272,6 +272,33 @@ class PresentOrCloseToExistingControllerTests: XCTestCase, MainActorIsolated {
         XCTAssertNil(window?.findController(destination: .identity(identity)))
     }
 
+    func test_controller_presenting_usesFallbackWhenRequestedSourceIsUnavailable() {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        prepareNavigationControllerNavigation(navigator: navigator)
+        let identity = MockPopControllerNavigationIdentity()
+        let expect = expectation(description: "present fallback")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .present(source: .tabBarController),
+            fallbackStrategies: [.present(source: .navigationController)],
+            event: ResponderMockEvent(),
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        wait(for: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertTrue(identity.isEqual(to: window?.topController?.navigationIdentity))
+        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+    }
+
     func test_controller_presenting_withoutWindowFailure() {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let identity = MockPopControllerNavigationIdentity()

@@ -8,7 +8,58 @@
 
 import UIKit
 
+@MainActor
+private final class RootTransitionCompletionDelegate: NSObject, @preconcurrency CAAnimationDelegate {
+    private weak var forwardedDelegate: (any CAAnimationDelegate)?
+    private var onCompletion: ((RootTransitionCompletionDelegate) -> Void)?
+
+    init(
+        forwarding forwardedDelegate: (any CAAnimationDelegate)?,
+        onCompletion: @escaping (RootTransitionCompletionDelegate) -> Void
+    ) {
+        self.forwardedDelegate = forwardedDelegate
+        self.onCompletion = onCompletion
+    }
+
+    func animationDidStart(_ anim: CAAnimation) {
+        forwardedDelegate?.animationDidStart?(anim)
+    }
+
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        forwardedDelegate?.animationDidStop?(anim, finished: flag)
+        let onCompletion = self.onCompletion
+        self.onCompletion = nil
+        onCompletion?(self)
+    }
+}
+
+@MainActor
+private final class RootTransitionCompletionStore: NSObject {
+    var delegates: [RootTransitionCompletionDelegate] = []
+}
+
 extension UIWindow {
+    @UniqueAddress private static var rootTransitionCompletionStoreKey
+
+    private var rootTransitionCompletionStore: RootTransitionCompletionStore {
+        if let store = objc_getAssociatedObject(
+            self,
+            Self.rootTransitionCompletionStoreKey
+        ) as? RootTransitionCompletionStore {
+            return store
+        }
+
+        let store = RootTransitionCompletionStore()
+        objc_setAssociatedObject(
+            self,
+            Self.rootTransitionCompletionStoreKey,
+            store,
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
+
+        return store
+    }
+
     /// Returns the top-most view controller in the window's view controller hierarchy.
     public var topController: UIViewController? { topMostViewController?.topController }
 
@@ -49,24 +100,37 @@ extension UIWindow {
         completion: (() -> Void)? = nil
     ) {
         let previousViewController = rootViewController
-        if let transition {
-            layer.add(transition, forKey: kCATransition)
-        }
-        rootViewController = newRootViewController
-        if UIView.areAnimationsEnabled {
-            UIView.animate(withDuration: CATransaction.animationDuration()) {
+
+        func replaceRoot() {
+            if let transition {
+                let windowTransition = transition.copy() as? CATransition ?? transition
+                if let completion {
+                    let delegate = RootTransitionCompletionDelegate(
+                        forwarding: windowTransition.delegate,
+                        onCompletion: { [weak self] delegate in
+                            self?.rootTransitionCompletionStore.delegates.removeAll { $0 === delegate }
+                            completion()
+                        }
+                    )
+                    rootTransitionCompletionStore.delegates.append(delegate)
+                    windowTransition.delegate = delegate
+                }
+                layer.add(windowTransition, forKey: kCATransition)
+                rootViewController = newRootViewController
                 newRootViewController.setNeedsStatusBarAppearanceUpdate()
-            }
-        } else {
-            newRootViewController.setNeedsStatusBarAppearanceUpdate()
-        }
-        if let previousViewController {
-            previousViewController.dismiss(animated: false) {
-                previousViewController.view.removeFromSuperview()
+            } else {
+                rootViewController = newRootViewController
+                newRootViewController.setNeedsStatusBarAppearanceUpdate()
                 completion?()
             }
+        }
+
+        if previousViewController?.presentedViewController != nil {
+            previousViewController?.dismiss(animated: false) {
+                replaceRoot()
+            }
         } else {
-            completion?()
+            replaceRoot()
         }
     }
 }

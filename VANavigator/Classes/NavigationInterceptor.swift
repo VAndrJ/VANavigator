@@ -48,7 +48,7 @@ open class NavigationInterceptor {
                 _ completion: ((UIViewController?, Bool) -> Void)?
             ) -> Void
         )?
-    var interceptionData: [AnyHashable: InterceptionDetail] = [:]
+    var interceptionData: [AnyHashable: [InterceptionDetail]] = [:]
 
     public init() {}
 
