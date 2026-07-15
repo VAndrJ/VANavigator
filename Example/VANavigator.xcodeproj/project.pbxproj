@@ -79,9 +79,17 @@
 			children = (
 				A317D0522E9455EA001AF277 /* VANavigator */,
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
+				A340AC123007C4BC00D67C69 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A340AC123007C4BC00D67C69 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 				A340AC103007C4BC00D67C69 /* VANavigator_Example.app */,
 				A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */,
 			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -163,7 +171,7 @@
 				A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 607FACC71AFB9204008FA782;
+			productRefGroup = A340AC123007C4BC00D67C69 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (

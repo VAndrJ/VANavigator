@@ -11,7 +11,13 @@ import UIKit
 // swiftlint:disable file_length type_body_length
 open class Navigator {
     public let screenFactory: any NavigatorScreenFactory
-    public var navigationInterceptor: NavigationInterceptor?
+    public var navigationInterceptor: NavigationInterceptor? {
+        didSet {
+            guard oldValue !== navigationInterceptor else { return }
+
+            oldValue?.removeNavigations(for: self)
+        }
+    }
 
     public private(set) weak var window: UIWindow?
 
@@ -459,7 +465,7 @@ open class Navigator {
                 return
             }
 
-            let transition = strategy.transition
+            let transition = animated ? strategy.transition : nil
             let controller = getController(destination: destination)
             if window?.rootViewController != nil {
                 navigatorEvent = ResponderReplacedWindowRootControllerEvent()

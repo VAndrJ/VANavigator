@@ -68,6 +68,4 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
             completion: completion
         )
     }
-
-    nonisolated deinit {}
 }

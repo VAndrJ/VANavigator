@@ -163,6 +163,42 @@ class SetRootControllerTests: XCTestCase {
         XCTAssertEqual(false, result)
     }
 
+    func test_replaceWindowRoot_animatedFalseIgnoresConfiguredTransition() async {
+        guard let window else {
+            XCTFail("Missing window")
+
+            return
+        }
+
+        window.rootViewController = UIViewController()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let controller = UIViewController()
+        let transition = CATransition()
+        transition.duration = 0.1
+        let expect = expectation(description: "replace without animation")
+        var completionWasSynchronous = false
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(controller),
+            strategy: .replaceWindowRoot(transition: transition),
+            animated: false,
+            completion: { completedController, isSuccess in
+                completionWasSynchronous = true
+                result = isSuccess
+                XCTAssertIdentical(controller, completedController)
+                expect.fulfill()
+            }
+        )
+
+        XCTAssertTrue(completionWasSynchronous)
+        XCTAssertNil(window.layer.animation(forKey: kCATransition))
+        await fulfillment(of: [expect], timeout: 10)
+
+        XCTAssertEqual(true, result)
+        XCTAssertIdentical(controller, window.rootViewController)
+    }
+
     func test_setRootController_transitionCompletionWaitsForAnimation() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes
