@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import VATextureKit
 
 @MainActor
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -24,17 +23,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
-        let window = VAWindow(
-            themeManager: VAThemeManager(
-                standardLightTheme: .vaLight,
-                standardDarkTheme: .vaDark,
-                userInterfaceStyle: VAUserInterfaceStyle(
-                    userInterfaceStyle: windowScene.traitCollection.userInterfaceStyle
-                )
-            ),
-            windowScene: windowScene
-        )
-
+        let window = UIWindow(windowScene: windowScene)
         self.compositionRoot = CompositionRoot(window: window)
         self.window = window
 

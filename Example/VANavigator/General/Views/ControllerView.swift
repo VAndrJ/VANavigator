@@ -9,7 +9,7 @@
 import UIKit
 
 @MainActor
-protocol ControllerViewProtocol: UIView {
+protocol ScreenProtocol: UIView {
     func viewDidLoad(in controller: UIViewController)
     func viewDidAppear(in controller: UIViewController, animated: Bool)
     func viewWillAppear(in controller: UIViewController, animated: Bool)
@@ -17,28 +17,7 @@ protocol ControllerViewProtocol: UIView {
     func viewDidDisappear(in controller: UIViewController, animated: Bool)
 }
 
-class ControllerView<ViewModel: EventViewModel>: UIView, ControllerViewProtocol, Responder {
-    var embedded: UIViewController { BaseViewController(view: self) }
-
-    func embedded(
-        shouldHideNavigationBar: Bool = true,
-        isNotImportant: Bool = false,
-        title: String? = nil,
-        tabBarItem: UITabBarItem? = nil
-    ) -> UIViewController {
-        let controler = BaseViewController(
-            view: self,
-            shouldHideNavigationBar: shouldHideNavigationBar,
-            isNotImportant: isNotImportant,
-            title: title
-        )
-        if let tabBarItem {
-            controler.tabBarItem = tabBarItem
-        }
-
-        return controler
-    }
-
+class ControllerView<ViewModel: EventViewModel>: UIView, ScreenProtocol, Responder {
     let viewModel: ViewModel
 
     init(viewModel: ViewModel) {

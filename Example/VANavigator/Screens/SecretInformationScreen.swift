@@ -6,47 +6,50 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class SecretInformationScreen: ScreenNode<SecretInformationViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class SecretInformationScreen: ControllerView<SecretInformationViewModel> {
+    private lazy var titleLabel = Label(
         text: "Secret information for authorized users only",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
+    private lazy var replaceRootButton = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     )
-
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
-                descriptionTextNode
-            }
-            .padding(.all(16))
-        }
-    }
+    private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "Secret"
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        setNeedsLayout()
+    override func addElements() {
+        embedIntoScroll(
+            Spacing(
+                value: 32,
+                child: titleLabel
+            ),
+            Spacing(
+                value: 16,
+                child: replaceRootButton
+            ),
+            descriptionLabel
+        )
     }
 
-    override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    override func configure() {
+        backgroundColor = .systemBackground
+    }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
     }
 }
 
+@Observable
 final class SecretInformationViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -55,9 +58,6 @@ final class SecretInformationViewModel: EventViewModel {
 
         let navigation: Navigation
     }
-
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
 
     private let context: Context
 
@@ -73,22 +73,6 @@ final class SecretInformationViewModel: EventViewModel {
             context.navigation.followReplaceRootWithNewMain()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

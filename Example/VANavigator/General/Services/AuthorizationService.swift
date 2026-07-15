@@ -6,15 +6,22 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
 
+@Observable
+@MainActor
 final class AuthorizationService {
-    @Obs.Relay(value: false)
-    var isAuthorizedObs: Observable<Bool>
-    var isAuthorized: Bool { _isAuthorizedObs.value }
+    var onAuthorized: (() -> Void)?
+
+    private(set) var isAuthorized = false {
+        didSet {
+            if isAuthorized {
+                onAuthorized?()
+            }
+        }
+    }
 
     func authorize() {
-        _isAuthorizedObs.rx.accept(true)
+        isAuthorized = true
     }
 }

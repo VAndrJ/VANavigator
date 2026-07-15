@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */; };
-		40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */; };
 		A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
 		A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6DD300780E300D8A4CD /* ObservationTracking */; };
+		A36FD6E130079D9300D8A4CD /* Swiftional in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6E030079D9300D8A4CD /* Swiftional */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,17 +23,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
-		2084627312EB44A8EC56B572 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		305B55E0312B6363F4E5D36D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.release.xcconfig"; sourceTree = "<group>"; };
-		89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		A35200BC2F09E036007578D6 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A35200BC2F09E036007578D6 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = VANavigator_Example.app; path = "/Users/vandrj/VANavigator/Example/build/Debug-iphoneos/VANavigator_Example.app"; sourceTree = "<absolute>"; };
+		A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = VANavigator_ExampleTests.xctest; path = "/Users/vandrj/VANavigator/Example/build/Debug-iphoneos/VANavigator_Example.app/PlugIns/VANavigator_ExampleTests.xctest"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -69,7 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */,
-				1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */,
+				A36FD6E130079D9300D8A4CD /* Swiftional in Frameworks */,
 				A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,54 +68,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4911D49A603371F50A10A4E4 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */,
-				18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */,
-				89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */,
-				5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
-				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				A317D0522E9455EA001AF277 /* VANavigator */,
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
-				4911D49A603371F50A10A4E4 /* Pods */,
-				A35200BC2F09E036007578D6 /* VANavigator_Example.app */,
-				A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */,
-				E6889555D763F93D974E1BBC /* Frameworks */,
 			);
-			sourceTree = "<group>";
-		};
-		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
-			isa = PBXGroup;
-			children = (
-				305B55E0312B6363F4E5D36D /* LICENSE */,
-				2084627312EB44A8EC56B572 /* README.md */,
-				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
-			);
-			name = "Podspec Metadata";
-			sourceTree = "<group>";
-		};
-		E6889555D763F93D974E1BBC /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */,
-				ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -135,11 +89,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "VANavigator_Example" */;
 			buildPhases = (
-				A950CD4BC5CD0ABC48149A5D /* [CP] Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				0B771CDC26F87F7FEE2F3CA8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -157,7 +109,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A32F5E932B210DCF008564F9 /* Build configuration list for PBXNativeTarget "VANavigator_ExampleTests" */;
 			buildPhases = (
-				5DB4A9ED3CE63F85404A697D /* [CP] Check Pods Manifest.lock */,
 				A32F5E892B210DCF008564F9 /* Sources */,
 				A32F5E8A2B210DCF008564F9 /* Frameworks */,
 				A32F5E8B2B210DCF008564F9 /* Resources */,
@@ -207,6 +158,7 @@
 			packageReferences = (
 				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "../../VANavigator" */,
 				A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */,
+				A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 607FACC71AFB9204008FA782;
@@ -235,74 +187,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		0B771CDC26F87F7FEE2F3CA8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		5DB4A9ED3CE63F85404A697D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VANavigator_ExampleTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A950CD4BC5CD0ABC48149A5D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VANavigator_Example-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		607FACCC1AFB9204008FA782 /* Sources */ = {
@@ -468,7 +352,6 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -499,7 +382,6 @@
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -530,7 +412,6 @@
 		};
 		A32F5E942B210DCF008564F9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -567,7 +448,6 @@
 		};
 		A32F5E952B210DCF008564F9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -647,6 +527,14 @@
 				minimumVersion = 1.1.1;
 			};
 		};
+		A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/VAndrJ/Swiftional";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -658,6 +546,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */;
 			productName = ObservationTracking;
+		};
+		A36FD6E030079D9300D8A4CD /* Swiftional */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */;
+			productName = Swiftional;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

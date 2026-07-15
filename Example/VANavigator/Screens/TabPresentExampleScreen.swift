@@ -8,49 +8,47 @@
 
 import Observation
 import ObservationTracking
-import RxCocoa
-import RxSwift
 import UIKit
-import VATextureKitRx
 
-final class TabPresentExampleScreen: ScreenNode<TabPresentExampleViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class TabPresentExampleScreen: ControllerView<TabPresentExampleViewModel> {
+    private lazy var titleLabel = Label(
         text: "Tab Present Example",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var presentFromTopButtonNode = VAButtonNode()
-    private lazy var presentFromTabButtonNode = VAButtonNode()
-    private lazy var presentPopoverButtonNode = VAButtonNode()
-
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                presentFromTopButtonNode
-                presentFromTabButtonNode
-                presentPopoverButtonNode
-            }
-            .padding(.all(16))
-        }
-    }
+    private lazy var presentFromTopButton = Button(
+        title: "Present from top controller",
+        onTap: viewModel ?> { $0.perform(PresentFromTopEvent()) }
+    )
+    private lazy var presentFromTabButton = Button(
+        title: "Present from tab bar controller",
+        onTap: viewModel ?> { $0.perform(PresentFromTabEvent()) }
+    )
+    private lazy var presentPopoverButton = Button(
+        title: "Present popover",
+        onTap: viewModel ?> { $0.perform(PresentPopoverEvent(source: $1)) }
+    )
+    private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "Tab Present Example"
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        presentFromTopButtonNode.setTitle("Present from top controller", theme: theme)
-        presentFromTabButtonNode.setTitle("Present from tab bar controller", theme: theme)
-        presentPopoverButtonNode.setTitle("Present popover", theme: theme)
-        setNeedsLayout()
+    override func addElements() {
+        embedIntoScroll(
+            titleLabel,
+            presentFromTopButton,
+            presentFromTabButton,
+            presentPopoverButton
+        )
     }
 
-    override func bindView() {
-        presentFromTopButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTopEvent()) }
-        presentFromTabButtonNode.onTap = viewModel ?> { $0.perform(PresentFromTabEvent()) }
-        presentPopoverButtonNode.onTap = self ?> {
-            $0.viewModel.perform(PresentPopoverEvent(source: $0.presentPopoverButtonNode.view))
-        }
+    override func configure() {
+        backgroundColor = .systemBackground
+    }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
     }
 }
 
@@ -62,6 +60,7 @@ struct PresentPopoverEvent: Event {
     let source: UIView
 }
 
+@Observable
 final class TabPresentExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -72,11 +71,6 @@ final class TabPresentExampleViewModel: EventViewModel {
 
         let navigation: Navigation
     }
-
-    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
-    var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
 
     private let context: Context
 
@@ -96,22 +90,6 @@ final class TabPresentExampleViewModel: EventViewModel {
             context.navigation.followPresentFromTab()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

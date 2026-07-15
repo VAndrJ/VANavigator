@@ -64,16 +64,17 @@ struct Spacing: LayoutElement {
 
 protocol LayoutElement {}
 
-extension UITextField {
-    var onEditingChanged: ((String?) -> Void)? {
-        get { nil }
-        set {
-            addAction(
-                UIAction { [weak self] _ in
-                    newValue?(self?.text)
-                },
-                for: .editingChanged
-            )
-        }
+extension UIViewController {
+    func hideKeyboardOnTapAround() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(hideKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
     }
 }

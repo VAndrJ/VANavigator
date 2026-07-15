@@ -6,73 +6,75 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import RxCocoa
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class TabDetailScreen: ScreenNode<TabDetailViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class TabDetailScreen: ControllerView<TabDetailViewModel> {
+    private lazy var titleLabel = Label(
         text: "Tab Details",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var pushNextButtonNode = ButtonNode(
-        isEnabledObs: viewModel.isNavigationAvailableObs
+    private lazy var pushNextButton = Button(
+        title: "Push next or pop to existing",
+        onTap: viewModel ?> { $0.perform(PushNextDetailsEvent()) }
     )
-    private lazy var inputNode = TextFieldNode()
-    private lazy var detailsTextNode = VATextNode(
-        text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
-        fontStyle: .body
-    )
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
-    )
-
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                pushNextButtonNode
-                inputNode
-                detailsTextNode
-                replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
-                descriptionTextNode
-            }
-            .padding(.all(16))
+    private lazy var numbersTextField = NumbersTextField(
+        onEditingChanged: { [weak viewModel] numbers in
+            viewModel?.perform(UpdateNextNumbers(nextNumbers: numbers))
         }
-    }
+    )
+    private lazy var detailsLabel = Label(
+        text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
+        textStyle: .body
+    )
+    private lazy var replaceRootButton = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    )
+    private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "Tab details"
     }
 
     override func viewDidAppear(in controller: UIViewController, animated: Bool) {
-        inputNode.child.becomeFirstResponder()
+        numbersTextField.becomeFirstResponder()
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        pushNextButtonNode.setTitle("Push next or pop to existing", theme: theme)
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        setNeedsLayout()
+    override func addElements() {
+        embedIntoScroll(
+            titleLabel,
+            pushNextButton,
+            numbersTextField,
+            Spacing(
+                value: 32,
+                child: detailsLabel
+            ),
+            Spacing(
+                value: 16,
+                child: replaceRootButton
+            ),
+            descriptionLabel
+        )
     }
 
-    override func bindView() {
-        pushNextButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        inputNode.child.rx.text
-            .map {
-                $0.flatMap {
-                    $0.components(separatedBy: " ").compactMap { Int($0) }
-                } ?? []
-            }
-            .bind(to: viewModel.nextNumberRelay)
-            .disposed(by: bag)
+    override func configure() {
+        backgroundColor = .systemBackground
+    }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
+        pushNextButton.isEnabled = viewModel.nextNumbers.isNonEmpty
     }
 }
 
+private struct UpdateNextNumbers: Event {
+    let nextNumbers: [Int]
+}
+
+@Observable
 final class TabDetailViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -83,10 +85,7 @@ final class TabDetailViewModel: EventViewModel {
         let navigation: Navigation
     }
 
-    var isNavigationAvailableObs: Observable<Bool> { nextNumberRelay.map(\.isNotEmpty) }
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
-    var nextNumberRelay = BehaviorRelay<[Int]>(value: [])
+    private(set) var nextNumbers: [Int] = []
 
     private let context: Context
 
@@ -98,28 +97,14 @@ final class TabDetailViewModel: EventViewModel {
 
     override func run(_ event: any Event) {
         switch event {
+        case let event as UpdateNextNumbers:
+            nextNumbers = event.nextNumbers
         case _ as ReplaceRootWithNewMainEvent:
             context.navigation.followReplaceRootWithNewMain()
         case _ as PushNextDetailsEvent:
-            context.navigation.followPushOrPopNext(nextNumberRelay.value)
+            context.navigation.followPushOrPopNext(nextNumbers)
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

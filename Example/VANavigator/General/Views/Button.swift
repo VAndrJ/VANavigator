@@ -11,9 +11,14 @@ import UIKit
 class Button: UIButton {
     var onTap: (() -> Void)?
 
-    init(title: String) {
+    init(title: String, onTap: @escaping (Button) -> Void) {
         super.init(frame: .init(x: 0, y: 0, width: 44, height: 44))
 
+        self.onTap = { [weak self] in
+            guard let self else { return }
+
+            onTap(self)
+        }
         bind()
         setTitle(title, for: .normal)
         if #available(iOS 15.0, *) {

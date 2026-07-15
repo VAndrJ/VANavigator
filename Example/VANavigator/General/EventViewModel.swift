@@ -6,31 +6,18 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxCocoa
-import RxSwift
-import VATextureKitRx
+import Observation
+import UIKit
 
 struct BecomeVisibleEvent: Event {}
 
 protocol Event {}
 
+@Observable
 class EventViewModel: ViewModel {
-    let bag = DisposeBag()
-    let eventRelay = PublishRelay<any Event>()
-    var isLoadingObs: Observable<Bool> { isLoadingRelay.asObservable() }
-    var isNotLoading: Bool { !isLoadingRelay.value }
     weak var controller: UIViewController?
-    var isLoadingRelay = BehaviorRelay(value: false)
 
-    let scheduler: any SchedulerType
-
-    init(scheduler: any SchedulerType = MainScheduler.asyncInstance) {
-        self.scheduler = scheduler
-
-        super.init()
-
-        bind()
-    }
+    private(set) var openType = ""
 
     func run(_ event: any Event) {
         #if DEBUG || targetEnvironment(simulator)
@@ -39,14 +26,25 @@ class EventViewModel: ViewModel {
     }
 
     func perform(_ event: any Event) {
-        eventRelay.accept(event)
+        run(event)
     }
 
-    private func bind() {
-        eventRelay
-            .observe(on: scheduler)
-            .subscribe(onNext: self ?>> { $0.run(_:) })
-            .disposed(by: bag)
+    // MARK: - Responder
+
+    override func handle(event: any ResponderEvent) async -> Bool {
+        logResponder(from: self, event: event)
+        switch event {
+        case _ as ResponderOpenedFromShortcutEvent:
+            openType = "Opened from shortcut"
+
+            return true
+        case _ as ResponderPoppedToExistingEvent:
+            openType = "Popped to existing"
+
+            return true
+        default:
+            return await nextEventResponder?.handle(event: event) ?? false
+        }
     }
 }
 

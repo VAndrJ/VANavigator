@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKitRx
+import UIKit
 
 final class ScreenFactory: NavigatorScreenFactory {
     let authorizationService: AuthorizationService
@@ -18,8 +18,8 @@ final class ScreenFactory: NavigatorScreenFactory {
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case _ as QueueNavigationIdentity:
-            return ViewController(
-                node: NavigationQueueExampleScreen(
+            return BaseViewController(
+                screen: NavigationQueueExampleScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -42,8 +42,8 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             )
         case _ as TabPresentExampleNavigationIdentity:
-            return ViewController(
-                node: TabPresentExampleScreen(
+            return BaseViewController(
+                screen: TabPresentExampleScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -58,7 +58,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         strategy: .present(),
                                         completion: { controller, _ in
                                             if let controller {
-                                                mainActorAsync(after: 1) {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                     navigator?.navigate(
                                                         destination: .controller(controller),
                                                         strategy: .closeIfTop()
@@ -79,7 +79,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         strategy: .present(source: .tabBarController),
                                         completion: { controller, _ in
                                             if let controller {
-                                                mainActorAsync(after: 1) {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                     navigator?.navigate(
                                                         destination: .controller(controller),
                                                         strategy: .closeIfTop()
@@ -125,24 +125,24 @@ final class ScreenFactory: NavigatorScreenFactory {
                 }
             )
         case let identity as TabNavigationIdentity:
-            let controller = VATabBarController(nibName: nil, bundle: nil)
             let tabControllers = identity.children.map { identity in
                 let controller = assembleScreen(identity: identity, navigator: navigator)
                 controller.navigationIdentity = identity
 
                 return NavigationController(controller: controller)
             }
+            let controller = TabBarController(controllers: tabControllers)
             controller.setViewControllers(tabControllers, animated: false)
             controller.tabBar.backgroundColor = .yellow
 
             return controller
         case _ as MainNavigationIdentity:
-            return ViewController(
-                node: MainScreen(
+            return BaseViewController(
+                screen: MainScreen(
                     viewModel: .init(
                         context: .init(
                             source: .init(
-                                authorizedObs: authorizationService.isAuthorizedObs
+                                authorizationService: authorizationService
                             ),
                             navigation: .init(
                                 followReplaceRootWithNewMain: navigator ?> { replaceRoot(navigator: $0) },
@@ -228,8 +228,8 @@ final class ScreenFactory: NavigatorScreenFactory {
                 )
             )
         case _ as TabDetailNavigationIdentity:
-            return ViewController(
-                node: TabDetailScreen(
+            return BaseViewController(
+                screen: TabDetailScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -264,7 +264,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             }
         case _ as MoreNavigationIdentity:
             return BaseViewController(
-                view: MoreScreen(
+                screen: MoreScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -283,7 +283,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             }
         case let identity as DetailsNavigationIdentity:
             return BaseViewController(
-                view: DetailsToPresentScreen(
+                screen: DetailsToPresentScreen(
                     viewModel: .init(
                         context: .init(
                             related: .init(
@@ -346,8 +346,8 @@ final class ScreenFactory: NavigatorScreenFactory {
 
             return controller
         case _ as PrimaryNavigationIdentity:
-            return ViewController(
-                node: PrimaryScreen(
+            return BaseViewController(
+                screen: PrimaryScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -372,8 +372,8 @@ final class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false
             )
         case _ as SecondaryNavigationIdentity:
-            return ViewController(
-                node: SecondaryScreen(
+            return BaseViewController(
+                screen: SecondaryScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(
@@ -392,7 +392,7 @@ final class ScreenFactory: NavigatorScreenFactory {
             )
         case _ as LoginNavigationIdentity:
             return BaseViewController(
-                view: LoginScreen(
+                screen: LoginScreen(
                     viewModel: .init(
                         context: .init(
                             source: .init(
@@ -407,8 +407,8 @@ final class ScreenFactory: NavigatorScreenFactory {
                 shouldHideNavigationBar: false
             )
         case _ as SecretInformationIdentity:
-            return ViewController(
-                node: SecretInformationScreen(
+            return BaseViewController(
+                screen: SecretInformationScreen(
                     viewModel: .init(
                         context: .init(
                             navigation: .init(

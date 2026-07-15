@@ -6,18 +6,14 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxCocoa
-import RxSwift
+import UIKit
 import VANavigator
-import VATextureKitRx
 
 struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 final class ExampleNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
     var completion: ((UIViewController?, Bool) -> Void)?
-
-    private let bag = DisposeBag()
 
     init(authorizationService: AuthorizationService) {
         self.authorizationService = authorizationService
@@ -52,10 +48,9 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
     }
 
     private func bind() {
-        authorizationService.isAuthorizedObs
-            .filter { $0 }
-            .subscribe(onNext: self ?> { $0.onAuthorized() })
-            .disposed(by: bag)
+        authorizationService.onAuthorized = { [weak self] in
+            self?.onAuthorized()
+        }
     }
 
     private func onAuthorized() {

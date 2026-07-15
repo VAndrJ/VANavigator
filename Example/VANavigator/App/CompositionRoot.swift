@@ -6,7 +6,7 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKit
+import UIKit
 
 @MainActor
 final class CompositionRoot {
@@ -16,7 +16,7 @@ final class CompositionRoot {
     private let authorizationService = AuthorizationService()
     private let navigationInterceptor: ExampleNavigationInterceptor
 
-    init(window: VAWindow) {
+    init(window: UIWindow) {
         self.navigationInterceptor = ExampleNavigationInterceptor(authorizationService: authorizationService)
         self.navigator = Navigator(
             window: window,

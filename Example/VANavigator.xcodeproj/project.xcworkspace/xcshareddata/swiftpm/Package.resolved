@@ -1,5 +1,5 @@
 {
-  "originHash" : "e2dc1cb2593526ae3dd4e055dcd9112a6dd071d27dfc0a891b6c2871bfbbcb35",
+  "originHash" : "e32c4db08537e282cd21507c9a88c0988b4717bd43bd26dd34ef8ef0b07092bf",
   "pins" : [
     {
       "identity" : "observationtracking",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "0687f71944021d616d34d922343dcef086855920",
         "version" : "600.0.1"
+      }
+    },
+    {
+      "identity" : "swiftional",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VAndrJ/Swiftional",
+      "state" : {
+        "revision" : "f16f0726931c6c65b0b37545eb98a39f8f767da5",
+        "version" : "2.0.2"
       }
     }
   ],

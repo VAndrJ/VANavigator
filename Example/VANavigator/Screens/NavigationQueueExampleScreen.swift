@@ -6,54 +6,57 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class NavigationQueueExampleScreen: ScreenNode<NavigationQueueExampleViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class NavigationQueueExampleScreen: ControllerView<NavigationQueueExampleViewModel> {
+    private lazy var titleLabel = Label(
         text: "Queue",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var presentAndCloseButtonNode = VAButtonNode()
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
+    private lazy var presentAndCloseButton = Button(
+        title: #"Present and close "More" controller few times sequentially without delay"#,
+        onTap: viewModel ?> { $0.perform(PresentAndCloseEvent()) }
     )
-
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                    .padding(.bottom(32))
-                presentAndCloseButtonNode
-                replaceRootButtonNode
-                descriptionTextNode
-                    .padding(.top(16))
-            }
-            .padding(.all(16))
-        }
-    }
+    private lazy var replaceRootButton = Button(
+        title: "Replace root",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    )
+    private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "Queue"
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        presentAndCloseButtonNode.setTitle(#"Present and close "More" controller N times sequentially without delay"#, theme: theme)
-        replaceRootButtonNode.setTitle("Replace root", theme: theme)
-        setNeedsLayout()
+    override func addElements() {
+        embedIntoScroll(
+            Spacing(
+                value: 32,
+                child: titleLabel
+            ),
+            presentAndCloseButton,
+            Spacing(
+                value: 16,
+                child: replaceRootButton
+            ),
+            descriptionLabel
+        )
     }
 
-    override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        presentAndCloseButtonNode.onTap = viewModel ?> { $0.perform(PresentAndCloseEvent()) }
+    override func configure() {
+        backgroundColor = .systemBackground
+    }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
     }
 }
 
 struct PresentAndCloseEvent: Event {}
 
+@Observable
 final class NavigationQueueExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -63,9 +66,6 @@ final class NavigationQueueExampleViewModel: EventViewModel {
 
         let navigation: Navigation
     }
-
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
 
     private let context: Context
 
@@ -83,22 +83,6 @@ final class NavigationQueueExampleViewModel: EventViewModel {
             context.navigation.followPresentAndClose(5)
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

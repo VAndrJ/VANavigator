@@ -12,17 +12,27 @@ import UIKit
 
 final class DetailsToPresentScreen: ControllerView<DetailsToPresentViewModel> {
     private lazy var titleLabel = Label(textStyle: .headline)
-    private lazy var pushNextButton = Button(title: "Push next or pop to existing")
-    private lazy var numbersTextField = UITextField().apply {
-        $0.borderStyle = .roundedRect
-        $0.keyboardType = .numberPad
-    }
+    private lazy var pushNextButton = Button(
+        title: "Push next or pop to existing",
+        onTap: viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+    )
+    private lazy var numbersTextField = NumbersTextField(
+        onEditingChanged: { [weak viewModel] numbers in
+            viewModel?.perform(UpdateNextNumbers(nextNumbers: numbers))
+        }
+    )
     private lazy var detailsLabel = Label(
         text: "Single number for one screen, multiple numbers for multiple screens. Example: 1 or 1 2 3",
         textStyle: .body
     )
-    private lazy var replaceRootButton = Button(title: "Replace root with new main")
-    private lazy var removeFromStackButton = Button(title: "Remove -1 from navigation stack")
+    private lazy var replaceRootButton = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    )
+    private lazy var removeFromStackButton = Button(
+        title: "Remove -1 from navigation stack",
+        onTap: viewModel ?> { $0.perform(RemoveFromStackEvent()) }
+    )
     private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
@@ -53,21 +63,6 @@ final class DetailsToPresentScreen: ControllerView<DetailsToPresentViewModel> {
 
     override func configure() {
         backgroundColor = .systemBackground
-    }
-
-    override func bindView() {
-        pushNextButton.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
-        replaceRootButton.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        removeFromStackButton.onTap = viewModel ?> { $0.perform(RemoveFromStackEvent()) }
-        numbersTextField.onEditingChanged = { [weak viewModel] text in
-            viewModel?.perform(
-                UpdateNextNumbers(
-                    nextNumbers: text.flatMap {
-                        $0.components(separatedBy: " ").compactMap { Int($0) }
-                    } ?? []
-                )
-            )
-        }
     }
 
     @ObservationTracking
@@ -102,7 +97,6 @@ final class DetailsToPresentViewModel: EventViewModel {
         let navigation: Navigation
     }
 
-    private(set) var openType = ""
     private(set) var nextNumbers: [Int] = []
     var number: Int { context.related.value }
 
@@ -126,22 +120,6 @@ final class DetailsToPresentViewModel: EventViewModel {
             context.navigation.followRemoveFromStack()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            openType = "Opened from shortcut"
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            openType = "Popped to existing"
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

@@ -6,52 +6,56 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class PrimaryScreen: ScreenNode<PrimaryViewModel>, @unchecked Sendable {
-    private lazy var titleTextNode = VATextNode(
+final class PrimaryScreen: ControllerView<PrimaryViewModel> {
+    private lazy var titleLabel = Label(
         text: "Primary \(Int.random(in: 0...100))",
-        fontStyle: .headline
+        textStyle: .headline
     )
-    private lazy var replacePrimartButtonNode = VAButtonNode()
-    private lazy var showSecondaryButtonNode = VAButtonNode()
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
+    private lazy var replacePrimartButton = Button(
+        title: "Replace primary",
+        onTap: viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     )
-
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16, cross: .stretch) {
-                titleTextNode
-                replacePrimartButtonNode
-                showSecondaryButtonNode
-                replaceRootButtonNode
-                    .padding(.top(32), .bottom(16))
-                descriptionTextNode
-            }
-            .padding(.all(16))
-        }
-    }
+    private lazy var showSecondaryButton = Button(
+        title: "Show secondary",
+        onTap: viewModel ?> { $0.perform(ShowSecondaryEvent()) }
+    )
+    private lazy var replaceRootButton = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    )
+    private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
         controller.title = "Primary"
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        showSecondaryButtonNode.setTitle("Show secondary", theme: theme)
-        replacePrimartButtonNode.setTitle("Replace primary", theme: theme)
-        setNeedsLayout()
+    override func addElements() {
+        embedIntoScroll(
+            titleLabel,
+            replacePrimartButton,
+            Spacing(
+                value: 32,
+                child: showSecondaryButton
+            ),
+            Spacing(
+                value: 16,
+                child: replaceRootButton
+            ),
+            descriptionLabel
+        )
     }
 
-    override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        showSecondaryButtonNode.onTap = viewModel ?> { $0.perform(ShowSecondaryEvent()) }
-        replacePrimartButtonNode.onTap = viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
+    override func configure() {
+        backgroundColor = .systemBackground
+    }
+
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
     }
 }
 
@@ -59,6 +63,7 @@ struct ShowSecondaryEvent: Event {}
 
 struct ReplacePrimaryEvent: Event {}
 
+@Observable
 final class PrimaryViewModel: EventViewModel {
     struct Context {
         struct Navigation {
@@ -69,9 +74,6 @@ final class PrimaryViewModel: EventViewModel {
 
         let navigation: Navigation
     }
-
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
 
     private let context: Context
 
@@ -91,22 +93,6 @@ final class PrimaryViewModel: EventViewModel {
             context.navigation.followReplaceRootWithNewMain()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            _descriptionObs.rx.accept("Popped to existing")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

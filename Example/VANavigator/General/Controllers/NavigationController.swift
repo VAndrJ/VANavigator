@@ -6,9 +6,9 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKit
+import UIKit
 
-final class NavigationController: VANavigationController, Responder {
+final class NavigationController: UINavigationController, Responder {
     var onDismissed: (() -> Void)?
 
     convenience init(controllers: [UIViewController]) {
@@ -18,6 +18,7 @@ final class NavigationController: VANavigationController, Responder {
             controllers,
             animated: false
         )
+        configure()
     }
 
     convenience init(controller: UIViewController) {
@@ -27,6 +28,7 @@ final class NavigationController: VANavigationController, Responder {
             [controller],
             animated: false
         )
+        configure()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -43,13 +45,6 @@ final class NavigationController: VANavigationController, Responder {
         }
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        super.configureTheme(theme)
-
-        view.backgroundColor = theme.systemBackground
-        navigationBar.tintColor = theme.systemBlue
-    }
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
 
@@ -63,6 +58,11 @@ final class NavigationController: VANavigationController, Responder {
                 }
             }
         }
+    }
+
+    private func configure() {
+        view.backgroundColor = .systemBackground
+        navigationBar.tintColor = .systemBlue
     }
 
     // MARK: - Responder

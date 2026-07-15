@@ -15,7 +15,10 @@ final class MoreScreen: ControllerView<MoreViewModel> {
         text: "More",
         textStyle: .headline
     )
-    private lazy var replaceRootButtonNode = Button(title: "Replace root with new main")
+    private lazy var replaceRootButtonNode = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
+    )
     private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
@@ -37,10 +40,6 @@ final class MoreScreen: ControllerView<MoreViewModel> {
         backgroundColor = .systemBackground
     }
 
-    override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-    }
-
     @ObservationTracking
     override func bindViewModel() {
         descriptionLabel.text = viewModel.openType
@@ -57,8 +56,6 @@ final class MoreViewModel: EventViewModel {
         let navigation: Navigation
     }
 
-    private(set) var openType = ""
-
     private let context: Context
 
     init(context: Context) {
@@ -73,22 +70,6 @@ final class MoreViewModel: EventViewModel {
             context.navigation.followReplaceRootWithNewMain()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            openType = "Opened from shortcut"
-
-            return true
-        case _ as ResponderPoppedToExistingEvent:
-            openType = "Popped to existing"
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }

@@ -6,75 +6,72 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import RxSwift
-import VATextureKitRx
+import Observation
+import ObservationTracking
+import UIKit
 
-final class MainScreen: ScreenNode<MainViewModel>, @unchecked Sendable {
-    private let titleTextNode: VATextNode
-    private lazy var replaceRootButtonNode = VAButtonNode()
-    private lazy var presentDetailsButtonNode = VAButtonNode()
-    private lazy var presentTabsButtonNode = VAButtonNode()
-    private lazy var presentQueueButtonNode = VAButtonNode()
-    private lazy var presentSplitButtonNode = VAButtonNode()
-    private lazy var showInSplitOrPresentButtonNode = VAButtonNode()
-    private lazy var presentLoginedOnlyContentButtonNode = VAButtonNode()
-    private lazy var descriptionTextNode = TextNode(
-        textObs: viewModel.descriptionObs,
-        fontStyle: .body
+final class MainScreen: ControllerView<MainViewModel> {
+    private lazy var titleLabel = Label(
+        text: "Main \(Int.random(in: 0...100))",
+        textStyle: .headline
     )
-    private lazy var authorizedTextNode = TextNode(
-        textObs: viewModel.authorizationStatusObs,
-        fontStyle: .body
+    private lazy var replaceRootButton = Button(
+        title: "Replace root with new main",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     )
+    private lazy var presentDetailsButton = Button(
+        title: "Present details",
+        onTap: viewModel ?> { $0.perform(PushNextDetailsEvent()) }
+    )
+    private lazy var presentTabsButton = Button(
+        title: "Present tabs",
+        onTap: viewModel ?> { $0.perform(PresentTabsEvent()) }
+    )
+    private lazy var presentQueueButton = Button(
+        title: "Present queue example",
+        onTap: viewModel ?> { $0.perform(PresentQueueEvent()) }
+    )
+    private lazy var presentSplitButton = Button(
+        title: "Present split",
+        onTap: viewModel ?> { $0.perform(PresentSplitEvent()) }
+    )
+    private lazy var showInSplitOrPresentButton = Button(
+        title: "Show in split or present",
+        onTap: viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
+    )
+    private lazy var presentLoginedOnlyContentButton = Button(
+        title: "Present logined only content",
+        onTap: viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
+    )
+    private lazy var descriptionLabel = Label(textStyle: .body)
+    private lazy var authorizedLabel = Label(textStyle: .body)
 
-    override init(viewModel: MainViewModel) {
-        self.titleTextNode = VATextNode(
-            text: "Main \(Int.random(in: 0...100))",
-            fontStyle: .headline
+    override func addElements() {
+        embedIntoScroll(
+            titleLabel,
+            replaceRootButton,
+            presentDetailsButton,
+            presentQueueButton,
+            presentTabsButton,
+            presentSplitButton,
+            Spacing(
+                value: 16,
+                child: showInSplitOrPresentButton
+            ),
+            descriptionLabel,
+            presentLoginedOnlyContentButton,
+            authorizedLabel,
         )
-
-        super.init(viewModel: viewModel)
     }
 
-    override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        SafeArea {
-            Column(spacing: 16) {
-                titleTextNode
-                replaceRootButtonNode
-                presentDetailsButtonNode
-                presentQueueButtonNode
-                presentTabsButtonNode
-                presentSplitButtonNode
-                showInSplitOrPresentButtonNode
-                descriptionTextNode
-                    .padding(.top(16))
-                presentLoginedOnlyContentButtonNode
-                authorizedTextNode
-            }
-            .padding(.all(16))
-        }
+    override func configure() {
+        backgroundColor = .systemBackground
     }
 
-    override func configureTheme(_ theme: VATheme) {
-        backgroundColor = theme.systemBackground
-        replaceRootButtonNode.setTitle("Replace root with new main", theme: theme)
-        presentDetailsButtonNode.setTitle("Present details", theme: theme)
-        presentTabsButtonNode.setTitle("Present tabs", theme: theme)
-        presentSplitButtonNode.setTitle("Present split", theme: theme)
-        showInSplitOrPresentButtonNode.setTitle("Show in split or present", theme: theme)
-        presentLoginedOnlyContentButtonNode.setTitle("Present logined only content", theme: theme)
-        presentQueueButtonNode.setTitle("Present queue example", theme: theme)
-        setNeedsLayout()
-    }
-
-    override func bindView() {
-        replaceRootButtonNode.onTap = viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
-        presentDetailsButtonNode.onTap = viewModel ?> { $0.perform(PushNextDetailsEvent()) }
-        presentTabsButtonNode.onTap = viewModel ?> { $0.perform(PresentTabsEvent()) }
-        presentSplitButtonNode.onTap = viewModel ?> { $0.perform(PresentSplitEvent()) }
-        showInSplitOrPresentButtonNode.onTap = viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
-        presentLoginedOnlyContentButtonNode.onTap = viewModel ?> { $0.perform(PresentLoginedOnlyEvent()) }
-        presentQueueButtonNode.onTap = viewModel ?> { $0.perform(PresentQueueEvent()) }
+    @ObservationTracking
+    override func bindViewModel() {
+        descriptionLabel.text = viewModel.openType
+        authorizedLabel.text = viewModel.authorizationStatus
     }
 }
 
@@ -92,10 +89,11 @@ struct ShowInSplitOrPresentEvent: Event {}
 
 struct PresentQueueEvent: Event {}
 
+@Observable
 final class MainViewModel: EventViewModel {
     struct Context {
         struct DataSource {
-            let authorizedObs: Observable<Bool>
+            let authorizationService: AuthorizationService
         }
 
         struct Navigation {
@@ -112,12 +110,9 @@ final class MainViewModel: EventViewModel {
         let navigation: Navigation
     }
 
-    var authorizationStatusObs: Observable<String> {
-        context.source.authorizedObs
-            .map { $0 ? "Authorized" : "Not authorized " }
+    var authorizationStatus: String {
+        context.source.authorizationService.isAuthorized ? "Authorized" : "Not authorized"
     }
-    @Obs.Relay(value: "Normally opened")
-    var descriptionObs: Observable<String>
 
     private let context: Context
 
@@ -143,22 +138,6 @@ final class MainViewModel: EventViewModel {
             context.navigation.followSplit()
         default:
             super.run(event)
-        }
-    }
-
-    override func handle(event: any ResponderEvent) async -> Bool {
-        logResponder(from: self, event: event)
-        switch event {
-        case _ as ResponderOpenedFromShortcutEvent:
-            _descriptionObs.rx.accept("Opened from shortcut")
-
-            return true
-        case _ as ResponderReplacedWindowRootControllerEvent:
-            _descriptionObs.rx.accept("Replaced root view controller")
-
-            return true
-        default:
-            return await nextEventResponder?.handle(event: event) ?? false
         }
     }
 }
