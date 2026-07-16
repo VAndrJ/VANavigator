@@ -19,51 +19,104 @@ jobs:
             runner: macos-26
             xcode: '26.4.1'
             runtime: ''
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=26.4.1,name=iPhone Air'
           - name: iOS 26.4.1 iPad
             runner: macos-26
             xcode: '26.4.1'
             runtime: ''
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=26.4.1,name=iPad Pro 13-inch (M4)'
           - name: iOS 18.5 iPhone
             runner: macos-15
             xcode: '26.3'
             runtime: ''
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=18.5,name=iPhone 16'
           - name: iOS 18.5 iPad
             runner: macos-15
             xcode: '26.3'
             runtime: ''
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=18.5,name=iPad Pro 13-inch (M4)'
           - name: iOS 17.5 iPhone
             runner: macos-15
             xcode: '26.3'
             runtime: '17.5'
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=17.5,name=iPhone 15'
           - name: iOS 17.5 iPad
             runner: macos-15
             xcode: '26.3'
             runtime: '17.5'
+            scheme: VANavigator-Example
             destination: 'platform=iOS Simulator,OS=17.5,name=iPad Pro 13-inch (M4)'
+          - name: iOS 15.5 iPhone
+            runner: macos-15
+            xcode: '26.3'
+            runtime: '15.5'
+            optional_runtime: true
+            create_simulator: true
+            simulator_name: iPhone 13
+            simulator_device_type: com.apple.CoreSimulator.SimDeviceType.iPhone-13
+            simulator_runtime: com.apple.CoreSimulator.SimRuntime.iOS-15-5
+            scheme: VANavigator-Tests
+          - name: iOS 15.5 iPad
+            runner: macos-15
+            xcode: '26.3'
+            runtime: '15.5'
+            optional_runtime: true
+            create_simulator: true
+            simulator_name: iPad Air (5th generation)
+            simulator_device_type: com.apple.CoreSimulator.SimDeviceType.iPad-Air-5th-generation
+            simulator_runtime: com.apple.CoreSimulator.SimRuntime.iOS-15-5
+            scheme: VANavigator-Tests
 
     steps:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ matrix.xcode }}
-    - name: Install simulator runtime
-      if: matrix.runtime != ''
+    - name: Install required simulator runtime
+      if: matrix.runtime != '' && matrix.optional_runtime != true
       env:
         runtime: ${{ matrix.runtime }}
       run: |
         xcrun simctl list > /dev/null
         xcodebuild -downloadPlatform iOS -buildVersion "${runtime}"
-    - uses: actions/checkout@v7
-    - name: Build and test
+    - name: Install optional simulator runtime
+      id: optional_runtime
+      if: matrix.optional_runtime == true
+      env:
+        runtime: ${{ matrix.runtime }}
       run: |
-        xcodebuild build test -project ./Example/VANavigator.xcodeproj -scheme VANavigator-Example -destination "${destination}"
-
-    env:
-      destination: ${{ matrix.destination }}
+        xcrun simctl list > /dev/null
+        if xcodebuild -downloadPlatform iOS -buildVersion "${runtime}"; then
+          echo "available=true" >> "${GITHUB_OUTPUT}"
+        else
+          echo "available=false" >> "${GITHUB_OUTPUT}"
+          echo "::notice title=iOS ${runtime} tests skipped::The simulator runtime could not be downloaded."
+          echo "### iOS ${runtime} tests skipped" >> "${GITHUB_STEP_SUMMARY}"
+          echo "The simulator runtime could not be downloaded on this runner." >> "${GITHUB_STEP_SUMMARY}"
+        fi
+    - name: Create simulator
+      id: create_simulator
+      if: matrix.create_simulator == true && steps.optional_runtime.outputs.available == 'true'
+      env:
+        simulator_name: ${{ matrix.simulator_name }}
+        simulator_device_type: ${{ matrix.simulator_device_type }}
+        simulator_runtime: ${{ matrix.simulator_runtime }}
+      run: |
+        simulator_id="$(xcrun simctl create "${simulator_name}" "${simulator_device_type}" "${simulator_runtime}")"
+        echo "destination=platform=iOS Simulator,id=${simulator_id}" >> "${GITHUB_OUTPUT}"
+    - uses: actions/checkout@v7
+      if: matrix.optional_runtime != true || steps.optional_runtime.outputs.available == 'true'
+    - name: Build and test
+      if: matrix.optional_runtime != true || steps.optional_runtime.outputs.available == 'true'
+      env:
+        destination: ${{ steps.create_simulator.outputs.destination || matrix.destination }}
+        scheme: ${{ matrix.scheme }}
+      run: |
+        xcodebuild build test -project ./Example/VANavigator.xcodeproj -scheme "${scheme}" -destination "${destination}"
 
   library-evolution:
     name: "Release package build"
