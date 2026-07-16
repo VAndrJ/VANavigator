@@ -84,14 +84,13 @@ open class NavigationInterceptor {
                     + detail.chain(replacingInitialStrategyWith: newStrategy)
                     + (isLast ? suffixNavigationChain : []),
                 event: detail.event,
-                completion: completionCoordinator.map { coordinator in
-                    { controller, isSuccess in
-                        coordinator.complete(
-                            index: index,
-                            controller: controller,
-                            isSuccess: isSuccess
-                        )
-                    }
+                completion: { controller, isSuccess in
+                    detail.completion?(controller, isSuccess)
+                    completionCoordinator?.complete(
+                        index: index,
+                        controller: controller,
+                        isSuccess: isSuccess
+                    )
                 }
             )
         }
@@ -144,15 +143,18 @@ open class NavigationInterceptor {
 final class InterceptedNavigation {
     let chain: [NavigationChainLink]
     let event: (any ResponderEvent)?
+    let completion: ((UIViewController?, Bool) -> Void)?
     weak var navigator: Navigator?
 
     init(
         chain: [NavigationChainLink],
         event: (any ResponderEvent)? = nil,
+        completion: ((UIViewController?, Bool) -> Void)? = nil,
         navigator: Navigator? = nil
     ) {
         self.chain = chain
         self.event = event
+        self.completion = completion
         self.navigator = navigator
     }
 

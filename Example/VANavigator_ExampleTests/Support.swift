@@ -49,6 +49,23 @@ func fulfillment(of expectations: [TestExpectation], timeout: TimeInterval) asyn
     }
 }
 
+func waitUntil(
+    _ description: String,
+    timeout: TimeInterval,
+    condition: () -> Bool
+) async {
+    let start = DispatchTime.now().uptimeNanoseconds
+    let timeoutNanoseconds = UInt64(timeout * 1_000_000_000)
+
+    while !condition() {
+        if DispatchTime.now().uptimeNanoseconds - start >= timeoutNanoseconds {
+            Issue.record("Timed out waiting for '\(description)'")
+            return
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
+
 class MockScreenFactory: NavigatorScreenFactory {
     init() {}
 

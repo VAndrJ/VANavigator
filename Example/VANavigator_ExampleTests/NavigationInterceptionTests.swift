@@ -44,16 +44,26 @@ final class NavigationInterceptionTests {
         )
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
+        let requestedNavigation = expectation(description: "requested navigation")
+        var requestedController: UIViewController?
+        var requestedResult: Bool?
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
             animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { controller, isSuccess in
+                requestedController = controller
+                requestedResult = isSuccess
+                requestedNavigation.fulfill()
+            }
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
+        #expect(!requestedNavigation.isFulfilled)
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
@@ -63,8 +73,10 @@ final class NavigationInterceptionTests {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        await fulfillment(of: [expect1], timeout: 10)
+        await fulfillment(of: [requestedNavigation, expect1], timeout: 10)
 
+        #expect((true) == requestedResult)
+        #expect(identity.isEqual(to: requestedController?.navigationIdentity))
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
     }
@@ -77,16 +89,20 @@ final class NavigationInterceptionTests {
         navigator.navigationInterceptor = navigationInterceptor
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
+        let requestedNavigation = expectation(description: "requested navigation")
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
             animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in requestedNavigation.fulfill() }
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
+        #expect(!requestedNavigation.isFulfilled)
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason))
@@ -95,7 +111,7 @@ final class NavigationInterceptionTests {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        await fulfillment(of: [expect1], timeout: 10)
+        await fulfillment(of: [requestedNavigation, expect1], timeout: 10)
 
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(identity.isEqual(to: window?.rootViewController?.navigationIdentity))
@@ -113,7 +129,7 @@ final class NavigationInterceptionTests {
         navigationInterceptor.navigator = navigator
         await preparePresented(navigator: navigator)
 
-        let expect = expectation(description: "navigation.interception")
+        let requestedNavigation = expectation(description: "requested navigation")
         let queuedExpect = expectation(description: "navigation.queued")
         navigationInterceptor.onQueuedNavigationCompleted = {
             taskDetachedMain { queuedExpect.fulfill() }
@@ -122,11 +138,12 @@ final class NavigationInterceptionTests {
             destination: .identity(SecretInformationIdentity()),
             strategy: .present(),
             animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in requestedNavigation.fulfill() }
         )
 
-        await fulfillment(of: [expect, queuedExpect], timeout: 10)
+        await fulfillment(of: [queuedExpect], timeout: 10)
 
+        #expect(!requestedNavigation.isFulfilled)
         #expect((["interception", "queued"]) == (screenFactory.trackedAssemblies))
     }
 
@@ -158,8 +175,8 @@ final class NavigationInterceptionTests {
             completion: { _, _ in secondIntercepted.fulfill() }
         )
 
-        await fulfillment(of: [firstIntercepted, secondIntercepted], timeout: 10)
-
+        #expect(!firstIntercepted.isFulfilled)
+        #expect(!secondIntercepted.isFulfilled)
         #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let resolved = expectation(description: "interceptions resolved")
@@ -169,7 +186,7 @@ final class NavigationInterceptionTests {
             resolved.fulfill()
         }
 
-        await fulfillment(of: [resolved], timeout: 10)
+        await fulfillment(of: [firstIntercepted, secondIntercepted, resolved], timeout: 10)
 
         #expect((true) == (result))
         #expect((1) == (firstController.handledEventCount))
@@ -212,7 +229,9 @@ final class NavigationInterceptionTests {
             completion: { _, _ in secondIntercepted.fulfill() }
         )
 
-        await fulfillment(of: [firstIntercepted, secondIntercepted], timeout: 10)
+        #expect(!firstIntercepted.isFulfilled)
+        #expect(!secondIntercepted.isFulfilled)
+        #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let resolved = expectation(description: "interceptions resolved")
         var completedController: UIViewController?
@@ -223,7 +242,7 @@ final class NavigationInterceptionTests {
             resolved.fulfill()
         }
 
-        await fulfillment(of: [resolved], timeout: 10)
+        await fulfillment(of: [firstIntercepted, secondIntercepted, resolved], timeout: 10)
 
         #expect((true) == (result))
         #expect((secondController) === (completedController))
@@ -251,7 +270,8 @@ final class NavigationInterceptionTests {
         let intercepted = expectation(description: "navigation intercepted")
         navigator.navigate(chain: [link]) { _, _ in intercepted.fulfill() }
 
-        await fulfillment(of: [intercepted], timeout: 10)
+        #expect(!intercepted.isFulfilled)
+        #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
 
         let resolved = expectation(description: "interception resolved")
         var result: Bool?
@@ -260,7 +280,7 @@ final class NavigationInterceptionTests {
             resolved.fulfill()
         }
 
-        await fulfillment(of: [resolved], timeout: 10)
+        await fulfillment(of: [intercepted, resolved], timeout: 10)
 
         #expect((true) == (result))
         #expect((controller) === (window?.rootViewController))
@@ -278,7 +298,7 @@ final class NavigationInterceptionTests {
         )
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
+        let requestedNavigation = expectation(description: "requested navigation")
         navigator.navigate(
             chain: [
                 NavigationChainLink(
@@ -287,11 +307,15 @@ final class NavigationInterceptionTests {
                     animated: false
                 )
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in requestedNavigation.fulfill() }
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
+        #expect(!requestedNavigation.isFulfilled)
         #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) != nil)
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -302,7 +326,7 @@ final class NavigationInterceptionTests {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        await fulfillment(of: [expect1], timeout: 10)
+        await fulfillment(of: [requestedNavigation, expect1], timeout: 10)
 
         #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) == nil)
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
@@ -320,7 +344,7 @@ final class NavigationInterceptionTests {
         )
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
+        let requestedNavigation = expectation(description: "requested navigation")
         navigator.navigate(
             chain: [
                 NavigationChainLink(
@@ -329,11 +353,15 @@ final class NavigationInterceptionTests {
                     animated: false
                 )
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in requestedNavigation.fulfill() }
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
+        #expect(!requestedNavigation.isFulfilled)
         #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) != nil)
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -344,7 +372,7 @@ final class NavigationInterceptionTests {
         navigationInterceptor.completion = { _, _ in taskDetachedMain { expect1.fulfill() } }
         authorizationService.authorize()
 
-        await fulfillment(of: [expect1], timeout: 10)
+        await fulfillment(of: [requestedNavigation, expect1], timeout: 10)
 
         #expect((window?.findController(destination: .identity(navigationInterceptor.interceptionIdentity))) == nil)
         #expect((window?.findController(destination: .identity(identity))) != nil)
@@ -363,15 +391,16 @@ final class NavigationInterceptionTests {
         )
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            animated: false
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -395,15 +424,16 @@ final class NavigationInterceptionTests {
         )
         await preparePresented(navigator: navigator)
         let identity = SecretInformationIdentity()
-        let expect = expectation(description: "navigation.present")
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            animated: false
         )
 
-        await fulfillment(of: [expect], timeout: 10)
+        await waitUntil("interception navigation", timeout: 10) {
+            navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity)
+                && navigationInterceptor.checkIsExists(reason: navigationInterceptor.interceptionReason)
+        }
 
         #expect(!(identity.isEqual(to: window?.topController?.navigationIdentity)))
         #expect(navigationInterceptor.interceptionIdentity.isEqual(to: window?.topController?.navigationIdentity))
@@ -471,15 +501,15 @@ final class NavigationInterceptionTests {
             let controller = UIViewController()
             releasedNavigator = navigator
             releasedController = controller
-            let expect = expectation(description: "navigation.intercepted")
 
             navigator.navigate(
                 destination: .controller(controller),
                 strategy: .replaceWindowRoot(),
-                animated: false,
-                completion: { _, _ in expect.fulfill() }
+                animated: false
             )
-            await fulfillment(of: [expect], timeout: 10)
+            await waitUntil("intercepted navigation", timeout: 10) {
+                navigationInterceptor.checkIsExists(reason: navigationInterceptor.reason)
+            }
             #expect((releasedController) != nil)
             #expect(([navigationInterceptor.reason]) == (navigationInterceptor.getInterceptionReasons()))
         }.value

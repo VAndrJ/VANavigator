@@ -131,6 +131,7 @@ open class Navigator {
             let detail = InterceptedNavigation(
                 chain: chain,
                 event: event,
+                completion: completion,
                 navigator: self
             )
             navigationInterceptor.store(detail, reason: interceptionResult.reason)
@@ -139,7 +140,7 @@ open class Navigator {
                 navigate(
                     chain: interceptionResult.chain,
                     event: interceptionResult.event,
-                    completion: completion
+                    completion: nil
                 )
             }
 
@@ -277,6 +278,7 @@ open class Navigator {
                     )
                 ],
                 event: event,
+                completion: completion,
                 navigator: self
             )
             navigationInterceptor.store(detail, reason: interceptionResult.reason)
@@ -285,7 +287,7 @@ open class Navigator {
                 navigate(
                     chain: interceptionResult.chain,
                     event: interceptionResult.event,
-                    completion: completion
+                    completion: nil
                 )
             }
 
@@ -671,7 +673,22 @@ open class Navigator {
                     {
                         return controller
                     }
-                    sourceController = source.presentingViewController
+                    sourceController = presentingController(above: source)
+                }
+
+                return nil
+            }
+
+            func presentingController(above controller: UIViewController) -> UIViewController? {
+                var current: UIViewController? = controller
+                var searchedControllers = Set<ObjectIdentifier>()
+                while let candidate = current,
+                    searchedControllers.insert(ObjectIdentifier(candidate)).inserted
+                {
+                    if let presentingViewController = candidate.presentingViewController {
+                        return presentingViewController
+                    }
+                    current = candidate.parent
                 }
 
                 return nil
@@ -985,7 +1002,10 @@ open class Navigator {
                             animated: animated,
                             navigation: nil,
                             completion: { isSuccess in
-                                guard isSuccess else {
+                                let isCurrentColumnTop = splitController
+                                    .columnNavigationController(for: column)?
+                                    .topViewController === controller
+                                guard isSuccess || isCurrentColumnTop else {
                                     completeSplitFailure()
 
                                     return

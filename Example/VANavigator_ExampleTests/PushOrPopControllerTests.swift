@@ -177,6 +177,54 @@ final class PushOrPopControllerTests {
     }
 
     @Test
+    func `Finds navigation stack behind presented navigation container`() async {
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            Issue.record("A window scene is required to test presentation traversal")
+
+            return
+        }
+
+        window = UIWindow(windowScene: windowScene)
+        let targetController = UIViewController()
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.setViewControllers([targetController, topController], animated: false)
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        let presentedController = UIViewController()
+        let presentedNavigationController = UINavigationController(rootViewController: presentedController)
+        let presentedExpectation = expectation(description: "navigation container presented")
+        navigationController.present(presentedNavigationController, animated: false) {
+            presentedExpectation.fulfill()
+        }
+        await fulfillment(of: [presentedExpectation], timeout: 10)
+        #expect((presentedController) === (window?.topController))
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop behind presented navigation container")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(targetController),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect((true) == (result))
+        #expect((targetController) === (responder))
+        #expect((targetController) === (navigationController.topViewController))
+        #expect((navigationController.presentedViewController) == nil)
+        #expect((presentedNavigationController.presentingViewController) == nil)
+    }
+
+    @Test
     func `Close if top fails for single controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
