@@ -10,8 +10,6 @@ import Testing
 import UIKit
 import VANavigator
 
-@testable import VANavigator_Example
-
 @Suite(.serialized)
 final class NavigationDestinationEqualityTests {
     @Test

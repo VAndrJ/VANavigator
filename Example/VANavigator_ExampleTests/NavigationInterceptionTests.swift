@@ -6,12 +6,21 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import ObservationTracking
 import Testing
 import UIKit
 import VANavigator
 
-@testable import VANavigator_Example
+private struct LoginRequiredNavigationInterceptionReason: Hashable {}
+
+private final class TestAuthorizationService {
+    private(set) var isAuthorized = false
+    var onAuthorization: (() -> Void)?
+
+    func authorize() {
+        isAuthorized = true
+        onAuthorization?()
+    }
+}
 
 @Suite(.serialized)
 final class NavigationInterceptionTests {
@@ -26,7 +35,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Intercepted navigation resumes after resolution`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
             window: window,
@@ -62,7 +71,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Interceptor assigned after initialization intercepts navigation`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         navigator.navigationInterceptor = navigationInterceptor
@@ -260,7 +269,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Interception prefix is prepended to navigation chain`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .prefixed)
         let navigator = Navigator(
             window: window,
@@ -302,7 +311,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Interception suffix is appended to navigation chain`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService, kind: .suffixed)
         let navigator = Navigator(
             window: window,
@@ -345,7 +354,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Removes a specific interception reason`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
             window: window,
@@ -377,7 +386,7 @@ final class NavigationInterceptionTests {
 
     @Test
     func `Removes all interception reasons`() async {
-        let authorizationService = AuthorizationService()
+        let authorizationService = TestAuthorizationService()
         let navigationInterceptor = MockNavigationInterceptor(authorizationService: authorizationService)
         let navigator = Navigator(
             window: window,
@@ -572,26 +581,28 @@ private final class QueuingNavigationInterceptor: NavigationInterceptor {
     }
 }
 
-class MockNavigationInterceptor: NavigationInterceptor {
+private final class MockNavigationInterceptor: NavigationInterceptor {
     enum Kind {
         case prefixed
         case suffixed
         case replace
     }
 
-    let authorizationService: AuthorizationService
+    let authorizationService: TestAuthorizationService
     let interceptionIdentity = LoginNavigationIdentity()
     let interceptionReason = LoginRequiredNavigationInterceptionReason()
     var completion: ((UIViewController?, Bool) -> Void)?
     let kind: Kind
 
-    init(authorizationService: AuthorizationService, kind: Kind = .replace) {
+    init(authorizationService: TestAuthorizationService, kind: Kind = .replace) {
         self.authorizationService = authorizationService
         self.kind = kind
 
         super.init()
 
-        bind()
+        authorizationService.onAuthorization = { [weak self] in
+            self?.onAuthorized()
+        }
     }
 
     override func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
@@ -617,13 +628,6 @@ class MockNavigationInterceptor: NavigationInterceptor {
             }
         case .controller:
             return nil
-        }
-    }
-
-    @ObservationTracking
-    private func bind() {
-        if authorizationService.isAuthorized {
-            onAuthorized()
         }
     }
 

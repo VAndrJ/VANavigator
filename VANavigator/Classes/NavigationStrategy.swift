@@ -22,8 +22,6 @@ public class NavigationStrategy: Equatable {
 
         return true
     }
-
-    nonisolated deinit {}
 }
 
 extension NavigationStrategy {
@@ -115,8 +113,6 @@ final class SplitNavigationStrategy: NavigationStrategy {
 
         return strategy == other.strategy
     }
-
-    nonisolated deinit {}
 }
 
 final class PopoverNavigationStrategy: NavigationStrategy {
@@ -129,8 +125,6 @@ final class PopoverNavigationStrategy: NavigationStrategy {
     override func isEqual(to other: NavigationStrategy?) -> Bool {
         return self === other
     }
-
-    nonisolated deinit {}
 }
 
 final class CloseToExistingNavigationStrategy: NavigationStrategy {}
@@ -157,13 +151,9 @@ final class PresentNavigationStrategy: NavigationStrategy {
 
         return source == other.source
     }
-
-    nonisolated deinit {}
 }
 
-final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {
-    nonisolated deinit {}
-}
+final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
 
 final class PopToExistingNavigationStrategy: NavigationStrategy {
     let includingTabs: Bool
@@ -179,8 +169,6 @@ final class PopToExistingNavigationStrategy: NavigationStrategy {
 
         return includingTabs == other.includingTabs
     }
-
-    nonisolated deinit {}
 }
 
 final class PushNavigationStrategy: NavigationStrategy {
@@ -199,8 +187,6 @@ final class PushNavigationStrategy: NavigationStrategy {
 
         return (!hasNavigation && !other.hasNavigation) || self === other
     }
-
-    nonisolated deinit {}
 }
 
 final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
@@ -219,8 +205,6 @@ final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
 
         return transitionIdentifier == other.transitionIdentifier
     }
-
-    nonisolated deinit {}
 }
 
 final class CloseIfTopNavigationStrategy: NavigationStrategy {
@@ -249,6 +233,4 @@ final class CloseIfTopNavigationStrategy: NavigationStrategy {
             && tryToPop == other.tryToPop
             && ((!hasNavigation && !other.hasNavigation) || self === other)
     }
-
-    nonisolated deinit {}
 }

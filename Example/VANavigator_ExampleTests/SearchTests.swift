@@ -10,8 +10,6 @@ import Testing
 import UIKit
 import VANavigator
 
-@testable import VANavigator_Example
-
 // TODO: - Messages
 @Suite(.serialized)
 final class SearchTests {

@@ -40,6 +40,4 @@ public final class NavigationChainLink {
             && animated == other.animated
             && fallback?.isEqual(to: other.fallback) ?? (fallback == nil && other.fallback == nil)
     }
-
-    nonisolated deinit {}
 }

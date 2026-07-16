@@ -86,6 +86,4 @@ class ViewController<Screen: UIView & ScreenProtocol & Responder>: UIViewControl
 
         return await nextEventResponder?.handle(event: event) ?? false
     }
-
-    nonisolated deinit {}
 }

@@ -10,8 +10,6 @@ import Testing
 import UIKit
 import VANavigator
 
-@testable import VANavigator_Example
-
 nonisolated final class TestExpectation: @unchecked Sendable {
     let description: String
     private let lock = NSLock()
@@ -94,15 +92,7 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
-            return ViewController(
-                screen: SecretInformationScreen(
-                    viewModel: SecretInformationViewModel(
-                        context: .init(
-                            navigation: .init(followReplaceRootWithNewMain: {})
-                        )
-                    )
-                )
-            )
+            return MockViewController()
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
         case _ as MockPushControllerNavigationIdentity:
