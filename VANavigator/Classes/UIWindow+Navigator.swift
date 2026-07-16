@@ -27,7 +27,7 @@ nonisolated private final class RootTransitionCompletionDelegate: NSObject, CAAn
 
     func animationDidStart(_ anim: CAAnimation) {
         lock.lock()
-        let forwardedDelegate = self.forwardedDelegate
+        let forwardedDelegate = didStop ? nil : self.forwardedDelegate
         lock.unlock()
         forwardedDelegate?.animationDidStart?(anim)
     }
@@ -41,7 +41,6 @@ nonisolated private final class RootTransitionCompletionDelegate: NSObject, CAAn
         }
         didStop = true
         let forwardedDelegate = self.forwardedDelegate
-        self.forwardedDelegate = nil
         lock.unlock()
 
         forwardedDelegate?.animationDidStop?(anim, finished: flag)
@@ -53,10 +52,14 @@ nonisolated private final class RootTransitionCompletionDelegate: NSObject, CAAn
     @MainActor
     private func completeOnMainActor() {
         lock.lock()
+        let forwardedDelegate = self.forwardedDelegate
+        self.forwardedDelegate = nil
         let onCompletion = self.onCompletion
         self.onCompletion = nil
         lock.unlock()
-        onCompletion?(self)
+        withExtendedLifetime(forwardedDelegate) {
+            onCompletion?(self)
+        }
     }
 }
 

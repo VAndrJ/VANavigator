@@ -809,6 +809,527 @@ final class ProductionRegressionTests {
         #expect(outerTabController.selectedViewController === innerContainer)
     }
 
+    @Test
+    func `Cancelling an old interception does not release a newer active navigation`() async {
+        let window = UIWindow()
+        let interceptedController = UIViewController()
+        let reason = AnyHashable("stale intercepted operation")
+        let interceptor = PendingNavigationInterceptor(entries: [(interceptedController, reason)])
+        let navigator = Navigator(
+            window: window,
+            screenFactory: MockScreenFactory(),
+            navigationInterceptor: interceptor
+        )
+        let activeController = SuspendedResponderViewController()
+        let queuedController = UIViewController()
+        let interceptedCompletion = expectation(description: "intercepted cancellation")
+        let activeCompletion = expectation(description: "active navigation")
+        let queuedCompletion = expectation(description: "queued navigation")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(interceptedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(!isSuccess)
+                completionOrder.append("intercepted")
+                interceptedCompletion.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(activeController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: SuspendedResponderEvent(),
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("active")
+                activeCompletion.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(queuedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("queued")
+                queuedCompletion.fulfill()
+            }
+        )
+
+        await waitUntil("active responder suspension", timeout: 10) {
+            activeController.isSuspended
+        }
+        interceptor.removeIfAvailable(reason: reason)
+
+        #expect(interceptedCompletion.isFulfilled)
+        #expect(!activeCompletion.isFulfilled)
+        #expect(!queuedCompletion.isFulfilled)
+        #expect(window.rootViewController === activeController)
+
+        activeController.resume()
+        await fulfillment(of: [activeCompletion, queuedCompletion], timeout: 10)
+
+        #expect(completionOrder == ["intercepted", "active", "queued"])
+        #expect(window.rootViewController === queuedController)
+    }
+
+    @Test
+    func `Active navigation retains the navigator until its queued work completes`() async {
+        let window = UIWindow()
+        let activeController = SuspendedResponderViewController()
+        let queuedController = UIViewController()
+        var navigator: Navigator? = Navigator(window: window, screenFactory: MockScreenFactory())
+        let retainedNavigator = WeakReference(navigator)
+        let activeCompletion = expectation(description: "retained active navigation")
+        let queuedCompletion = expectation(description: "retained queued navigation")
+
+        navigator?.navigate(
+            destination: .controller(activeController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: SuspendedResponderEvent(),
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                activeCompletion.fulfill()
+            }
+        )
+        navigator?.navigate(
+            destination: .controller(queuedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                queuedCompletion.fulfill()
+            }
+        )
+
+        await waitUntil("retained responder suspension", timeout: 10) {
+            activeController.isSuspended
+        }
+        navigator = nil
+
+        #expect(retainedNavigator.value != nil)
+        #expect(!queuedCompletion.isFulfilled)
+
+        activeController.resume()
+        await fulfillment(of: [activeCompletion, queuedCompletion], timeout: 10)
+        await waitUntil("navigator release", timeout: 10) {
+            retainedNavigator.value == nil
+        }
+
+        #expect(window.rootViewController === queuedController)
+    }
+
+    @Test
+    func `Queued animated stack mutations wait for prior transition cleanup`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: rootController)
+        let transitionDelegate = HoldingNavigationTransitionDelegate()
+        navigationController.delegate = transitionDelegate
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        _ = navigationController.view
+        window.layoutIfNeeded()
+        defer {
+            transitionDelegate.finishTransition()
+            window.isHidden = true
+        }
+
+        await waitUntil("visible queued-transition hierarchy", timeout: 10) {
+            navigationController.viewIfLoaded?.window === window
+        }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let firstController = UIViewController()
+        let secondController = UIViewController()
+        let firstCompletion = expectation(description: "first animated push")
+        let secondCompletion = expectation(description: "queued animated push")
+        var results: [Bool] = []
+
+        navigator.navigate(
+            destination: .controller(firstController),
+            strategy: .push(),
+            animated: true,
+            completion: { _, isSuccess in
+                results.append(isSuccess)
+                firstCompletion.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(secondController),
+            strategy: .push(),
+            animated: true,
+            completion: { _, isSuccess in
+                results.append(isSuccess)
+                secondCompletion.fulfill()
+            }
+        )
+
+        await waitUntil("first navigator transition", timeout: 10) {
+            transitionDelegate.hasActiveTransition
+                && navigationController.topViewController === firstController
+        }
+        #expect(!firstCompletion.isFulfilled)
+        #expect(!secondCompletion.isFulfilled)
+
+        transitionDelegate.finishTransition()
+        await fulfillment(of: [firstCompletion], timeout: 10)
+        await waitUntil("queued navigator transition", timeout: 10) {
+            transitionDelegate.hasActiveTransition
+                && navigationController.topViewController === secondController
+        }
+
+        #expect(!secondCompletion.isFulfilled)
+        transitionDelegate.finishTransition()
+        await fulfillment(of: [secondCompletion], timeout: 10)
+
+        #expect(results == [true, true])
+        #expect(navigationController.viewControllers == [rootController, firstController, secondController])
+    }
+
+    @Test
+    func `Transition completion fires once when coordinator rejects animation registration`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let navigationController = FalseReturningCoordinatorNavigationController()
+        navigationController.setViewControllers([rootController], animated: false)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        _ = navigationController.view
+        window.layoutIfNeeded()
+        defer { window.isHidden = true }
+
+        await waitUntil("visible false-return coordinator hierarchy", timeout: 10) {
+            navigationController.viewIfLoaded?.window === window
+        }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        let completed = expectation(description: "once-only transition completion")
+        var completionCount = 0
+        navigationController.pushViewController(
+            UIViewController(),
+            animated: true,
+            completion: {
+                completionCount += 1
+                if completionCount == 1 {
+                    completed.fulfill()
+                }
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
+        }
+
+        #expect(completionCount == 1)
+        #expect(navigationController.viewControllers.count == 2)
+    }
+
+    @Test
+    func `Animated dismissal retains navigator until queued work completes`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let dismissedController = UIViewController()
+        let transitionDelegate = HoldingDismissalTransitionDelegate()
+        dismissedController.modalPresentationStyle = .custom
+        dismissedController.transitioningDelegate = transitionDelegate
+        window.rootViewController = rootController
+        window.makeKeyAndVisible()
+        defer {
+            transitionDelegate.finishTransition()
+            window.isHidden = true
+        }
+
+        let presentation = expectation(description: "dismissal retention setup")
+        rootController.present(dismissedController, animated: false) {
+            presentation.fulfill()
+        }
+        await fulfillment(of: [presentation], timeout: 10)
+
+        let queuedController = UIViewController()
+        var navigator: Navigator? = Navigator(window: window, screenFactory: MockScreenFactory())
+        let retainedNavigator = WeakReference(navigator)
+        let dismissalCompletion = expectation(description: "retained animated dismissal")
+        let queuedCompletion = expectation(description: "work queued behind animated dismissal")
+
+        navigator?.navigate(
+            destination: .controller(dismissedController),
+            strategy: .closeIfTop(tryToPop: false),
+            animated: true,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                dismissalCompletion.fulfill()
+            }
+        )
+        navigator?.navigate(
+            destination: .controller(queuedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                queuedCompletion.fulfill()
+            }
+        )
+
+        await waitUntil("held dismissal transition", timeout: 10) {
+            transitionDelegate.hasActiveTransition
+        }
+        navigator = nil
+
+        #expect(retainedNavigator.value != nil)
+        #expect(!dismissalCompletion.isFulfilled)
+        #expect(!queuedCompletion.isFulfilled)
+
+        transitionDelegate.finishTransition()
+        await fulfillment(of: [dismissalCompletion, queuedCompletion], timeout: 10)
+        await waitUntil("navigator release after dismissal", timeout: 10) {
+            retainedNavigator.value == nil
+        }
+
+        #expect(window.rootViewController === queuedController)
+    }
+
+    @Test
+    func `Navigation mutations fail safely during an external transition`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let navigationController = MutationRecordingNavigationController(rootViewController: rootController)
+        let transitionDelegate = HoldingNavigationTransitionDelegate()
+        navigationController.delegate = transitionDelegate
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        _ = navigationController.view
+        window.layoutIfNeeded()
+        defer {
+            transitionDelegate.finishTransition()
+            window.isHidden = true
+        }
+
+        await waitUntil("visible navigation hierarchy", timeout: 10) {
+            navigationController.viewIfLoaded?.window === window
+        }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        let transitionController = UIViewController()
+        navigationController.pushViewController(transitionController, animated: true)
+        await waitUntil("external navigation transition", timeout: 10) {
+            transitionDelegate.hasActiveTransition
+                && (
+                    navigationController.transitionCoordinator != nil
+                        || rootController.transitionCoordinator != nil
+                        || transitionController.transitionCoordinator != nil
+                )
+        }
+        navigationController.beginRecording()
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completions = (0..<5).map { expectation(description: "rejected mutation \($0)") }
+        var results: [Bool] = []
+
+        func record(_ index: Int, _ isSuccess: Bool) {
+            results.append(isSuccess)
+            completions[index].fulfill()
+        }
+
+        navigator.navigate(
+            destination: .controller(UIViewController()),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in record(0, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(UIViewController()),
+            strategy: .replaceNavigationRoot,
+            animated: false,
+            completion: { _, isSuccess in record(1, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(transitionController),
+            strategy: .closeIfTop(tryToDismiss: false),
+            animated: false,
+            completion: { _, isSuccess in record(2, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(rootController),
+            strategy: .removeFromNavigationStack,
+            animated: false,
+            completion: { _, isSuccess in record(3, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(rootController),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: { _, isSuccess in record(4, isSuccess) }
+        )
+
+        await fulfillment(of: completions, timeout: 10)
+
+        #expect(results == Array(repeating: false, count: 5))
+        #expect(navigationController.pushAttempts == 0)
+        #expect(navigationController.setViewControllersAttempts == 0)
+        #expect(navigationController.popAttempts == 0)
+        #expect(navigationController.popToAttempts == 0)
+        #expect(navigationController.viewControllers == [rootController, transitionController])
+
+        transitionDelegate.finishTransition()
+        await waitUntil("external transition completion", timeout: 10) {
+            navigationController.transitionCoordinator == nil
+        }
+    }
+
+    @Test
+    func `Navigation rejects a controller owned by another window`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let foreignController = UIViewController()
+        let foreignWindow = UIWindow(windowScene: windowScene)
+        foreignWindow.rootViewController = foreignController
+        foreignWindow.isHidden = false
+
+        let rootController = UIViewController()
+        let navigationController = MutationRecordingNavigationController(rootViewController: rootController)
+        let navigationWindow = UIWindow(windowScene: windowScene)
+        navigationWindow.rootViewController = navigationController
+        navigationWindow.makeKeyAndVisible()
+        defer {
+            navigationWindow.isHidden = true
+            foreignWindow.isHidden = true
+        }
+        _ = foreignController.view
+        _ = navigationController.view
+        navigationWindow.layoutIfNeeded()
+        foreignWindow.layoutIfNeeded()
+        await waitUntil("foreign window hierarchy", timeout: 10) {
+            foreignController.viewIfLoaded?.window === foreignWindow
+        }
+        navigationController.beginRecording()
+
+        let navigator = Navigator(window: navigationWindow, screenFactory: MockScreenFactory())
+        let completions = (0..<4).map { expectation(description: "foreign controller rejection \($0)") }
+        var results: [Bool] = []
+        var popoverConfigurationCount = 0
+
+        func record(_ index: Int, _ isSuccess: Bool) {
+            results.append(isSuccess)
+            completions[index].fulfill()
+        }
+
+        navigator.navigate(
+            destination: .controller(foreignController),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in record(0, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(foreignController),
+            strategy: .replaceNavigationRoot,
+            animated: false,
+            completion: { _, isSuccess in record(1, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(foreignController),
+            strategy: .present(),
+            animated: false,
+            completion: { _, isSuccess in record(2, isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(foreignController),
+            strategy: .popover(configure: { _, _ in popoverConfigurationCount += 1 }),
+            animated: false,
+            completion: { _, isSuccess in record(3, isSuccess) }
+        )
+
+        await fulfillment(of: completions, timeout: 10)
+
+        #expect(results == Array(repeating: false, count: 4))
+        #expect(popoverConfigurationCount == 0)
+        #expect(navigationController.pushAttempts == 0)
+        #expect(navigationController.setViewControllersAttempts == 0)
+        #expect(navigationController.viewControllers == [rootController])
+        #expect(foreignWindow.rootViewController === foreignController)
+        #expect(foreignController.viewIfLoaded?.window === foreignWindow)
+    }
+
+    @Test
+    func `Large synchronous queue drains without recursive scheduler growth`() async {
+        let window = UIWindow()
+        let activeController = SuspendedResponderViewController()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let activeCompletion = expectation(description: "queue stress active navigation")
+        let queueCompletion = expectation(description: "queue stress drain")
+        let queuedCount = 2_000
+        var completionCount = 0
+
+        navigator.navigate(
+            destination: .controller(activeController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            event: SuspendedResponderEvent(),
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                activeCompletion.fulfill()
+            }
+        )
+        for _ in 0..<queuedCount {
+            navigator.navigate(chain: []) { _, isSuccess in
+                #expect(!isSuccess)
+                completionCount += 1
+                if completionCount == queuedCount {
+                    queueCompletion.fulfill()
+                }
+            }
+        }
+
+        await waitUntil("queue stress suspension", timeout: 10) {
+            activeController.isSuspended
+        }
+        activeController.resume()
+        await fulfillment(of: [activeCompletion, queueCompletion], timeout: 10)
+
+        #expect(completionCount == queuedCount)
+    }
+
     private func makeAncestorNavigationHierarchy() -> (
         window: UIWindow,
         ancestor: UIViewController,
@@ -850,6 +1371,195 @@ final class ProductionRegressionTests {
         navigationController.beginRecording()
 
         return (window, ancestor, navigationController, leaf)
+    }
+}
+
+@MainActor
+private struct SuspendedResponderEvent: ResponderEvent {}
+
+private final class WeakReference<Value: AnyObject> {
+    weak var value: Value?
+
+    init(_ value: Value?) {
+        self.value = value
+    }
+}
+
+private final class SuspendedResponderViewController: UIViewController, Responder {
+    var nextEventResponder: (any Responder)?
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    var isSuspended: Bool { continuation != nil }
+
+    func handle(event: any ResponderEvent) async -> Bool {
+        await withCheckedContinuation { continuation in
+            self.continuation = continuation
+        }
+
+        return true
+    }
+
+    func resume() {
+        let continuation = self.continuation
+        self.continuation = nil
+        continuation?.resume()
+    }
+}
+
+private final class HoldingNavigationTransitionDelegate: NSObject, UINavigationControllerDelegate {
+    private let animator = HoldingNavigationAnimator()
+
+    var hasActiveTransition: Bool { animator.hasActiveTransition }
+
+    func navigationController(
+        _ navigationController: UINavigationController,
+        animationControllerFor operation: UINavigationController.Operation,
+        from fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> (any UIViewControllerAnimatedTransitioning)? {
+        operation == .push ? animator : nil
+    }
+
+    func finishTransition() {
+        animator.finishTransition()
+    }
+}
+
+private final class HoldingNavigationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    private var transitionContext: (any UIViewControllerContextTransitioning)?
+
+    var hasActiveTransition: Bool { transitionContext != nil }
+
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        30
+    }
+
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        guard let toController = transitionContext.viewController(forKey: .to),
+            let toView = transitionContext.view(forKey: .to)
+        else {
+            transitionContext.completeTransition(false)
+
+            return
+        }
+
+        toView.frame = transitionContext.finalFrame(for: toController)
+        transitionContext.containerView.addSubview(toView)
+        self.transitionContext = transitionContext
+    }
+
+    func finishTransition() {
+        guard let transitionContext else { return }
+
+        self.transitionContext = nil
+        transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+    }
+}
+
+private final class HoldingDismissalTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    private let animator = HoldingDismissalAnimator()
+
+    var hasActiveTransition: Bool { animator.hasActiveTransition }
+
+    func animationController(
+        forDismissed dismissed: UIViewController
+    ) -> (any UIViewControllerAnimatedTransitioning)? {
+        animator
+    }
+
+    func finishTransition() {
+        animator.finishTransition()
+    }
+}
+
+private final class HoldingDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    private var transitionContext: (any UIViewControllerContextTransitioning)?
+
+    var hasActiveTransition: Bool { transitionContext != nil }
+
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        30
+    }
+
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        self.transitionContext = transitionContext
+    }
+
+    func finishTransition() {
+        guard let transitionContext else { return }
+
+        self.transitionContext = nil
+        transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+    }
+}
+
+@MainActor
+private final class FalseReturningCoordinatorNavigationController: UINavigationController {
+    private let fakeCoordinator = FalseReturningTransitionCoordinator()
+    private var exposesFakeCoordinator = false
+
+    override var transitionCoordinator: (any UIViewControllerTransitionCoordinator)? {
+        exposesFakeCoordinator ? fakeCoordinator : super.transitionCoordinator
+    }
+
+    override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        super.pushViewController(viewController, animated: false)
+        exposesFakeCoordinator = true
+    }
+}
+
+@MainActor
+private final class FalseReturningTransitionCoordinator: NSObject, UIViewControllerTransitionCoordinator {
+    var isAnimated: Bool { true }
+    var presentationStyle: UIModalPresentationStyle { .none }
+    var initiallyInteractive: Bool { false }
+    var isInterruptible: Bool { false }
+    var isInteractive: Bool { false }
+    var isCancelled: Bool { false }
+    var transitionDuration: TimeInterval { 0 }
+    var percentComplete: CGFloat { 1 }
+    var completionVelocity: CGFloat { 1 }
+    var completionCurve: UIView.AnimationCurve { .linear }
+    let containerView = UIView()
+    var targetTransform: CGAffineTransform { .identity }
+
+    func viewController(forKey key: UITransitionContextViewControllerKey) -> UIViewController? {
+        nil
+    }
+
+    func view(forKey key: UITransitionContextViewKey) -> UIView? {
+        nil
+    }
+
+    func animate(
+        alongsideTransition animation: ((any UIViewControllerTransitionCoordinatorContext) -> Void)?,
+        completion: ((any UIViewControllerTransitionCoordinatorContext) -> Void)?
+    ) -> Bool {
+        completion?(self)
+
+        return false
+    }
+
+    func animateAlongsideTransition(
+        in view: UIView?,
+        animation: ((any UIViewControllerTransitionCoordinatorContext) -> Void)?,
+        completion: ((any UIViewControllerTransitionCoordinatorContext) -> Void)?
+    ) -> Bool {
+        completion?(self)
+
+        return false
+    }
+
+    func notifyWhenInteractionEnds(
+        _ handler: @escaping (any UIViewControllerTransitionCoordinatorContext) -> Void
+    ) {
+        handler(self)
+    }
+
+    func notifyWhenInteractionChanges(
+        _ handler: @escaping (any UIViewControllerTransitionCoordinatorContext) -> Void
+    ) {
+        handler(self)
     }
 }
 
@@ -936,6 +1646,8 @@ private final class MutationRecordingNavigationController: UINavigationControlle
     private var isRecording = false
     private(set) var pushAttempts = 0
     private(set) var setViewControllersAttempts = 0
+    private(set) var popAttempts = 0
+    private(set) var popToAttempts = 0
 
     func beginRecording() {
         isRecording = true
@@ -959,6 +1671,29 @@ private final class MutationRecordingNavigationController: UINavigationControlle
         }
 
         setViewControllersAttempts += 1
+    }
+
+    override func popViewController(animated: Bool) -> UIViewController? {
+        guard isRecording else {
+            return super.popViewController(animated: animated)
+        }
+
+        popAttempts += 1
+
+        return nil
+    }
+
+    override func popToViewController(
+        _ viewController: UIViewController,
+        animated: Bool
+    ) -> [UIViewController]? {
+        guard isRecording else {
+            return super.popToViewController(viewController, animated: animated)
+        }
+
+        popToAttempts += 1
+
+        return nil
     }
 }
 

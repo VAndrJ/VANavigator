@@ -18,7 +18,10 @@ extension UINavigationController {
         animated: Bool,
         completion: @escaping (Bool) -> Void
     ) {
-        guard viewControllers.count > 1, let previousTop = topViewController else {
+        guard canMutateNavigationStack,
+            viewControllers.count > 1,
+            let previousTop = topViewController
+        else {
             completion(false)
 
             return
@@ -79,7 +82,9 @@ extension UINavigationController {
         animated: Bool,
         resultCompletion: @escaping (Bool) -> Void
     ) {
-        guard viewControllers.contains(where: { $0 === controller }) else {
+        guard canMutateNavigationStack,
+            viewControllers.contains(where: { $0 === controller })
+        else {
             resultCompletion(false)
 
             return
@@ -129,26 +134,47 @@ extension UINavigationController {
     }
 
     func canPushViewController(_ viewController: UIViewController) -> Bool {
-        return !(viewController is UINavigationController)
+        return canMutateNavigationStack
+            && !(viewController is UINavigationController)
             && !(viewController is UITabBarController)
             && viewController !== self
             && viewController.parent == nil
             && viewController.navigationController == nil
             && viewController.presentingViewController == nil
+            && viewController.presentedViewController == nil
+            && !viewController.isBeingPresented
+            && !viewController.isBeingDismissed
+            && viewController.transitionCoordinator == nil
+            && viewController.viewIfLoaded?.window == nil
             && !viewControllers.contains(where: { $0 === viewController })
             && viewController.findController(controller: self, withPresented: true) == nil
     }
 
     func canSetNavigationRoot(_ viewController: UIViewController) -> Bool {
-        return !(viewController is UINavigationController)
+        return canMutateNavigationStack
+            && !(viewController is UINavigationController)
             && !(viewController is UITabBarController)
             && viewController !== self
             && (viewController.parent == nil || viewController.parent === self)
             && (viewController.navigationController == nil || viewController.navigationController === self)
             && viewController.presentingViewController == nil
+            && viewController.presentedViewController == nil
             && !viewController.isBeingDismissed
             && !viewController.isBeingPresented
+            && viewController.transitionCoordinator == nil
+            && (viewController.viewIfLoaded?.window == nil || viewController.navigationController === self)
             && viewController.findController(controller: self, withPresented: true) == nil
+    }
+
+    var canMutateNavigationStack: Bool {
+        return !isBeingPresented
+            && !isBeingDismissed
+            && transitionCoordinator == nil
+            && viewControllers.allSatisfy {
+                !$0.isBeingPresented
+                    && !$0.isBeingDismissed
+                    && $0.transitionCoordinator == nil
+            }
     }
 
     private var canAnimateNavigationTransition: Bool {
@@ -166,16 +192,28 @@ extension UINavigationController {
     ) {
         operation()
         guard animated, let coordinator = transitionCoordinator else {
-            completion?()
+            DispatchQueue.main.async {
+                completion?()
+            }
 
             return
         }
 
+        var didScheduleCompletion = false
+        func scheduleCompletionOnce() {
+            guard !didScheduleCompletion else { return }
+
+            didScheduleCompletion = true
+            DispatchQueue.main.async {
+                completion?()
+            }
+        }
+
         let registeredCompletion = coordinator.animate(alongsideTransition: nil) { _ in
-            completion?()
+            scheduleCompletionOnce()
         }
         if !registeredCompletion {
-            completion?()
+            scheduleCompletionOnce()
         }
     }
 }

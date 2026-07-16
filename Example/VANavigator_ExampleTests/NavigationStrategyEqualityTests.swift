@@ -138,4 +138,25 @@ final class NavigationStrategyEqualityTests {
         #expect((expectedToFail2) != (sut))
         #expect((expectedToFail3) != (sut))
     }
+
+    @Test
+    func `Sendable strategy values compare outside the main actor`() async {
+        let result = await Task.detached {
+            let splitMatches = SplitStrategy.primary(action: .push)
+                == SplitStrategy.primary(action: .push)
+            let actions = Set<SplitStrategy.SplitAction>([.push, .pop, .replace, .push])
+            let sources = Set<PresentNavigationSource>([
+                .topController,
+                .navigationController,
+                .tabBarController,
+                .topController,
+            ])
+
+            return (splitMatches, actions.count, sources.count)
+        }.value
+
+        #expect(result.0)
+        #expect(result.1 == 3)
+        #expect(result.2 == 3)
+    }
 }

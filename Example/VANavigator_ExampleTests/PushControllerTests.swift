@@ -328,6 +328,9 @@ final class PushControllerTests {
         #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
         #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        await waitUntil("navigation delegate didShow callback", timeout: 10) {
+            delegate.didShowControllers.count == 1
+        }
         #expect(delegate.didShowControllers.count == 1)
         #expect(delegate.didShowControllers.first === responder)
         #expect(delegate.animatedValues == [false])

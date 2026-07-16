@@ -251,9 +251,8 @@ extension UISplitViewController {
 
             didScheduleCompletion = true
             // A split column can share a navigation stack in compact mode. UIKit finalizes that stack after the
-            // transition-coordinator callback, so the next stack mutation must run on a later main-actor turn.
-            Task { @MainActor in
-                await Task.yield()
+            // transition-coordinator callback, so enqueue the mutation after the current main-queue work completes.
+            DispatchQueue.main.async {
                 completion()
             }
         }

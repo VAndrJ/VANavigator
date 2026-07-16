@@ -22,13 +22,15 @@ public final class Navigator {
     public private(set) weak var window: UIWindow?
 
     private var navigationQueue = Queue<QueuedNavigation>()
-    private var isNavigationInProgress = false {
+    private var activeNavigationOperation: NavigationOperation? {
         didSet { checkQueue() }
     }
+    private var isNavigationInProgress: Bool { activeNavigationOperation != nil }
     private var isChainNavigationInProgress = false {
         didSet { checkQueue() }
     }
     private var isQueueCheckSuspended = false
+    private var isQueueCheckInProgress = false
     private let popoverDelegate = PopoverDelegate()
 
     public init(
@@ -159,8 +161,7 @@ public final class Navigator {
                 completion: completion
             ),
             shouldIntercept: false,
-            completion: { [weak self] controller, result in
-                guard let self else { return }
+            completion: { [self] controller, result in
                 guard result else {
                     completion?(controller, false)
                     self.isChainNavigationInProgress = false
@@ -168,8 +169,8 @@ public final class Navigator {
                     return
                 }
 
-                Task { @MainActor [weak self] in
-                    self?.continueNavigationChain(
+                Task { @MainActor [self] in
+                    continueNavigationChain(
                         chain: chain,
                         linkIndex: nextLinkIndex,
                         event: event,
@@ -254,7 +255,8 @@ public final class Navigator {
             return
         }
 
-        isNavigationInProgress = true
+        let operation = NavigationOperation()
+        activeNavigationOperation = operation
         navigate(
             to: destination,
             strategy: strategy,
@@ -263,7 +265,7 @@ public final class Navigator {
             event: event,
             completion: { [weak self] controller, result in
                 completion?(controller, result)
-                self?.isNavigationInProgress = false
+                self?.finishNavigationOperation(operation)
             }
         )
     }
@@ -307,7 +309,7 @@ public final class Navigator {
                 if isChainNavigationInProgress {
                     isChainNavigationInProgress = false
                 } else {
-                    isNavigationInProgress = false
+                    activeNavigationOperation = nil
                 }
                 navigate(
                     chain: interceptionResult.chain,
@@ -333,14 +335,16 @@ public final class Navigator {
                 return
             }
 
-            Task {
+            Task { [self] in
                 if let navigatorEvent {
                     _ = await responder.handle(event: navigatorEvent)
                 }
                 if let event {
                     _ = await responder.handle(event: event)
                 }
-                completion()
+                withExtendedLifetime(self) {
+                    completion()
+                }
             }
         }
 
@@ -362,7 +366,9 @@ public final class Navigator {
                 }
             }
 
-            if let navigationController = window?.topController?.orNavigationController {
+            if let navigationController = window?.topController?.orNavigationController,
+                navigationController.canMutateNavigationStack
+            {
                 if navigationController.topViewController.map({
                     destination.isEqual(to: .controller($0))
                 }) == true {
@@ -434,6 +440,11 @@ public final class Navigator {
                     completion?(nil, false)
                 }
             }
+            func completeCloseSuccess() {
+                withExtendedLifetime(self) {
+                    completion?(nil, true)
+                }
+            }
 
             if let controller = window?.topController {
                 if tryToPop,
@@ -445,13 +456,11 @@ public final class Navigator {
                         animated: animated,
                         completion: { isSuccess in
                             if isSuccess {
-                                completion?(nil, true)
+                                completeCloseSuccess()
                             } else if tryToDismiss, let presentedController = presentedContainer(for: controller) {
                                 presentedController.dismiss(
                                     animated: animated,
-                                    completion: {
-                                        completion?(nil, true)
-                                    }
+                                    completion: completeCloseSuccess
                                 )
                             } else {
                                 completeCloseFailure()
@@ -465,9 +474,7 @@ public final class Navigator {
                     {
                         presentedController.dismiss(
                             animated: animated,
-                            completion: {
-                                completion?(nil, true)
-                            }
+                            completion: completeCloseSuccess
                         )
                     } else {
                         completeCloseFailure()
@@ -592,6 +599,9 @@ public final class Navigator {
                     guard controller !== sourceController,
                         controller.parent == nil,
                         controller.presentingViewController == nil,
+                        controller.presentedViewController == nil,
+                        controller.transitionCoordinator == nil,
+                        controller.viewIfLoaded?.window == nil,
                         controller.findController(controller: sourceController, withPresented: true) == nil,
                         sourceController.presentedViewController == nil,
                         !sourceController.isBeingDismissed,
@@ -652,10 +662,8 @@ public final class Navigator {
                 navigatorEvent = ResponderClosedToExistingEvent()
                 selectTabIfNeeded(
                     controller: controller,
-                    completion: { [weak self] in
-                        guard let self else { return }
-
-                        self.closeNavigationPresentedResult(
+                    completion: { [self] in
+                        closeNavigationPresentedResult(
                             controller: controller,
                             animated: animated,
                             completion: { isSuccess in
@@ -688,9 +696,7 @@ public final class Navigator {
                 controller: controller,
                 animated: animated,
                 navigation: strategy.navigation,
-                completion: { [weak self] isSuccess in
-                    guard let self else { return }
-
+                completion: { [self] isSuccess in
                     if isSuccess {
                         perform(
                             event: event,
@@ -702,7 +708,7 @@ public final class Navigator {
                         )
                     } else {
                         if let fallback {
-                            self.navigate(
+                            navigate(
                                 to: fallback.destination,
                                 strategy: fallback.strategy,
                                 animated: fallback.animated,
@@ -775,10 +781,8 @@ public final class Navigator {
                 navigatorEvent = ResponderPoppedToExistingEvent()
                 selectTabIfNeeded(
                     controller: controller,
-                    completion: { [weak self] in
-                        guard let self else { return }
-
-                        self.closeNavigationPresentedResult(
+                    completion: { [self] in
+                        closeNavigationPresentedResult(
                             controller: controller,
                             animated: animated,
                             completion: { isSuccess in
@@ -895,6 +899,9 @@ public final class Navigator {
                 guard controller !== sourceController,
                     controller.parent == nil,
                     controller.presentingViewController == nil,
+                    controller.presentedViewController == nil,
+                    controller.transitionCoordinator == nil,
+                    controller.viewIfLoaded?.window == nil,
                     controller.findController(controller: sourceController, withPresented: true) == nil,
                     sourceController.presentedViewController == nil,
                     !sourceController.isBeingDismissed,
@@ -1158,11 +1165,9 @@ public final class Navigator {
         dismissPresented(
             in: sourceController,
             animated: animated,
-            completion: { [weak self] in
-                guard let self else { return }
-
-                if let navigationController = self.window?.topController?.orNavigationController {
-                    self.push(
+            completion: { [self] in
+                if let navigationController = window?.topController?.orNavigationController {
+                    push(
                         controller: controller,
                         to: navigationController,
                         animated: animated,
@@ -1312,9 +1317,9 @@ public final class Navigator {
         if let presentedViewController = controller?.presentedViewController {
             presentedViewController.dismiss(
                 animated: animated,
-                completion: { [weak self] in
+                completion: { [self] in
                     if controller?.presentedViewController != nil {
-                        self?.dismissPresented(
+                        dismissPresented(
                             in: controller,
                             animated: animated,
                             completion: completion
@@ -1389,16 +1394,27 @@ public final class Navigator {
     }
 
     private func checkQueue() {
-        guard !isQueueCheckSuspended else { return }
-        guard !(isNavigationInProgress || isChainNavigationInProgress) else { return }
-        guard let queued = navigationQueue.dequeue() else { return }
+        guard !isQueueCheckSuspended, !isQueueCheckInProgress else { return }
 
-        enqueueOrStartNavigationChain(
-            chain: queued.chain,
-            event: queued.event,
-            initialResult: queued.initialResult,
-            completion: queued.completion
-        )
+        isQueueCheckInProgress = true
+        defer { isQueueCheckInProgress = false }
+        while !isQueueCheckSuspended,
+            !(isNavigationInProgress || isChainNavigationInProgress),
+            let queued = navigationQueue.dequeue()
+        {
+            enqueueOrStartNavigationChain(
+                chain: queued.chain,
+                event: queued.event,
+                initialResult: queued.initialResult,
+                completion: queued.completion
+            )
+        }
+    }
+
+    private func finishNavigationOperation(_ operation: NavigationOperation) {
+        guard activeNavigationOperation === operation else { return }
+
+        activeNavigationOperation = nil
     }
 
     private func performSuspendingQueueCheck(_ operation: () -> Void) {
@@ -1424,3 +1440,5 @@ private struct NavigationChainContext {
     let remainingLinks: ArraySlice<NavigationChainLink>
     let completion: ((UIViewController?, Bool) -> Void)?
 }
+
+private final class NavigationOperation {}

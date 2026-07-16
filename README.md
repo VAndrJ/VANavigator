@@ -29,6 +29,10 @@ Swift **6.2** or later.
 
 Navigation identities, responder events, and navigation APIs are isolated to the main actor. Construct identities and events on the main actor before starting navigation.
 
+`Responder.handle(event:)` is awaited before navigation completes and before queued work continues. Implementations must return after handling the event; start independent long-running work in a separate task instead of suspending the handler indefinitely.
+
+Navigation stack mutations fail safely (and use their configured fallback) while UIKit is already performing a transition, or when the destination controller belongs to another view-controller/window hierarchy. Setting the first root controller also calls `makeKeyAndVisible()` on the navigator's window.
+
 
 ## Installation
 

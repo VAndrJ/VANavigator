@@ -106,8 +106,8 @@ extension NavigationStrategy {
 }
 
 /// Navigation strategy for `UISplitViewController`.
-public enum SplitStrategy: Sendable, @MainActor Equatable {
-    public enum SplitAction: Sendable, @MainActor Equatable, @MainActor Hashable {
+nonisolated public enum SplitStrategy: Sendable, Equatable {
+    nonisolated public enum SplitAction: Sendable, Equatable, Hashable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -156,7 +156,7 @@ final class RemoveFromStackNavigationStrategy: NavigationStrategy {
     }
 }
 
-public enum PresentNavigationSource: Sendable, @MainActor Equatable, @MainActor Hashable {
+nonisolated public enum PresentNavigationSource: Sendable, Equatable, Hashable {
     case topController
     case navigationController
     case tabBarController
