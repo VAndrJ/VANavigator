@@ -35,7 +35,7 @@ final class RemoveFromStackNavigationStrategyTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -68,7 +68,7 @@ final class RemoveFromStackNavigationStrategyTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -101,7 +101,7 @@ final class RemoveFromStackNavigationStrategyTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -150,7 +150,7 @@ final class RemoveFromStackNavigationStrategyTests {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

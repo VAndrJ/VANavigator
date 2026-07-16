@@ -8,8 +8,8 @@
 
 import UIKit
 
-@MainActor // Default isolation issue workaround.
-open class Navigator {
+@MainActor
+public final class Navigator {
     public let screenFactory: any NavigatorScreenFactory
     public var navigationInterceptor: NavigationInterceptor? {
         didSet {
@@ -101,6 +101,7 @@ open class Navigator {
         isChainNavigationInProgress = true
         continueNavigationChain(
             chain: chain,
+            linkIndex: chain.startIndex,
             event: event,
             linkCompletionResult: initialResult,
             completion: completion
@@ -109,27 +110,27 @@ open class Navigator {
 
     private func continueNavigationChain(
         chain: [NavigationChainLink],
+        linkIndex: Int,
         event: (any ResponderEvent)?,
         linkCompletionResult: (UIViewController?, Bool)?,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
-        guard !chain.isEmpty else {
+        guard linkIndex < chain.endIndex else {
             completion?(linkCompletionResult?.0, linkCompletionResult?.1 ?? false)
             isChainNavigationInProgress = false
 
             return
         }
 
-        var chain = chain
-        let link = chain.removeFirst()
+        let link = chain[linkIndex]
+        let nextLinkIndex = chain.index(after: linkIndex)
         if let navigationInterceptor,
             let interceptionResult = navigationInterceptor.intercept(
                 destination: link.destination
             )
         {
-            let chain = CollectionOfOne(link) + chain
             let detail = InterceptedNavigation(
-                chain: chain,
+                chain: Array(chain[linkIndex...]),
                 event: event,
                 completion: completion,
                 navigator: self
@@ -153,6 +154,11 @@ open class Navigator {
             animated: link.animated,
             fallback: link.fallback,
             event: event,
+            chainContext: NavigationChainContext(
+                remainingLinks: chain[nextLinkIndex...],
+                completion: completion
+            ),
+            shouldIntercept: false,
             completion: { [weak self] controller, result in
                 guard let self else { return }
                 guard result else {
@@ -162,12 +168,15 @@ open class Navigator {
                     return
                 }
 
-                self.continueNavigationChain(
-                    chain: chain,
-                    event: event,
-                    linkCompletionResult: (controller, result),
-                    completion: completion
-                )
+                Task { @MainActor [weak self] in
+                    self?.continueNavigationChain(
+                        chain: chain,
+                        linkIndex: nextLinkIndex,
+                        event: event,
+                        linkCompletionResult: (controller, result),
+                        completion: completion
+                    )
+                }
             }
         )
     }
@@ -181,6 +190,8 @@ open class Navigator {
     ///   - fallbackStrategies: The fallback navigation strategies.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure called with the responder and result after navigation completes.
+    /// - Note: Popover navigation without a configured source item, source view, or bar button item fails safely
+    ///   and uses the supplied fallback, when available.
     public func navigate(
         destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -213,6 +224,8 @@ open class Navigator {
     ///   - fallback: The fallback navigation chain link.
     ///   - event: `ResponderEvent` to be handled by the destination controller.
     ///   - completion: A closure called with the responder and result after navigation completes.
+    /// - Note: Popover navigation without a configured source item, source view, or bar button item fails safely
+    ///   and uses `fallback`, when supplied.
     public func navigate(
         destination: NavigationDestination,
         strategy: NavigationStrategy,
@@ -261,29 +274,41 @@ open class Navigator {
         animated: Bool,
         fallback: NavigationChainLink?,
         event: (any ResponderEvent)?,
+        chainContext: NavigationChainContext? = nil,
+        shouldIntercept: Bool = true,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
-        if let navigationInterceptor,
+        if shouldIntercept,
+            let navigationInterceptor,
             let interceptionResult = navigationInterceptor.intercept(
                 destination: destination
             )
         {
+            let currentLink = NavigationChainLink(
+                destination: destination,
+                strategy: strategy,
+                animated: animated,
+                fallback: fallback
+            )
+            let interceptedCompletion: ((UIViewController?, Bool) -> Void)?
+            if let chainContext {
+                interceptedCompletion = chainContext.completion
+            } else {
+                interceptedCompletion = completion
+            }
             let detail = InterceptedNavigation(
-                chain: [
-                    NavigationChainLink(
-                        destination: destination,
-                        strategy: strategy,
-                        animated: animated,
-                        fallback: fallback
-                    )
-                ],
+                chain: [currentLink] + (chainContext.map { Array($0.remainingLinks) } ?? []),
                 event: event,
-                completion: completion,
+                completion: interceptedCompletion,
                 navigator: self
             )
             navigationInterceptor.store(detail, reason: interceptionResult.reason)
             performSuspendingQueueCheck {
-                isNavigationInProgress = false
+                if isChainNavigationInProgress {
+                    isChainNavigationInProgress = false
+                } else {
+                    isNavigationInProgress = false
+                }
                 navigate(
                     chain: interceptionResult.chain,
                     event: interceptionResult.event,
@@ -321,38 +346,61 @@ open class Navigator {
 
         switch strategy {
         case _ as RemoveFromStackNavigationStrategy:
+            func completeRemovalFailure() {
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        chainContext: chainContext,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
             if let navigationController = window?.topController?.orNavigationController {
                 if navigationController.topViewController.map({
                     destination.isEqual(to: .controller($0))
                 }) == true {
                     navigate(
                         to: destination,
-                        strategy: .closeIfTop(),
+                        strategy: .closeIfTop(tryToDismiss: false),
                         animated: animated,
-                        fallback: fallback,
+                        fallback: nil,
                         event: event,
-                        completion: completion
+                        chainContext: chainContext,
+                        shouldIntercept: false,
+                        completion: { controller, isSuccess in
+                            if isSuccess {
+                                completion?(controller, true)
+                            } else {
+                                completeRemovalFailure()
+                            }
+                        }
                     )
                 } else if let index = navigationController.viewControllers.firstIndex(
                     where: { destination.isEqual(to: .controller($0)) }
                 ) {
+                    let removedController = navigationController.viewControllers[index]
+                    let previousCount = navigationController.viewControllers.count
                     navigationController.viewControllers.remove(at: index)
 
-                    completion?(nil, true)
+                    if navigationController.viewControllers.count == previousCount - 1,
+                        !navigationController.viewControllers.contains(where: { $0 === removedController })
+                    {
+                        completion?(nil, true)
+                    } else {
+                        completeRemovalFailure()
+                    }
                 } else {
-                    completion?(nil, false)
+                    completeRemovalFailure()
                 }
-            } else if let fallback {
-                navigate(
-                    to: fallback.destination,
-                    strategy: fallback.strategy,
-                    animated: fallback.animated,
-                    fallback: fallback.fallback,
-                    event: event,
-                    completion: completion
-                )
             } else {
-                completion?(nil, false)
+                completeRemovalFailure()
             }
         case let strategy as CloseIfTopNavigationStrategy:
             let tryToPop = strategy.tryToPop
@@ -379,6 +427,7 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
@@ -428,7 +477,7 @@ open class Navigator {
                 completeCloseFailure()
             }
         case let strategy as ReplaceWindowRootNavigationStrategy:
-            guard window != nil else {
+            func completeWindowRootFailure() {
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -436,32 +485,55 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
                     completion?(nil, false)
                 }
+            }
+
+            guard let window else {
+                completeWindowRootFailure()
 
                 return
             }
 
             let transition = animated ? strategy.transition : nil
             let controller = getController(destination: destination)
-            if window?.rootViewController != nil {
+            let currentRootController = window.rootViewController
+            guard window.canSetNavigatorRootViewController(controller) else {
+                completeWindowRootFailure()
+
+                return
+            }
+
+            if currentRootController != nil, currentRootController !== controller {
                 navigatorEvent = ResponderReplacedWindowRootControllerEvent()
             }
+
+            func completeWindowRootSuccess() {
+                perform(
+                    event: event,
+                    navigatorEvent: navigatorEvent,
+                    on: controller as? any UIViewController & Responder,
+                    completion: {
+                        completion?(controller, true)
+                    }
+                )
+            }
+
             replaceWindowRoot(
                 controller: controller,
                 transition: transition,
                 completion: {
-                    perform(
-                        event: event,
-                        navigatorEvent: navigatorEvent,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            completion?(controller, true)
-                        }
-                    )
+                    guard window.rootViewController === controller else {
+                        completeWindowRootFailure()
+
+                        return
+                    }
+
+                    completeWindowRootSuccess()
                 }
             )
         case let strategy as PresentNavigationStrategy:
@@ -473,6 +545,7 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
@@ -519,6 +592,7 @@ open class Navigator {
                     guard controller !== sourceController,
                         controller.parent == nil,
                         controller.presentingViewController == nil,
+                        controller.findController(controller: sourceController, withPresented: true) == nil,
                         sourceController.presentedViewController == nil,
                         !sourceController.isBeingDismissed,
                         !sourceController.isBeingPresented
@@ -566,6 +640,7 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
@@ -633,6 +708,7 @@ open class Navigator {
                                 animated: fallback.animated,
                                 fallback: fallback.fallback,
                                 event: event,
+                                chainContext: chainContext,
                                 completion: completion
                             )
                         } else {
@@ -652,6 +728,7 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
@@ -737,6 +814,7 @@ open class Navigator {
                             animated: fallback.animated,
                             fallback: fallback.fallback,
                             event: event,
+                            chainContext: chainContext,
                             completion: completion
                         )
                     } else {
@@ -760,6 +838,7 @@ open class Navigator {
                                     animated: fallback.animated,
                                     fallback: fallback.fallback,
                                     event: event,
+                                    chainContext: chainContext,
                                     completion: completion
                                 )
                             } else {
@@ -786,6 +865,7 @@ open class Navigator {
                     animated: fallback.animated,
                     fallback: fallback.fallback,
                     event: event,
+                    chainContext: chainContext,
                     completion: completion
                 )
             } else {
@@ -800,6 +880,7 @@ open class Navigator {
                         animated: fallback.animated,
                         fallback: fallback.fallback,
                         event: event,
+                        chainContext: chainContext,
                         completion: completion
                     )
                 } else {
@@ -814,6 +895,7 @@ open class Navigator {
                 guard controller !== sourceController,
                     controller.parent == nil,
                     controller.presentingViewController == nil,
+                    controller.findController(controller: sourceController, withPresented: true) == nil,
                     sourceController.presentedViewController == nil,
                     !sourceController.isBeingDismissed,
                     !sourceController.isBeingPresented
@@ -826,6 +908,19 @@ open class Navigator {
                 controller.modalPresentationStyle = .popover
                 if let popover = controller.popoverPresentationController {
                     strategy.configure(popover, controller)
+                    let hasPopoverAnchor: Bool
+                    if #available(iOS 16.0, *) {
+                        hasPopoverAnchor = popover.sourceItem != nil
+                            || popover.sourceView != nil
+                            || popover.barButtonItem != nil
+                    } else {
+                        hasPopoverAnchor = popover.sourceView != nil || popover.barButtonItem != nil
+                    }
+                    guard hasPopoverAnchor else {
+                        completePopoverFailure()
+
+                        return
+                    }
                     if popover.delegate == nil {
                         popover.delegate = popoverDelegate
                     }
@@ -883,6 +978,7 @@ open class Navigator {
                             animated: fallback.animated,
                             fallback: fallback.fallback,
                             event: event,
+                            chainContext: chainContext,
                             completion: completion
                         )
                     } else {
@@ -1112,12 +1208,18 @@ open class Navigator {
     ///   - controller: The view controller to set as the `rootViewController`.
     ///   - transition: Animated transitions when replacing the `rootViewController`.
     ///   - completion: A closure to be executed after the replacement is complete.
-    public func replaceWindowRoot(
+    func replaceWindowRoot(
         controller: UIViewController,
         transition: CATransition?,
         completion: (() -> Void)?
     ) {
         guard let window else {
+            completion?()
+
+            return
+        }
+
+        guard window.canSetNavigatorRootViewController(controller) else {
             completion?()
 
             return
@@ -1236,19 +1338,31 @@ open class Navigator {
         controller: UIViewController?,
         completion: (() -> Void)? = nil
     ) {
-        if let controller, let tabBarController = controller.findTabBarController() {
-            for index in (tabBarController.viewControllers ?? []).indices
-            where tabBarController.viewControllers?[index].findController(
-                controller: controller,
-                withPresented: false
-            ) != nil {
-                if tabBarController.selectedIndex != index {
-                    tabBarController.selectedIndex = index
-                }
-                completion?()
+        guard let controller else {
+            completion?()
 
-                return
+            return
+        }
+
+        var selectionTarget = controller
+        var tabBarController = controller.findTabBarController()
+        var selectedTabControllers = Set<ObjectIdentifier>()
+        while let currentTabBarController = tabBarController,
+            selectedTabControllers.insert(ObjectIdentifier(currentTabBarController)).inserted
+        {
+            if let index = currentTabBarController.viewControllers?.firstIndex(where: {
+                $0 === selectionTarget
+                    || $0.findController(controller: selectionTarget, withPresented: false) != nil
+            }), currentTabBarController.selectedIndex != index {
+                currentTabBarController.selectedIndex = index
             }
+
+            selectionTarget = currentTabBarController
+            var ancestor = currentTabBarController.parent
+            while ancestor != nil, !(ancestor is UITabBarController) {
+                ancestor = ancestor?.parent
+            }
+            tabBarController = ancestor as? UITabBarController
         }
 
         completion?()
@@ -1304,4 +1418,9 @@ private struct QueuedNavigation {
     let event: (any ResponderEvent)?
     let completion: ((UIViewController?, Bool) -> Void)?
     let initialResult: (UIViewController?, Bool)?
+}
+
+private struct NavigationChainContext {
+    let remainingLinks: ArraySlice<NavigationChainLink>
+    let completion: ((UIViewController?, Bool) -> Void)?
 }

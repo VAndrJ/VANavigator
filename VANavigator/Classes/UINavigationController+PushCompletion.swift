@@ -136,6 +136,7 @@ extension UINavigationController {
             && viewController.navigationController == nil
             && viewController.presentingViewController == nil
             && !viewControllers.contains(where: { $0 === viewController })
+            && viewController.findController(controller: self, withPresented: true) == nil
     }
 
     func canSetNavigationRoot(_ viewController: UIViewController) -> Bool {
@@ -147,6 +148,7 @@ extension UINavigationController {
             && viewController.presentingViewController == nil
             && !viewController.isBeingDismissed
             && !viewController.isBeingPresented
+            && viewController.findController(controller: self, withPresented: true) == nil
     }
 
     private var canAnimateNavigationTransition: Bool {

@@ -30,7 +30,7 @@ final class CloseIfTopControllerTests {
             strategy: .closeIfTop(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -58,7 +58,7 @@ final class CloseIfTopControllerTests {
             strategy: .closeIfTop(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -83,7 +83,7 @@ final class CloseIfTopControllerTests {
             strategy: .closeIfTop(tryToDismiss: false),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -109,7 +109,7 @@ final class CloseIfTopControllerTests {
             strategy: .closeIfTop(tryToDismiss: false),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -136,7 +136,7 @@ final class CloseIfTopControllerTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -193,7 +193,7 @@ final class CloseIfTopControllerTests {
             destination: .identity(topIdentity),
             strategy: .closeIfTop(tryToPop: false),
             event: ResponderMockEvent(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -263,7 +263,7 @@ final class CloseIfTopControllerTests {
                     animated: false
                 ),
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -289,7 +289,7 @@ final class CloseIfTopControllerTests {
                     animated: false
                 ),
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

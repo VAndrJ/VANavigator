@@ -6,6 +6,7 @@
 //  Copyright © 2026 Volodymyr Andriienko. All rights reserved.
 //
 
+import Swiftional
 import UIKit
 
 extension UIView {

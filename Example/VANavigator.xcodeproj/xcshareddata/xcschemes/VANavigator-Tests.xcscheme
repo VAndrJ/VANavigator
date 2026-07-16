@@ -38,12 +38,6 @@
             ReferencedContainer = "container:VANavigator.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "IS_TESTING"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <TestPlans>
          <TestPlanReference
             reference = "container:VANavigator-Example.xctestplan"

@@ -7,6 +7,6 @@
 //
 
 import Foundation
-@_exported public import Swiftional
+public import Swiftional
 
-extension Foundation.NSObject: Swiftional.Applyable {}
+extension Foundation.NSObject: @retroactive Swiftional.Applyable {}

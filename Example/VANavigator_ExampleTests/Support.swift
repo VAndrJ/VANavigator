@@ -13,12 +13,12 @@ import VANavigator
 nonisolated final class TestExpectation: @unchecked Sendable {
     let description: String
     private let lock = NSLock()
-    private var fulfilled = false
+    private var fulfillmentCount = 0
 
     var isFulfilled: Bool {
         lock.lock()
         defer { lock.unlock() }
-        return fulfilled
+        return fulfillmentCount > 0
     }
 
     init(description: String) {
@@ -26,9 +26,15 @@ nonisolated final class TestExpectation: @unchecked Sendable {
     }
 
     func fulfill() {
+        let wasAlreadyFulfilled: Bool
         lock.lock()
-        fulfilled = true
+        fulfillmentCount += 1
+        wasAlreadyFulfilled = fulfillmentCount > 1
         lock.unlock()
+
+        if wasAlreadyFulfilled {
+            Issue.record("Expectation '\(description)' was fulfilled more than once")
+        }
     }
 }
 
@@ -45,7 +51,12 @@ func fulfillment(of expectations: [TestExpectation], timeout: TimeInterval) asyn
             Issue.record("Timed out waiting for '\(pendingExpectation.description)'")
             return
         }
-        try? await Task.sleep(nanoseconds: 10_000_000)
+        do {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        } catch {
+            Issue.record("Cancelled while waiting for '\(pendingExpectation.description)'")
+            return
+        }
     }
 }
 
@@ -62,7 +73,12 @@ func waitUntil(
             Issue.record("Timed out waiting for '\(description)'")
             return
         }
-        try? await Task.sleep(nanoseconds: 10_000_000)
+        do {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        } catch {
+            Issue.record("Cancelled while waiting for '\(description)'")
+            return
+        }
     }
 }
 
@@ -194,6 +210,8 @@ class MockPushViewController: MockViewController, Responder {
 
 class MockRootViewController: MockViewController, Responder {
     private(set) var isReplacedEventHandled = false
+    private(set) var isClosedEventHandled = false
+    private(set) var handledEvents: [String] = []
 
     // MARK: - Responder
 
@@ -203,10 +221,17 @@ class MockRootViewController: MockViewController, Responder {
         switch event {
         case _ as ResponderReplacedWindowRootControllerEvent:
             isReplacedEventHandled = true
+            handledEvents.append("replaced")
+
+            return true
+        case _ as ResponderClosedToExistingEvent:
+            isClosedEventHandled = true
+            handledEvents.append("closed")
 
             return true
         case _ as ResponderMockEvent:
             isMockEventHandled = true
+            handledEvents.append("mock")
 
             return true
         default:
@@ -231,32 +256,34 @@ class MockTabBarViewController: UITabBarController, Responder {
     }
 }
 
+@MainActor
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
     let children: [any NavigationIdentity]
 }
 
+@MainActor
 struct MockSplitControllerNavigationIdentity: DefaultNavigationIdentity {
     let primary: any NavigationIdentity
     let secondary: any NavigationIdentity
     var supplementary: (any NavigationIdentity)?
 }
 
+@MainActor
 struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
     let children: [any NavigationIdentity]
 }
 
+@MainActor
 struct ResponderMockEvent: ResponderEvent {}
-
-func taskDetachedMain(_ fn: @escaping @Sendable () -> any Sendable) {
-    Task.detached {
-        await MainActor.run(body: fn)
-    }
-}

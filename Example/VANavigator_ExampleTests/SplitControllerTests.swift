@@ -46,7 +46,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -82,7 +82,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -149,7 +149,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -169,7 +169,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -206,7 +206,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -226,7 +226,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -263,7 +263,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -288,7 +288,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -324,7 +324,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -361,7 +361,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -397,7 +397,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -416,7 +416,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -453,7 +453,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -472,7 +472,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -508,7 +508,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -532,7 +532,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect1.fulfill() }
+                expect1.fulfill()
             }
         )
 
@@ -567,7 +567,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -642,7 +642,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -673,7 +673,7 @@ final class SplitControllerTests {
             ),
             strategy: .replaceWindowRoot(),
             animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -700,7 +700,7 @@ final class SplitControllerTests {
     }
 
     @Test
-    func `Missing split controller uses primary pop fallback`() async {
+    func `Missing split controller uses primary push fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStackWithoutSplit(navigator: navigator)
         let splitController = window?.rootViewController as? UISplitViewController
@@ -724,7 +724,7 @@ final class SplitControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -741,7 +741,7 @@ final class SplitControllerTests {
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
             animated: false,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

@@ -25,7 +25,7 @@ final class SearchTests {
     }
 
     @Test
-    func `Finds controllers across tab hierarchy`() async {
+    func `Finds controllers across tab hierarchy`() async throws {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let primaryIdentity = MockControllerNavigationIdentity()
         let secondaryIdentity = LoginNavigationIdentity()
@@ -46,45 +46,47 @@ final class SearchTests {
                 .init(destination: .identity(tabIdentity), strategy: .present(), animated: false),
                 .init(destination: .identity(presentIdentity), strategy: .present(), animated: false),
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
 
-        let controller = window?.findController(destination: .identity(identity))
-        #expect(identity.isEqual(to: controller?.navigationIdentity))
-        #expect((controller) == (window?.findController(destination: .controller(controller!))))
-        let controller1 = window?.findController(destination: .identity(identity1))
-        #expect(identity1.isEqual(to: controller1?.navigationIdentity))
-        #expect((controller1) == (window?.findController(destination: .controller(controller1!))))
-        let navController = window?.findController(destination: .identity(navIdentity))
-        #expect(navIdentity.isEqual(to: navController?.navigationIdentity))
-        #expect((navController) == (window?.findController(destination: .controller(navController!))))
-        let tabController = window?.findController(destination: .identity(tabIdentity))
-        #expect(tabIdentity.isEqual(to: tabController?.navigationIdentity))
-        #expect((tabController) == (window?.findController(destination: .controller(tabController!))))
-        let presentedController = window?.findController(destination: .identity(presentIdentity))
-        #expect(presentIdentity.isEqual(to: presentedController?.navigationIdentity))
-        #expect((presentedController) == (window?.findController(destination: .controller(presentedController!))))
-        let splitController = window?.findController(destination: .identity(splitIdentity))
-        #expect(splitIdentity.isEqual(to: splitController?.navigationIdentity))
-        #expect((splitController) == (window?.findController(destination: .controller(splitController!))))
-        let primaryController = window?.findController(destination: .identity(primaryIdentity))
-        #expect(primaryIdentity.isEqual(to: primaryController?.navigationIdentity))
-        #expect((primaryController) == (window?.findController(destination: .controller(primaryController!))))
+        let controller = try #require(window?.findController(destination: .identity(identity)))
+        #expect(identity.isEqual(to: controller.navigationIdentity))
+        #expect((controller) == (window?.findController(destination: .controller(controller))))
+        let controller1 = try #require(window?.findController(destination: .identity(identity1)))
+        #expect(identity1.isEqual(to: controller1.navigationIdentity))
+        #expect((controller1) == (window?.findController(destination: .controller(controller1))))
+        let navController = try #require(window?.findController(destination: .identity(navIdentity)))
+        #expect(navIdentity.isEqual(to: navController.navigationIdentity))
+        #expect((navController) == (window?.findController(destination: .controller(navController))))
+        let tabController = try #require(window?.findController(destination: .identity(tabIdentity)))
+        #expect(tabIdentity.isEqual(to: tabController.navigationIdentity))
+        #expect((tabController) == (window?.findController(destination: .controller(tabController))))
+        let presentedController = try #require(window?.findController(destination: .identity(presentIdentity)))
+        #expect(presentIdentity.isEqual(to: presentedController.navigationIdentity))
+        #expect((presentedController) == (window?.findController(destination: .controller(presentedController))))
+        let splitController = try #require(window?.findController(destination: .identity(splitIdentity)))
+        #expect(splitIdentity.isEqual(to: splitController.navigationIdentity))
+        #expect((splitController) == (window?.findController(destination: .controller(splitController))))
+        let primaryController = try #require(window?.findController(destination: .identity(primaryIdentity)))
+        #expect(primaryIdentity.isEqual(to: primaryController.navigationIdentity))
+        #expect((primaryController) == (window?.findController(destination: .controller(primaryController))))
         if UIDevice.current.userInterfaceIdiom == .pad {
-            let secondaryController = window?.findController(destination: .identity(secondaryIdentity))
-            #expect(secondaryIdentity.isEqual(to: secondaryController?.navigationIdentity))
-            #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController!))))
+            let secondaryController = try #require(
+                window?.findController(destination: .identity(secondaryIdentity))
+            )
+            #expect(secondaryIdentity.isEqual(to: secondaryController.navigationIdentity))
+            #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController))))
         }
 
         #expect((presentedController) == (window?.topController))
-        #expect((tabController) == (controller?.findTabBarController()))
-        #expect((tabController) == (controller1?.findTabBarController()))
-        #expect((tabController) == (navController?.findTabBarController()))
-        #expect((tabController) == (tabController?.findTabBarController()))
-        #expect((tabController) == (presentedController?.findTabBarController()))
-        #expect((splitController?.findTabBarController()) == nil)
+        #expect((tabController) == (controller.findTabBarController()))
+        #expect((tabController) == (controller1.findTabBarController()))
+        #expect((tabController) == (navController.findTabBarController()))
+        #expect((tabController) == (tabController.findTabBarController()))
+        #expect((tabController) == (presentedController.findTabBarController()))
+        #expect((splitController.findTabBarController()) == nil)
     }
 
     @Test

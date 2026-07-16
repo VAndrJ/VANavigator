@@ -8,8 +8,10 @@
 
 import Foundation
 
-public protocol ResponderEvent: Sendable {}
+@MainActor
+public protocol ResponderEvent {}
 
+@MainActor
 public protocol Responder: AnyObject {
     var nextEventResponder: (any Responder)? { get set }
 

@@ -34,7 +34,7 @@ final class ReplaceNavigationRootControllerTests {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -63,7 +63,7 @@ final class ReplaceNavigationRootControllerTests {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -91,7 +91,7 @@ final class ReplaceNavigationRootControllerTests {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -142,7 +142,7 @@ final class ReplaceNavigationRootControllerTests {
         navigator.closeNavigationPresented(
             controller: nil,
             animated: true,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -153,7 +153,7 @@ final class ReplaceNavigationRootControllerTests {
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -168,7 +168,7 @@ final class ReplaceNavigationRootControllerTests {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

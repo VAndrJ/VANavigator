@@ -245,23 +245,32 @@ extension UISplitViewController {
         _ column: Column,
         completion: @escaping () -> Void
     ) {
+        var didScheduleCompletion = false
+        func completeAfterUIKitFinalizesTransition() {
+            guard !didScheduleCompletion else { return }
+
+            didScheduleCompletion = true
+            // A split column can share a navigation stack in compact mode. UIKit finalizes that stack after the
+            // transition-coordinator callback, so the next stack mutation must run on a later main-actor turn.
+            Task { @MainActor in
+                await Task.yield()
+                completion()
+            }
+        }
+
         navigatorActiveColumn = column
         show(column)
         guard let transitionCoordinator else {
-            completion()
+            completeAfterUIKitFinalizesTransition()
 
             return
         }
 
         let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
-            Task {
-                completion()
-            }
+            completeAfterUIKitFinalizesTransition()
         }
         if !registeredCompletion {
-            Task {
-                completion()
-            }
+            completeAfterUIKitFinalizesTransition()
         }
     }
 

@@ -3,6 +3,7 @@
 
 # Xcode
 .swiftpm
+.build/
 build/
 *.pbxuser
 !default.pbxuser
@@ -38,3 +39,4 @@ Pods/
 Packages/
 Package.pins
 Package.resolved
+!Example/VANavigator.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

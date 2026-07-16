@@ -39,7 +39,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -49,6 +49,8 @@ final class PresentOrCloseToExistingControllerTests {
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
         #expect((true) == ((window?.topController as? MockViewController)?.isMockEventHandled))
         #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect((true) == ((responder as? MockRootViewController)?.isClosedEventHandled))
+        #expect((responder as? MockRootViewController)?.handledEvents == ["closed", "mock"])
     }
 
     @Test
@@ -75,7 +77,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -103,7 +105,7 @@ final class PresentOrCloseToExistingControllerTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -133,7 +135,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -142,6 +144,42 @@ final class PresentOrCloseToExistingControllerTests {
         #expect((true) == (result))
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
         #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+    }
+
+    @Test
+    func `Presentation rejects controller already in hierarchy`() async {
+        let rootController = UIViewController()
+        let destinationController = UIViewController()
+        let visibleChildController = UIViewController()
+        for childController in [destinationController, visibleChildController] {
+            rootController.addChild(childController)
+            rootController.view.addSubview(childController.view)
+            childController.didMove(toParent: rootController)
+        }
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "rejected presentation")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(destinationController),
+            strategy: .present(),
+            animated: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect((false) == result)
+        #expect(responder == nil)
+        #expect(destinationController.parent === rootController)
+        #expect(rootController.presentedViewController == nil)
     }
 
     @Test
@@ -199,7 +237,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -230,7 +268,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -261,7 +299,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -323,7 +361,7 @@ final class PresentOrCloseToExistingControllerTests {
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -345,7 +383,7 @@ final class PresentOrCloseToExistingControllerTests {
                     animated: true
                 )
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -361,7 +399,7 @@ final class PresentOrCloseToExistingControllerTests {
                     animated: true
                 )
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -387,7 +425,7 @@ final class PresentOrCloseToExistingControllerTests {
                     animated: false
                 ),
             ],
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

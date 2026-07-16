@@ -197,7 +197,7 @@ final class PushControllerTests {
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: alwaysEmbedded,
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -308,6 +308,7 @@ final class PushControllerTests {
             navigator: navigator,
             identity: identity,
             alwaysEmbedded: false,
+            animated: false,
             completion: { controller, isSuccess in
                 responder = controller
                 result = isSuccess
@@ -327,6 +328,9 @@ final class PushControllerTests {
         #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(expectedIdentity.isEqual(to: responder?.navigationIdentity))
         #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
+        #expect(delegate.didShowControllers.count == 1)
+        #expect(delegate.didShowControllers.first === responder)
+        #expect(delegate.animatedValues == [false])
     }
 
     @Test
@@ -343,7 +347,7 @@ final class PushControllerTests {
             strategy: .present(),
             animated: false,
             completion: { _, _ in
-                taskDetachedMain { presentExpect.fulfill() }
+                presentExpect.fulfill()
             }
         )
 
@@ -363,7 +367,7 @@ final class PushControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { pushExpect.fulfill() }
+                pushExpect.fulfill()
             }
         )
 
@@ -421,6 +425,7 @@ final class PushControllerTests {
         navigator: Navigator,
         identity: any NavigationIdentity,
         alwaysEmbedded: Bool?,
+        animated: Bool = true,
         completion: ((UIViewController?, Bool) -> Void)?
     ) async {
         let expect = expectation(description: "push")
@@ -429,6 +434,7 @@ final class PushControllerTests {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .push(),
+            animated: animated,
             fallback: alwaysEmbedded.map {
                 $0
                     ? NavigationChainLink(
@@ -446,7 +452,7 @@ final class PushControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -460,14 +466,26 @@ final class PushControllerTests {
         navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(children: [identity]) : identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
     }
 }
 
-private class MockNavigationDelegate: NSObject, UINavigationControllerDelegate {}
+private final class MockNavigationDelegate: NSObject, UINavigationControllerDelegate {
+    private(set) var didShowControllers: [UIViewController] = []
+    private(set) var animatedValues: [Bool] = []
+
+    func navigationController(
+        _ navigationController: UINavigationController,
+        didShow viewController: UIViewController,
+        animated: Bool
+    ) {
+        didShowControllers.append(viewController)
+        animatedValues.append(animated)
+    }
+}
 
 private final class AnimationRecordingNavigationController: UINavigationController {
     var lastPushAnimated: Bool?

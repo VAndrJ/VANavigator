@@ -59,4 +59,5 @@ enum Shortcut: String {
     }
 }
 
+@MainActor
 struct ResponderOpenedFromShortcutEvent: ResponderEvent {}

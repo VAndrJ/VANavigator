@@ -8,7 +8,7 @@
 
 import Testing
 import UIKit
-import VANavigator
+@testable import VANavigator
 
 // TODO: - Messages
 @Suite(.serialized)
@@ -218,19 +218,25 @@ final class SetRootControllerTests {
         let transition = CATransition()
         transition.duration = 0.25
         let expect = expectation(description: "root transition")
-        let start = ProcessInfo.processInfo.systemUptime
-        var elapsed: TimeInterval?
+        var delegateDidStop = false
+        let delegate = RootTransitionDelegate {
+            delegateDidStop = true
+        }
+        transition.delegate = delegate
+        var delegateHadStoppedAtCompletion: Bool?
 
         window?.set(rootViewController: newController, transition: transition) {
-            elapsed = ProcessInfo.processInfo.systemUptime - start
+            delegateHadStoppedAtCompletion = delegateDidStop
             expect.fulfill()
         }
 
         #expect((newController) === (window?.rootViewController))
-        #expect((elapsed) == nil)
+        #expect(!delegateDidStop)
+        #expect(delegateHadStoppedAtCompletion == nil)
         await fulfillment(of: [expect], timeout: 10)
 
-        #expect((elapsed ?? 0) >= (0.15))
+        #expect(delegateDidStop)
+        #expect((true) == delegateHadStoppedAtCompletion)
     }
 
     @Test
@@ -251,11 +257,13 @@ final class SetRootControllerTests {
         let forwarded = expectation(description: "forwarded animation delegate")
         let completed = expectation(description: "root transition")
         weak var retainedDelegate: RootTransitionDelegate?
+        var callbackOrder: [String] = []
 
         func startTransition() {
             let transition = CATransition()
             transition.duration = 0.1
             let delegate = RootTransitionDelegate {
+                callbackOrder.append("forwarded")
                 forwarded.fulfill()
             }
             retainedDelegate = delegate
@@ -263,7 +271,10 @@ final class SetRootControllerTests {
             window?.set(
                 rootViewController: UIViewController(),
                 transition: transition,
-                completion: { completed.fulfill() }
+                completion: {
+                    callbackOrder.append("completed")
+                    completed.fulfill()
+                }
             )
         }
 
@@ -271,6 +282,7 @@ final class SetRootControllerTests {
 
         #expect((retainedDelegate) != nil)
         await fulfillment(of: [forwarded, completed], timeout: 10)
+        #expect(callbackOrder == ["forwarded", "completed"])
     }
 
     @Test
@@ -301,7 +313,7 @@ final class SetRootControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
         await fulfillment(of: [expect], timeout: 10)
@@ -309,6 +321,7 @@ final class SetRootControllerTests {
     }
 }
 
+@MainActor
 private struct DelayedResponderEvent: ResponderEvent {}
 
 private final class DelayedResponderViewController: UIViewController, Responder {

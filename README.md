@@ -25,6 +25,10 @@ To run the example project, clone the repo and open `Example/VANavigator.xcodepr
 
 Minimum deployment target: **iOS 15**
 
+Swift **6.2** or later.
+
+Navigation identities, responder events, and navigation APIs are isolated to the main actor. Construct identities and events on the main actor before starting navigation.
+
 
 ## Installation
 
@@ -147,6 +151,8 @@ navigator?.navigate(
 
 
 Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on the provided conditions. Continue the intercepted navigation after resolving the interception reason.
+
+Removing an interception reason cancels its pending navigations and completes each one with `(nil, false)`.
 
 
 ## Author

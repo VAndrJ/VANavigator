@@ -8,6 +8,7 @@
 
 import Observation
 import ObservationTracking
+import Swiftional
 import UIKit
 
 final class SecretInformationScreen: ControllerView<SecretInformationViewModel> {

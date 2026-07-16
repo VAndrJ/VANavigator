@@ -33,51 +33,87 @@ final class QueueTests {
         let expect6 = expectation(description: "navigation.dismiss3")
         let expect7 = expectation(description: "navigation.present4")
         let expect8 = expectation(description: "navigation.dismiss4")
+        var completionOrder: [Int] = []
+        var completionResults: [Bool] = []
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            completion: { _, _ in taskDetachedMain { expect1.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(1)
+                completionResults.append(isSuccess)
+                expect1.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .closeIfTop(),
-            completion: { _, _ in taskDetachedMain { expect2.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(2)
+                completionResults.append(isSuccess)
+                expect2.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            completion: { _, _ in taskDetachedMain { expect3.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(3)
+                completionResults.append(isSuccess)
+                expect3.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .closeIfTop(),
-            completion: { _, _ in taskDetachedMain { expect4.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(4)
+                completionResults.append(isSuccess)
+                expect4.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            completion: { _, _ in taskDetachedMain { expect5.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(5)
+                completionResults.append(isSuccess)
+                expect5.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .closeIfTop(),
-            completion: { _, _ in taskDetachedMain { expect6.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(6)
+                completionResults.append(isSuccess)
+                expect6.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .present(),
-            completion: { _, _ in taskDetachedMain { expect7.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(7)
+                completionResults.append(isSuccess)
+                expect7.fulfill()
+            }
         )
         navigator.navigate(
             destination: .identity(identity),
             strategy: .closeIfTop(),
-            completion: { _, _ in taskDetachedMain { expect8.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(8)
+                completionResults.append(isSuccess)
+                expect8.fulfill()
+            }
         )
 
         await fulfillment(of: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
 
         #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(completionOrder == Array(1...8))
+        #expect(completionResults == Array(repeating: true, count: 8))
     }
 
     @Test
@@ -98,43 +134,79 @@ final class QueueTests {
         let expect6 = expectation(description: "navigation.dismiss3")
         let expect7 = expectation(description: "navigation.present4")
         let expect8 = expectation(description: "navigation.dismiss4")
+        var completionOrder: [Int] = []
+        var completionResults: [Bool] = []
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .present(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect1.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(1)
+                completionResults.append(isSuccess)
+                expect1.fulfill()
+            }
         )
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .closeIfTop(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect2.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(2)
+                completionResults.append(isSuccess)
+                expect2.fulfill()
+            }
         )
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .present(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect3.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(3)
+                completionResults.append(isSuccess)
+                expect3.fulfill()
+            }
         )
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .closeIfTop(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect4.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(4)
+                completionResults.append(isSuccess)
+                expect4.fulfill()
+            }
         )
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .present(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect5.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(5)
+                completionResults.append(isSuccess)
+                expect5.fulfill()
+            }
         )
         navigator.navigate(
             chain: [.init(destination: .identity(identity), strategy: .closeIfTop(), animated: true)],
-            completion: { _, _ in taskDetachedMain { expect6.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(6)
+                completionResults.append(isSuccess)
+                expect6.fulfill()
+            }
         )
         navigator.navigate(
             chain: [],
-            completion: { _, _ in taskDetachedMain { expect7.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(7)
+                completionResults.append(isSuccess)
+                expect7.fulfill()
+            }
         )
         navigator.navigate(
             chain: [],
-            completion: { _, _ in taskDetachedMain { expect8.fulfill() } }
+            completion: { _, isSuccess in
+                completionOrder.append(8)
+                completionResults.append(isSuccess)
+                expect8.fulfill()
+            }
         )
 
         await fulfillment(of: [expect1, expect2, expect3, expect4, expect5, expect6, expect7, expect8], timeout: 10)
 
         #expect(expectedIdentity.isEqual(to: window?.topController?.navigationIdentity))
         #expect(expectedIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(completionOrder == Array(1...8))
+        #expect(completionResults == [true, true, true, true, true, true, false, false])
     }
 
     @Test
@@ -210,7 +282,7 @@ final class QueueTests {
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

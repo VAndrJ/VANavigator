@@ -51,7 +51,7 @@ final class PushOrPopControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -243,7 +243,7 @@ final class PushOrPopControllerTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -283,7 +283,7 @@ final class PushOrPopControllerTests {
             event: ResponderMockEvent(),
             completion: { _, isSuccess in
                 result = isSuccess
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -318,7 +318,7 @@ final class PushOrPopControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -356,7 +356,7 @@ final class PushOrPopControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -393,7 +393,7 @@ final class PushOrPopControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -492,7 +492,7 @@ final class PushOrPopControllerTests {
             completion: {
                 responder = $0
                 result = $1
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -526,7 +526,7 @@ final class PushOrPopControllerTests {
             strategy: .replaceWindowRoot(),
             completion: { controller, _ in
                 (controller as? UITabBarController)?.selectedIndex = 2
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
@@ -551,7 +551,7 @@ final class PushOrPopControllerTests {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
@@ -563,7 +563,7 @@ final class PushOrPopControllerTests {
         navigator.navigate(
             destination: .identity(alwaysEmbedded ? MockNavControllerNavigationIdentity(children: [identity]) : identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)

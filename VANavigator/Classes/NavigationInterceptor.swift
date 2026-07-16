@@ -85,7 +85,7 @@ open class NavigationInterceptor {
                     + (isLast ? suffixNavigationChain : []),
                 event: detail.event,
                 completion: { controller, isSuccess in
-                    detail.completion?(controller, isSuccess)
+                    detail.complete(controller: controller, isSuccess: isSuccess)
                     completionCoordinator?.complete(
                         index: index,
                         controller: controller,
@@ -96,20 +96,27 @@ open class NavigationInterceptor {
         }
     }
 
+    /// Returns the reasons that currently have at least one pending intercepted navigation.
     public func getInterceptionReasons() -> [AnyHashable] {
         removeReleasedNavigators()
 
         return Array(interceptionData.keys)
     }
 
+    /// Cancels every pending navigation for `reason` and completes each one once with `(nil, false)`.
     public func removeIfAvailable(reason: AnyHashable) {
-        interceptionData.removeValue(forKey: reason)
+        let removedNavigations = interceptionData.removeValue(forKey: reason) ?? []
+        cancel(removedNavigations)
     }
 
+    /// Cancels all pending intercepted navigations and completes each one once with `(nil, false)`.
     public func removeAllReasons() {
+        let removedNavigations = interceptionData.values.flatMap { $0 }
         interceptionData.removeAll()
+        cancel(removedNavigations)
     }
 
+    /// Returns whether at least one pending intercepted navigation exists for `reason`.
     public func checkIsExists(reason: AnyHashable) -> Bool {
         removeReleasedNavigators()
 
@@ -122,20 +129,39 @@ open class NavigationInterceptor {
     }
 
     func removeNavigations(for navigator: Navigator) {
-        interceptionData = interceptionData.reduce(into: [:]) { result, item in
-            let activeNavigations = item.value.filter { $0.navigator !== navigator && $0.navigator != nil }
-            if !activeNavigations.isEmpty {
-                result[item.key] = activeNavigations
-            }
+        removeNavigations {
+            $0.navigator === navigator || $0.navigator == nil
         }
     }
 
     private func removeReleasedNavigators() {
-        interceptionData = interceptionData.reduce(into: [:]) { result, item in
-            let activeNavigations = item.value.filter { $0.navigator != nil }
-            if !activeNavigations.isEmpty {
-                result[item.key] = activeNavigations
+        removeNavigations { $0.navigator == nil }
+    }
+
+    private func removeNavigations(where shouldRemove: (InterceptedNavigation) -> Bool) {
+        var activeData: [AnyHashable: [InterceptedNavigation]] = [:]
+        var removedNavigations: [InterceptedNavigation] = []
+        for (reason, navigations) in interceptionData {
+            let activeNavigations = navigations.filter {
+                if shouldRemove($0) {
+                    removedNavigations.append($0)
+
+                    return false
+                }
+
+                return true
             }
+            if !activeNavigations.isEmpty {
+                activeData[reason] = activeNavigations
+            }
+        }
+        interceptionData = activeData
+        cancel(removedNavigations)
+    }
+
+    private func cancel(_ navigations: [InterceptedNavigation]) {
+        for navigation in navigations {
+            navigation.complete(controller: nil, isSuccess: false)
         }
     }
 }
@@ -143,7 +169,7 @@ open class NavigationInterceptor {
 final class InterceptedNavigation {
     let chain: [NavigationChainLink]
     let event: (any ResponderEvent)?
-    let completion: ((UIViewController?, Bool) -> Void)?
+    private var completion: ((UIViewController?, Bool) -> Void)?
     weak var navigator: Navigator?
 
     init(
@@ -156,6 +182,13 @@ final class InterceptedNavigation {
         self.event = event
         self.completion = completion
         self.navigator = navigator
+    }
+
+    func complete(controller: UIViewController?, isSuccess: Bool) {
+        guard let completion else { return }
+
+        self.completion = nil
+        completion(controller, isSuccess)
     }
 
     func chain(replacingInitialStrategyWith strategy: NavigationStrategy?) -> [NavigationChainLink] {

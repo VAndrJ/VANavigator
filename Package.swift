@@ -3,7 +3,6 @@
 import PackageDescription
 
 let settings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
     .defaultIsolation(MainActor.self),
 ]
 

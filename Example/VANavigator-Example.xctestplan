@@ -18,11 +18,6 @@
         }
       ]
     },
-    "commandLineArgumentEntries" : [
-      {
-        "argument" : "IS_TESTING"
-      }
-    ],
     "performanceAntipatternCheckerEnabled" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:VANavigator.xcodeproj",

@@ -16,7 +16,7 @@ final class PopoverTests {
     let window: UIWindow? = UIWindow()
 
     @Test
-    func `Popover navigation succeeds`() async {
+    func `Popover navigation succeeds`() async throws {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)
 
@@ -47,6 +47,72 @@ final class PopoverTests {
         #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
         #expect(identity.isEqual(to: window?.topController?.navigationIdentity))
         #expect((responder) == (window?.topController))
+        let popover = try #require(responder?.popoverPresentationController)
+        let delegate = try #require(popover.delegate)
+        #expect(
+            delegate.adaptivePresentationStyle?(for: popover)
+                == UIModalPresentationStyle.none
+        )
+    }
+
+    @Test
+    func `Popover preserves a custom presentation delegate`() async throws {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        await prepareNavigation(navigator: navigator)
+        let customDelegate = CustomPopoverDelegate()
+        let expect = expectation(description: "custom popover delegate")
+        var configuredPopover: UIPopoverPresentationController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .identity(MockPushControllerNavigationIdentity()),
+            strategy: .popover(configure: { popover, _ in
+                configuredPopover = popover
+                popover.sourceView = self.window?.topController?.view
+                popover.delegate = customDelegate
+            }),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        let popover = try #require(configuredPopover)
+        #expect((true) == result)
+        #expect(popover.delegate === customDelegate)
+    }
+
+    @Test
+    func `Popover rejects presenting the source controller`() async {
+        let rootController = UIViewController()
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "rejected popover")
+        var configureWasCalled = false
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(rootController),
+            strategy: .popover(configure: { _, _ in configureWasCalled = true }),
+            animated: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect((false) == result)
+        #expect(responder == nil)
+        #expect(!configureWasCalled)
+        #expect(rootController.presentedViewController == nil)
     }
 
     @Test
@@ -114,9 +180,15 @@ final class PopoverTests {
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
         await fulfillment(of: [expect], timeout: 10)
+    }
+}
+
+private final class CustomPopoverDelegate: NSObject, UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        .none
     }
 }
