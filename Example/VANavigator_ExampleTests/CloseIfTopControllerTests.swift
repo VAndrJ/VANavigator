@@ -179,6 +179,41 @@ final class CloseIfTopControllerTests {
     }
 
     @Test
+    func `Rejected UIKit dismissal reports failure`() async {
+        let rootController = UIViewController()
+        let presentedController = DismissRejectingViewController()
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+        defer { rootController.dismiss(animated: false) }
+
+        let presentation = expectation(description: "dismiss rejection setup")
+        rootController.present(presentedController, animated: false) {
+            presentation.fulfill()
+        }
+        await fulfillment(of: [presentation], timeout: 10)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completion = expectation(description: "dismiss rejected")
+        var result: Bool?
+        navigator.navigate(
+            destination: .controller(presentedController),
+            strategy: .closeIfTop(tryToPop: false),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                completion.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completion], timeout: 10)
+
+        #expect(result == false)
+        #expect(presentedController.dismissalAttempts == 1)
+        #expect(rootController.presentedViewController === presentedController)
+        #expect(window?.topController === presentedController)
+    }
+
+    @Test
     func `Does not pop controller below the top controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator)
@@ -299,5 +334,14 @@ final class CloseIfTopControllerTests {
 private final class TopPopRejectingNavigationController: UINavigationController {
     override func popViewController(animated: Bool) -> UIViewController? {
         return nil
+    }
+}
+
+private final class DismissRejectingViewController: UIViewController {
+    private(set) var dismissalAttempts = 0
+
+    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+        dismissalAttempts += 1
+        completion?()
     }
 }

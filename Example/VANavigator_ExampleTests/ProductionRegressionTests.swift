@@ -810,6 +810,57 @@ final class ProductionRegressionTests {
     }
 
     @Test
+    func `Closing to another tab dismisses the visible contextual presentation`() async {
+        let strategies: [NavigationStrategy] = [
+            .closeToExisting,
+            .popToExisting(includingTabs: true),
+        ]
+
+        for (index, strategy) in strategies.enumerated() {
+            let window = UIWindow()
+            let sourceController = UIViewController()
+            sourceController.definesPresentationContext = true
+            let destinationController = UIViewController()
+            let tabBarController = UITabBarController()
+            tabBarController.viewControllers = [sourceController, destinationController]
+            tabBarController.selectedIndex = 0
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
+
+            let presentedController = UIViewController()
+            presentedController.modalPresentationStyle = .currentContext
+            let presentation = expectation(description: "contextual presentation \(index)")
+            sourceController.present(presentedController, animated: false) {
+                presentation.fulfill()
+            }
+            await fulfillment(of: [presentation], timeout: 10)
+            #expect(sourceController.presentedViewController === presentedController)
+
+            let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+            let navigation = expectation(description: "contextual presentation cleanup \(index)")
+            var result: Bool?
+            navigator.navigate(
+                destination: .controller(destinationController),
+                strategy: strategy,
+                animated: false,
+                completion: { _, isSuccess in
+                    result = isSuccess
+                    navigation.fulfill()
+                }
+            )
+
+            await fulfillment(of: [navigation], timeout: 10)
+
+            #expect(result == true)
+            #expect(tabBarController.selectedViewController === destinationController)
+            #expect(sourceController.presentedViewController == nil)
+            #expect(presentedController.presentingViewController == nil)
+            #expect(window.topController === destinationController)
+            window.isHidden = true
+        }
+    }
+
+    @Test
     func `Cancelling an old interception does not release a newer active navigation`() async {
         let window = UIWindow()
         let interceptedController = UIViewController()
@@ -921,6 +972,56 @@ final class ProductionRegressionTests {
         }
 
         #expect(window.rootViewController === queuedController)
+    }
+
+    @Test
+    func `Public push waits for active navigation`() async {
+        let window = UIWindow()
+        let rootController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: rootController)
+        window.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let activeController = SuspendedResponderViewController()
+        let queuedController = UIViewController()
+        let activeCompletion = expectation(description: "active navigation before public push")
+        let queuedCompletion = expectation(description: "serialized public push")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(activeController),
+            strategy: .push(),
+            animated: false,
+            event: SuspendedResponderEvent(),
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("active")
+                activeCompletion.fulfill()
+            }
+        )
+        await waitUntil("public push queue suspension", timeout: 10) {
+            activeController.isSuspended
+        }
+
+        navigator.push(
+            sourceController: navigationController,
+            controller: queuedController,
+            animated: false,
+            navigation: nil,
+            completion: { isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("queued")
+                queuedCompletion.fulfill()
+            }
+        )
+
+        #expect(!queuedCompletion.isFulfilled)
+        #expect(navigationController.topViewController === activeController)
+
+        activeController.resume()
+        await fulfillment(of: [activeCompletion, queuedCompletion], timeout: 10)
+
+        #expect(completionOrder == ["active", "queued"])
+        #expect(navigationController.viewControllers == [rootController, activeController, queuedController])
     }
 
     @Test
