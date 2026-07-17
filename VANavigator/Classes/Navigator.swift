@@ -660,23 +660,25 @@ public final class Navigator {
                         controller,
                         animated: animated,
                         completion: {
-                            let isPresented =
-                                controller.presentingViewController != nil
-                                || sourceController.presentedViewController === controller
-                            guard isPresented else {
-                                completePresentationFailure(.mutationRejected)
+                            DispatchQueue.main.async {
+                                let isPresented =
+                                    controller.presentingViewController != nil
+                                    || sourceController.presentedViewController === controller
+                                guard isPresented else {
+                                    completePresentationFailure(.mutationRejected)
 
-                                return
-                            }
-
-                            perform(
-                                event: event,
-                                navigatorEvent: navigatorEvent,
-                                on: controller as? any UIViewController & Responder,
-                                completion: {
-                                    completion?(controller, true)
+                                    return
                                 }
-                            )
+
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
+                                )
+                            }
                         }
                     )
                 } else {
@@ -1012,23 +1014,25 @@ public final class Navigator {
                         controller,
                         animated: animated,
                         completion: {
-                            let isPresented =
-                                controller.presentingViewController != nil
-                                || sourceController.presentedViewController === controller
-                            guard isPresented else {
-                                completePopoverFailure(.mutationRejected)
+                            DispatchQueue.main.async {
+                                let isPresented =
+                                    controller.presentingViewController != nil
+                                    || sourceController.presentedViewController === controller
+                                guard isPresented else {
+                                    completePopoverFailure(.mutationRejected)
 
-                                return
-                            }
-
-                            perform(
-                                event: event,
-                                navigatorEvent: navigatorEvent,
-                                on: controller as? any UIViewController & Responder,
-                                completion: {
-                                    completion?(controller, true)
+                                    return
                                 }
-                            )
+
+                                perform(
+                                    event: event,
+                                    navigatorEvent: navigatorEvent,
+                                    on: controller as? any UIViewController & Responder,
+                                    completion: {
+                                        completion?(controller, true)
+                                    }
+                                )
+                            }
                         }
                     )
                 } else {
@@ -1534,17 +1538,19 @@ public final class Navigator {
         controller.dismiss(
             animated: animated,
             completion: {
-                let controllerWasDetached =
-                    controller.presentingViewController == nil
-                    && presentingController.presentedViewController !== controller
-                let presentedHierarchyChanged = previouslyPresentedController.map {
-                    controller.presentedViewController !== $0
-                } ?? false
-                completion(
-                    controllerWasDetached || presentedHierarchyChanged
-                        ? .success(())
-                        : .failure(.dismissalRejected)
-                )
+                DispatchQueue.main.async {
+                    let controllerWasDetached =
+                        controller.presentingViewController == nil
+                        && presentingController.presentedViewController !== controller
+                    let presentedHierarchyChanged = previouslyPresentedController.map {
+                        controller.presentedViewController !== $0
+                    } ?? false
+                    completion(
+                        controllerWasDetached || presentedHierarchyChanged
+                            ? .success(())
+                            : .failure(.dismissalRejected)
+                    )
+                }
             }
         )
     }
