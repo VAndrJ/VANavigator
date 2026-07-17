@@ -51,7 +51,6 @@ final class MakeFallbackChainTests {
         )
         var sut: NavigationChainLink? = Navigator(window: nil, screenFactory: MockScreenFactory()).makeFallbackChain(
             destination: destination,
-            strategy: strategy,
             animated: animated,
             fallbackStrategies: [
                 strategy,

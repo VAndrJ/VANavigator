@@ -72,5 +72,4 @@ jobs:
           -destination 'generic/platform=iOS' \
           CODE_SIGNING_ALLOWED=NO \
           SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
-          BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
           build
