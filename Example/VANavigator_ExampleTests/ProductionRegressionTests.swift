@@ -380,6 +380,61 @@ final class ProductionRegressionTests {
     }
 
     @Test
+    func `Presentation strategies reject an active source transition before asking UIKit`() {
+        let window = UIWindow()
+        let source = PresentationRecordingViewController()
+        source.exposesFakeCoordinator = true
+        window.rootViewController = source
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var results: [Bool] = []
+        var failures: [NavigationFailure.Reason] = []
+        var popoverConfigurationCount = 0
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.navigate(
+            destination: .controller(UIViewController()),
+            strategy: .present(),
+            animated: false,
+            completion: { _, isSuccess in results.append(isSuccess) }
+        )
+        navigator.navigate(
+            destination: .controller(UIViewController()),
+            strategy: .popover(configure: { _, _ in
+                popoverConfigurationCount += 1
+            }),
+            animated: false,
+            completion: { _, isSuccess in results.append(isSuccess) }
+        )
+
+        #expect(results == [false, false])
+        #expect(failures == [.transitionInProgress, .transitionInProgress])
+        #expect(source.presentationAttempts == 0)
+        #expect(popoverConfigurationCount == 0)
+    }
+
+    @Test
+    func `Dismissal rejects an active presented hierarchy transition before asking UIKit`() {
+        let presenter = DismissalTransitionPresenterViewController()
+        let presented = DismissalTransitionViewController()
+        presenter.navigatorPresentedViewController = presented
+        presented.navigatorPresentingViewController = presenter
+        let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        var completionCount = 0
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.dismissPresented(in: presenter, animated: false) {
+            completionCount += 1
+        }
+
+        #expect(completionCount == 1)
+        #expect(failures == [.transitionInProgress])
+        #expect(presented.dismissalAttempts == 0)
+        #expect(presenter.presentedViewController === presented)
+        #expect(presented.presentingViewController === presenter)
+    }
+
+    @Test
     @available(iOS 16.0, *)
     func `Popover accepts a source item anchor`() async {
         let window = UIWindow()
@@ -1731,7 +1786,13 @@ private final class PendingNavigationInterceptor: NavigationInterceptor {
 }
 
 private final class PresentationRecordingViewController: UIViewController {
+    private let fakeCoordinator = FalseReturningTransitionCoordinator()
+    var exposesFakeCoordinator = false
     private(set) var presentationAttempts = 0
+
+    override var transitionCoordinator: (any UIViewControllerTransitionCoordinator)? {
+        exposesFakeCoordinator ? fakeCoordinator : super.transitionCoordinator
+    }
 
     override func present(
         _ viewControllerToPresent: UIViewController,
@@ -1739,6 +1800,33 @@ private final class PresentationRecordingViewController: UIViewController {
         completion: (() -> Void)? = nil
     ) {
         presentationAttempts += 1
+        completion?()
+    }
+}
+
+private final class DismissalTransitionPresenterViewController: UIViewController {
+    var navigatorPresentedViewController: UIViewController?
+
+    override var presentedViewController: UIViewController? {
+        navigatorPresentedViewController
+    }
+}
+
+private final class DismissalTransitionViewController: UIViewController {
+    private let fakeCoordinator = FalseReturningTransitionCoordinator()
+    weak var navigatorPresentingViewController: UIViewController?
+    private(set) var dismissalAttempts = 0
+
+    override var presentingViewController: UIViewController? {
+        navigatorPresentingViewController
+    }
+
+    override var transitionCoordinator: (any UIViewControllerTransitionCoordinator)? {
+        fakeCoordinator
+    }
+
+    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+        dismissalAttempts += 1
         completion?()
     }
 }

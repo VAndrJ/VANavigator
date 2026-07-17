@@ -468,11 +468,12 @@ public final class Navigator {
                 dismissPresentedController(
                     presentedController,
                     animated: animated,
-                    completion: { isSuccess in
-                        if isSuccess {
+                    completion: { result in
+                        switch result {
+                        case .success:
                             completeCloseSuccess()
-                        } else {
-                            completeCloseFailure(.dismissalRejected)
+                        case let .failure(reason):
+                            completeCloseFailure(reason)
                         }
                     }
                 )
@@ -645,7 +646,8 @@ public final class Navigator {
                         controller.findController(controller: sourceController, withPresented: true) == nil,
                         sourceController.presentedViewController == nil,
                         !sourceController.isBeingDismissed,
-                        !sourceController.isBeingPresented
+                        !sourceController.isBeingPresented,
+                        sourceController.transitionCoordinator == nil
                     else {
                         completePresentationFailure(
                             hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
@@ -706,9 +708,11 @@ public final class Navigator {
                 dismissVisiblePresentationsOutsideHierarchy(
                     of: controller,
                     animated: animated,
-                    completion: { [self] didDismiss in
-                        guard didDismiss else {
-                            completeCloseFailure(.dismissalRejected)
+                    completion: { [self] dismissalResult in
+                        guard case .success = dismissalResult else {
+                            completeCloseFailure(
+                                dismissalResult.failureReason ?? .dismissalRejected
+                            )
 
                             return
                         }
@@ -842,9 +846,11 @@ public final class Navigator {
                 dismissVisiblePresentationsOutsideHierarchy(
                     of: controller,
                     animated: animated,
-                    completion: { [self] didDismiss in
-                        guard didDismiss else {
-                            completePopFailure(.dismissalRejected)
+                    completion: { [self] dismissalResult in
+                        guard case .success = dismissalResult else {
+                            completePopFailure(
+                                dismissalResult.failureReason ?? .dismissalRejected
+                            )
 
                             return
                         }
@@ -973,7 +979,8 @@ public final class Navigator {
                     controller.findController(controller: sourceController, withPresented: true) == nil,
                     sourceController.presentedViewController == nil,
                     !sourceController.isBeingDismissed,
-                    !sourceController.isBeingPresented
+                    !sourceController.isBeingPresented,
+                    sourceController.transitionCoordinator == nil
                 else {
                     completePopoverFailure(
                         hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
@@ -1299,9 +1306,11 @@ public final class Navigator {
         dismissPresentedNow(
             in: sourceController,
             animated: animated,
-            completion: { [self] didDismiss in
-                guard didDismiss else {
-                    completion?(.failure(.dismissalRejected))
+            completion: { [self] dismissalResult in
+                guard case .success = dismissalResult else {
+                    completion?(
+                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
+                    )
 
                     return
                 }
@@ -1428,9 +1437,11 @@ public final class Navigator {
         dismissPresentedNow(
             in: controller,
             animated: animated,
-            completion: { didDismiss in
-                guard didDismiss else {
-                    completion(.failure(.dismissalRejected))
+            completion: { dismissalResult in
+                guard case .success = dismissalResult else {
+                    completion(
+                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
+                    )
 
                     return
                 }
@@ -1470,10 +1481,10 @@ public final class Navigator {
     private func dismissPresentedNow(
         in controller: UIViewController?,
         animated: Bool,
-        completion: @escaping (Bool) -> Void
+        completion: @escaping (Result<Void, NavigationFailure.Reason>) -> Void
     ) {
         guard let controller, let presentedController = controller.presentedViewController else {
-            completion(true)
+            completion(.success(()))
 
             return
         }
@@ -1481,9 +1492,9 @@ public final class Navigator {
         dismissPresentedController(
             presentedController,
             animated: animated,
-            completion: { [self] isSuccess in
-                guard isSuccess else {
-                    completion(false)
+            completion: { [self] result in
+                guard case .success = result else {
+                    completion(result)
 
                     return
                 }
@@ -1495,7 +1506,7 @@ public final class Navigator {
                         completion: completion
                     )
                 } else {
-                    completion(true)
+                    completion(.success(()))
                 }
             }
         )
@@ -1504,15 +1515,17 @@ public final class Navigator {
     private func dismissPresentedController(
         _ controller: UIViewController,
         animated: Bool,
-        completion: @escaping (Bool) -> Void
+        completion: @escaping (Result<Void, NavigationFailure.Reason>) -> Void
     ) {
-        guard let presentingController = controller.presentingViewController,
-            !controller.isBeingPresented,
-            !controller.isBeingDismissed,
-            !presentingController.isBeingPresented,
-            !presentingController.isBeingDismissed
+        guard let presentingController = controller.presentingViewController else {
+            completion(.failure(.dismissalRejected))
+
+            return
+        }
+        guard !containsActiveTransition(in: controller),
+            !containsActiveTransition(in: presentingController)
         else {
-            completion(false)
+            completion(.failure(.transitionInProgress))
 
             return
         }
@@ -1527,7 +1540,11 @@ public final class Navigator {
                 let presentedHierarchyChanged = previouslyPresentedController.map {
                     controller.presentedViewController !== $0
                 } ?? false
-                completion(controllerWasDetached || presentedHierarchyChanged)
+                completion(
+                    controllerWasDetached || presentedHierarchyChanged
+                        ? .success(())
+                        : .failure(.dismissalRejected)
+                )
             }
         )
     }
@@ -1535,10 +1552,10 @@ public final class Navigator {
     private func dismissVisiblePresentationsOutsideHierarchy(
         of controller: UIViewController,
         animated: Bool,
-        completion: @escaping (Bool) -> Void
+        completion: @escaping (Result<Void, NavigationFailure.Reason>) -> Void
     ) {
         guard let presentedController = visiblePresentationOutsideHierarchy(of: controller) else {
-            completion(true)
+            completion(.success(()))
 
             return
         }
@@ -1546,9 +1563,9 @@ public final class Navigator {
         dismissPresentedController(
             presentedController,
             animated: animated,
-            completion: { [self] isSuccess in
-                guard isSuccess else {
-                    completion(false)
+            completion: { [self] result in
+                guard case .success = result else {
+                    completion(result)
 
                     return
                 }
@@ -1560,6 +1577,23 @@ public final class Navigator {
                 )
             }
         )
+    }
+
+    private func containsActiveTransition(in controller: UIViewController) -> Bool {
+        if controller.isBeingPresented
+            || controller.isBeingDismissed
+            || controller.transitionCoordinator != nil
+        {
+            return true
+        }
+        if controller.children.contains(where: containsActiveTransition(in:)) {
+            return true
+        }
+        if let presentedViewController = controller.presentedViewController {
+            return containsActiveTransition(in: presentedViewController)
+        }
+
+        return false
     }
 
     private func visiblePresentationOutsideHierarchy(of controller: UIViewController) -> UIViewController? {
@@ -1612,10 +1646,10 @@ public final class Navigator {
             dismissPresentedNow(
                 in: controller,
                 animated: animated,
-                completion: { didDismiss in
-                    if !didDismiss {
+                completion: { result in
+                    if case let .failure(reason) = result {
                         self.reportNavigationFailure(
-                            reason: .dismissalRejected,
+                            reason: reason,
                             destination: controller.map(NavigationDestination.controller)
                         )
                     }
