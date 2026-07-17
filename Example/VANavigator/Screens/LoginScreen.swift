@@ -12,7 +12,7 @@ import Swiftional
 import UIKit
 
 final class LoginScreen: ControllerView<LoginViewModel> {
-    private lazy var titlelabel = Label(
+    private lazy var titleLabel = Label(
         text: "Login",
         textStyle: .headline
     )
@@ -32,7 +32,7 @@ final class LoginScreen: ControllerView<LoginViewModel> {
 
     override func addElements() {
         embedIntoScroll(
-            titlelabel,
+            titleLabel,
             Spacing(
                 value: 32,
                 child: loginButton

@@ -16,13 +16,21 @@ final class PrimaryScreen: ControllerView<PrimaryViewModel> {
         text: "Primary \(Int.random(in: 0...100))",
         textStyle: .headline
     )
-    private lazy var replacePrimartButton = Button(
+    private lazy var replacePrimaryButton = Button(
         title: "Replace primary",
         onTap: viewModel ?> { $0.perform(ReplacePrimaryEvent()) }
     )
-    private lazy var showSecondaryButton = Button(
-        title: "Show secondary",
+    private lazy var pushSecondaryButton = Button(
+        title: "Push secondary",
         onTap: viewModel ?> { $0.perform(ShowSecondaryEvent()) }
+    )
+    private lazy var replaceSecondaryButton = Button(
+        title: "Replace secondary with Details 42",
+        onTap: viewModel ?> { $0.perform(ReplaceSecondaryEvent()) }
+    )
+    private lazy var pushAndPopSecondaryButton = Button(
+        title: "Run secondary push/pop chain",
+        onTap: viewModel ?> { $0.perform(PushAndPopSecondaryEvent()) }
     )
     private lazy var replaceRootButton = Button(
         title: "Replace root with new main",
@@ -37,11 +45,10 @@ final class PrimaryScreen: ControllerView<PrimaryViewModel> {
     override func addElements() {
         embedIntoScroll(
             titleLabel,
-            replacePrimartButton,
-            Spacing(
-                value: 32,
-                child: showSecondaryButton
-            ),
+            replacePrimaryButton,
+            replaceSecondaryButton,
+            pushSecondaryButton,
+            pushAndPopSecondaryButton,
             Spacing(
                 value: 16,
                 child: replaceRootButton
@@ -64,13 +71,19 @@ struct ShowSecondaryEvent: Event {}
 
 struct ReplacePrimaryEvent: Event {}
 
+struct ReplaceSecondaryEvent: Event {}
+
+struct PushAndPopSecondaryEvent: Event {}
+
 @Observable
 final class PrimaryViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followReplaceRootWithNewMain: () -> Void
             let followReplacePrimary: () -> Void
+            let followReplaceSecondary: () -> Void
             let followShowSplitSecondary: () -> Void
+            let followPushAndPopSecondary: () -> Void
         }
 
         let navigation: Navigation
@@ -88,8 +101,12 @@ final class PrimaryViewModel: EventViewModel {
         switch event {
         case _ as ReplacePrimaryEvent:
             context.navigation.followReplacePrimary()
+        case _ as ReplaceSecondaryEvent:
+            context.navigation.followReplaceSecondary()
         case _ as ShowSecondaryEvent:
             context.navigation.followShowSplitSecondary()
+        case _ as PushAndPopSecondaryEvent:
+            context.navigation.followPushAndPopSecondary()
         case _ as ReplaceRootWithNewMainEvent:
             context.navigation.followReplaceRootWithNewMain()
         default:

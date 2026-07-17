@@ -34,6 +34,18 @@ final class DetailsToPresentScreen: ControllerView<DetailsToPresentViewModel> {
         title: "Remove -1 from navigation stack",
         onTap: viewModel ?> { $0.perform(RemoveFromStackEvent()) }
     )
+    private lazy var closeIfTopButton = Button(
+        title: "Close this top screen (pop or dismiss)",
+        onTap: viewModel ?> { $0.perform(CloseIfTopEvent()) }
+    )
+    private lazy var closeToMainButton = Button(
+        title: "Close presented screens to existing Main",
+        onTap: viewModel ?> { $0.perform(CloseToMainEvent()) }
+    )
+    private lazy var replaceNavigationRootButton = Button(
+        title: "Replace navigation root with Details 0",
+        onTap: viewModel ?> { $0.perform(ReplaceNavigationRootEvent()) }
+    )
     private lazy var descriptionLabel = Label(textStyle: .body)
 
     override func viewDidLoad(in controller: UIViewController) {
@@ -54,10 +66,10 @@ final class DetailsToPresentScreen: ControllerView<DetailsToPresentViewModel> {
                 child: detailsLabel
             ),
             replaceRootButton,
-            Spacing(
-                value: 16,
-                child: removeFromStackButton
-            ),
+            removeFromStackButton,
+            closeIfTopButton,
+            closeToMainButton,
+            replaceNavigationRootButton,
             descriptionLabel
         )
     }
@@ -77,6 +89,12 @@ final class DetailsToPresentScreen: ControllerView<DetailsToPresentViewModel> {
 
 private struct RemoveFromStackEvent: Event {}
 
+private struct CloseIfTopEvent: Event {}
+
+private struct CloseToMainEvent: Event {}
+
+private struct ReplaceNavigationRootEvent: Event {}
+
 private struct UpdateNextNumbers: Event {
     let nextNumbers: [Int]
 }
@@ -92,6 +110,9 @@ final class DetailsToPresentViewModel: EventViewModel {
             let followReplaceRootWithNewMain: () -> Void
             let followPushOrPopNext: ([Int]) -> Void
             let followRemoveFromStack: () -> Void
+            let followCloseIfTop: () -> Void
+            let followCloseToMain: () -> Void
+            let followReplaceNavigationRoot: () -> Void
         }
 
         let related: Related
@@ -119,6 +140,12 @@ final class DetailsToPresentViewModel: EventViewModel {
             context.navigation.followPushOrPopNext(nextNumbers)
         case _ as RemoveFromStackEvent:
             context.navigation.followRemoveFromStack()
+        case _ as CloseIfTopEvent:
+            context.navigation.followCloseIfTop()
+        case _ as CloseToMainEvent:
+            context.navigation.followCloseToMain()
+        case _ as ReplaceNavigationRootEvent:
+            context.navigation.followReplaceNavigationRoot()
         default:
             super.run(event)
         }

@@ -19,6 +19,25 @@
 
 To run the example project, clone the repo and open `Example/VANavigator.xcodeproj`. Xcode resolves its Swift package dependencies automatically.
 
+The example is organized as a set of reproducible navigation flows:
+
+| Feature | Path in the example |
+| --- | --- |
+| Replace the window root, including a transition | Main → **Replace root with new main** |
+| Present from the top, navigation, or tab bar controller | Main → **Open tabs** → **Present** tab |
+| Present a popover | Main → **Open tabs** → **Present** tab → **Present popover** |
+| Pop to an existing controller or push a new one | Main → **Open details** → enter one or more numbers |
+| Close to an existing controller | Main → **Open details** → **Close presented screens to existing Main** |
+| Replace a navigation stack root | Main → **Open details** → **Replace navigation root with Details 0** |
+| Close the top controller by popping or dismissing | Main → **Open details** → **Close this top screen** |
+| Remove a controller from a navigation stack | Main → **Open details** → push another number → **Remove -1 from navigation stack** |
+| Split push, pop, and replace | Main → **Open split** → use the buttons in **Primary**; the push/pop chain is easiest to observe on iPad |
+| Navigation queue serialization | Main → **Present queue example** |
+| Interception and continuation after authorization | Main → **Open authorization-protected content** → **Login** |
+| Nested fallback chain and responder event | Use the app's **Details** Home Screen quick action |
+
+Generated responder events are shown at the bottom of the destination screen when applicable.
+
 
 ## Requirements
 
@@ -79,6 +98,22 @@ navigator.navigate(
 )
 ```
 
+Choose the presentation container with `.present(source:)`. Available sources are `.topController`, `.navigationController`, and `.tabBarController`.
+
+
+- Present a popover.
+
+
+Code example:
+```
+navigator.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .popover { popover, _ in
+        popover.sourceView = sourceView
+    }
+)
+```
+
 
 - Closes presented controllers to the given controller if it exists.
 
@@ -100,6 +135,18 @@ Code example:
 navigator.navigate(
     destination: .identity(MainNavigationIdentity()),
     strategy: .push()
+)
+```
+
+
+- Remove an existing controller from a navigation stack.
+
+
+Code example:
+```
+navigator.navigate(
+    destination: .identity(MainNavigationIdentity()),
+    strategy: .removeFromNavigationStack
 )
 ```
 

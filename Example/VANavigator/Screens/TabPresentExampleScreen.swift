@@ -24,6 +24,10 @@ final class TabPresentExampleScreen: ControllerView<TabPresentExampleViewModel> 
         title: "Present from tab bar controller",
         onTap: viewModel ?> { $0.perform(PresentFromTabEvent()) }
     )
+    private lazy var presentFromNavigationButton = Button(
+        title: "Present from navigation controller",
+        onTap: viewModel ?> { $0.perform(PresentFromNavigationEvent()) }
+    )
     private lazy var presentPopoverButton = Button(
         title: "Present popover",
         onTap: viewModel ?> { $0.perform(PresentPopoverEvent(source: $1)) }
@@ -38,8 +42,10 @@ final class TabPresentExampleScreen: ControllerView<TabPresentExampleViewModel> 
         embedIntoScroll(
             titleLabel,
             presentFromTopButton,
+            presentFromNavigationButton,
             presentFromTabButton,
-            presentPopoverButton
+            presentPopoverButton,
+            descriptionLabel
         )
     }
 
@@ -57,6 +63,8 @@ struct PresentFromTopEvent: Event {}
 
 struct PresentFromTabEvent: Event {}
 
+struct PresentFromNavigationEvent: Event {}
+
 struct PresentPopoverEvent: Event {
     let source: UIView
 }
@@ -66,6 +74,7 @@ final class TabPresentExampleViewModel: EventViewModel {
     struct Context {
         struct Navigation {
             let followPresentFromTop: () -> Void
+            let followPresentFromNavigation: () -> Void
             let followPresentFromTab: () -> Void
             let followPresentPopover: (UIView) -> Void
         }
@@ -87,6 +96,8 @@ final class TabPresentExampleViewModel: EventViewModel {
             context.navigation.followPresentPopover(event.source)
         case _ as PresentFromTopEvent:
             context.navigation.followPresentFromTop()
+        case _ as PresentFromNavigationEvent:
+            context.navigation.followPresentFromNavigation()
         case _ as PresentFromTabEvent:
             context.navigation.followPresentFromTab()
         default:

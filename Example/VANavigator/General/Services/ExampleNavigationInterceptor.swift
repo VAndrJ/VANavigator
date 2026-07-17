@@ -16,7 +16,6 @@ struct LoginRequiredNavigationInterceptionReason: Hashable {}
 
 final class ExampleNavigationInterceptor: NavigationInterceptor {
     let authorizationService: AuthorizationService
-    var completion: ((UIViewController?, Bool) -> Void)?
 
     init(authorizationService: AuthorizationService) {
         self.authorizationService = authorizationService
@@ -29,7 +28,7 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
     override func intercept(destination: NavigationDestination) -> NavigationInterceptionResult? {
         switch destination {
         case let .identity(identity):
-            if identity is (any LoginedOnlyNavigationIdentity) {
+            if identity is (any AuthorizedOnlyNavigationIdentity) {
                 if authorizationService.isAuthorized {
                     return nil
                 } else {
@@ -66,7 +65,7 @@ final class ExampleNavigationInterceptor: NavigationInterceptor {
                     $0.type = .fade
                 }
             ),
-            completion: completion
+            completion: nil
         )
     }
 }

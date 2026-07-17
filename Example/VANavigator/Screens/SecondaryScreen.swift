@@ -16,11 +16,11 @@ final class SecondaryScreen: ControllerView<SecondaryViewModel> {
         text: "Secondary \(Int.random(in: 0...1000))",
         textStyle: .headline
     )
-    private lazy var showSecondaryButton = Button(
+    private lazy var replaceRootButton = Button(
         title: "Replace root with new main",
         onTap: viewModel ?> { $0.perform(ReplaceRootWithNewMainEvent()) }
     )
-    private lazy var replaceRootButton = Button(
+    private lazy var pushSecondaryButton = Button(
         title: "Show secondary",
         onTap: viewModel ?> { $0.perform(ShowSecondaryEvent()) }
     )
@@ -33,8 +33,14 @@ final class SecondaryScreen: ControllerView<SecondaryViewModel> {
     override func addElements() {
         embedIntoScroll(
             titleLabel,
-            Spacing(value: 32, child: showSecondaryButton),
-            Spacing(value: 16, child: replaceRootButton),
+            Spacing(
+                value: 32,
+                child: replaceRootButton
+            ),
+            Spacing(
+                value: 16,
+                child: pushSecondaryButton
+            ),
             descriptionLabel
         )
     }

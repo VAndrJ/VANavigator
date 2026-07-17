@@ -57,14 +57,41 @@ final class ScreenFactory: NavigatorScreenFactory {
                                             }
                                         ),
                                         strategy: .present(),
-                                        completion: { controller, _ in
-                                            if let controller {
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                    navigator?.navigate(
-                                                        destination: .controller(controller),
-                                                        strategy: .closeIfTop()
-                                                    )
-                                                }
+                                        completion: { controller, isSuccess in
+                                            guard isSuccess,
+                                                let presenter = controller?.presentingViewController
+                                            else { return }
+
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                navigator?.dismissPresented(
+                                                    in: presenter,
+                                                    animated: true,
+                                                    completion: nil
+                                                )
+                                            }
+                                        }
+                                    )
+                                },
+                                followPresentFromNavigation: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .controller(
+                                            UIViewController().apply {
+                                                $0.view.backgroundColor = .orange.withAlphaComponent(0.3)
+                                                $0.modalPresentationStyle = .overCurrentContext
+                                            }
+                                        ),
+                                        strategy: .present(source: .navigationController),
+                                        completion: { controller, isSuccess in
+                                            guard isSuccess,
+                                                let presenter = controller?.presentingViewController
+                                            else { return }
+
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                navigator?.dismissPresented(
+                                                    in: presenter,
+                                                    animated: true,
+                                                    completion: nil
+                                                )
                                             }
                                         }
                                     )
@@ -133,7 +160,6 @@ final class ScreenFactory: NavigatorScreenFactory {
                 return NavigationController(controller: controller)
             }
             let controller = TabBarController(controllers: tabControllers)
-            controller.setViewControllers(tabControllers, animated: false)
             controller.tabBar.backgroundColor = .yellow
 
             return controller
@@ -211,7 +237,7 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         )
                                     )
                                 },
-                                followLoginedContent: { [weak navigator] in
+                                followAuthorizedContent: { [weak navigator] in
                                     navigator?.navigate(
                                         destination: .identity(SecretInformationIdentity()),
                                         strategy: .present()
@@ -313,6 +339,24 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         destination: .identity(DetailsNavigationIdentity(number: -1)),
                                         strategy: .removeFromNavigationStack
                                     )
+                                },
+                                followCloseIfTop: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(identity),
+                                        strategy: .closeIfTop()
+                                    )
+                                },
+                                followCloseToMain: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(MainNavigationIdentity()),
+                                        strategy: .closeToExisting
+                                    )
+                                },
+                                followReplaceNavigationRoot: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(DetailsNavigationIdentity(number: 0)),
+                                        strategy: .replaceNavigationRoot
+                                    )
                                 }
                             )
                         )
@@ -360,10 +404,38 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         animated: false
                                     )
                                 },
+                                followReplaceSecondary: { [weak navigator] in
+                                    navigator?.navigate(
+                                        destination: .identity(DetailsNavigationIdentity(number: 42)),
+                                        strategy: .split(strategy: .secondary(action: .replace))
+                                    )
+                                },
                                 followShowSplitSecondary: { [weak navigator] in
                                     navigator?.navigate(
                                         destination: .identity(SecondaryNavigationIdentity()),
                                         strategy: .split(strategy: .secondary(action: .push))
+                                    )
+                                },
+                                followPushAndPopSecondary: { [weak navigator] in
+                                    let firstIdentity = DetailsNavigationIdentity(number: 101)
+                                    navigator?.navigate(
+                                        chain: [
+                                            NavigationChainLink(
+                                                destination: .identity(firstIdentity),
+                                                strategy: .split(strategy: .secondary(action: .push)),
+                                                animated: true
+                                            ),
+                                            NavigationChainLink(
+                                                destination: .identity(DetailsNavigationIdentity(number: 102)),
+                                                strategy: .split(strategy: .secondary(action: .push)),
+                                                animated: true
+                                            ),
+                                            NavigationChainLink(
+                                                destination: .identity(firstIdentity),
+                                                strategy: .split(strategy: .secondary(action: .pop)),
+                                                animated: true
+                                            ),
+                                        ]
                                     )
                                 }
                             )

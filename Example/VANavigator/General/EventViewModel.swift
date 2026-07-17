@@ -42,6 +42,14 @@ class EventViewModel: ViewModel {
             openType = "Popped to existing"
 
             return true
+        case _ as ResponderClosedToExistingEvent:
+            openType = "Closed to existing"
+
+            return true
+        case _ as ResponderReplacedWindowRootControllerEvent:
+            openType = "Replaced window root"
+
+            return true
         default:
             return await nextEventResponder?.handle(event: event) ?? false
         }

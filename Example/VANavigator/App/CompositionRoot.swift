@@ -10,7 +10,6 @@ import Swiftional
 import UIKit
 
 final class CompositionRoot {
-    private weak var window: UIWindow?
     private let navigator: Navigator
     private let shortcutService = ShortcutsService()
     private let authorizationService = AuthorizationService()
@@ -23,8 +22,6 @@ final class CompositionRoot {
             screenFactory: ScreenFactory(authorizationService: authorizationService),
             navigationInterceptor: navigationInterceptor
         )
-        self.window = window
-
         shortcutService.addShortcuts()
         navigator.navigate(
             destination: .identity(MainNavigationIdentity()),

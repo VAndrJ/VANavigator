@@ -16,11 +16,11 @@ extension DefaultNavigationIdentity {
     }
 }
 
-protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
+protocol AuthorizedOnlyNavigationIdentity: DefaultNavigationIdentity {}
 
 // MARK: - Identities
 
-struct SecretInformationIdentity: LoginedOnlyNavigationIdentity {}
+struct SecretInformationIdentity: AuthorizedOnlyNavigationIdentity {}
 
 struct LoginNavigationIdentity: DefaultNavigationIdentity {}
 
