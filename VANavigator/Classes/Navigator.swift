@@ -11,6 +11,11 @@ import UIKit
 @MainActor
 public final class Navigator {
     public let screenFactory: any NavigatorScreenFactory
+    /// Receives a typed diagnostic whenever a navigation strategy attempt is rejected.
+    ///
+    /// The handler runs synchronously on the main actor before a configured fallback is attempted. Assigning a handler
+    /// is optional and does not change existing completion results or fallback behavior.
+    public var navigationFailureHandler: ((NavigationFailure) -> Void)?
     public var navigationInterceptor: NavigationInterceptor? {
         didSet {
             guard oldValue !== navigationInterceptor else { return }
@@ -278,6 +283,7 @@ public final class Navigator {
         event: (any ResponderEvent)?,
         chainContext: NavigationChainContext? = nil,
         shouldIntercept: Bool = true,
+        shouldReportFailure: Bool = true,
         completion: ((UIViewController?, Bool) -> Void)?
     ) {
         if shouldIntercept,
@@ -323,6 +329,12 @@ public final class Navigator {
 
         var navigatorEvent: (any ResponderEvent)?
 
+        func reportStrategyFailure(_ reason: NavigationFailure.Reason) {
+            guard shouldReportFailure else { return }
+
+            reportNavigationFailure(reason: reason, destination: destination, strategy: strategy)
+        }
+
         func perform(
             event: (any ResponderEvent)?,
             navigatorEvent: (any ResponderEvent)?,
@@ -350,7 +362,8 @@ public final class Navigator {
 
         switch strategy {
         case _ as RemoveFromStackNavigationStrategy:
-            func completeRemovalFailure() {
+            func completeRemovalFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -366,9 +379,13 @@ public final class Navigator {
                 }
             }
 
-            if let navigationController = window?.topController?.orNavigationController,
-                navigationController.canMutateNavigationStack
-            {
+            if let navigationController = window?.topController?.orNavigationController {
+                guard navigationController.canMutateNavigationStack else {
+                    completeRemovalFailure(.transitionInProgress)
+
+                    return
+                }
+
                 if navigationController.topViewController.map({
                     destination.isEqual(to: .controller($0))
                 }) == true {
@@ -380,11 +397,12 @@ public final class Navigator {
                         event: event,
                         chainContext: chainContext,
                         shouldIntercept: false,
+                        shouldReportFailure: false,
                         completion: { controller, isSuccess in
                             if isSuccess {
                                 completion?(controller, true)
                             } else {
-                                completeRemovalFailure()
+                                completeRemovalFailure(.mutationRejected)
                             }
                         }
                     )
@@ -400,13 +418,13 @@ public final class Navigator {
                     {
                         completion?(nil, true)
                     } else {
-                        completeRemovalFailure()
+                        completeRemovalFailure(.mutationRejected)
                     }
                 } else {
-                    completeRemovalFailure()
+                    completeRemovalFailure(.destinationNotFound)
                 }
             } else {
-                completeRemovalFailure()
+                completeRemovalFailure(.navigationControllerUnavailable)
             }
         case let strategy as CloseIfTopNavigationStrategy:
             let tryToPop = strategy.tryToPop
@@ -425,7 +443,8 @@ public final class Navigator {
 
                 return nil
             }
-            func completeCloseFailure() {
+            func completeCloseFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -453,7 +472,7 @@ public final class Navigator {
                         if isSuccess {
                             completeCloseSuccess()
                         } else {
-                            completeCloseFailure()
+                            completeCloseFailure(.dismissalRejected)
                         }
                     }
                 )
@@ -473,7 +492,7 @@ public final class Navigator {
                             } else if tryToDismiss, let presentedController = presentedContainer(for: controller) {
                                 dismiss(presentedController)
                             } else {
-                                completeCloseFailure()
+                                completeCloseFailure(.mutationRejected)
                             }
                         }
                     )
@@ -484,14 +503,15 @@ public final class Navigator {
                     {
                         dismiss(presentedController)
                     } else {
-                        completeCloseFailure()
+                        completeCloseFailure(.destinationNotFound)
                     }
                 }
             } else {
-                completeCloseFailure()
+                completeCloseFailure(.sourceViewControllerUnavailable)
             }
         case let strategy as ReplaceWindowRootNavigationStrategy:
-            func completeWindowRootFailure() {
+            func completeWindowRootFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -508,7 +528,7 @@ public final class Navigator {
             }
 
             guard let window else {
-                completeWindowRootFailure()
+                completeWindowRootFailure(.windowUnavailable)
 
                 return
             }
@@ -517,7 +537,13 @@ public final class Navigator {
             let controller = getController(destination: destination)
             let currentRootController = window.rootViewController
             guard window.canSetNavigatorRootViewController(controller) else {
-                completeWindowRootFailure()
+                let hasActiveTransition = controller.isBeingPresented
+                    || controller.isBeingDismissed
+                    || controller.transitionCoordinator != nil
+                    || currentRootController.map { window.containsActiveNavigatorTransition(in: $0) } == true
+                completeWindowRootFailure(
+                    hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
+                )
 
                 return
             }
@@ -542,7 +568,7 @@ public final class Navigator {
                 transition: transition,
                 completion: {
                     guard window.rootViewController === controller else {
-                        completeWindowRootFailure()
+                        completeWindowRootFailure(.mutationRejected)
 
                         return
                     }
@@ -551,7 +577,8 @@ public final class Navigator {
                 }
             )
         case let strategy as PresentNavigationStrategy:
-            func completePresentationFailure() {
+            func completePresentationFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -603,6 +630,12 @@ public final class Navigator {
 
                 if let sourceController = presentableSource(from: sourceController) {
                     let controller = getController(destination: destination)
+                    let hasActiveTransition = controller.isBeingPresented
+                        || controller.isBeingDismissed
+                        || controller.transitionCoordinator != nil
+                        || sourceController.isBeingDismissed
+                        || sourceController.isBeingPresented
+                        || sourceController.transitionCoordinator != nil
                     guard controller !== sourceController,
                         controller.parent == nil,
                         controller.presentingViewController == nil,
@@ -614,7 +647,9 @@ public final class Navigator {
                         !sourceController.isBeingDismissed,
                         !sourceController.isBeingPresented
                     else {
-                        completePresentationFailure()
+                        completePresentationFailure(
+                            hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
+                        )
 
                         return
                     }
@@ -627,7 +662,7 @@ public final class Navigator {
                                 controller.presentingViewController != nil
                                 || sourceController.presentedViewController === controller
                             guard isPresented else {
-                                completePresentationFailure()
+                                completePresentationFailure(.mutationRejected)
 
                                 return
                             }
@@ -643,13 +678,14 @@ public final class Navigator {
                         }
                     )
                 } else {
-                    completePresentationFailure()
+                    completePresentationFailure(.sourceViewControllerUnavailable)
                 }
             } else {
-                completePresentationFailure()
+                completePresentationFailure(.rootViewControllerUnavailable)
             }
         case _ as CloseToExistingNavigationStrategy:
-            func completeCloseFailure() {
+            func completeCloseFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -672,7 +708,7 @@ public final class Navigator {
                     animated: animated,
                     completion: { [self] didDismiss in
                         guard didDismiss else {
-                            completeCloseFailure()
+                            completeCloseFailure(.dismissalRejected)
 
                             return
                         }
@@ -683,9 +719,11 @@ public final class Navigator {
                                 closeNavigationPresentedResult(
                                     controller: controller,
                                     animated: animated,
-                                    completion: { isSuccess in
-                                        guard isSuccess else {
-                                            completeCloseFailure()
+                                    completion: { result in
+                                        guard case .success = result else {
+                                            completeCloseFailure(
+                                                result.failureReason ?? .mutationRejected
+                                            )
 
                                             return
                                         }
@@ -705,7 +743,7 @@ public final class Navigator {
                     }
                 )
             } else {
-                completeCloseFailure()
+                completeCloseFailure(.destinationNotFound)
             }
         case let strategy as PushNavigationStrategy:
             let controller = getController(destination: destination)
@@ -715,8 +753,9 @@ public final class Navigator {
                 controller: controller,
                 animated: animated,
                 navigation: strategy.navigation,
-                completion: { [self] isSuccess in
-                    if isSuccess {
+                completion: { [self] result in
+                    switch result {
+                    case .success:
                         perform(
                             event: event,
                             navigatorEvent: navigatorEvent,
@@ -725,7 +764,8 @@ public final class Navigator {
                                 completion?(controller, true)
                             }
                         )
-                    } else {
+                    case let .failure(reason):
+                        reportStrategyFailure(reason)
                         if let fallback {
                             navigate(
                                 to: fallback.destination,
@@ -745,7 +785,8 @@ public final class Navigator {
         case let strategy as PopToExistingNavigationStrategy:
             let includingTabs = strategy.includingTabs
 
-            func completePopFailure() {
+            func completePopFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -803,7 +844,7 @@ public final class Navigator {
                     animated: animated,
                     completion: { [self] didDismiss in
                         guard didDismiss else {
-                            completePopFailure()
+                            completePopFailure(.dismissalRejected)
 
                             return
                         }
@@ -814,9 +855,11 @@ public final class Navigator {
                                 closeNavigationPresentedResult(
                                     controller: controller,
                                     animated: animated,
-                                    completion: { isSuccess in
-                                        guard isSuccess else {
-                                            completePopFailure()
+                                    completion: { result in
+                                        guard case .success = result else {
+                                            completePopFailure(
+                                                result.failureReason ?? .mutationRejected
+                                            )
 
                                             return
                                         }
@@ -836,25 +879,34 @@ public final class Navigator {
                     }
                 )
             } else {
-                completePopFailure()
+                completePopFailure(.destinationNotFound)
             }
-        case _ as ReplaceNavigationRootNavigationStrategy:
+        case is ReplaceNavigationRootNavigationStrategy:
+            func completeNavigationRootFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
+                if let fallback {
+                    navigate(
+                        to: fallback.destination,
+                        strategy: fallback.strategy,
+                        animated: fallback.animated,
+                        fallback: fallback.fallback,
+                        event: event,
+                        chainContext: chainContext,
+                        completion: completion
+                    )
+                } else {
+                    completion?(nil, false)
+                }
+            }
+
             if let navigationController = window?.topController?.orNavigationController {
                 let controller = getController(destination: destination)
                 guard navigationController.canSetNavigationRoot(controller) else {
-                    if let fallback {
-                        navigate(
-                            to: fallback.destination,
-                            strategy: fallback.strategy,
-                            animated: fallback.animated,
-                            fallback: fallback.fallback,
-                            event: event,
-                            chainContext: chainContext,
-                            completion: completion
-                        )
-                    } else {
-                        completion?(nil, false)
-                    }
+                    completeNavigationRootFailure(
+                        navigationController.canMutateNavigationStack
+                            ? .invalidDestinationHierarchy
+                            : .transitionInProgress
+                    )
 
                     return
                 }
@@ -866,19 +918,7 @@ public final class Navigator {
                         guard navigationController.viewControllers.count == 1,
                             navigationController.topViewController === controller
                         else {
-                            if let fallback {
-                                self.navigate(
-                                    to: fallback.destination,
-                                    strategy: fallback.strategy,
-                                    animated: fallback.animated,
-                                    fallback: fallback.fallback,
-                                    event: event,
-                                    chainContext: chainContext,
-                                    completion: completion
-                                )
-                            } else {
-                                completion?(nil, false)
-                            }
+                            completeNavigationRootFailure(.mutationRejected)
 
                             return
                         }
@@ -893,21 +933,12 @@ public final class Navigator {
                         )
                     }
                 )
-            } else if let fallback {
-                navigate(
-                    to: fallback.destination,
-                    strategy: fallback.strategy,
-                    animated: fallback.animated,
-                    fallback: fallback.fallback,
-                    event: event,
-                    chainContext: chainContext,
-                    completion: completion
-                )
             } else {
-                completion?(nil, false)
+                completeNavigationRootFailure(.navigationControllerUnavailable)
             }
         case let strategy as PopoverNavigationStrategy:
-            func completePopoverFailure() {
+            func completePopoverFailure(_ reason: NavigationFailure.Reason) {
+                reportStrategyFailure(reason)
                 if let fallback {
                     navigate(
                         to: fallback.destination,
@@ -927,6 +958,12 @@ public final class Navigator {
                 sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
             {
                 let controller = getController(destination: destination)
+                let hasActiveTransition = controller.isBeingPresented
+                    || controller.isBeingDismissed
+                    || controller.transitionCoordinator != nil
+                    || sourceController.isBeingDismissed
+                    || sourceController.isBeingPresented
+                    || sourceController.transitionCoordinator != nil
                 guard controller !== sourceController,
                     controller.parent == nil,
                     controller.presentingViewController == nil,
@@ -938,7 +975,9 @@ public final class Navigator {
                     !sourceController.isBeingDismissed,
                     !sourceController.isBeingPresented
                 else {
-                    completePopoverFailure()
+                    completePopoverFailure(
+                        hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
+                    )
 
                     return
                 }
@@ -955,7 +994,7 @@ public final class Navigator {
                         hasPopoverAnchor = popover.sourceView != nil || popover.barButtonItem != nil
                     }
                     guard hasPopoverAnchor else {
-                        completePopoverFailure()
+                        completePopoverFailure(.popoverAnchorMissing)
 
                         return
                     }
@@ -970,7 +1009,7 @@ public final class Navigator {
                                 controller.presentingViewController != nil
                                 || sourceController.presentedViewController === controller
                             guard isPresented else {
-                                completePopoverFailure()
+                                completePopoverFailure(.mutationRejected)
 
                                 return
                             }
@@ -986,10 +1025,10 @@ public final class Navigator {
                         }
                     )
                 } else {
-                    completePopoverFailure()
+                    completePopoverFailure(.mutationRejected)
                 }
             } else {
-                completePopoverFailure()
+                completePopoverFailure(.sourceViewControllerUnavailable)
             }
         default:
             switch strategy {
@@ -1008,7 +1047,8 @@ public final class Navigator {
                     action = splitAction
                 }
 
-                func completeSplitFailure() {
+                func completeSplitFailure(_ reason: NavigationFailure.Reason) {
+                    reportStrategyFailure(reason)
                     if let fallback {
                         navigate(
                             to: fallback.destination,
@@ -1024,10 +1064,13 @@ public final class Navigator {
                     }
                 }
 
-                guard let splitController,
-                    let initialNavigationController = splitController.columnNavigationController(for: column)
-                else {
-                    completeSplitFailure()
+                guard let splitController else {
+                    completeSplitFailure(.splitViewControllerUnavailable)
+
+                    return
+                }
+                guard let initialNavigationController = splitController.columnNavigationController(for: column) else {
+                    completeSplitFailure(.splitColumnNavigationControllerUnavailable)
 
                     return
                 }
@@ -1036,20 +1079,28 @@ public final class Navigator {
                 case .replace:
                     let controller = getController(destination: destination)
                     guard initialNavigationController.canSetNavigationRoot(controller) else {
-                        completeSplitFailure()
+                        completeSplitFailure(
+                            initialNavigationController.canMutateNavigationStack
+                                ? .invalidDestinationHierarchy
+                                : .transitionInProgress
+                        )
 
                         return
                     }
 
                     splitController.showNavigatorColumn(column) {
                         guard let navigationController = splitController.columnNavigationController(for: column) else {
-                            completeSplitFailure()
+                            completeSplitFailure(.splitColumnNavigationControllerUnavailable)
 
                             return
                         }
 
                         guard navigationController.canSetNavigationRoot(controller) else {
-                            completeSplitFailure()
+                            completeSplitFailure(
+                                navigationController.canMutateNavigationStack
+                                    ? .invalidDestinationHierarchy
+                                    : .transitionInProgress
+                            )
 
                             return
                         }
@@ -1061,7 +1112,7 @@ public final class Navigator {
                                 guard navigationController.viewControllers.count == 1,
                                     navigationController.topViewController === controller
                                 else {
-                                    completeSplitFailure()
+                                    completeSplitFailure(.mutationRejected)
 
                                     return
                                 }
@@ -1079,16 +1130,19 @@ public final class Navigator {
                     }
                 case .pop:
                     guard initialNavigationController.findController(destination: destination) != nil else {
-                        completeSplitFailure()
+                        completeSplitFailure(.destinationNotFound)
 
                         return
                     }
 
                     splitController.showNavigatorColumn(column) {
-                        guard let navigationController = splitController.columnNavigationController(for: column),
-                            let controller = navigationController.findController(destination: destination)
-                        else {
-                            completeSplitFailure()
+                        guard let navigationController = splitController.columnNavigationController(for: column) else {
+                            completeSplitFailure(.splitColumnNavigationControllerUnavailable)
+
+                            return
+                        }
+                        guard let controller = navigationController.findController(destination: destination) else {
+                            completeSplitFailure(.destinationNotFound)
 
                             return
                         }
@@ -1097,9 +1151,11 @@ public final class Navigator {
                         self.closeNavigationPresentedResult(
                             controller: controller,
                             animated: animated,
-                            completion: { isSuccess in
-                                guard isSuccess else {
-                                    completeSplitFailure()
+                            completion: { result in
+                                guard case .success = result else {
+                                    completeSplitFailure(
+                                        result.failureReason ?? .mutationRejected
+                                    )
 
                                     return
                                 }
@@ -1118,14 +1174,18 @@ public final class Navigator {
                 case .push:
                     let controller = self.getController(destination: destination)
                     guard initialNavigationController.canPushViewController(controller) else {
-                        completeSplitFailure()
+                        completeSplitFailure(
+                            initialNavigationController.canMutateNavigationStack
+                                ? .invalidDestinationHierarchy
+                                : .transitionInProgress
+                        )
 
                         return
                     }
 
                     splitController.showNavigatorColumn(column) {
                         guard let navigationController = splitController.columnNavigationController(for: column) else {
-                            completeSplitFailure()
+                            completeSplitFailure(.splitColumnNavigationControllerUnavailable)
 
                             return
                         }
@@ -1135,12 +1195,26 @@ public final class Navigator {
                             to: navigationController,
                             animated: animated,
                             navigation: nil,
-                            completion: { isSuccess in
+                            completion: { result in
                                 let isCurrentColumnTop = splitController
                                     .columnNavigationController(for: column)?
                                     .topViewController === controller
-                                guard isSuccess || isCurrentColumnTop else {
-                                    completeSplitFailure()
+                                guard case .success = result else {
+                                    if isCurrentColumnTop {
+                                        perform(
+                                            event: event,
+                                            navigatorEvent: navigatorEvent,
+                                            on: controller as? any UIViewController & Responder,
+                                            completion: {
+                                                completion?(controller, true)
+                                            }
+                                        )
+
+                                        return
+                                    }
+                                    completeSplitFailure(
+                                        result.failureReason ?? .mutationRejected
+                                    )
 
                                     return
                                 }
@@ -1158,6 +1232,7 @@ public final class Navigator {
                     }
                 }
             default:
+                reportStrategyFailure(.unsupportedStrategy)
                 completion?(nil, false)
             }
         }
@@ -1199,8 +1274,15 @@ public final class Navigator {
                 controller: controller,
                 animated: animated,
                 navigation: navigation,
-                completion: { isSuccess in
-                    completion?(isSuccess)
+                completion: { result in
+                    if case let .failure(reason) = result {
+                        self.reportNavigationFailure(
+                            reason: reason,
+                            destination: .controller(controller),
+                            strategy: .push()
+                        )
+                    }
+                    completion?(result.isSuccess)
                     finish()
                 }
             )
@@ -1212,14 +1294,14 @@ public final class Navigator {
         controller: UIViewController,
         animated: Bool,
         navigation: ((UINavigationController) -> Void)?,
-        completion: ((Bool) -> Void)?
+        completion: ((Result<Void, NavigationFailure.Reason>) -> Void)?
     ) {
         dismissPresentedNow(
             in: sourceController,
             animated: animated,
             completion: { [self] didDismiss in
                 guard didDismiss else {
-                    completion?(false)
+                    completion?(.failure(.dismissalRejected))
 
                     return
                 }
@@ -1233,7 +1315,7 @@ public final class Navigator {
                         completion: completion
                     )
                 } else {
-                    completion?(false)
+                    completion?(.failure(.navigationControllerUnavailable))
                 }
             }
         )
@@ -1244,11 +1326,17 @@ public final class Navigator {
         to navigationController: UINavigationController,
         animated: Bool,
         navigation: ((UINavigationController) -> Void)?,
-        completion: ((Bool) -> Void)?
+        completion: ((Result<Void, NavigationFailure.Reason>) -> Void)?
     ) {
         navigation?(navigationController)
         guard navigationController.canPushViewController(controller) else {
-            completion?(false)
+            completion?(
+                .failure(
+                    navigationController.canMutateNavigationStack
+                        ? .invalidDestinationHierarchy
+                        : .transitionInProgress
+                )
+            )
 
             return
         }
@@ -1257,10 +1345,9 @@ public final class Navigator {
             controller,
             animated: animated,
             completion: {
-                completion?(
-                    navigationController.topViewController === controller
-                        && navigationController.viewControllers.contains(where: { $0 === controller })
-                )
+                let didPush = navigationController.topViewController === controller
+                    && navigationController.viewControllers.contains(where: { $0 === controller })
+                completion?(didPush ? .success(()) : .failure(.mutationRejected))
             }
         )
     }
@@ -1313,7 +1400,13 @@ public final class Navigator {
             closeNavigationPresentedResult(
                 controller: controller,
                 animated: animated,
-                completion: { _ in
+                completion: { result in
+                    if case let .failure(reason) = result {
+                        self.reportNavigationFailure(
+                            reason: reason,
+                            destination: controller.map(NavigationDestination.controller)
+                        )
+                    }
                     completion?()
                     finish()
                 }
@@ -1324,10 +1417,10 @@ public final class Navigator {
     private func closeNavigationPresentedResult(
         controller: UIViewController?,
         animated: Bool,
-        completion: @escaping (Bool) -> Void
+        completion: @escaping (Result<Void, NavigationFailure.Reason>) -> Void
     ) {
         guard let controller else {
-            completion(false)
+            completion(.failure(.sourceViewControllerUnavailable))
 
             return
         }
@@ -1337,19 +1430,19 @@ public final class Navigator {
             animated: animated,
             completion: { didDismiss in
                 guard didDismiss else {
-                    completion(false)
+                    completion(.failure(.dismissalRejected))
 
                     return
                 }
 
                 guard let navigationController = controller.orNavigationController else {
-                    completion(true)
+                    completion(.success(()))
 
                     return
                 }
 
                 if controller === navigationController {
-                    completion(true)
+                    completion(.success(()))
 
                     return
                 }
@@ -1358,7 +1451,7 @@ public final class Navigator {
                     $0 === controller || $0.findController(controller: controller, withPresented: false) != nil
                 }
                 guard let popTarget else {
-                    completion(false)
+                    completion(.failure(.invalidDestinationHierarchy))
 
                     return
                 }
@@ -1366,7 +1459,9 @@ public final class Navigator {
                 navigationController.popToViewController(
                     popTarget,
                     animated: animated,
-                    resultCompletion: completion
+                    resultCompletion: { didPop in
+                        completion(didPop ? .success(()) : .failure(.mutationRejected))
+                    }
                 )
             }
         )
@@ -1517,7 +1612,13 @@ public final class Navigator {
             dismissPresentedNow(
                 in: controller,
                 animated: animated,
-                completion: { _ in
+                completion: { didDismiss in
+                    if !didDismiss {
+                        self.reportNavigationFailure(
+                            reason: .dismissalRejected,
+                            destination: controller.map(NavigationDestination.controller)
+                        )
+                    }
                     completion?()
                     finish()
                 }
@@ -1656,6 +1757,20 @@ public final class Navigator {
         }
     }
 
+    func reportNavigationFailure(
+        reason: NavigationFailure.Reason,
+        destination: NavigationDestination? = nil,
+        strategy: NavigationStrategy? = nil
+    ) {
+        navigationFailureHandler?(
+            NavigationFailure(
+                reason: reason,
+                destination: destination,
+                strategy: strategy
+            )
+        )
+    }
+
 }
 
 private typealias QueuedNavigatorOperation = (@escaping () -> Void) -> Void
@@ -1682,5 +1797,21 @@ private final class NavigationOperation {}
 private extension UIViewController {
     func containsInNavigatorHierarchy(_ controller: UIViewController) -> Bool {
         self === controller || findController(controller: controller, withPresented: false) != nil
+    }
+}
+
+private extension Result where Success == Void, Failure == NavigationFailure.Reason {
+    var isSuccess: Bool {
+        if case .success = self {
+            return true
+        }
+
+        return false
+    }
+
+    var failureReason: Failure? {
+        guard case let .failure(reason) = self else { return nil }
+
+        return reason
     }
 }

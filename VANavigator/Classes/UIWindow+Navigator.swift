@@ -181,7 +181,7 @@ extension UIWindow {
             !controller.isBeingPresented,
             !controller.isBeingDismissed,
             controller.transitionCoordinator == nil,
-            rootViewController.map({ !containsActiveTransition(in: $0) }) ?? true
+            rootViewController.map({ !containsActiveNavigatorTransition(in: $0) }) ?? true
         else {
             return false
         }
@@ -217,18 +217,18 @@ extension UIWindow {
             && controller.viewIfLoaded?.window == nil
     }
 
-    private func containsActiveTransition(in controller: UIViewController) -> Bool {
+    func containsActiveNavigatorTransition(in controller: UIViewController) -> Bool {
         if controller.isBeingPresented
             || controller.isBeingDismissed
             || controller.transitionCoordinator != nil
         {
             return true
         }
-        if controller.children.contains(where: containsActiveTransition(in:)) {
+        if controller.children.contains(where: containsActiveNavigatorTransition(in:)) {
             return true
         }
         if let presentedViewController = controller.presentedViewController {
-            return containsActiveTransition(in: presentedViewController)
+            return containsActiveNavigatorTransition(in: presentedViewController)
         }
 
         return false

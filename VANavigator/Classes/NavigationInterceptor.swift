@@ -161,6 +161,13 @@ open class NavigationInterceptor {
 
     private func cancel(_ navigations: [InterceptedNavigation]) {
         for navigation in navigations {
+            if let link = navigation.chain.first {
+                navigation.navigator?.reportNavigationFailure(
+                    reason: .interceptionCancelled,
+                    destination: link.destination,
+                    strategy: link.strategy
+                )
+            }
             navigation.complete(controller: nil, isSuccess: false)
         }
     }

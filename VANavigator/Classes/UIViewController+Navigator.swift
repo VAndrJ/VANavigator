@@ -23,6 +23,9 @@ extension UIViewController {
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
     /// the visible detail column in `UISplitViewController`, children of custom containers, and any presented view
     /// controller.
+    ///
+    /// UIKit does not define a generic active-child API for custom containers. For those containers, the navigator uses
+    /// the last non-dismissing child whose view is attached to a window, falling back to the last non-dismissing child.
     public var topController: UIViewController {
         if let presentedViewController, !presentedViewController.isBeingDismissed {
             return presentedViewController.topController

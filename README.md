@@ -52,6 +52,10 @@ Navigation identities, responder events, and navigation APIs are isolated to the
 
 Navigation stack mutations fail safely (and use their configured fallback) while UIKit is already performing a transition, or when the destination controller belongs to another view-controller/window hierarchy. Setting the first root controller also calls `makeKeyAndVisible()` on the navigator's window.
 
+Controller lookup traverses custom-container children. UIKit has no generic active-child API for custom containers, so
+`topController` treats the last non-dismissing child attached to a window as active. Applications whose custom
+containers use different visibility semantics should avoid top-controller-based strategies for those containers.
+
 
 ## Installation
 
@@ -204,6 +208,23 @@ navigator?.navigate(
 Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on the provided conditions. Continue the intercepted navigation after resolving the interception reason.
 
 Removing an interception reason cancels its pending navigations and completes each one with `(nil, false)`.
+
+
+**Failure diagnostics**
+
+
+Navigation completion handlers keep their existing success/failure values. For production logging, assign
+`navigationFailureHandler` to receive the typed reason, destination, and strategy for every rejected attempt:
+
+```swift
+navigator.navigationFailureHandler = { failure in
+    print("Navigation failed: \(failure.reason.rawValue)")
+}
+```
+
+The handler runs on the main actor before a configured fallback is attempted. A failed primary strategy therefore
+produces a diagnostic even when its fallback later completes the overall navigation successfully. The handler is
+optional and does not change queueing, completion, or fallback behavior.
 
 
 ## Author
