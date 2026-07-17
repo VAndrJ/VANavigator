@@ -199,6 +199,111 @@ final class SetRootControllerTests {
     }
 
     @Test
+    func `Window rejects a repeating root transition without mutating its root`() {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let initialController = UIViewController()
+        let rejectedController = UIViewController()
+        window.rootViewController = initialController
+        let transition = CATransition()
+        transition.duration = 0.1
+        transition.repeatCount = .greatestFiniteMagnitude
+        var completionCount = 0
+
+        window.set(rootViewController: rejectedController, transition: transition) {
+            completionCount += 1
+        }
+
+        #expect(completionCount == 1)
+        #expect(window.rootViewController === initialController)
+        #expect(window.layer.animation(forKey: kCATransition) == nil)
+    }
+
+    @Test
+    func `Invalid root transition reports failure and releases navigation state`() async {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let initialController = UIViewController()
+        let rejectedController = UIViewController()
+        let acceptedController = UIViewController()
+        window.rootViewController = initialController
+        let transition = CATransition()
+        transition.duration = 0.1
+        transition.repeatCount = .greatestFiniteMagnitude
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let rejected = expectation(description: "invalid root transition")
+        let accepted = expectation(description: "navigation after invalid root transition")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(rejectedController),
+            strategy: .replaceWindowRoot(transition: transition),
+            animated: true,
+            completion: { controller, isSuccess in
+                #expect(controller == nil)
+                #expect(!isSuccess)
+                completionOrder.append("rejected")
+                rejected.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(acceptedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { controller, isSuccess in
+                #expect(controller === acceptedController)
+                #expect(isSuccess)
+                completionOrder.append("accepted")
+                accepted.fulfill()
+            }
+        )
+
+        await fulfillment(of: [rejected, accepted], timeout: 10)
+
+        #expect(failures == [.invalidTransitionConfiguration])
+        #expect(completionOrder == ["rejected", "accepted"])
+        #expect(window.rootViewController === acceptedController)
+        #expect(window.layer.animation(forKey: kCATransition) == nil)
+    }
+
+    @Test
+    func `Root transition timing validation rejects configurations that may not finish`() {
+        let validTransition = CATransition()
+        validTransition.duration = 0.25
+        #expect(validTransition.isSupportedNavigatorRootTransition)
+
+        let pausedTransition = CATransition()
+        pausedTransition.duration = 0.25
+        pausedTransition.speed = 0
+        #expect(!pausedTransition.isSupportedNavigatorRootTransition)
+
+        let delayedTransition = CATransition()
+        delayedTransition.duration = 0.25
+        delayedTransition.beginTime = CACurrentMediaTime() + 1
+        #expect(!delayedTransition.isSupportedNavigatorRootTransition)
+
+        let offsetTransition = CATransition()
+        offsetTransition.duration = 0.25
+        offsetTransition.timeOffset = 0.1
+        #expect(!offsetTransition.isSupportedNavigatorRootTransition)
+
+        let repeatingTransition = CATransition()
+        repeatingTransition.duration = 0.25
+        repeatingTransition.repeatCount = 2
+        #expect(!repeatingTransition.isSupportedNavigatorRootTransition)
+    }
+
+    @Test
     func `Transition completion waits for animation`() async {
         guard
             let windowScene = UIApplication.shared.connectedScenes

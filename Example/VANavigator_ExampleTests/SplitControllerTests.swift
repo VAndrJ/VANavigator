@@ -95,6 +95,58 @@ final class SplitControllerTests {
     }
 
     @Test
+    func `Push fails when the split column changes navigation controller before completion`() async {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let originalRoot = UIViewController()
+        let originalNavigationController = SplitColumnSwappingNavigationController(
+            rootViewController: originalRoot
+        )
+        let replacementRoot = UIViewController()
+        let replacementNavigationController = UINavigationController(rootViewController: replacementRoot)
+        let splitController = MockSplitViewController(style: .doubleColumn)
+        splitController.setViewController(originalNavigationController, for: .primary)
+        splitController.setViewController(UIViewController(), for: .secondary)
+        window.rootViewController = splitController
+        window.makeKeyAndVisible()
+
+        let destination = UIViewController()
+        originalNavigationController.afterPush = {
+            splitController.setViewController(replacementNavigationController, for: .primary)
+        }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let completed = expectation(description: "split push after column replacement")
+        var completedController: UIViewController?
+        var isSuccess: Bool?
+
+        navigator.navigate(
+            destination: .controller(destination),
+            strategy: .split(strategy: .primary(action: .push)),
+            animated: false,
+            completion: { controller, result in
+                completedController = controller
+                isSuccess = result
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect((false) == isSuccess)
+        #expect(completedController == nil)
+        #expect(failures == [.mutationRejected])
+        #expect(originalNavigationController.topViewController === destination)
+        #expect(splitController.columnNavigationController(for: .primary) === replacementNavigationController)
+        #expect(splitController.columnNavigationController(for: .primary)?.topViewController === replacementRoot)
+    }
+
+    @Test
     func `Primary replacement rejects navigation controller destination`() async {
         let existingController = UIViewController()
         let navigationController = UINavigationController(rootViewController: existingController)
@@ -773,5 +825,17 @@ private final class SplitPushInvocationRecordingNavigationController: UINavigati
     override func pushViewController(_ viewController: UIViewController, animated: Bool) {
         pushInvocationCount += 1
         super.pushViewController(viewController, animated: animated)
+    }
+}
+
+private final class SplitColumnSwappingNavigationController: UINavigationController {
+    var afterPush: (() -> Void)?
+
+    override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        super.pushViewController(viewController, animated: animated)
+
+        let afterPush = self.afterPush
+        self.afterPush = nil
+        afterPush?()
     }
 }

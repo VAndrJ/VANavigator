@@ -52,6 +52,9 @@ Navigation identities, responder events, and navigation APIs are isolated to the
 
 Navigation stack mutations fail safely (and use their configured fallback) while UIKit is already performing a transition, or when the destination controller belongs to another view-controller/window hierarchy. Setting the first root controller also calls `makeKeyAndVisible()` on the navigator's window.
 
+Window-root `CATransition` values must start immediately and finish after one finite pass. Paused, delayed,
+time-offset, or repeating transitions fail with `invalidTransitionConfiguration` so they cannot block queued navigation.
+
 Controller lookup traverses custom-container children. UIKit has no generic active-child API for custom containers, so
 `topController` treats the last non-dismissing child attached to a window as active. Applications whose custom
 containers use different visibility semantics should avoid top-controller-based strategies for those containers.

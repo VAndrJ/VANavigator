@@ -90,6 +90,9 @@ extension NavigationStrategy {
     }
 
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
+    ///
+    /// The transition must start immediately, run forward, and finish after one finite pass. Paused, delayed,
+    /// time-offset, or repeating transitions fail with `NavigationFailure.Reason.invalidTransitionConfiguration`.
     public static func replaceWindowRoot(transition: CATransition? = nil) -> NavigationStrategy {
         return ReplaceWindowRootNavigationStrategy(transition: transition)
     }

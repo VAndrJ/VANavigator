@@ -129,6 +129,12 @@ extension UIWindow {
     ) {
         let previousViewController = rootViewController
 
+        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+            completion?()
+
+            return
+        }
+
         guard canSetNavigatorRootViewController(newRootViewController) else {
             completion?()
 
@@ -232,5 +238,27 @@ extension UIWindow {
         }
 
         return false
+    }
+}
+
+extension CATransition {
+    /// Root replacement begins immediately and waits for its transition delegate before releasing queued navigation.
+    /// Only finite, one-shot animations can therefore be used safely for this operation.
+    var isSupportedNavigatorRootTransition: Bool {
+        guard duration.isFinite,
+            duration >= 0,
+            speed.isFinite,
+            speed > 0,
+            repeatCount == 0,
+            repeatDuration == 0,
+            beginTime == 0,
+            timeOffset == 0
+        else {
+            return false
+        }
+
+        let activeDuration = duration * (autoreverses ? 2 : 1) / Double(speed)
+
+        return activeDuration.isFinite
     }
 }

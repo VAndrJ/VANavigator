@@ -203,8 +203,11 @@ extension Navigator {
                     let isCurrentColumnTop = splitController
                         .columnNavigationController(for: column)?
                         .topViewController === controller
-                    if case let .failure(reason) = result, !isCurrentColumnTop {
-                        completeNavigationFailure(reason, execution: execution)
+                    guard isCurrentColumnTop else {
+                        completeNavigationFailure(
+                            result.failureReason ?? .mutationRejected,
+                            execution: execution
+                        )
 
                         return
                     }

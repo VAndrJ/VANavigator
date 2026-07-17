@@ -17,6 +17,12 @@ extension Navigator {
         }
 
         let transition = execution.animated ? strategy.transition : nil
+        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
+
         let controller = getController(destination: execution.destination)
         let currentRootController = window.rootViewController
         guard window.canSetNavigatorRootViewController(controller) else {
