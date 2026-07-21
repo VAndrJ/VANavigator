@@ -41,7 +41,7 @@ jobs:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ matrix.xcode }}
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v6
     - name: Build and test
       env:
         destination: ${{ matrix.destination }}
@@ -63,7 +63,7 @@ jobs:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '26.4.1'
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v6
     - name: Build release package
       run: |
         xcodebuild \
