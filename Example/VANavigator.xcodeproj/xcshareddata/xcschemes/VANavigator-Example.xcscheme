@@ -28,9 +28,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B10000012F0000010000000B"
-               BuildableName = "VANavigator_TestHost.app"
-               BlueprintName = "VANavigator_TestHost"
+               BlueprintIdentifier = "C20000012F0000010000000B"
+               BuildableName = "VANavigator_UnitTestHost.app"
+               BlueprintName = "VANavigator_UnitTestHost"
                ReferencedContainer = "container:VANavigator.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,9 +46,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B10000012F0000010000000B"
-            BuildableName = "VANavigator_TestHost.app"
-            BlueprintName = "VANavigator_TestHost"
+            BlueprintIdentifier = "C20000012F0000010000000B"
+            BuildableName = "VANavigator_UnitTestHost.app"
+            BlueprintName = "VANavigator_UnitTestHost"
             ReferencedContainer = "container:VANavigator.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

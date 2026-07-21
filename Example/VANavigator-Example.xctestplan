@@ -21,8 +21,8 @@
     "performanceAntipatternCheckerEnabled" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:VANavigator.xcodeproj",
-      "identifier" : "B10000012F0000010000000B",
-      "name" : "VANavigator_TestHost"
+      "identifier" : "C20000012F0000010000000B",
+      "name" : "VANavigator_UnitTestHost"
     }
   },
   "testTargets" : [

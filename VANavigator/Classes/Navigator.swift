@@ -36,8 +36,6 @@ public final class Navigator {
     }
     private var isQueueCheckSuspended = false
     private var isQueueCheckInProgress = false
-    let popoverDelegate = PopoverDelegate()
-
     public init(
         window: UIWindow?,
         screenFactory: any NavigatorScreenFactory,

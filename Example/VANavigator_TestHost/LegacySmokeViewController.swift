@@ -92,6 +92,10 @@ final class LegacySmokeViewController: UIViewController {
         let presentedController = UIViewController()
         presentedController.view.backgroundColor = .systemBackground
         presentedController.title = "Presented"
+        let popoverController = UIViewController()
+        popoverController.view.backgroundColor = .systemBackground
+        popoverController.preferredContentSize = CGSize(width: 240, height: 160)
+        popoverController.title = "Popover"
 
         let timeoutWorkItem = DispatchWorkItem { [weak self] in
             self?.finish(with: "FAIL: timed out waiting for the navigation queue", succeeded: false)
@@ -128,12 +132,50 @@ final class LegacySmokeViewController: UIViewController {
             }
         )
         navigator.navigate(
+            destination: .controller(popoverController),
+            strategy: .popover(configure: { [weak self] popover, _ in
+                guard let sourceView = self?.view else { return }
+
+                popover.sourceView = sourceView
+                popover.sourceRect = CGRect(
+                    x: sourceView.bounds.midX,
+                    y: sourceView.bounds.midY,
+                    width: 1,
+                    height: 1
+                )
+                popover.permittedArrowDirections = []
+            }),
+            animated: true,
+            completion: { [weak self] controller, didPresent in
+                self?.recordSmokeStep(
+                    2,
+                    name: "popover presentation",
+                    succeeded: didPresent
+                        && controller === popoverController
+                        && popoverController.presentingViewController != nil
+                        && popoverController.popoverPresentationController?.delegate != nil
+                )
+            }
+        )
+        navigator.navigate(
+            destination: .controller(popoverController),
+            strategy: .closeIfTop(tryToPop: false),
+            animated: true,
+            completion: { [weak self] _, didClose in
+                self?.recordSmokeStep(
+                    3,
+                    name: "popover dismissal",
+                    succeeded: didClose && popoverController.presentingViewController == nil
+                )
+            }
+        )
+        navigator.navigate(
             destination: .controller(presentedController),
             strategy: .closeIfTop(tryToPop: false),
             animated: true,
             completion: { [weak self] _, didClose in
                 self?.recordSmokeStep(
-                    2,
+                    4,
                     name: "dismissal",
                     succeeded: didClose && presentedController.presentingViewController == nil
                 )
@@ -147,7 +189,7 @@ final class LegacySmokeViewController: UIViewController {
                 guard let self else { return }
 
                 recordSmokeStep(
-                    3,
+                    5,
                     name: "pop",
                     succeeded: didClose && navigationController.topViewController === self
                 )
@@ -169,8 +211,11 @@ final class LegacySmokeViewController: UIViewController {
         }
 
         completedSmokeSteps += 1
-        if completedSmokeSteps == 4 {
-            finish(with: "PASS: push, present, dismiss, pop, and queue serialization", succeeded: true)
+        if completedSmokeSteps == 6 {
+            finish(
+                with: "PASS: push, present, popover, dismiss, pop, and queue serialization",
+                succeeded: true
+            )
         }
     }
 

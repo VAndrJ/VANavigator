@@ -86,6 +86,42 @@ final class PopoverTests {
     }
 
     @Test
+    func `Default popover delegate survives navigator deallocation`() async throws {
+        let rootController = UIViewController()
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+        let presentedController = UIViewController()
+        var navigator: Navigator? = Navigator(window: window, screenFactory: MockScreenFactory())
+        weak let weakNavigator = navigator
+        let expect = expectation(description: "popover presentation")
+        var result: Bool?
+
+        navigator?.navigate(
+            destination: .controller(presentedController),
+            strategy: .popover(configure: { [weak rootController] popover, _ in
+                popover.sourceView = rootController?.view
+            }),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        let popover = try #require(presentedController.popoverPresentationController)
+        #expect((true) == result)
+        navigator = nil
+        #expect(weakNavigator == nil)
+        let delegate = try #require(popover.delegate)
+        #expect(
+            delegate.adaptivePresentationStyle?(for: popover)
+                == UIModalPresentationStyle.none
+        )
+    }
+
+    @Test
     func `Popover rejects presenting the source controller`() async {
         let rootController = UIViewController()
         window?.rootViewController = rootController

@@ -181,7 +181,7 @@ extension Navigator {
             return
         }
         if popover.delegate == nil {
-            popover.delegate = popoverDelegate
+            popover.delegate = PopoverDelegate.shared
         }
 
         sourceController.present(
