@@ -7,7 +7,7 @@
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
-            buildForTesting = "NO"
+            buildForTesting = "YES"
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
@@ -17,20 +17,6 @@
                BlueprintIdentifier = "607FACCF1AFB9204008FA782"
                BuildableName = "VANavigator_Example.app"
                BlueprintName = "VANavigator_Example"
-               ReferencedContainer = "container:VANavigator.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C20000012F0000010000000B"
-               BuildableName = "VANavigator_UnitTestHost.app"
-               BlueprintName = "VANavigator_UnitTestHost"
                ReferencedContainer = "container:VANavigator.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C20000012F0000010000000B"
-            BuildableName = "VANavigator_UnitTestHost.app"
-            BlueprintName = "VANavigator_UnitTestHost"
+            BlueprintIdentifier = "607FACCF1AFB9204008FA782"
+            BuildableName = "VANavigator_Example.app"
+            BlueprintName = "VANavigator_Example"
             ReferencedContainer = "container:VANavigator.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
