@@ -18,7 +18,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = UIViewController()
+        window.rootViewController = UINavigationController(
+            rootViewController: LegacySmokeViewController()
+        )
         window.makeKeyAndVisible()
         self.window = window
     }

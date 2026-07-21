@@ -248,31 +248,27 @@ extension UISplitViewController {
         _ column: Column,
         completion: @escaping () -> Void
     ) {
-        var didScheduleCompletion = false
-        func completeAfterUIKitFinalizesTransition() {
-            guard !didScheduleCompletion else { return }
+        var didComplete = false
+        func completeOnce() {
+            guard !didComplete else { return }
 
-            didScheduleCompletion = true
-            // A split column can share a navigation stack in compact mode. UIKit finalizes that stack after the
-            // transition-coordinator callback, so enqueue the mutation after the current main-queue work completes.
-            DispatchQueue.main.async {
-                completion()
-            }
+            didComplete = true
+            completion()
         }
 
         navigatorActiveColumn = column
         show(column)
         guard let transitionCoordinator else {
-            completeAfterUIKitFinalizesTransition()
+            completeOnce()
 
             return
         }
 
         let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
-            completeAfterUIKitFinalizesTransition()
+            completeOnce()
         }
         if !registeredCompletion {
-            completeAfterUIKitFinalizesTransition()
+            completeOnce()
         }
     }
 

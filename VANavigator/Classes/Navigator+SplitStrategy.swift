@@ -98,7 +98,8 @@ extension Navigator {
                 [controller],
                 animated: execution.animated,
                 completion: { [self] in
-                    guard navigationController.viewControllers.count == 1,
+                    guard splitController.columnNavigationController(for: column) === navigationController,
+                        navigationController.viewControllers.count == 1,
                         navigationController.topViewController === controller
                     else {
                         completeNavigationFailure(.mutationRejected, execution: execution)
@@ -155,6 +156,11 @@ extension Navigator {
 
                         return
                     }
+                    guard splitController.columnNavigationController(for: column) === navigationController else {
+                        completeNavigationFailure(.mutationRejected, execution: execution)
+
+                        return
+                    }
 
                     performNavigationEvents(
                         event: execution.event,
@@ -200,9 +206,9 @@ extension Navigator {
                 animated: execution.animated,
                 navigation: nil,
                 completion: { [self] result in
-                    let isCurrentColumnTop = splitController
-                        .columnNavigationController(for: column)?
-                        .topViewController === controller
+                    let isCurrentColumnTop = splitController.columnNavigationController(for: column)
+                        .map { $0 === navigationController && $0.topViewController === controller }
+                        ?? false
                     guard isCurrentColumnTop else {
                         completeNavigationFailure(
                             result.failureReason ?? .mutationRejected,
