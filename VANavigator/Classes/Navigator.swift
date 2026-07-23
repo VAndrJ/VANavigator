@@ -710,7 +710,7 @@ public final class Navigator {
         return presentedController
     }
 
-    private func presentedAncestor(startingAt controller: UIViewController) -> UIViewController? {
+    func presentedAncestor(startingAt controller: UIViewController) -> UIViewController? {
         var candidate: UIViewController? = controller
         var visitedControllers = Set<ObjectIdentifier>()
         while let currentController = candidate,

@@ -65,15 +65,7 @@ extension Navigator {
             controller.map { execution.destination.isEqual(to: .controller($0)) } ?? false
         }
         func presentedContainer(for controller: UIViewController) -> UIViewController? {
-            if let navigationController = controller.orNavigationController,
-                navigationController.presentingViewController != nil
-            {
-                return navigationController
-            } else if controller.presentingViewController != nil {
-                return controller
-            }
-
-            return nil
+            presentedAncestor(startingAt: controller)
         }
         func completeSuccess() {
             withExtendedLifetime(self) {

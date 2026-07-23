@@ -274,6 +274,81 @@ final class CloseIfTopControllerTests {
         #expect((rootController) === (window?.topController))
     }
 
+    @Test
+    func `Dismisses presented tab when matching controller is selected`() async {
+        let presentedController = UIViewController()
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [presentedController]
+
+        await assertDismissesPresentedContainer(
+            tabBarController,
+            matching: presentedController
+        )
+    }
+
+    @Test
+    func `Dismisses presented split when matching controller is visible`() async {
+        let presentedController = UIViewController()
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        splitViewController.setViewController(UIViewController(), for: .primary)
+        splitViewController.setViewController(presentedController, for: .secondary)
+
+        await assertDismissesPresentedContainer(
+            splitViewController,
+            matching: presentedController
+        )
+    }
+
+    @Test
+    func `Dismisses presented custom container when matching controller is its child`() async {
+        let presentedController = UIViewController()
+        let customContainer = UIViewController()
+        customContainer.addChild(presentedController)
+        customContainer.view.addSubview(presentedController.view)
+        presentedController.didMove(toParent: customContainer)
+
+        await assertDismissesPresentedContainer(
+            customContainer,
+            matching: presentedController
+        )
+    }
+
+    private func assertDismissesPresentedContainer(
+        _ presentedContainer: UIViewController,
+        matching presentedController: UIViewController
+    ) async {
+        let rootController = UIViewController()
+        window?.rootViewController = rootController
+        window?.makeKeyAndVisible()
+
+        let presentExpect = expectation(description: "container.present")
+        rootController.present(presentedContainer, animated: false) {
+            presentExpect.fulfill()
+        }
+        await fulfillment(of: [presentExpect], timeout: 10)
+        presentedContainer.view.layoutIfNeeded()
+
+        #expect(window?.topController === presentedController)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let closeExpect = expectation(description: "container.closeIfTop")
+        var result: Bool?
+        navigator.navigate(
+            destination: .controller(presentedController),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                closeExpect.fulfill()
+            }
+        )
+        await fulfillment(of: [closeExpect], timeout: 10)
+
+        #expect(result == true)
+        #expect(rootController.presentedViewController == nil)
+        #expect(rootController === window?.topController)
+    }
+
     func prepareNavigationStack(navigator: Navigator) async {
         let expect = expectation(description: "navigation.prepareNavigationStack")
         navigator.navigate(
