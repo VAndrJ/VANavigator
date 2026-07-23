@@ -8,16 +8,34 @@
 
 import Foundation
 
-final class Queue<T> {
-    private var elements: [T] = []
+struct Queue<T> {
+    private var elements: [T?] = []
+    private var headIndex = 0
 
-    var isEmpty: Bool { elements.isEmpty }
+    var isEmpty: Bool { headIndex == elements.count }
 
-    func enqueue(_ element: T) {
+    mutating func enqueue(_ element: T) {
         elements.append(element)
     }
 
-    func dequeue() -> T? {
-        return isEmpty ? nil : elements.removeFirst()
+    mutating func dequeue() -> T? {
+        guard !isEmpty else { return nil }
+
+        let element = elements[headIndex]
+        elements[headIndex] = nil
+        headIndex += 1
+        compactStorageIfNeeded()
+
+        return element
+    }
+
+    private mutating func compactStorageIfNeeded() {
+        if isEmpty {
+            elements.removeAll(keepingCapacity: true)
+            headIndex = 0
+        } else if headIndex >= 64, headIndex >= elements.count / 2 {
+            elements.removeFirst(headIndex)
+            headIndex = 0
+        }
     }
 }

@@ -2,46 +2,37 @@
 //  CompositionRoot.swift
 //  VANavigator_Example
 //
-//  Created by VAndrJ on 03.12.2023.
+//  Created by Volodymyr Andriienko on 03.12.2023.
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import VATextureKit
+import Swiftional
+import UIKit
 
-@MainActor
-class CompositionRoot {
-    private weak var window: UIWindow?
+final class CompositionRoot {
     private let navigator: Navigator
     private let shortcutService = ShortcutsService()
     private let authorizationService = AuthorizationService()
     private let navigationInterceptor: ExampleNavigationInterceptor
 
-    init(
-        window: inout UIWindow?,
-        application: UIApplication,
-        launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) {
-        window = VAWindow(
-            standardLightTheme: .vaLight,
-            standardDarkTheme: .vaDark
-        )
+    init(window: UIWindow) {
         self.navigationInterceptor = ExampleNavigationInterceptor(authorizationService: authorizationService)
         self.navigator = Navigator(
             window: window,
             screenFactory: ScreenFactory(authorizationService: authorizationService),
             navigationInterceptor: navigationInterceptor
         )
-        self.window = window
-
         shortcutService.addShortcuts()
-
         navigator.navigate(
             destination: .identity(MainNavigationIdentity()),
             strategy: .replaceWindowRoot()
         )
     }
 
-    func handleShortcut(item: UIApplicationShortcutItem, completion: @escaping (Bool) -> Void) {
+    func handleShortcut(
+        item: UIApplicationShortcutItem,
+        completion: @escaping (Bool) -> Void
+    ) {
         guard let shortcut = Shortcut(rawValue: item.type) else {
             completion(false)
 
@@ -51,13 +42,15 @@ class CompositionRoot {
         switch shortcut {
         case .alert:
             navigator.navigate(
-                destination: .controller(UIAlertController(
-                    title: "Title",
-                    message: "Message",
-                    preferredStyle: .alert
-                ).apply {
-                    $0.addAction(UIAlertAction(title: "Close", style: .default))
-                }),
+                destination: .controller(
+                    UIAlertController(
+                        title: "Title",
+                        message: "Message",
+                        preferredStyle: .alert
+                    ).apply {
+                        $0.addAction(UIAlertAction(title: "Close", style: .default))
+                    }
+                ),
                 strategy: .present()
             )
         case .main:

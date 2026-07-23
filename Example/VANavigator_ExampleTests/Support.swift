@@ -6,12 +6,85 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
+import Testing
+import UIKit
 import VANavigator
-@testable import VANavigator_Example
+
+nonisolated final class TestExpectation: @unchecked Sendable {
+    let description: String
+    private let lock = NSLock()
+    private var fulfillmentCount = 0
+
+    var isFulfilled: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return fulfillmentCount > 0
+    }
+
+    init(description: String) {
+        self.description = description
+    }
+
+    func fulfill() {
+        let wasAlreadyFulfilled: Bool
+        lock.lock()
+        fulfillmentCount += 1
+        wasAlreadyFulfilled = fulfillmentCount > 1
+        lock.unlock()
+
+        if wasAlreadyFulfilled {
+            Issue.record("Expectation '\(description)' was fulfilled more than once")
+        }
+    }
+}
+
+func expectation(description: String) -> TestExpectation {
+    TestExpectation(description: description)
+}
+
+func fulfillment(of expectations: [TestExpectation], timeout: TimeInterval) async {
+    let start = DispatchTime.now().uptimeNanoseconds
+    let timeoutNanoseconds = UInt64(timeout * 1_000_000_000)
+
+    while let pendingExpectation = expectations.first(where: { !$0.isFulfilled }) {
+        if DispatchTime.now().uptimeNanoseconds - start >= timeoutNanoseconds {
+            Issue.record("Timed out waiting for '\(pendingExpectation.description)'")
+            return
+        }
+        do {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        } catch {
+            Issue.record("Cancelled while waiting for '\(pendingExpectation.description)'")
+            return
+        }
+    }
+}
+
+func waitUntil(
+    _ description: String,
+    timeout: TimeInterval,
+    condition: () -> Bool
+) async {
+    let start = DispatchTime.now().uptimeNanoseconds
+    let timeoutNanoseconds = UInt64(timeout * 1_000_000_000)
+
+    while !condition() {
+        if DispatchTime.now().uptimeNanoseconds - start >= timeoutNanoseconds {
+            Issue.record("Timed out waiting for '\(description)'")
+            return
+        }
+        do {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        } catch {
+            Issue.record("Cancelled while waiting for '\(description)'")
+            return
+        }
+    }
+}
 
 class MockScreenFactory: NavigatorScreenFactory {
+    init() {}
 
-    // swiftlint:disable function_body_length
     func assembleScreen(identity: any NavigationIdentity, navigator: Navigator) -> UIViewController {
         switch identity {
         case let identity as MockSplitControllerNavigationIdentity:
@@ -52,11 +125,7 @@ class MockScreenFactory: NavigatorScreenFactory {
         case _ as LoginNavigationIdentity:
             return UIViewController()
         case _ as SecretInformationIdentity:
-            return ViewController(
-                node: SecretInformationScreenNode(viewModel: SecretInformationViewModel(data: .init(
-                    navigation: .init(followReplaceRootWithNewMain: {}))
-                ))
-            )
+            return MockViewController()
         case _ as MockRootControllerNavigationIdentity:
             return MockRootViewController()
         case _ as MockPushControllerNavigationIdentity:
@@ -75,20 +144,18 @@ class MockScreenFactory: NavigatorScreenFactory {
                 animated: false
             )
             controller.navigationIdentity = identity
-            
+
             return controller
         default:
             return UIViewController()
         }
     }
-    // swiftlint:enable function_body_length
 }
 
 class MockNavigationController: UINavigationController, Responder {
-
     var nextEventResponder: (any Responder)? {
         get { topController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}
     }
 
     func handle(event: any ResponderEvent) async -> Bool {
@@ -143,19 +210,28 @@ class MockPushViewController: MockViewController, Responder {
 
 class MockRootViewController: MockViewController, Responder {
     private(set) var isReplacedEventHandled = false
+    private(set) var isClosedEventHandled = false
+    private(set) var handledEvents: [String] = []
 
     // MARK: - Responder
 
     var nextEventResponder: (any Responder)?
-    
+
     func handle(event: any ResponderEvent) async -> Bool {
         switch event {
         case _ as ResponderReplacedWindowRootControllerEvent:
             isReplacedEventHandled = true
-            
+            handledEvents.append("replaced")
+
+            return true
+        case _ as ResponderClosedToExistingEvent:
+            isClosedEventHandled = true
+            handledEvents.append("closed")
+
             return true
         case _ as ResponderMockEvent:
             isMockEventHandled = true
+            handledEvents.append("mock")
 
             return true
         default:
@@ -172,7 +248,7 @@ class MockTabBarViewController: UITabBarController, Responder {
 
     var nextEventResponder: (any Responder)? {
         get { selectedViewController as? (any Responder) }
-        set {} // swiftlint:disable:this unused_setter_value
+        set {}
     }
 
     func handle(event: any ResponderEvent) async -> Bool {
@@ -180,32 +256,34 @@ class MockTabBarViewController: UITabBarController, Responder {
     }
 }
 
+@MainActor
 struct MockRootControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockPushControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockPopControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockControllerNavigationIdentity: DefaultNavigationIdentity {}
 
+@MainActor
 struct MockNavControllerNavigationIdentity: DefaultNavigationIdentity {
     let children: [any NavigationIdentity]
 }
 
+@MainActor
 struct MockSplitControllerNavigationIdentity: DefaultNavigationIdentity {
     let primary: any NavigationIdentity
     let secondary: any NavigationIdentity
     var supplementary: (any NavigationIdentity)?
 }
 
+@MainActor
 struct MockTabControllerNavigationIdentity: DefaultNavigationIdentity {
     let children: [any NavigationIdentity]
 }
 
+@MainActor
 struct ResponderMockEvent: ResponderEvent {}
-
-func taskDetachedMain(_ fn: @escaping @Sendable () -> any Sendable) {
-    Task.detached {
-        await MainActor.run(body: fn)
-    }
-}

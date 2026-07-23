@@ -9,10 +9,13 @@
 import Foundation
 
 /// Represents an event where the responder navigated back to an existing view controller.
+@MainActor
 public struct ResponderPoppedToExistingEvent: ResponderEvent {}
 
 /// Represents an event where the responder closed and returned to an existing view controller.
+@MainActor
 public struct ResponderClosedToExistingEvent: ResponderEvent {}
 
 /// Represents an event where the responder replaced the root view controller of the window.
+@MainActor
 public struct ResponderReplacedWindowRootControllerEvent: ResponderEvent {}

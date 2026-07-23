@@ -3,14 +3,13 @@
 import PackageDescription
 
 let settings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
     .defaultIsolation(MainActor.self),
 ]
 
 let package = Package(
     name: "VANavigator",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v15)
     ],
     products: [
         .library(

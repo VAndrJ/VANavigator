@@ -8,8 +8,12 @@
 
 import UIKit
 
-class PopoverDelegate: NSObject, UIPopoverPresentationControllerDelegate {
+final class PopoverDelegate: NSObject, UIPopoverPresentationControllerDelegate {
+    static let shared = PopoverDelegate()
+
+    private override init() {}
+
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return .none
+        .none
     }
 }

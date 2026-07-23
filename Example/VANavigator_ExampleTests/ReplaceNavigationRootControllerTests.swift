@@ -6,31 +6,25 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 import VANavigator
-import VATextureKit
 
 // TODO: - Messages
-class ReplaceNavigationRootControllerTests: XCTestCase, MainActorIsolated {
-    var window: UIWindow?
+@Suite(.serialized)
+final class ReplaceNavigationRootControllerTests {
+    let window: UIWindow? = UIWindow()
 
-    override func setUp() {
-        window = UIWindow()
-    }
-
-    override func tearDown() {
-        window = nil
-    }
-
-    func test_controllerreplaceNavigationRoot() {
+    @Test
+    func `Replaces navigation root controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigationStack(navigator: navigator)
+        await prepareNavigationStack(navigator: navigator)
         let newRootIdentity = MockPushControllerNavigationIdentity()
         let navigationController = window?.rootViewController as? UINavigationController
 
-        XCTAssertNotNil(navigationController)
-        XCTAssertEqual(2, navigationController?.viewControllers.count)
-        XCTAssertFalse(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
+        #expect((navigationController) != nil)
+        #expect((2) == (navigationController?.viewControllers.count))
+        #expect(!(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity)))
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -40,24 +34,25 @@ class ReplaceNavigationRootControllerTests: XCTestCase, MainActorIsolated {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertEqual(1, navigationController?.viewControllers.count)
-        XCTAssertTrue(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect((1) == (navigationController?.viewControllers.count))
+        #expect(newRootIdentity.isEqual(to: navigationController?.viewControllers.first?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controllerreplaceNavigationRoot_usesFallback() {
+    @Test
+    func `Navigation root replacement uses fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigation(navigator: navigator)
+        await prepareNavigation(navigator: navigator)
         let newRootIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertNil(window?.rootViewController as? UINavigationController)
-        XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect((window?.rootViewController as? UINavigationController) == nil)
+        #expect(!(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity)))
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -68,24 +63,25 @@ class ReplaceNavigationRootControllerTests: XCTestCase, MainActorIsolated {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(newRootIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertEqual(true, (responder as? MockViewController)?.isMockEventHandled)
+        #expect(!(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity)))
+        #expect(newRootIdentity.isEqual(to: window?.topController?.navigationIdentity))
+        #expect((true) == ((responder as? MockViewController)?.isMockEventHandled))
     }
 
-    func test_controllerreplaceNavigationRoot_noFallbackFail() {
+    @Test
+    func `Navigation root replacement fails without fallback`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
-        prepareNavigation(navigator: navigator)
+        await prepareNavigation(navigator: navigator)
         let newRootIdentity = MockPushControllerNavigationIdentity()
 
-        XCTAssertNil(window?.rootViewController as? UINavigationController)
-        XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect((window?.rootViewController as? UINavigationController) == nil)
+        #expect(!(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity)))
 
         let expect = expectation(description: "replace")
         var responder: UIViewController?
@@ -95,44 +91,75 @@ class ReplaceNavigationRootControllerTests: XCTestCase, MainActorIsolated {
             event: ResponderMockEvent(),
             completion: { controller, _ in
                 responder = controller
-                taskDetachedMain { expect.fulfill() }
+                expect.fulfill()
             }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
 
-        XCTAssertNil(window?.rootViewController as? UINavigationController)
-        XCTAssertNil(responder)
-        XCTAssertFalse(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertFalse(newRootIdentity.isEqual(to: window?.topController?.navigationIdentity))
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
-        XCTAssertTrue(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
+        #expect((window?.rootViewController as? UINavigationController) == nil)
+        #expect((responder) == nil)
+        #expect(!(newRootIdentity.isEqual(to: window?.rootViewController?.navigationIdentity)))
+        #expect(!(newRootIdentity.isEqual(to: window?.topController?.navigationIdentity)))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.rootViewController?.navigationIdentity))
+        #expect(MockRootControllerNavigationIdentity().isEqual(to: window?.topController?.navigationIdentity))
     }
 
-    func test_closeNavigationPresented_completionCalledWithNilController() {
+    @Test
+    func `Navigation root replacement rejects navigation controller destination`() async {
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        await prepareNavigationStack(navigator: navigator)
+        let navigationController = window?.rootViewController as? UINavigationController
+        let originalControllers = navigationController?.viewControllers
+        let nestedNavigationController = UINavigationController(rootViewController: UIViewController())
+        let expect = expectation(description: "replace rejected")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .controller(nestedNavigationController),
+            strategy: .replaceNavigationRoot,
+            animated: false,
+            completion: {
+                responder = $0
+                result = $1
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect((false) == (result))
+        #expect((responder) == nil)
+        #expect((originalControllers) == (navigationController?.viewControllers))
+        #expect((nestedNavigationController.parent) == nil)
+    }
+
+    @Test
+    func `Closing presented navigation completes with nil controller`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let expect = expectation(description: "navigation.close")
         navigator.closeNavigationPresented(
             controller: nil,
             animated: true,
-            completion: { taskDetachedMain { expect.fulfill() } }
+            completion: { expect.fulfill() }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func prepareNavigation(navigator: Navigator) {
+    func prepareNavigation(navigator: Navigator) async {
         let expect = expectation(description: "navigation.replaceWindowRoot")
         navigator.navigate(
             destination: .identity(MockRootControllerNavigationIdentity()),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 
-    func prepareNavigationStack(navigator: Navigator) {
+    func prepareNavigationStack(navigator: Navigator) async {
         let identity = MockNavControllerNavigationIdentity(children: [
             MockRootControllerNavigationIdentity(),
             MockPopControllerNavigationIdentity(),
@@ -141,9 +168,9 @@ class ReplaceNavigationRootControllerTests: XCTestCase, MainActorIsolated {
         navigator.navigate(
             destination: .identity(identity),
             strategy: .replaceWindowRoot(),
-            completion: { _, _ in taskDetachedMain { expect.fulfill() } }
+            completion: { _, _ in expect.fulfill() }
         )
 
-        wait(for: [expect], timeout: 10)
+        await fulfillment(of: [expect], timeout: 10)
     }
 }

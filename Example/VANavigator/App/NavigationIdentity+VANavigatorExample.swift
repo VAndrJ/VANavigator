@@ -11,17 +11,16 @@ import Foundation
 protocol DefaultNavigationIdentity: NavigationIdentity {}
 
 extension DefaultNavigationIdentity {
-
     func isEqual(to other: (any NavigationIdentity)?) -> Bool {
-        other is Self
+        return other is Self
     }
 }
 
-protocol LoginedOnlyNavigationIdentity: DefaultNavigationIdentity {}
+protocol AuthorizedOnlyNavigationIdentity: DefaultNavigationIdentity {}
 
 // MARK: - Identities
 
-struct SecretInformationIdentity: LoginedOnlyNavigationIdentity {}
+struct SecretInformationIdentity: AuthorizedOnlyNavigationIdentity {}
 
 struct LoginNavigationIdentity: DefaultNavigationIdentity {}
 
@@ -49,7 +48,6 @@ struct NavNavigationIdentity: NavigationIdentity {
         guard children.count == other.children.count else {
             return false
         }
-
         for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
             return false
         }
@@ -68,9 +66,19 @@ struct SplitNavigationIdentity: NavigationIdentity {
             return false
         }
 
-        return primary.isEqual(to: other.primary) &&
-        secondary.isEqual(to: other.secondary) &&
-        supplementary?.isEqual(to: other.supplementary) == true
+        let isSupplementaryEqual: Bool
+        switch (supplementary, other.supplementary) {
+        case (nil, nil):
+            isSupplementaryEqual = true
+        case let (lhs?, rhs?):
+            isSupplementaryEqual = lhs.isEqual(to: rhs)
+        default:
+            isSupplementaryEqual = false
+        }
+
+        return primary.isEqual(to: other.primary)
+            && secondary.isEqual(to: other.secondary)
+            && isSupplementaryEqual
     }
 }
 
@@ -96,7 +104,6 @@ struct TabNavigationIdentity: NavigationIdentity {
         guard children.count == other.children.count else {
             return false
         }
-
         for pair in zip(children, other.children) where !pair.0.isEqual(to: pair.1) {
             return false
         }

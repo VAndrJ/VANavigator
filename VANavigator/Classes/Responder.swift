@@ -8,12 +8,12 @@
 
 import Foundation
 
-public protocol ResponderEvent: Sendable {}
+@MainActor
+public protocol ResponderEvent {}
 
+@MainActor
 public protocol Responder: AnyObject {
-    @MainActor
     var nextEventResponder: (any Responder)? { get set }
 
-    @MainActor
     func handle(event: any ResponderEvent) async -> Bool
 }

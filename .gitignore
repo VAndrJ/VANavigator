@@ -3,6 +3,7 @@
 
 # Xcode
 .swiftpm
+.build/
 build/
 *.pbxuser
 !default.pbxuser
@@ -35,3 +36,7 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 Pods/
+Packages/
+Package.pins
+Package.resolved
+!Example/VANavigator.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

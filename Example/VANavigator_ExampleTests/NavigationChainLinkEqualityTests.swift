@@ -6,13 +6,14 @@
 //  Copyright © 2023 Volodymyr Andriienko. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 import VANavigator
-import VATextureKit
 
-class NavigationChainLinkEqualityTests: XCTestCase, MainActorIsolated {
-
-    func test_links() {
+@Suite(.serialized)
+final class NavigationChainLinkEqualityTests {
+    @Test
+    func `Chain links compare by value`() async {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
             strategy: .push(),
@@ -39,14 +40,15 @@ class NavigationChainLinkEqualityTests: XCTestCase, MainActorIsolated {
             animated: true
         )
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail2.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expectedToFail1.isEqual(to: sut)))
+        #expect(!(expectedToFail2.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 
-    func test_links_fallback() {
+    @Test
+    func `Chain link equality includes fallback`() async {
         let expected = NavigationChainLink(
             destination: .identity(MockControllerNavigationIdentity()),
             strategy: .push(),
@@ -84,9 +86,9 @@ class NavigationChainLinkEqualityTests: XCTestCase, MainActorIsolated {
             )
         )
 
-        XCTAssertTrue(expected.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail.isEqual(to: sut))
-        XCTAssertFalse(expectedToFail1.isEqual(to: sut))
-        XCTAssertFalse(expected.isEqual(to: nil))
+        #expect(expected.isEqual(to: sut))
+        #expect(!(expectedToFail.isEqual(to: sut)))
+        #expect(!(expectedToFail1.isEqual(to: sut)))
+        #expect(!(expected.isEqual(to: nil)))
     }
 }

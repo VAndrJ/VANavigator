@@ -8,28 +8,53 @@
 
 import UIKit
 
-public class NavigationStrategy: Equatable {
+@MainActor
+public class NavigationStrategy: @MainActor Equatable {
+    enum Comparison: Equatable {
+        case split(SplitStrategy)
+        case closeToExisting
+        case removeFromStack
+        case present(PresentNavigationSource)
+        case replaceNavigationRoot
+        case popToExisting(includingTabs: Bool)
+        case replaceWindowRoot(transition: ObjectIdentifier?)
+        case closeIfTop(tryToPop: Bool, tryToDismiss: Bool)
+        case push
+        case instance
+    }
+
+    let comparison: Comparison
+
     public static func == (lhs: NavigationStrategy, rhs: NavigationStrategy) -> Bool {
         return lhs.isEqual(to: rhs)
     }
 
-    init() {}
+    init(comparison: Comparison) {
+        self.comparison = comparison
+    }
 
     func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard (other as? Self) != nil else {
+        guard let other else {
             return false
         }
 
-        return true
+        switch (comparison, other.comparison) {
+        case (.instance, .instance):
+            return self === other
+        default:
+            return comparison == other.comparison
+        }
     }
 }
 
 extension NavigationStrategy {
-    /// Replaces the navigation stack with the given controller as the root or uses fallback if no `UINavigationController` is found.
+    /// Replaces the navigation stack with the given controller as the root or uses fallback if no
+    /// `UINavigationController` is found.
     public static var replaceNavigationRoot: NavigationStrategy { ReplaceNavigationRootNavigationStrategy() }
     /// Closes presented controllers to given controller if it exists.
     public static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
-    /// Rmoves an existing controller from the UINavigationController's stack, or uses fallback if no `UINavigationController` is found. Ignores if one is the last controller.
+    /// Removes an existing controller from the `UINavigationController` stack, or uses fallback if no navigation
+    /// controller is found. Does nothing if the target is the last controller.
     public static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
@@ -65,6 +90,9 @@ extension NavigationStrategy {
     }
 
     /// Replaces `UIWindow`'s `rootViewController` with the given `transition`.
+    ///
+    /// The transition must start immediately, run forward, and finish after one finite pass. Paused, delayed,
+    /// time-offset, or repeating transitions fail with `NavigationFailure.Reason.invalidTransitionConfiguration`.
     public static func replaceWindowRoot(transition: CATransition? = nil) -> NavigationStrategy {
         return ReplaceWindowRootNavigationStrategy(transition: transition)
     }
@@ -81,8 +109,8 @@ extension NavigationStrategy {
 }
 
 /// Navigation strategy for `UISplitViewController`.
-public enum SplitStrategy: Equatable {
-    public enum SplitActon: Equatable {
+nonisolated public enum SplitStrategy: Sendable, Equatable {
+    nonisolated public enum SplitAction: Sendable, Equatable, Hashable {
         /// Pushes the selected view controller in `UISplitViewController`.
         case push
         /// Pops to the selected view controller in `UISplitViewController`.
@@ -91,10 +119,14 @@ public enum SplitStrategy: Equatable {
         case replace
     }
 
+    /// Backward-compatible spelling retained for clients migrating from VANavigator 4.x.
+    @available(*, deprecated, renamed: "SplitAction")
+    public typealias SplitActon = SplitAction
+
     /// Performs action on the primary view controller in `UISplitViewController`.
-    case primary(action: SplitActon)
+    case primary(action: SplitAction)
     /// Performs action on the secondary view controller in `UISplitViewController`.
-    case secondary(action: SplitActon)
+    case secondary(action: SplitAction)
 }
 
 final class SplitNavigationStrategy: NavigationStrategy {
@@ -102,14 +134,7 @@ final class SplitNavigationStrategy: NavigationStrategy {
 
     init(strategy: SplitStrategy) {
         self.strategy = strategy
-    }
-
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
-            return false
-        }
-
-        return strategy == other.strategy
+        super.init(comparison: .split(strategy))
     }
 }
 
@@ -118,14 +143,23 @@ final class PopoverNavigationStrategy: NavigationStrategy {
 
     init(configure: @escaping (_ popover: UIPopoverPresentationController, _ controller: UIViewController) -> Void) {
         self.configure = configure
+        super.init(comparison: .instance)
     }
 }
 
-final class CloseToExistingNavigationStrategy: NavigationStrategy {}
+final class CloseToExistingNavigationStrategy: NavigationStrategy {
+    init() {
+        super.init(comparison: .closeToExisting)
+    }
+}
 
-final class RemoveFromStackNavigationStrategy: NavigationStrategy {}
+final class RemoveFromStackNavigationStrategy: NavigationStrategy {
+    init() {
+        super.init(comparison: .removeFromStack)
+    }
+}
 
-public enum PresentNavigationSource: Sendable, Equatable {
+nonisolated public enum PresentNavigationSource: Sendable, Equatable, Hashable {
     case topController
     case navigationController
     case tabBarController
@@ -136,32 +170,22 @@ final class PresentNavigationStrategy: NavigationStrategy {
 
     init(source: PresentNavigationSource) {
         self.source = source
-    }
-
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
-            return false
-        }
-
-        return source == other.source
+        super.init(comparison: .present(source))
     }
 }
 
-final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {}
+final class ReplaceNavigationRootNavigationStrategy: NavigationStrategy {
+    init() {
+        super.init(comparison: .replaceNavigationRoot)
+    }
+}
 
 final class PopToExistingNavigationStrategy: NavigationStrategy {
     let includingTabs: Bool
 
     init(includingTabs: Bool) {
         self.includingTabs = includingTabs
-    }
-
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
-            return false
-        }
-
-        return includingTabs == other.includingTabs
+        super.init(comparison: .popToExisting(includingTabs: includingTabs))
     }
 }
 
@@ -170,6 +194,7 @@ final class PushNavigationStrategy: NavigationStrategy {
 
     init(navigation: ((UINavigationController) -> Void)?) {
         self.navigation = navigation
+        super.init(comparison: navigation == nil ? .push : .instance)
     }
 }
 
@@ -178,14 +203,7 @@ final class ReplaceWindowRootNavigationStrategy: NavigationStrategy {
 
     init(transition: CATransition? = nil) {
         self.transition = transition
-    }
-
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
-            return false
-        }
-
-        return transition == other.transition
+        super.init(comparison: .replaceWindowRoot(transition: transition.map(ObjectIdentifier.init)))
     }
 }
 
@@ -202,13 +220,10 @@ final class CloseIfTopNavigationStrategy: NavigationStrategy {
         self.tryToPop = tryToPop
         self.tryToDismiss = tryToDismiss
         self.navigation = navigation
-    }
-
-    override func isEqual(to other: NavigationStrategy?) -> Bool {
-        guard let other = other as? Self else {
-            return false
-        }
-
-        return tryToDismiss == other.tryToDismiss && tryToPop == other.tryToPop
+        super.init(
+            comparison: navigation == nil
+                ? .closeIfTop(tryToPop: tryToPop, tryToDismiss: tryToDismiss)
+                : .instance
+        )
     }
 }

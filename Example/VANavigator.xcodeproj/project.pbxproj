@@ -7,33 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */; };
-		40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */; };
 		A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
+		A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6DD300780E300D8A4CD /* ObservationTracking */; };
+		A36FD6E130079D9300D8A4CD /* Swiftional in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6E030079D9300D8A4CD /* Swiftional */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A32F5E912B210DCF008564F9 /* PBXContainerItemProxy */ = {
+		C20000012F00000100000013 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
-			remoteInfo = VANavigator_Example;
+			remoteGlobalIDString = C20000012F0000010000000B;
+			remoteInfo = VANavigator_UnitTestHost;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.release.xcconfig"; sourceTree = "<group>"; };
-		2084627312EB44A8EC56B572 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		305B55E0312B6363F4E5D36D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		3D4841AE791209C7461DABDC /* VANavigator.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = VANavigator.podspec; path = ../VANavigator.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.release.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.release.xcconfig"; sourceTree = "<group>"; };
-		89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_ExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_ExampleTests/Pods-VANavigator_ExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		A35200BC2F09E036007578D6 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VANavigator_Example.debug.xcconfig"; path = "Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VANavigator_ExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A340AC103007C4BC00D67C69 /* VANavigator_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VANavigator_ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C20000012F00000100000006 /* VANavigator_UnitTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VANavigator_UnitTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -49,8 +41,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = VANavigator_ExampleTests;
 			sourceTree = "<group>";
 		};
@@ -62,6 +52,11 @@
 			path = VANavigator;
 			sourceTree = "<group>";
 		};
+		C20000012F00000100000009 /* VANavigator_UnitTestHost */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VANavigator_UnitTestHost;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +65,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */,
-				1C3E1D26F71717EFF0C06BBF /* libPods-VANavigator_Example.a in Frameworks */,
+				A36FD6E130079D9300D8A4CD /* Swiftional in Frameworks */,
+				A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,54 +74,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40AABCA17E172D061E2D3D16 /* libPods-VANavigator_ExampleTests.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C20000012F0000010000000A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4911D49A603371F50A10A4E4 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */,
-				18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */,
-				89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */,
-				5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
-				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				A317D0522E9455EA001AF277 /* VANavigator */,
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
-				4911D49A603371F50A10A4E4 /* Pods */,
-				A35200BC2F09E036007578D6 /* VANavigator_Example.app */,
-				A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */,
-				E6889555D763F93D974E1BBC /* Frameworks */,
+				C20000012F00000100000009 /* VANavigator_UnitTestHost */,
+				A340AC123007C4BC00D67C69 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
+		A340AC123007C4BC00D67C69 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				305B55E0312B6363F4E5D36D /* LICENSE */,
-				2084627312EB44A8EC56B572 /* README.md */,
-				3D4841AE791209C7461DABDC /* VANavigator.podspec */,
+				A340AC103007C4BC00D67C69 /* VANavigator_Example.app */,
+				A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */,
+				C20000012F00000100000006 /* VANavigator_UnitTestHost.app */,
 			);
-			name = "Podspec Metadata";
-			sourceTree = "<group>";
-		};
-		E6889555D763F93D974E1BBC /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0F41E3E141C6600C5E640B68 /* libPods-VANavigator_Example.a */,
-				ED74B41AD39794525235E104 /* libPods-VANavigator_ExampleTests.a */,
-			);
-			name = Frameworks;
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -135,12 +114,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "VANavigator_Example" */;
 			buildPhases = (
-				A950CD4BC5CD0ABC48149A5D /* [CP] Check Pods Manifest.lock */,
-				A33FDA502B303F5900353D44 /* SwiftLint */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				0B771CDC26F87F7FEE2F3CA8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -151,14 +127,13 @@
 			);
 			name = VANavigator_Example;
 			productName = VANavigator;
-			productReference = A35200BC2F09E036007578D6 /* VANavigator_Example.app */;
+			productReference = A340AC103007C4BC00D67C69 /* VANavigator_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A32F5E932B210DCF008564F9 /* Build configuration list for PBXNativeTarget "VANavigator_ExampleTests" */;
 			buildPhases = (
-				5DB4A9ED3CE63F85404A697D /* [CP] Check Pods Manifest.lock */,
 				A32F5E892B210DCF008564F9 /* Sources */,
 				A32F5E8A2B210DCF008564F9 /* Frameworks */,
 				A32F5E8B2B210DCF008564F9 /* Resources */,
@@ -166,15 +141,40 @@
 			buildRules = (
 			);
 			dependencies = (
-				A32F5E922B210DCF008564F9 /* PBXTargetDependency */,
+				C20000012F00000100000012 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A317D01A2E9455D7001AF277 /* VANavigator_ExampleTests */,
 			);
 			name = VANavigator_ExampleTests;
+			packageProductDependencies = (
+				A352007E2F09DEB9007578D6 /* VANavigator */,
+			);
 			productName = VANavigator_ExampleTests;
-			productReference = A35200BD2F09E036007578D6 /* VANavigator_ExampleTests.xctest */;
+			productReference = A340AC113007C4BC00D67C69 /* VANavigator_ExampleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C20000012F0000010000000B /* VANavigator_UnitTestHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C20000012F00000100000011 /* Build configuration list for PBXNativeTarget "VANavigator_UnitTestHost" */;
+			buildPhases = (
+				C20000012F0000010000000D /* Sources */,
+				C20000012F0000010000000A /* Frameworks */,
+				C20000012F0000010000000C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C20000012F00000100000009 /* VANavigator_UnitTestHost */,
+			);
+			name = VANavigator_UnitTestHost;
+			packageProductDependencies = (
+			);
+			productName = VANavigator_UnitTestHost;
+			productReference = C20000012F00000100000006 /* VANavigator_UnitTestHost.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -184,7 +184,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2700;
 				ORGANIZATIONNAME = "Volodymyr Andriienko";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
@@ -193,7 +193,10 @@
 					};
 					A32F5E8C2B210DCF008564F9 = {
 						CreatedOnToolsVersion = 14.3.1;
-						TestTargetID = 607FACCF1AFB9204008FA782;
+						TestTargetID = C20000012F0000010000000B;
+					};
+					C20000012F0000010000000B = {
+						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
@@ -206,15 +209,18 @@
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
-				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */,
+				A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference ".." */,
+				A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */,
+				A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 607FACC71AFB9204008FA782;
+			productRefGroup = A340AC123007C4BC00D67C69 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				607FACCF1AFB9204008FA782 /* VANavigator_Example */,
 				A32F5E8C2B210DCF008564F9 /* VANavigator_ExampleTests */,
+				C20000012F0000010000000B /* VANavigator_UnitTestHost */,
 			);
 		};
 /* End PBXProject section */
@@ -234,90 +240,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C20000012F0000010000000C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		0B771CDC26F87F7FEE2F3CA8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VANavigator_Example/Pods-VANavigator_Example-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		5DB4A9ED3CE63F85404A697D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VANavigator_ExampleTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A33FDA502B303F5900353D44 /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint --config ./../.swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-		A950CD4BC5CD0ABC48149A5D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VANavigator_Example-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		607FACCC1AFB9204008FA782 /* Sources */ = {
@@ -334,13 +264,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C20000012F0000010000000D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A32F5E922B210DCF008564F9 /* PBXTargetDependency */ = {
+		C20000012F00000100000012 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 607FACCF1AFB9204008FA782 /* VANavigator_Example */;
-			targetProxy = A32F5E912B210DCF008564F9 /* PBXContainerItemProxy */;
+			target = C20000012F0000010000000B /* VANavigator_UnitTestHost */;
+			targetProxy = C20000012F00000100000013 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -375,7 +312,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -396,26 +332,25 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_ENABLE_BARE_SLASH_REGEX = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
@@ -450,7 +385,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -464,26 +398,25 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_ENABLE_BARE_SLASH_REGEX = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -491,77 +424,62 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A8E47A6F2AAE298A52247B32 /* Pods-VANavigator_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = VANavigator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18165A7C12B7230FAEBD30F0 /* Pods-VANavigator_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = VANavigator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		A32F5E942B210DCF008564F9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89BE160387FA8C8D2ED51E6A /* Pods-VANavigator_ExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -575,7 +493,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -585,24 +503,19 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_UnitTestHost.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_UnitTestHost";
 			};
 			name = Debug;
 		};
 		A32F5E952B210DCF008564F9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B3F87D089E0B39E16F15BD4 /* Pods-VANavigator_ExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -615,7 +528,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.VANavigator-ExampleTests";
@@ -623,18 +536,64 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE = YES;
 				SWIFT_UPCOMING_FEATURE_DEPRECATE_APPLICATION_MAIN = YES;
-				SWIFT_UPCOMING_FEATURE_DISABLE_OUTWARD_ACTOR_ISOLATION = YES;
 				SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES;
 				SWIFT_UPCOMING_FEATURE_FORWARD_TRAILING_CLOSURES = YES;
-				SWIFT_UPCOMING_FEATURE_GLOBAL_CONCURRENCY = YES;
 				SWIFT_UPCOMING_FEATURE_IMPLICIT_OPEN_EXISTENTIALS = YES;
 				SWIFT_UPCOMING_FEATURE_IMPORT_OBJC_FORWARD_DECLS = YES;
 				SWIFT_UPCOMING_FEATURE_INFER_SENDABLE_FROM_CAPTURES = YES;
 				SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES;
-				SWIFT_UPCOMING_FEATURE_ISOLATED_DEFAULT_VALUES = YES;
-				SWIFT_UPCOMING_FEATURE_REGION_BASED_ISOLATION = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VANavigator_UnitTestHost.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VANavigator_UnitTestHost";
+			};
+			name = Release;
+		};
+		C20000012F0000010000000F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.VANavigator-UnitTestHost";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C20000012F00000100000010 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vandrj.VANavigator-UnitTestHost";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -668,19 +627,57 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		C20000012F00000100000011 /* Build configuration list for PBXNativeTarget "VANavigator_UnitTestHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C20000012F0000010000000F /* Debug */,
+				C20000012F00000100000010 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference "VANavigator" */ = {
+		A352007D2F09DEB9007578D6 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../VANavigator;
+			relativePath = ..;
 		};
 /* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/VAndrJ/ObservationTracking";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.2;
+			};
+		};
+		A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/VAndrJ/Swiftional";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		A352007E2F09DEB9007578D6 /* VANavigator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VANavigator;
+		};
+		A36FD6DD300780E300D8A4CD /* ObservationTracking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A36FD6DC300780E300D8A4CD /* XCRemoteSwiftPackageReference "ObservationTracking" */;
+			productName = ObservationTracking;
+		};
+		A36FD6E030079D9300D8A4CD /* Swiftional */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A36FD6DF30079D9300D8A4CD /* XCRemoteSwiftPackageReference "Swiftional" */;
+			productName = Swiftional;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

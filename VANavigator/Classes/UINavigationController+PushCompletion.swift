@@ -12,17 +12,34 @@ extension UINavigationController {
     /// Pops the top view controller from the navigation stack.
     /// - Parameters:
     ///   - animated: Indicates whether the transition is animated.
-    ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one view controller.
-    public func popViewController(
+    ///   - completion: A closure called with `true` if the pop was successful, or `false` if there was only one
+    ///     view controller.
+    func popViewController(
         animated: Bool,
         completion: @escaping (Bool) -> Void
     ) {
-        if viewControllers.count > 1 {
-            popViewController(animated: animated)
-            observeCompletion(animated: animated, completion: { completion(true) })
-        } else {
+        guard canMutateNavigationStack,
+            viewControllers.count > 1,
+            let previousTop = topViewController
+        else {
             completion(false)
+
+            return
         }
+
+        let shouldAnimate = animated && canAnimateNavigationTransition
+        var poppedController: UIViewController?
+        observeCompletion(
+            animated: shouldAnimate,
+            operation: { poppedController = popViewController(animated: shouldAnimate) },
+            completion: {
+                completion(
+                    poppedController === previousTop
+                        && self.topViewController !== previousTop
+                        && !self.viewControllers.contains(where: { $0 === previousTop })
+                )
+            }
+        )
     }
 
     /// Replaces the current view controllers of the navigation stack.
@@ -30,13 +47,17 @@ extension UINavigationController {
     ///   - controllers: The new array of view controllers.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func setViewControllers(
+    func setViewControllers(
         _ controllers: [UIViewController],
         animated: Bool,
         completion: (() -> Void)?
     ) {
-        setViewControllers(controllers, animated: animated)
-        observeCompletion(animated: animated, completion: completion)
+        let shouldAnimate = animated && canAnimateNavigationTransition
+        observeCompletion(
+            animated: shouldAnimate,
+            operation: { setViewControllers(controllers, animated: shouldAnimate) },
+            completion: completion
+        )
     }
 
     /// Pops view controllers until the specified view controller is at the top of the stack.
@@ -44,16 +65,47 @@ extension UINavigationController {
     ///   - controller: The view controller to pop to.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func popToViewController(
+    func popToViewController(
         _ controller: UIViewController,
         animated: Bool,
         completion: (() -> Void)?
     ) {
+        popToViewController(
+            controller,
+            animated: animated,
+            resultCompletion: { _ in completion?() }
+        )
+    }
+
+    func popToViewController(
+        _ controller: UIViewController,
+        animated: Bool,
+        resultCompletion: @escaping (Bool) -> Void
+    ) {
+        guard canMutateNavigationStack,
+            viewControllers.contains(where: { $0 === controller })
+        else {
+            resultCompletion(false)
+
+            return
+        }
+
         if topViewController == controller {
-            completion?()
+            resultCompletion(true)
         } else {
-            popToViewController(controller, animated: animated)
-            observeCompletion(animated: animated, completion: completion)
+            let shouldAnimate = animated && canAnimateNavigationTransition
+            var poppedControllers: [UIViewController]?
+            observeCompletion(
+                animated: shouldAnimate,
+                operation: { poppedControllers = popToViewController(controller, animated: shouldAnimate) },
+                completion: {
+                    resultCompletion(
+                        poppedControllers != nil
+                            && self.topViewController === controller
+                            && self.viewControllers.contains(where: { $0 === controller })
+                    )
+                }
+            )
         }
     }
 
@@ -62,91 +114,106 @@ extension UINavigationController {
     ///   - viewController: The view controller to push.
     ///   - animated: Indicates whether the transition is animated.
     ///   - completion: An optional closure executed after the transition finishes.
-    public func pushViewController(
+    func pushViewController(
         _ viewController: UIViewController,
         animated: Bool,
         completion: (() -> Void)?
     ) {
-        pushViewController(viewController, animated: animated)
-        observeCompletion(animated: animated, completion: completion)
-    }
-
-    private func observeCompletion(animated: Bool, completion: (() -> Void)?) {
-        if animated {
-            if delegate == nil {
-                let completionDelegate = NavigationCompletionDelegate(completion: completion)
-                NavigationCompletionStore.retain(completionDelegate, for: self)
-                delegate = completionDelegate
-            } else {
-                if let coordinator = transitionCoordinator {
-                    coordinator.animate(alongsideTransition: nil) { _ in
-                        completion?()
-                    }
-                } else {
-                    completion?()
-                }
-            }
-        } else {
+        guard canPushViewController(viewController) else {
             completion?()
+
+            return
         }
-    }
-}
 
-private enum NavigationCompletionStore {
-    private static var entries: [ObjectIdentifier: NavigationCompletionEntry] = [:]
-
-    static func retain(
-        _ completionDelegate: NavigationCompletionDelegate,
-        for navigationController: UINavigationController
-    ) {
-        cleanupReleasedControllers()
-        entries[ObjectIdentifier(navigationController)] = NavigationCompletionEntry(
-            navigationController: navigationController,
-            completionDelegate: completionDelegate
+        let shouldAnimate = animated && canAnimateNavigationTransition
+        observeCompletion(
+            animated: shouldAnimate,
+            operation: { pushViewController(viewController, animated: shouldAnimate) },
+            completion: completion
         )
     }
 
-    static func release(for navigationController: UINavigationController) {
-        entries[ObjectIdentifier(navigationController)] = nil
-        cleanupReleasedControllers()
+    func canPushViewController(_ viewController: UIViewController) -> Bool {
+        return canMutateNavigationStack
+            && !(viewController is UINavigationController)
+            && !(viewController is UITabBarController)
+            && viewController !== self
+            && viewController.parent == nil
+            && viewController.navigationController == nil
+            && viewController.presentingViewController == nil
+            && viewController.presentedViewController == nil
+            && !viewController.isBeingPresented
+            && !viewController.isBeingDismissed
+            && viewController.transitionCoordinator == nil
+            && viewController.viewIfLoaded?.window == nil
+            && !viewControllers.contains(where: { $0 === viewController })
+            && viewController.findController(controller: self, withPresented: true) == nil
     }
 
-    private static func cleanupReleasedControllers() {
-        entries = entries.filter { $0.value.navigationController != nil }
+    func canSetNavigationRoot(_ viewController: UIViewController) -> Bool {
+        return canMutateNavigationStack
+            && !(viewController is UINavigationController)
+            && !(viewController is UITabBarController)
+            && viewController !== self
+            && (viewController.parent == nil || viewController.parent === self)
+            && (viewController.navigationController == nil || viewController.navigationController === self)
+            && viewController.presentingViewController == nil
+            && viewController.presentedViewController == nil
+            && !viewController.isBeingDismissed
+            && !viewController.isBeingPresented
+            && viewController.transitionCoordinator == nil
+            && (viewController.viewIfLoaded?.window == nil || viewController.navigationController === self)
+            && viewController.findController(controller: self, withPresented: true) == nil
     }
-}
 
-private final class NavigationCompletionEntry {
-    weak var navigationController: UINavigationController?
-    let completionDelegate: NavigationCompletionDelegate
+    var canMutateNavigationStack: Bool {
+        return !isBeingPresented
+            && !isBeingDismissed
+            && transitionCoordinator == nil
+            && viewControllers.allSatisfy {
+                !$0.isBeingPresented
+                    && !$0.isBeingDismissed
+                    && $0.transitionCoordinator == nil
+            }
+    }
 
-    init(
-        navigationController: UINavigationController,
-        completionDelegate: NavigationCompletionDelegate
+    private var canAnimateNavigationTransition: Bool {
+        guard let window = viewIfLoaded?.window else { return false }
+
+        return !window.isHidden
+            && !window.bounds.isEmpty
+            && (window.isKeyWindow || window.windowScene != nil)
+    }
+
+    private func observeCompletion(
+        animated: Bool,
+        operation: () -> Void,
+        completion: (() -> Void)?
     ) {
-        self.navigationController = navigationController
-        self.completionDelegate = completionDelegate
-    }
-}
+        operation()
+        guard animated, let coordinator = transitionCoordinator else {
+            DispatchQueue.main.async {
+                completion?()
+            }
 
-private final class NavigationCompletionDelegate: NSObject, UINavigationControllerDelegate {
-    var completion: (() -> Void)?
-
-    init(completion: (() -> Void)?) {
-        self.completion = completion
-    }
-
-    func navigationController(
-        _ navigationController: UINavigationController,
-        didShow viewController: UIViewController,
-        animated: Bool
-    ) {
-        let completion = completion
-        self.completion = nil
-        if navigationController.delegate === self {
-            navigationController.delegate = nil
+            return
         }
-        NavigationCompletionStore.release(for: navigationController)
-        completion?()
+
+        var didScheduleCompletion = false
+        func scheduleCompletionOnce() {
+            guard !didScheduleCompletion else { return }
+
+            didScheduleCompletion = true
+            DispatchQueue.main.async {
+                completion?()
+            }
+        }
+
+        let registeredCompletion = coordinator.animate(alongsideTransition: nil) { _ in
+            scheduleCompletionOnce()
+        }
+        if !registeredCompletion {
+            scheduleCompletionOnce()
+        }
     }
 }
