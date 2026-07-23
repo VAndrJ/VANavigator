@@ -380,6 +380,42 @@ final class ProductionRegressionTests {
     }
 
     @Test
+    func `Popover revalidates presentation state after configuration`() async {
+        let window = UIWindow()
+        let source = PresentationRecordingViewController()
+        let destination = UIViewController()
+        window.rootViewController = source
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let completed = expectation(description: "popover configuration invalidated presentation")
+        var result: Bool?
+        var resultController: UIViewController?
+
+        navigator.navigate(
+            destination: .controller(destination),
+            strategy: .popover(configure: { popover, _ in
+                popover.sourceView = source.view
+                source.exposesFakeCoordinator = true
+            }),
+            animated: false,
+            completion: { controller, isSuccess in
+                resultController = controller
+                result = isSuccess
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(result == false)
+        #expect(resultController == nil)
+        #expect(failures == [.transitionInProgress])
+        #expect(source.presentationAttempts == 0)
+        #expect(source.presentedViewController == nil)
+    }
+
+    @Test
     func `Presentation strategies reject an active source transition before asking UIKit`() {
         let window = UIWindow()
         let source = PresentationRecordingViewController()

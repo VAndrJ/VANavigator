@@ -206,6 +206,15 @@ extension Navigator {
                 animated: execution.animated,
                 navigation: nil,
                 completion: { [self] result in
+                    guard case .success = result else {
+                        completeNavigationFailure(
+                            result.failureReason ?? .mutationRejected,
+                            execution: execution
+                        )
+
+                        return
+                    }
+
                     let isCurrentColumnTop = splitController.columnNavigationController(for: column)
                         .map { $0 === navigationController && $0.topViewController === controller }
                         ?? false

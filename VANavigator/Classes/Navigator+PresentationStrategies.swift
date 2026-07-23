@@ -90,17 +90,8 @@ extension Navigator {
         }
 
         let controller = getController(destination: execution.destination)
-        let hasActiveTransition = controller.isBeingPresented
-            || controller.isBeingDismissed
-            || controller.transitionCoordinator != nil
-            || sourceController.isBeingDismissed
-            || sourceController.isBeingPresented
-            || sourceController.transitionCoordinator != nil
-        guard canPresent(controller, from: sourceController) else {
-            completeNavigationFailure(
-                hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy,
-                execution: execution
-            )
+        if let failureReason = presentationFailureReason(for: controller, from: sourceController) {
+            completeNavigationFailure(failureReason, execution: execution)
 
             return
         }
@@ -144,17 +135,8 @@ extension Navigator {
         }
 
         let controller = getController(destination: execution.destination)
-        let hasActiveTransition = controller.isBeingPresented
-            || controller.isBeingDismissed
-            || controller.transitionCoordinator != nil
-            || sourceController.isBeingDismissed
-            || sourceController.isBeingPresented
-            || sourceController.transitionCoordinator != nil
-        guard canPresent(controller, from: sourceController) else {
-            completeNavigationFailure(
-                hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy,
-                execution: execution
-            )
+        if let failureReason = presentationFailureReason(for: controller, from: sourceController) {
+            completeNavigationFailure(failureReason, execution: execution)
 
             return
         }
@@ -177,6 +159,11 @@ extension Navigator {
         }
         guard hasPopoverAnchor else {
             completeNavigationFailure(.popoverAnchorMissing, execution: execution)
+
+            return
+        }
+        if let failureReason = presentationFailureReason(for: controller, from: sourceController) {
+            completeNavigationFailure(failureReason, execution: execution)
 
             return
         }
@@ -232,6 +219,22 @@ extension Navigator {
         }
 
         return visibleController
+    }
+
+    private func presentationFailureReason(
+        for controller: UIViewController,
+        from sourceController: UIViewController
+    ) -> NavigationFailure.Reason? {
+        guard !canPresent(controller, from: sourceController) else { return nil }
+
+        let hasActiveTransition = controller.isBeingPresented
+            || controller.isBeingDismissed
+            || controller.transitionCoordinator != nil
+            || sourceController.isBeingDismissed
+            || sourceController.isBeingPresented
+            || sourceController.transitionCoordinator != nil
+
+        return hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy
     }
 
     private func canPresent(
