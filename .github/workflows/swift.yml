@@ -50,6 +50,7 @@ jobs:
           -scheme "${scheme}" \
           -destination "${destination}" \
           -onlyUsePackageVersionsFromResolvedFile \
+          -skipMacroValidation \
           build test
 
   release-package:
