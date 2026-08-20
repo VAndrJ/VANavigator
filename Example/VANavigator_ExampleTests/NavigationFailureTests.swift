@@ -9,31 +9,51 @@ import VANavigator
 
 final class NavigationFailureTests {
     @Test
-    func `Missing window reports typed failure with navigation context`() async {
+    func `Missing window reports typed failure for every supported strategy`() async {
         let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
         let destinationController = UIViewController()
-        let completion = expectation(description: "missing-window completion")
+        let strategies: [NavigationStrategy] = [
+            .removeFromNavigationStack,
+            .closeIfTop(),
+            .replaceWindowRoot(),
+            .present(),
+            .closeToExisting,
+            .push(),
+            .popToExisting(),
+            .replaceNavigationRoot,
+            .popover(configure: { _, _ in }),
+            .split(strategy: .primary(action: .replace)),
+        ]
+        let completions = strategies.indices.map {
+            expectation(description: "missing-window completion \($0)")
+        }
         var failures: [NavigationFailure] = []
-        var isSuccess: Bool?
+        var results: [Bool] = []
         navigator.navigationFailureHandler = { failures.append($0) }
 
-        navigator.navigate(
-            destination: .controller(destinationController),
-            strategy: .replaceWindowRoot(),
-            animated: false,
-            completion: { _, result in
-                isSuccess = result
-                completion.fulfill()
+        for (index, strategy) in strategies.enumerated() {
+            navigator.navigate(
+                destination: .controller(destinationController),
+                strategy: strategy,
+                animated: false,
+                completion: { _, result in
+                    results.append(result)
+                    completions[index].fulfill()
+                }
+            )
+        }
+
+        await fulfillment(of: completions, timeout: 10)
+
+        #expect(results == Array(repeating: false, count: strategies.count))
+        #expect(failures.count == strategies.count)
+        #expect(failures.allSatisfy { $0.reason == .windowUnavailable })
+        #expect(
+            failures.allSatisfy {
+                $0.destination?.isEqual(to: .controller(destinationController)) == true
             }
         )
-
-        await fulfillment(of: [completion], timeout: 10)
-
-        #expect(isSuccess == false)
-        #expect(failures.count == 1)
-        #expect(failures.first?.reason == .windowUnavailable)
-        #expect(failures.first?.destination?.isEqual(to: .controller(destinationController)) == true)
-        #expect(failures.first?.strategy == .replaceWindowRoot())
+        #expect(zip(failures, strategies).allSatisfy { $0.strategy == $1 })
     }
 
     @Test

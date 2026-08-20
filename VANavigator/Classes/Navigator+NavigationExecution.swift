@@ -7,6 +7,12 @@ import UIKit
 
 extension Navigator {
     func executeNavigation(_ execution: NavigationExecution) {
+        guard window != nil else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+
         switch execution.strategy {
         case _ as RemoveFromStackNavigationStrategy:
             executeRemoveFromStack(execution)
