@@ -162,7 +162,7 @@ final class SetRootControllerTests {
     }
 
     @Test
-    func `Replacement without animation ignores configured transition`() async {
+    func `Replacement without animation ignores configured transition and completes asynchronously`() async {
         guard let window else {
             Issue.record("Missing window")
 
@@ -190,12 +190,44 @@ final class SetRootControllerTests {
             }
         )
 
-        #expect(completionWasSynchronous)
+        #expect(!completionWasSynchronous)
         #expect((window.layer.animation(forKey: kCATransition)) == nil)
         await fulfillment(of: [expect], timeout: 10)
 
         #expect((true) == (result))
         #expect((controller) === (window.rootViewController))
+    }
+
+    @Test
+    func `Initial root replacement completes asynchronously`() async {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let controller = UIViewController()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "initial root replacement")
+        var didComplete = false
+
+        navigator.navigate(
+            destination: .controller(controller),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { completedController, isSuccess in
+                didComplete = true
+                #expect(completedController === controller)
+                #expect(isSuccess)
+                expect.fulfill()
+            }
+        )
+
+        #expect(window.rootViewController === controller)
+        #expect(!didComplete)
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect(didComplete)
     }
 
     @Test

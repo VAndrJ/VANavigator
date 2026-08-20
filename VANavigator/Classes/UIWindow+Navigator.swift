@@ -168,9 +168,13 @@ extension UIWindow {
                 rootViewController = newRootViewController
                 newRootViewController.setNeedsStatusBarAppearanceUpdate()
             } else {
-                rootViewController = newRootViewController
-                newRootViewController.setNeedsStatusBarAppearanceUpdate()
-                completion?()
+                performNavigatorRootMutation(
+                    {
+                        rootViewController = newRootViewController
+                        newRootViewController.setNeedsStatusBarAppearanceUpdate()
+                    },
+                    completion: completion
+                )
             }
         }
 
@@ -185,6 +189,26 @@ extension UIWindow {
         } else {
             replaceRoot()
         }
+    }
+
+    func performNavigatorRootMutation(
+        _ mutation: () -> Void,
+        completion: (() -> Void)?
+    ) {
+        guard let completion else {
+            mutation()
+
+            return
+        }
+
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+        mutation()
+        CATransaction.commit()
     }
 
     func canRunNavigatorRootTransition(_ transition: CATransition) -> Bool {

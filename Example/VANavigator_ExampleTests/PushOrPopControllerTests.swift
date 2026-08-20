@@ -26,6 +26,42 @@ final class PushOrPopControllerTests {
     }
 
     @Test
+    func `Pops to nearest duplicate identity in navigation stack`() async {
+        let identity = MockPushControllerNavigationIdentity()
+        let firstController = UIViewController()
+        firstController.navigationIdentity = identity
+        let nearestController = UIViewController()
+        nearestController.navigationIdentity = identity
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.viewControllers = [firstController, nearestController, topController]
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let expect = expectation(description: "pop to nearest duplicate")
+        var responder: UIViewController?
+        var result: Bool?
+
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .popToExisting(includingTabs: false),
+            animated: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect(result == true)
+        #expect(responder === nearestController)
+        #expect(navigationController.viewControllers == [firstController, nearestController])
+        #expect(navigationController.topViewController === nearestController)
+    }
+
+    @Test
     func `Pushes when controller is not in stack`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)

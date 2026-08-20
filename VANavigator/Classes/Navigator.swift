@@ -504,10 +504,13 @@ public final class Navigator {
         }
 
         if window.rootViewController == nil {
-            window.rootViewController = controller
-            window.makeKeyAndVisible()
-
-            completion?()
+            window.performNavigatorRootMutation(
+                {
+                    window.rootViewController = controller
+                    window.makeKeyAndVisible()
+                },
+                completion: completion
+            )
         } else {
             window.set(
                 rootViewController: controller,

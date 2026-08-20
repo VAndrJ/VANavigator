@@ -175,6 +175,50 @@ final class SearchTests {
         #expect((child) === (window?.findController(destination: .identity(identity))))
     }
 
+    @Test
+    func `Presented identity match takes priority over underlying hierarchy`() async throws {
+        let identity = MockPushControllerNavigationIdentity()
+        let underlyingController = UIViewController()
+        underlyingController.navigationIdentity = identity
+        let navigationController = UINavigationController(rootViewController: underlyingController)
+        let presentedController = UIViewController()
+        presentedController.navigationIdentity = identity
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+
+        let expect = expectation(description: "present duplicate identity")
+        navigationController.present(presentedController, animated: false) {
+            expect.fulfill()
+        }
+        await fulfillment(of: [expect], timeout: 10)
+
+        let foundController = try #require(window?.findController(destination: .identity(identity)))
+
+        #expect(foundController === presentedController)
+    }
+
+    @Test
+    func `Nearest navigation stack identity match takes priority`() {
+        let identity = MockPushControllerNavigationIdentity()
+        let firstController = UIViewController()
+        firstController.navigationIdentity = identity
+        let middleController = UIViewController()
+        let nearestController = UIViewController()
+        nearestController.navigationIdentity = identity
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.viewControllers = [
+            firstController,
+            middleController,
+            nearestController,
+            topController,
+        ]
+
+        let foundController = navigationController.findController(identity: identity, withPresented: false)
+
+        #expect(foundController === nearestController)
+    }
+
     private func assertSearchIncludesPresentedController(
         in container: UIViewController,
         file: StaticString = #filePath,

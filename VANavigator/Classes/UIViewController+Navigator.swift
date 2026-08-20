@@ -85,13 +85,20 @@ extension UIViewController {
     /// - Parameters:
     ///   - identity: The navigation identity to match.
     ///   - withPresented: If `true`, the search includes presented view controllers.
-    /// - Returns: The found view controller or `nil` if not found.
+    /// - Returns: The visible match nearest the top of the hierarchy, or `nil` if no match is found.
     public func findController(
         identity: any NavigationIdentity,
         withPresented: Bool
     ) -> UIViewController? {
-        if navigationIdentity?.isEqual(to: identity) == true {
-            return self
+        if withPresented,
+            let presentedViewController,
+            !presentedViewController.isBeingDismissed,
+            let target = presentedViewController.findController(
+                identity: identity,
+                withPresented: withPresented
+            )
+        {
+            return target
         }
         for controller in navigatorSearchChildren {
             if let target = controller.findController(
@@ -101,11 +108,8 @@ extension UIViewController {
                 return target
             }
         }
-        if withPresented, let presentedViewController {
-            return presentedViewController.findController(
-                identity: identity,
-                withPresented: withPresented
-            )
+        if navigationIdentity?.isEqual(to: identity) == true {
+            return self
         }
 
         return nil
@@ -150,13 +154,28 @@ extension UIViewController {
 
     private var navigatorSearchChildren: [UIViewController] {
         if let navigationController = self as? UINavigationController {
-            return navigationController.viewControllers
+            return Array(navigationController.viewControllers.reversed())
         } else if let tabBarController = self as? UITabBarController {
-            return tabBarController.viewControllers ?? []
+            let controllers = tabBarController.viewControllers ?? []
+            guard let selectedController = tabBarController.selectedViewController else {
+                return Array(controllers.reversed())
+            }
+
+            return [selectedController] + controllers.reversed().filter { $0 !== selectedController }
         } else if let splitViewController = self as? UISplitViewController {
-            return splitViewController.navigatorContainedViewControllers
+            let controllers = splitViewController.navigatorContainedViewControllers
+            guard let visibleController = splitViewController.navigatorVisibleViewController else {
+                return Array(controllers.reversed())
+            }
+
+            return [visibleController] + controllers.reversed().filter { $0 !== visibleController }
         } else {
-            return children
+            let controllers = Array(children.reversed())
+            guard let visibleController = controllers.first(where: { $0.viewIfLoaded?.window != nil }) else {
+                return controllers
+            }
+
+            return [visibleController] + controllers.filter { $0 !== visibleController }
         }
     }
 }
@@ -253,7 +272,9 @@ extension UISplitViewController {
             guard !didComplete else { return }
 
             didComplete = true
-            completion()
+            DispatchQueue.main.async {
+                completion()
+            }
         }
 
         navigatorActiveColumn = column

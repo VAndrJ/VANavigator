@@ -337,6 +337,14 @@ final class PushControllerTests {
 
     @Test
     func `Push notifies navigation delegate`() async {
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        window = UIWindow(windowScene: windowScene)
+        defer { window?.isHidden = true }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigationStack(navigator: navigator, alwaysEmbedded: true)
         let delegate = MockNavigationDelegate()
