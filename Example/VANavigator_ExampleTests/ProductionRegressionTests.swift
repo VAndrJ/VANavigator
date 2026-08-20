@@ -1484,6 +1484,183 @@ final class ProductionRegressionTests {
     }
 
     @Test
+    func `Paused window layer rejects presentation and releases queued navigation`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let presentedController = UIViewController()
+        let replacementController = UIViewController()
+        window.rootViewController = rootController
+        window.makeKeyAndVisible()
+        _ = rootController.view
+        window.layoutIfNeeded()
+        let originalLayerSpeed = window.layer.speed
+        window.layer.speed = 0
+        defer {
+            window.layer.speed = originalLayerSpeed
+            window.isHidden = true
+        }
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let rejected = expectation(description: "paused-layer presentation rejection")
+        let replaced = expectation(description: "queued root replacement")
+        var completionOrder: [String] = []
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.navigate(
+            destination: .controller(presentedController),
+            strategy: .present(),
+            animated: true,
+            completion: { _, isSuccess in
+                #expect(!isSuccess)
+                completionOrder.append("rejected")
+                rejected.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(replacementController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("replaced")
+                replaced.fulfill()
+            }
+        )
+
+        await fulfillment(of: [rejected, replaced], timeout: 10)
+
+        #expect(completionOrder == ["rejected", "replaced"])
+        #expect(failures == [.invalidTransitionConfiguration])
+        #expect(window.rootViewController === replacementController)
+        #expect(presentedController.presentingViewController == nil)
+        #expect(window.layer.speed == 0)
+    }
+
+    @Test
+    func `Paused window layer rejects dismissal and releases queued navigation`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let presentedController = UIViewController()
+        window.rootViewController = rootController
+        window.makeKeyAndVisible()
+        let presented = expectation(description: "paused dismissal setup")
+        rootController.present(presentedController, animated: false) {
+            presented.fulfill()
+        }
+        await fulfillment(of: [presented], timeout: 10)
+
+        let originalLayerSpeed = window.layer.speed
+        window.layer.speed = 0
+        defer {
+            window.layer.speed = originalLayerSpeed
+            rootController.dismiss(animated: false)
+            window.isHidden = true
+        }
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let rejected = expectation(description: "paused dismissal rejection")
+        let queued = expectation(description: "queued navigation after dismissal rejection")
+        var completionOrder: [String] = []
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.navigate(
+            destination: .controller(presentedController),
+            strategy: .closeIfTop(tryToPop: false),
+            animated: true,
+            completion: { _, isSuccess in
+                #expect(!isSuccess)
+                completionOrder.append("rejected")
+                rejected.fulfill()
+            }
+        )
+        navigator.navigate(chain: []) { _, isSuccess in
+            #expect(!isSuccess)
+            completionOrder.append("queued")
+            queued.fulfill()
+        }
+
+        await fulfillment(of: [rejected, queued], timeout: 10)
+
+        #expect(completionOrder == ["rejected", "queued"])
+        #expect(failures == [.invalidTransitionConfiguration])
+        #expect(rootController.presentedViewController === presentedController)
+        #expect(window.layer.speed == 0)
+    }
+
+    @Test
+    func `Paused window layer completes queued push and pop`() async {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        let rootController = UIViewController()
+        let pushedController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: rootController)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        _ = navigationController.view
+        window.layoutIfNeeded()
+        let originalLayerSpeed = window.layer.speed
+        window.layer.speed = 0
+        defer {
+            window.layer.speed = originalLayerSpeed
+            window.isHidden = true
+        }
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let pushed = expectation(description: "paused-layer push")
+        let popped = expectation(description: "queued paused-layer pop")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(pushedController),
+            strategy: .push(),
+            animated: true,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("pushed")
+                pushed.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(pushedController),
+            strategy: .closeIfTop(tryToDismiss: false),
+            animated: true,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completionOrder.append("popped")
+                popped.fulfill()
+            }
+        )
+
+        await fulfillment(of: [pushed, popped], timeout: 10)
+
+        #expect(completionOrder == ["pushed", "popped"])
+        #expect(navigationController.viewControllers == [rootController])
+        #expect(window.layer.speed == 0)
+    }
+
+    @Test
     func `Large synchronous queue drains without recursive scheduler growth`() async {
         let window = UIWindow()
         let activeController = SuspendedResponderViewController()

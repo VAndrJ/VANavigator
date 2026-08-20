@@ -395,6 +395,27 @@ public final class Navigator {
         navigation: ((UINavigationController) -> Void)?,
         completion: ((Result<Void, NavigationFailure.Reason>) -> Void)?
     ) {
+        guard window != nil else {
+            completion?(.failure(.windowUnavailable))
+
+            return
+        }
+        guard controller.canBecomeNavigatorPushDestination else {
+            let hasActiveTransition =
+                controller.isBeingPresented
+                || controller.isBeingDismissed
+                || controller.transitionCoordinator != nil
+            completion?(
+                .failure(
+                    hasActiveTransition
+                        ? .transitionInProgress
+                        : .invalidDestinationHierarchy
+                )
+            )
+
+            return
+        }
+
         dismissPresentedNow(
             in: sourceController,
             animated: animated,
@@ -407,7 +428,13 @@ public final class Navigator {
                     return
                 }
 
-                if let navigationController = window?.topController?.orNavigationController {
+                guard let window else {
+                    completion?(.failure(.windowUnavailable))
+
+                    return
+                }
+
+                if let navigationController = window.topController?.orNavigationController {
                     push(
                         controller: controller,
                         to: navigationController,
@@ -623,6 +650,15 @@ public final class Navigator {
         }
 
         let previouslyPresentedController = controller.presentedViewController
+        let transitionWindow =
+            controller.viewIfLoaded?.window
+            ?? presentingController.viewIfLoaded?.window
+            ?? window
+        guard transitionWindow?.hasAdvancingNavigatorLayerClock == true else {
+            completion(.failure(.invalidTransitionConfiguration))
+
+            return
+        }
         controller.dismiss(
             animated: animated,
             completion: {

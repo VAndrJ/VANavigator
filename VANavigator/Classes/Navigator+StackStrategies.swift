@@ -107,9 +107,22 @@ extension Navigator {
 
         if strategy.tryToPop,
             let navigationController = controller.orNavigationController,
-            isMatchingDestination(navigationController.topViewController)
+            let matchedController = navigationController.topViewController,
+            isMatchingDestination(matchedController)
         {
             strategy.navigation?(navigationController)
+            guard navigationController.canMutateNavigationStack else {
+                completeNavigationFailure(.transitionInProgress, execution: execution)
+
+                return
+            }
+            guard navigationController.topViewController === matchedController,
+                isMatchingDestination(matchedController)
+            else {
+                completeNavigationFailure(.mutationRejected, execution: execution)
+
+                return
+            }
             navigationController.popViewController(
                 animated: execution.animated,
                 completion: { [self] isSuccess in

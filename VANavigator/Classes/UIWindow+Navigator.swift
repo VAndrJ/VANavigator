@@ -175,8 +175,12 @@ extension UIWindow {
         }
 
         if previousViewController?.presentedViewController != nil {
-            previousViewController?.dismiss(animated: false) {
-                replaceRoot()
+            if hasAdvancingNavigatorLayerClock {
+                previousViewController?.dismiss(animated: false) {
+                    replaceRoot()
+                }
+            } else {
+                completion?()
             }
         } else {
             replaceRoot()
@@ -185,8 +189,18 @@ extension UIWindow {
 
     func canRunNavigatorRootTransition(_ transition: CATransition) -> Bool {
         transition.isSupportedNavigatorRootTransition
-            && layer.speed.isFinite
-            && layer.speed > 0
+            && hasAdvancingNavigatorLayerClock
+    }
+
+    var canAnimateNavigatorViewControllerTransition: Bool {
+        !isHidden
+            && !bounds.isEmpty
+            && (isKeyWindow || windowScene != nil)
+            && hasAdvancingNavigatorLayerClock
+    }
+
+    var hasAdvancingNavigatorLayerClock: Bool {
+        layer.speed.isFinite && layer.speed > 0
     }
 
     func canSetNavigatorRootViewController(_ controller: UIViewController) -> Bool {

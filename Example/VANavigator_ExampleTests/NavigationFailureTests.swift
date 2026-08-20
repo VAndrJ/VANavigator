@@ -57,6 +57,35 @@ final class NavigationFailureTests {
     }
 
     @Test
+    func `Direct push helper reports missing window before navigation lookup`() async {
+        let navigator = Navigator(window: nil, screenFactory: MockScreenFactory())
+        let destinationController = UIViewController()
+        let completion = expectation(description: "missing-window direct push")
+        var failures: [NavigationFailure] = []
+        var result: Bool?
+        navigator.navigationFailureHandler = { failures.append($0) }
+
+        navigator.push(
+            sourceController: nil,
+            controller: destinationController,
+            animated: false,
+            navigation: nil,
+            completion: {
+                result = $0
+                completion.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completion], timeout: 10)
+
+        #expect(result == false)
+        #expect(failures.count == 1)
+        #expect(failures.first?.reason == .windowUnavailable)
+        #expect(failures.first?.destination?.isEqual(to: .controller(destinationController)) == true)
+        #expect(failures.first?.strategy == .push())
+    }
+
+    @Test
     func `Rejected strategy reports before successful fallback`() async {
         let window = UIWindow()
         window.rootViewController = UIViewController()

@@ -25,6 +25,14 @@ extension Navigator {
 
         let controller = getController(destination: execution.destination)
         let currentRootController = window.rootViewController
+        guard
+            currentRootController?.presentedViewController == nil
+                || window.hasAdvancingNavigatorLayerClock
+        else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
         guard window.canSetNavigatorRootViewController(controller) else {
             let hasActiveTransition = controller.isBeingPresented
                 || controller.isBeingDismissed
@@ -68,8 +76,18 @@ extension Navigator {
         _ strategy: PresentNavigationStrategy,
         execution: NavigationExecution
     ) {
-        guard window?.rootViewController != nil else {
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.rootViewController != nil else {
             completeNavigationFailure(.rootViewControllerUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
 
             return
         }
@@ -77,11 +95,11 @@ extension Navigator {
         let requestedSourceController: UIViewController?
         switch strategy.source {
         case .topController:
-            requestedSourceController = window?.topController
+            requestedSourceController = window.topController
         case .navigationController:
-            requestedSourceController = window?.topController?.orNavigationController
+            requestedSourceController = window.topController?.orNavigationController
         case .tabBarController:
-            requestedSourceController = window?.topController?.orTabBarController
+            requestedSourceController = window.topController?.orTabBarController
         }
         guard let sourceController = presentableSource(from: requestedSourceController) else {
             completeNavigationFailure(.sourceViewControllerUnavailable, execution: execution)
@@ -126,8 +144,20 @@ extension Navigator {
         _ strategy: PopoverNavigationStrategy,
         execution: NavigationExecution
     ) {
-        guard let sourceController = window?.topController,
-            sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
+        guard
+            let sourceController = window.topController,
+            sourceController.viewIfLoaded?.window != nil
+                || sourceController === window.rootViewController
         else {
             completeNavigationFailure(.sourceViewControllerUnavailable, execution: execution)
 

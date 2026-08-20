@@ -10,8 +10,20 @@ extension Navigator {
         _ strategy: SplitNavigationStrategy,
         execution: NavigationExecution
     ) {
-        let splitController = window?.topController?.orSplitViewController
-            ?? window?.rootViewController?.orSplitViewController
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
+
+        let splitController =
+            window.topController?.orSplitViewController
+            ?? window.rootViewController?.orSplitViewController
         let column: UISplitViewController.Column
         let action: SplitStrategy.SplitAction
         switch strategy.strategy {

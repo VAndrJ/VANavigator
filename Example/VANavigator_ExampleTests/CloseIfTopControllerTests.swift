@@ -361,6 +361,49 @@ final class CloseIfTopControllerTests {
         )
     }
 
+    @Test
+    func `Navigation callback cannot redirect closeIfTop pop to a different controller`() async {
+        let rootController = UIViewController()
+        let destinationController = UIViewController()
+        let interloperController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.setViewControllers([rootController, destinationController], animated: false)
+        window?.rootViewController = navigationController
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "redirected closeIfTop")
+        var failures: [NavigationFailure.Reason] = []
+        var result: Bool?
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.navigate(
+            destination: .controller(destinationController),
+            strategy: .closeIfTop(
+                tryToDismiss: false,
+                navigation: { navigationController in
+                    navigationController.pushViewController(interloperController, animated: false)
+                }
+            ),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(result == false)
+        #expect(failures == [.mutationRejected])
+        #expect(
+            navigationController.viewControllers == [
+                rootController,
+                destinationController,
+                interloperController,
+            ]
+        )
+        #expect(navigationController.topViewController === interloperController)
+    }
+
     private func assertDismissesPresentedContainer(
         _ presentedContainer: UIViewController,
         matching presentedController: UIViewController

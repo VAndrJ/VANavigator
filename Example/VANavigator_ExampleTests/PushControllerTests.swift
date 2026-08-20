@@ -174,6 +174,47 @@ final class PushControllerTests {
     }
 
     @Test
+    func `Invalid push destination does not dismiss current presentation`() async {
+        let rootController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: rootController)
+        let presentedController = UIViewController()
+        let destinationOwner = UIViewController()
+        let destinationController = UIViewController()
+        destinationOwner.addChild(destinationController)
+        destinationController.didMove(toParent: destinationOwner)
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        defer { navigationController.dismiss(animated: false) }
+
+        let presented = expectation(description: "invalid push setup")
+        navigationController.present(presentedController, animated: false) {
+            presented.fulfill()
+        }
+        await fulfillment(of: [presented], timeout: 10)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "invalid push")
+        var result: Bool?
+        navigator.navigate(
+            destination: .controller(destinationController),
+            strategy: .push(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(result == false)
+        #expect(navigationController.presentedViewController === presentedController)
+        #expect(presentedController.presentingViewController === navigationController)
+        #expect(navigationController.viewControllers == [rootController])
+        #expect(destinationController.parent === destinationOwner)
+    }
+
+    @Test
     func `Presents controller without navigation embedding`() async {
         await controllerPresentWithNavigation(alwaysEmbedded: false)
     }

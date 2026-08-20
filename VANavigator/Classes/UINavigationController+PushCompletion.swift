@@ -135,17 +135,8 @@ extension UINavigationController {
 
     func canPushViewController(_ viewController: UIViewController) -> Bool {
         return canMutateNavigationStack
-            && !(viewController is UINavigationController)
-            && !(viewController is UITabBarController)
+            && viewController.canBecomeNavigatorPushDestination
             && viewController !== self
-            && viewController.parent == nil
-            && viewController.navigationController == nil
-            && viewController.presentingViewController == nil
-            && viewController.presentedViewController == nil
-            && !viewController.isBeingPresented
-            && !viewController.isBeingDismissed
-            && viewController.transitionCoordinator == nil
-            && viewController.viewIfLoaded?.window == nil
             && !viewControllers.contains(where: { $0 === viewController })
             && viewController.findController(controller: self, withPresented: true) == nil
     }
@@ -180,9 +171,7 @@ extension UINavigationController {
     private var canAnimateNavigationTransition: Bool {
         guard let window = viewIfLoaded?.window else { return false }
 
-        return !window.isHidden
-            && !window.bounds.isEmpty
-            && (window.isKeyWindow || window.windowScene != nil)
+        return window.canAnimateNavigatorViewControllerTransition
     }
 
     private func observeCompletion(
@@ -215,5 +204,20 @@ extension UINavigationController {
         if !registeredCompletion {
             scheduleCompletionOnce()
         }
+    }
+}
+
+extension UIViewController {
+    var canBecomeNavigatorPushDestination: Bool {
+        !(self is UINavigationController)
+            && !(self is UITabBarController)
+            && parent == nil
+            && navigationController == nil
+            && presentingViewController == nil
+            && presentedViewController == nil
+            && !isBeingPresented
+            && !isBeingDismissed
+            && transitionCoordinator == nil
+            && viewIfLoaded?.window == nil
     }
 }
