@@ -17,7 +17,7 @@ extension Navigator {
         }
 
         let transition = execution.animated ? strategy.transition : nil
-        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+        guard transition.map(window.canRunNavigatorRootTransition) ?? true else {
             completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
 
             return

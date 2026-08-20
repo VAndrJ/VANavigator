@@ -129,7 +129,7 @@ extension UIWindow {
     ) {
         let previousViewController = rootViewController
 
-        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+        guard transition.map(canRunNavigatorRootTransition) ?? true else {
             completion?()
 
             return
@@ -143,6 +143,7 @@ extension UIWindow {
 
         func replaceRoot() {
             guard rootViewController === previousViewController,
+                transition.map(canRunNavigatorRootTransition) ?? true,
                 canFinishSettingNavigatorRootViewController(newRootViewController)
             else {
                 completion?()
@@ -180,6 +181,12 @@ extension UIWindow {
         } else {
             replaceRoot()
         }
+    }
+
+    func canRunNavigatorRootTransition(_ transition: CATransition) -> Bool {
+        transition.isSupportedNavigatorRootTransition
+            && layer.speed.isFinite
+            && layer.speed > 0
     }
 
     func canSetNavigatorRootViewController(_ controller: UIViewController) -> Bool {

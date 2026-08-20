@@ -65,7 +65,19 @@ extension Navigator {
             controller.map { execution.destination.isEqual(to: .controller($0)) } ?? false
         }
         func presentedContainer(for controller: UIViewController) -> UIViewController? {
-            presentedAncestor(startingAt: controller)
+            var candidate: UIViewController? = controller
+            var presentedController: UIViewController?
+            var visitedControllers = Set<ObjectIdentifier>()
+            while let currentController = candidate,
+                visitedControllers.insert(ObjectIdentifier(currentController)).inserted
+            {
+                if currentController.presentingViewController != nil {
+                    presentedController = currentController
+                }
+                candidate = currentController.parent
+            }
+
+            return presentedController
         }
         func completeSuccess() {
             withExtendedLifetime(self) {
@@ -113,8 +125,8 @@ extension Navigator {
                 }
             )
         } else if strategy.tryToDismiss,
-            isMatchingDestination(controller),
-            let presentedController = presentedContainer(for: controller)
+            let presentedController = presentedContainer(for: controller),
+            isMatchingDestination(controller) || isMatchingDestination(presentedController)
         {
             dismiss(presentedController)
         } else {

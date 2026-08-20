@@ -275,6 +275,17 @@ final class CloseIfTopControllerTests {
     }
 
     @Test
+    func `Dismisses presented navigation when matching its container`() async {
+        let presentedController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: presentedController)
+
+        await assertDismissesPresentedContainer(
+            navigationController,
+            matching: navigationController
+        )
+    }
+
+    @Test
     func `Dismisses presented tab when matching controller is selected`() async {
         let presentedController = UIViewController()
         let tabBarController = UITabBarController()
@@ -283,6 +294,17 @@ final class CloseIfTopControllerTests {
         await assertDismissesPresentedContainer(
             tabBarController,
             matching: presentedController
+        )
+    }
+
+    @Test
+    func `Dismisses presented tab when matching its container`() async {
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [UIViewController()]
+
+        await assertDismissesPresentedContainer(
+            tabBarController,
+            matching: tabBarController
         )
     }
 
@@ -300,6 +322,18 @@ final class CloseIfTopControllerTests {
     }
 
     @Test
+    func `Dismisses presented split when matching its container`() async {
+        let splitViewController = UISplitViewController(style: .doubleColumn)
+        splitViewController.setViewController(UIViewController(), for: .primary)
+        splitViewController.setViewController(UIViewController(), for: .secondary)
+
+        await assertDismissesPresentedContainer(
+            splitViewController,
+            matching: splitViewController
+        )
+    }
+
+    @Test
     func `Dismisses presented custom container when matching controller is its child`() async {
         let presentedController = UIViewController()
         let customContainer = UIViewController()
@@ -310,6 +344,20 @@ final class CloseIfTopControllerTests {
         await assertDismissesPresentedContainer(
             customContainer,
             matching: presentedController
+        )
+    }
+
+    @Test
+    func `Dismisses presented custom container when matching its container`() async {
+        let customContainer = UIViewController()
+        let presentedController = UIViewController()
+        customContainer.addChild(presentedController)
+        customContainer.view.addSubview(presentedController.view)
+        presentedController.didMove(toParent: customContainer)
+
+        await assertDismissesPresentedContainer(
+            customContainer,
+            matching: customContainer
         )
     }
 
@@ -328,7 +376,15 @@ final class CloseIfTopControllerTests {
         await fulfillment(of: [presentExpect], timeout: 10)
         presentedContainer.view.layoutIfNeeded()
 
-        #expect(window?.topController === presentedController)
+        if presentedContainer === presentedController {
+            #expect(
+                window?.topController.map {
+                    presentedContainer.findController(controller: $0, withPresented: false) != nil
+                } == true
+            )
+        } else {
+            #expect(window?.topController === presentedController)
+        }
 
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let closeExpect = expectation(description: "container.closeIfTop")

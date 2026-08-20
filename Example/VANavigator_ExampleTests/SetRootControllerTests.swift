@@ -277,6 +277,63 @@ final class SetRootControllerTests {
     }
 
     @Test
+    func `Paused window layer rejects root transition and releases navigation state`() async {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let initialController = UIViewController()
+        let rejectedController = UIViewController()
+        let acceptedController = UIViewController()
+        window.rootViewController = initialController
+        let originalLayerSpeed = window.layer.speed
+        window.layer.speed = 0
+        defer { window.layer.speed = originalLayerSpeed }
+
+        let transition = CATransition()
+        transition.duration = 0.1
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let rejected = expectation(description: "paused layer transition")
+        let accepted = expectation(description: "navigation after paused layer transition")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(rejectedController),
+            strategy: .replaceWindowRoot(transition: transition),
+            animated: true,
+            completion: { controller, isSuccess in
+                #expect(controller == nil)
+                #expect(!isSuccess)
+                #expect(window.rootViewController === initialController)
+                completionOrder.append("rejected")
+                rejected.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(acceptedController),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { controller, isSuccess in
+                #expect(controller === acceptedController)
+                #expect(isSuccess)
+                completionOrder.append("accepted")
+                accepted.fulfill()
+            }
+        )
+
+        await fulfillment(of: [rejected, accepted], timeout: 10)
+
+        #expect(failures == [.invalidTransitionConfiguration])
+        #expect(completionOrder == ["rejected", "accepted"])
+        #expect(window.rootViewController === acceptedController)
+        #expect(window.layer.animation(forKey: kCATransition) == nil)
+    }
+
+    @Test
     func `Root transition timing validation rejects configurations that may not finish`() {
         let validTransition = CATransition()
         validTransition.duration = 0.25
