@@ -361,6 +361,135 @@ final class CloseIfTopControllerTests {
         )
     }
 
+    @Test(arguments: [false, true])
+    func `Pops custom container when its visible child matches`(usesIdentity: Bool) async throws {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        let container = UIViewController()
+        let child = UIViewController()
+        let identity = MockPushControllerNavigationIdentity()
+        child.navigationIdentity = identity
+        container.addChild(child)
+        container.view.addSubview(child.view)
+        child.didMove(toParent: container)
+        let navigationController = UINavigationController(rootViewController: root)
+        navigationController.setViewControllers([root, container], animated: false)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "close visible custom child")
+
+        #expect(window.topController === child)
+
+        navigator.navigate(
+            destination: usesIdentity ? .identity(identity) : .controller(child),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(isSuccess)
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(navigationController.viewControllers == [root])
+        #expect(window.topController === root)
+        #expect(child.parent === container)
+    }
+
+    @Test
+    func `Does not pop a custom container for an inactive child`() async throws {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        let container = UIViewController()
+        let visibleChild = UIViewController()
+        let inactiveChild = UIViewController()
+        container.addChild(visibleChild)
+        container.view.addSubview(visibleChild.view)
+        visibleChild.didMove(toParent: container)
+        container.addChild(inactiveChild)
+        inactiveChild.didMove(toParent: container)
+        let navigationController = UINavigationController(rootViewController: root)
+        navigationController.setViewControllers([root, container], animated: false)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "reject inactive custom child")
+        var result: Bool?
+
+        await waitUntil("custom child attached to window", timeout: 10) {
+            visibleChild.viewIfLoaded?.window === window
+        }
+
+        #expect(window.topController === visibleChild)
+        #expect(inactiveChild.viewIfLoaded?.window == nil)
+
+        navigator.navigate(
+            destination: .controller(inactiveChild),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, isSuccess in
+                result = isSuccess
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(result == false)
+        #expect(navigationController.viewControllers == [root, container])
+    }
+
+    @Test
+    func `Navigation callback cannot redirect closeIfTop to another custom child`() async throws {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        let container = UIViewController()
+        let child = UIViewController()
+        let replacement = UIViewController()
+        container.addChild(child)
+        container.view.addSubview(child.view)
+        child.didMove(toParent: container)
+        let navigationController = UINavigationController(rootViewController: root)
+        navigationController.setViewControllers([root, container], animated: false)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "reject changed custom child")
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        navigator.navigate(
+            destination: .controller(child),
+            strategy: .closeIfTop(navigation: { _ in
+                child.willMove(toParent: nil)
+                child.view.removeFromSuperview()
+                child.removeFromParent()
+                container.addChild(replacement)
+                container.view.addSubview(replacement.view)
+                replacement.didMove(toParent: container)
+            }),
+            animated: false,
+            completion: { _, isSuccess in
+                #expect(!isSuccess)
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(failures == [.mutationRejected])
+        #expect(navigationController.viewControllers == [root, container])
+        #expect(window.topController === replacement)
+    }
+
     @Test
     func `Navigation callback cannot redirect closeIfTop pop to a different controller`() async {
         let rootController = UIViewController()

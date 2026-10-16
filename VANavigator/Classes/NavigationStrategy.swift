@@ -76,7 +76,8 @@ extension NavigationStrategy {
         return PopoverNavigationStrategy(configure: configure)
     }
 
-    /// Close the controller if it is top one
+    /// Closes the controller if it is the top one. When the visible controller is a child of a custom container
+    /// at the top of a navigation stack, popping removes that stack entry together with its children.
     public static func closeIfTop(
         tryToPop: Bool = true,
         tryToDismiss: Bool = true,

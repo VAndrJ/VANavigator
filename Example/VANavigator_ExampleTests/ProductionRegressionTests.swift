@@ -343,6 +343,68 @@ final class ProductionRegressionTests {
         #expect(presentedNavigationController.viewControllers == [target])
     }
 
+    @Test(arguments: [false, true], [false, true])
+    func `Hidden presentation sources complete fallback and subsequent navigation`(
+        usesPopover: Bool,
+        hasFallback: Bool
+    ) async {
+        let window = UIWindow()
+        let source = UIViewController()
+        let destination = UIViewController()
+        let fallbackDestination = UIViewController()
+        let queuedDestination = UIViewController()
+        window.rootViewController = source
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "hidden source completion")
+        let queued = expectation(description: "navigation after hidden source")
+        var failures: [NavigationFailure.Reason] = []
+        var completionOrder: [String] = []
+        var configurationCount = 0
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+
+        #expect(window.isHidden)
+        #expect(source.viewIfLoaded?.window == nil)
+
+        navigator.navigate(
+            destination: .controller(destination),
+            strategy: usesPopover ? .popover(configure: { popover, _ in
+                configurationCount += 1
+                popover.sourceView = source.view
+            }) : .present(),
+            animated: false,
+            fallback: hasFallback ? NavigationChainLink(
+                destination: .controller(fallbackDestination),
+                strategy: .replaceWindowRoot(),
+                animated: false
+            ) : nil,
+            completion: { controller, isSuccess in
+                #expect(isSuccess == hasFallback)
+                #expect(controller === (hasFallback ? fallbackDestination : nil))
+                completionOrder.append("presentation")
+                completed.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(queuedDestination),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { controller, isSuccess in
+                #expect(isSuccess)
+                #expect(controller === queuedDestination)
+                completionOrder.append("queued")
+                queued.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed, queued], timeout: 10)
+
+        #expect(failures == [.sourceViewControllerUnavailable])
+        #expect(completionOrder == ["presentation", "queued"])
+        #expect(configurationCount == 0)
+        #expect(destination.presentingViewController == nil)
+        #expect(window.rootViewController === queuedDestination)
+    }
+
     @Test
     func `Popover without an anchor uses fallback without asking UIKit to present`() async {
         let window = UIWindow()
@@ -350,6 +412,8 @@ final class ProductionRegressionTests {
         let popoverDestination = UIViewController()
         let fallbackDestination = UIViewController()
         window.rootViewController = source
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         let completed = expectation(description: "popover fallback")
         var result: Bool?
@@ -379,12 +443,14 @@ final class ProductionRegressionTests {
         #expect(window.rootViewController === fallbackDestination)
     }
 
-    @Test
-    func `Popover revalidates presentation state after configuration`() async {
+    @Test(arguments: [false, true])
+    func `Popover revalidates presentation state after configuration`(hidesWindow: Bool) async {
         let window = UIWindow()
         let source = PresentationRecordingViewController()
         let destination = UIViewController()
         window.rootViewController = source
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         var failures: [NavigationFailure.Reason] = []
         navigator.navigationFailureHandler = { failures.append($0.reason) }
@@ -396,7 +462,11 @@ final class ProductionRegressionTests {
             destination: .controller(destination),
             strategy: .popover(configure: { popover, _ in
                 popover.sourceView = source.view
-                source.exposesFakeCoordinator = true
+                if hidesWindow {
+                    window.isHidden = true
+                } else {
+                    source.exposesFakeCoordinator = true
+                }
             }),
             animated: false,
             completion: { controller, isSuccess in
@@ -410,7 +480,7 @@ final class ProductionRegressionTests {
 
         #expect(result == false)
         #expect(resultController == nil)
-        #expect(failures == [.transitionInProgress])
+        #expect(failures == [hidesWindow ? .sourceViewControllerUnavailable : .transitionInProgress])
         #expect(source.presentationAttempts == 0)
         #expect(source.presentedViewController == nil)
     }
@@ -419,8 +489,10 @@ final class ProductionRegressionTests {
     func `Presentation strategies reject an active source transition before asking UIKit`() {
         let window = UIWindow()
         let source = PresentationRecordingViewController()
-        source.exposesFakeCoordinator = true
         window.rootViewController = source
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        source.exposesFakeCoordinator = true
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         var results: [Bool] = []
         var failures: [NavigationFailure.Reason] = []
@@ -512,6 +584,8 @@ final class ProductionRegressionTests {
         ancestor.view.addSubview(source.view)
         source.didMove(toParent: ancestor)
         window.rootViewController = ancestor
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         var presentationResult: Bool?
         var popoverResult: Bool?

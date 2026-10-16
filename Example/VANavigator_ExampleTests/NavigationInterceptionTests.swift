@@ -323,6 +323,59 @@ final class NavigationInterceptionTests {
         #expect((secondController) === (window?.rootViewController))
     }
 
+    @Test(arguments: [false, true], [false, true])
+    func `Resolution succeeds only when all resumed navigations succeed`(
+        firstSucceeds: Bool,
+        lastSucceeds: Bool
+    ) async {
+        let interceptor = RepeatedReasonNavigationInterceptor()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory(), navigationInterceptor: interceptor)
+        window?.rootViewController = UIViewController()
+        let firstDestination = UIViewController()
+        let lastDestination = UIViewController()
+        let firstCompleted = expectation(description: "first resumed navigation")
+        let lastCompleted = expectation(description: "last resumed navigation")
+        let resolved = expectation(description: "aggregate resolution")
+        var completionOrder: [String] = []
+
+        navigator.navigate(
+            destination: .controller(firstDestination),
+            strategy: firstSucceeds ? .replaceWindowRoot() : .push(),
+            animated: false,
+            completion: { controller, isSuccess in
+                #expect(isSuccess == firstSucceeds)
+                #expect(controller === (firstSucceeds ? firstDestination : nil))
+                completionOrder.append("first")
+                firstCompleted.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(lastDestination),
+            strategy: lastSucceeds ? .replaceWindowRoot() : .push(),
+            animated: false,
+            completion: { controller, isSuccess in
+                #expect(isSuccess == lastSucceeds)
+                #expect(controller === (lastSucceeds ? lastDestination : nil))
+                completionOrder.append("last")
+                lastCompleted.fulfill()
+            }
+        )
+
+        #expect(completionOrder.isEmpty)
+
+        interceptor.resolve { controller, isSuccess in
+            #expect(isSuccess == (firstSucceeds && lastSucceeds))
+            #expect(controller === (lastSucceeds ? lastDestination : nil))
+            completionOrder.append("resolved")
+            resolved.fulfill()
+        }
+
+        await fulfillment(of: [firstCompleted, lastCompleted, resolved], timeout: 10)
+
+        #expect(completionOrder == ["first", "last", "resolved"])
+        #expect(interceptor.getInterceptionReasons().isEmpty)
+    }
+
     @Test
     func `Shared interceptor resumes navigation in originating navigators`() async {
         let navigationInterceptor = RepeatedReasonNavigationInterceptor()

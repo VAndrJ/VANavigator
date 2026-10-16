@@ -255,6 +255,12 @@ extension Navigator {
         for controller: UIViewController,
         from sourceController: UIViewController
     ) -> NavigationFailure.Reason? {
+        guard let window,
+            !window.isHidden,
+            sourceController.viewIfLoaded?.window === window
+        else {
+            return .sourceViewControllerUnavailable
+        }
         guard !canPresent(controller, from: sourceController) else { return nil }
 
         let hasActiveTransition = controller.isBeingPresented

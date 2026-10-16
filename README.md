@@ -52,6 +52,9 @@ Navigation identities, responder events, and navigation APIs are isolated to the
 
 Navigation stack mutations fail safely (and use their configured fallback) while UIKit is already performing a transition, or when the destination controller belongs to another view-controller/window hierarchy. Setting the first root controller also calls `makeKeyAndVisible()` on the navigator's window.
 
+Modal and popover presentations require a source view attached to the navigator's visible window. An unavailable
+source fails with `sourceViewControllerUnavailable`, allowing fallback and queued navigation to continue.
+
 Window-root `CATransition` values must start immediately and finish after one finite pass. Paused, delayed,
 time-offset, or repeating transitions fail with `invalidTransitionConfiguration` so they cannot block queued navigation.
 
@@ -211,6 +214,10 @@ navigator?.navigate(
 Use the `NavigationInterceptor` to intercept the navigation flow and replace it with a new one based on the provided conditions. Continue the intercepted navigation after resolving the interception reason.
 
 Removing an interception reason cancels its pending navigations and completes each one with `(nil, false)`.
+
+Resolving a reason resumes all of its pending navigations. The resolution completion waits for all of them and
+reports success only when every resumed navigation succeeds. It returns the last submitted navigation's result
+controller; each navigation also receives its own completion result.
 
 
 **Failure diagnostics**
