@@ -199,8 +199,9 @@ extension UISplitViewController {
     /// UIKit creates this controller when a non-navigation controller is assigned to a column. Starting in iOS 26,
     /// `viewController(for:)` continues to return the assigned controller instead of the generated navigation wrapper,
     /// so callers should use this method when they need to operate on the column's navigation stack.
+    /// Returns `nil` for classic (`.unspecified`) split views, which do not support column APIs.
     public func columnNavigationController(for column: Column) -> UINavigationController? {
-        guard let controller = viewController(for: column) else { return nil }
+        guard style != .unspecified, let controller = viewController(for: column) else { return nil }
         if let navigationController = controller.orNavigationController {
             return navigationController
         }
@@ -229,6 +230,11 @@ extension UISplitViewController {
     }
 
     fileprivate var navigatorVisibleViewController: UIViewController? {
+        guard style != .unspecified else {
+            return viewControllers.last { !$0.isBeingDismissed && $0.viewIfLoaded?.window != nil }
+                ?? viewControllers.last { !$0.isBeingDismissed }
+        }
+
         if let compactController = navigatorVisibleController(for: .compact) {
             return compactController
         }

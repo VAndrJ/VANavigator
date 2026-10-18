@@ -62,6 +62,10 @@ Controller lookup traverses custom-container children. UIKit has no generic acti
 `topController` treats the last non-dismissing child attached to a window as active. Applications whose custom
 containers use different visibility semantics should avoid top-controller-based strategies for those containers.
 
+Controller lookup supports classic `UISplitViewController` instances. The `.split` strategies and
+`columnNavigationController(for:)` require a column-style split view created with `init(style:)`.
+On a classic split view, column strategies report `splitColumnNavigationControllerUnavailable` and use their fallback.
+
 
 ## Installation
 
