@@ -163,6 +163,21 @@ extension UIViewController {
         return presentedViewController?.containsActiveNavigatorTransition ?? false
     }
 
+    /// Includes assigned split columns even while UIKit detaches them from the visible hierarchy.
+    func navigatorHierarchyPath(to controller: UIViewController) -> [UIViewController]? {
+        if self === controller { return [self] }
+        for child in navigatorSearchChildren {
+            if let path = child.navigatorHierarchyPath(to: controller) {
+                return [self] + path
+            }
+        }
+        if let path = presentedViewController?.navigatorHierarchyPath(to: controller) {
+            return [self] + path
+        }
+
+        return nil
+    }
+
     private var navigatorSearchChildren: [UIViewController] {
         if let navigationController = self as? UINavigationController {
             return Array(navigationController.viewControllers.reversed())
@@ -221,12 +236,33 @@ extension UISplitViewController {
     }
 
     fileprivate var navigatorContainedViewControllers: [UIViewController] {
+        var candidates = children + viewControllers
+        if style != .unspecified {
+            for column in navigatorColumns {
+                guard let controller = viewController(for: column) else { continue }
+                candidates.append(controller)
+                if let navigationController = controller.orNavigationController {
+                    candidates.append(navigationController)
+                }
+            }
+        }
         var result: [UIViewController] = []
-        for controller in children + viewControllers where !result.contains(where: { $0 === controller }) {
+        for controller in candidates where !result.contains(where: { $0 === controller }) {
             result.append(controller)
         }
 
         return result
+    }
+
+    func navigatorColumn(containing controller: UIViewController) -> Column? {
+        guard style != .unspecified else { return nil }
+
+        // Prefer the most specific column when UIKit merges secondary navigation into the primary stack.
+        return navigatorColumns.first { column in
+            let assigned = viewController(for: column)
+            return assigned?.findController(controller: controller, withPresented: true) != nil
+                || columnNavigationController(for: column)?.findController(controller: controller, withPresented: true) != nil
+        }
     }
 
     fileprivate var navigatorVisibleViewController: UIViewController? {

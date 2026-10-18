@@ -55,26 +55,99 @@ extension Navigator {
                     return
                 }
 
-                selectTabIfNeededNow(controller: controller)
-                closeNavigationPresentedResult(
-                    controller: controller,
-                    animated: execution.animated,
-                    completion: { [self] result in
-                        if case let .failure(reason) = result {
-                            completeNavigationFailure(reason, execution: execution)
+                revealExistingController(controller) { [self] result in
+                    if case let .failure(reason) = result {
+                        completeNavigationFailure(reason, execution: execution)
 
-                            return
-                        }
-
-                        completeNavigationSuccess(
-                            controller: controller,
-                            navigatorEvent: navigatorEvent,
-                            execution: execution
-                        )
+                        return
                     }
-                )
+                    closeNavigationPresentedResult(
+                        controller: controller,
+                        animated: execution.animated,
+                        completion: { [self] result in
+                            if case let .failure(reason) = result {
+                                completeNavigationFailure(reason, execution: execution)
+
+                                return
+                            }
+
+                            completeNavigationSuccess(
+                                controller: controller,
+                                navigatorEvent: navigatorEvent,
+                                execution: execution
+                            )
+                        }
+                    )
+                }
             }
         )
+    }
+
+    private func revealExistingController(
+        _ controller: UIViewController,
+        completion: @escaping (Result<Void, NavigationFailure.Reason>) -> Void
+    ) {
+        guard let path = window?.rootViewController?.navigatorHierarchyPath(to: controller) else {
+            completion(.failure(.destinationNotFound))
+
+            return
+        }
+
+        func reveal(at index: Int) {
+            guard index < path.count else {
+                completion(.success(()))
+
+                return
+            }
+            let container = path[index]
+            if let tabs = container as? UITabBarController,
+                let selected = tabs.viewControllers?.first(where: {
+                    $0.findController(controller: controller, withPresented: true) != nil
+                })
+            {
+                tabs.selectedViewController = selected
+            }
+            guard let split = container as? UISplitViewController,
+                let column = split.navigatorColumn(containing: controller)
+            else {
+                reveal(at: index + 1)
+
+                return
+            }
+            guard !split.containsActiveNavigatorTransition else {
+                completion(.failure(.transitionInProgress))
+
+                return
+            }
+            // UIKit cannot explicitly show the custom compact column.
+            if column == .compact {
+                guard split.isCollapsed else {
+                    completion(.failure(.mutationRejected))
+
+                    return
+                }
+                reveal(at: index + 1)
+
+                return
+            }
+            guard window?.hasAdvancingNavigatorLayerClock == true else {
+                completion(.failure(.invalidTransitionConfiguration))
+
+                return
+            }
+            split.showNavigatorColumn(column) { [self] in
+                guard window?.rootViewController?.navigatorHierarchyPath(to: controller) != nil,
+                    split.navigatorColumn(containing: controller) == column
+                else {
+                    completion(.failure(.mutationRejected))
+
+                    return
+                }
+                reveal(at: index + 1)
+            }
+        }
+
+        reveal(at: 0)
     }
 
     private func findControllerForPop(

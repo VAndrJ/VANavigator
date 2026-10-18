@@ -65,6 +65,8 @@ containers use different visibility semantics should avoid top-controller-based 
 Controller lookup supports classic `UISplitViewController` instances. The `.split` strategies and
 `columnNavigationController(for:)` require a column-style split view created with `init(style:)`.
 On a classic split view, column strategies report `splitColumnNavigationControllerUnavailable` and use their fallback.
+Lookup also searches assigned columns while they are hidden or collapsed. `.closeToExisting` reveals the target's
+containing tabs and split columns before popping its navigation stack and delivering responder events.
 
 
 ## Installation

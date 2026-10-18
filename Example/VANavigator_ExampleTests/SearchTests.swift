@@ -72,13 +72,11 @@ final class SearchTests {
         let primaryController = try #require(window?.findController(destination: .identity(primaryIdentity)))
         #expect(primaryIdentity.isEqual(to: primaryController.navigationIdentity))
         #expect((primaryController) == (window?.findController(destination: .controller(primaryController))))
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let secondaryController = try #require(
-                window?.findController(destination: .identity(secondaryIdentity))
-            )
-            #expect(secondaryIdentity.isEqual(to: secondaryController.navigationIdentity))
-            #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController))))
-        }
+        let secondaryController = try #require(
+            window?.findController(destination: .identity(secondaryIdentity))
+        )
+        #expect(secondaryIdentity.isEqual(to: secondaryController.navigationIdentity))
+        #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController))))
 
         #expect((presentedController) == (window?.topController))
         #expect((tabController) == (controller.findTabBarController()))
