@@ -74,14 +74,16 @@ extension Navigator {
         )
     }
 
-    func performNavigationEvents(
-        event: (any ResponderEvent)?,
-        navigatorEvent: (any ResponderEvent)?,
-        on responder: (any Responder)?,
-        completion: @escaping () -> Void
+    /// Delivers responder events before completing the navigation and releasing queued work.
+    func completeNavigationSuccess(
+        controller: UIViewController,
+        navigatorEvent: (any ResponderEvent)? = nil,
+        execution: NavigationExecution
     ) {
-        guard let responder, navigatorEvent != nil || event != nil else {
-            completion()
+        guard let responder = controller as? any Responder,
+            navigatorEvent != nil || execution.event != nil
+        else {
+            execution.completion?(controller, true)
 
             return
         }
@@ -90,11 +92,11 @@ extension Navigator {
             if let navigatorEvent {
                 _ = await responder.handle(event: navigatorEvent)
             }
-            if let event {
+            if let event = execution.event {
                 _ = await responder.handle(event: event)
             }
             withExtendedLifetime(self) {
-                completion()
+                execution.completion?(controller, true)
             }
         }
     }

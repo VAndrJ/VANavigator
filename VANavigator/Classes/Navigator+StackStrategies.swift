@@ -162,13 +162,9 @@ extension Navigator {
             completion: { [self] result in
                 switch result {
                 case .success:
-                    performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 case let .failure(reason):
                     completeNavigationFailure(reason, execution: execution)
@@ -208,13 +204,9 @@ extension Navigator {
                     return
                 }
 
-                performNavigationEvents(
-                    event: execution.event,
-                    navigatorEvent: nil,
-                    on: controller as? any UIViewController & Responder,
-                    completion: {
-                        execution.completion?(controller, true)
-                    }
+                completeNavigationSuccess(
+                    controller: controller,
+                    execution: execution
                 )
             }
         )

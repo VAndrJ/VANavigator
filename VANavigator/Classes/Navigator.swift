@@ -420,10 +420,8 @@ public final class Navigator {
             in: sourceController,
             animated: animated,
             completion: { [self] dismissalResult in
-                guard case .success = dismissalResult else {
-                    completion?(
-                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
-                    )
+                if case .failure = dismissalResult {
+                    completion?(dismissalResult)
 
                     return
                 }
@@ -560,10 +558,8 @@ public final class Navigator {
             in: controller,
             animated: animated,
             completion: { dismissalResult in
-                guard case .success = dismissalResult else {
-                    completion(
-                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
-                    )
+                if case .failure = dismissalResult {
+                    completion(dismissalResult)
 
                     return
                 }
@@ -644,8 +640,8 @@ public final class Navigator {
 
             return
         }
-        guard !containsActiveTransition(in: controller),
-            !containsActiveTransition(in: presentingController)
+        guard !controller.containsActiveNavigatorTransition,
+            !presentingController.containsActiveNavigatorTransition
         else {
             completion(.failure(.transitionInProgress))
 
@@ -710,23 +706,6 @@ public final class Navigator {
                 )
             }
         )
-    }
-
-    private func containsActiveTransition(in controller: UIViewController) -> Bool {
-        if controller.isBeingPresented
-            || controller.isBeingDismissed
-            || controller.transitionCoordinator != nil
-        {
-            return true
-        }
-        if controller.children.contains(where: containsActiveTransition(in:)) {
-            return true
-        }
-        if let presentedViewController = controller.presentedViewController {
-            return containsActiveTransition(in: presentedViewController)
-        }
-
-        return false
     }
 
     private func visiblePresentationOutsideHierarchy(of controller: UIViewController) -> UIViewController? {
@@ -803,25 +782,14 @@ public final class Navigator {
         completion: (() -> Void)? = nil
     ) {
         enqueueOrStartNavigationOperation { [self] finish in
-            selectTabIfNeededNow(
-                controller: controller,
-                completion: {
-                    completion?()
-                    finish()
-                }
-            )
+            selectTabIfNeededNow(controller: controller)
+            completion?()
+            finish()
         }
     }
 
-    func selectTabIfNeededNow(
-        controller: UIViewController?,
-        completion: (() -> Void)? = nil
-    ) {
-        guard let controller else {
-            completion?()
-
-            return
-        }
+    func selectTabIfNeededNow(controller: UIViewController?) {
+        guard let controller else { return }
 
         var selectionTarget = controller
         var tabBarController = controller.findTabBarController()
@@ -843,8 +811,6 @@ public final class Navigator {
             }
             tabBarController = ancestor as? UITabBarController
         }
-
-        completion?()
     }
 
     public func makeFallbackChain(
@@ -973,11 +939,5 @@ extension Result where Success == Void, Failure == NavigationFailure.Reason {
         }
 
         return false
-    }
-
-    var failureReason: Failure? {
-        guard case let .failure(reason) = self else { return nil }
-
-        return reason
     }
 }

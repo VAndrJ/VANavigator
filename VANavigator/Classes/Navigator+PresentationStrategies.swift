@@ -37,7 +37,7 @@ extension Navigator {
             let hasActiveTransition = controller.isBeingPresented
                 || controller.isBeingDismissed
                 || controller.transitionCoordinator != nil
-                || currentRootController.map { window.containsActiveNavigatorTransition(in: $0) } == true
+                || currentRootController?.containsActiveNavigatorTransition == true
             completeNavigationFailure(
                 hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy,
                 execution: execution
@@ -60,13 +60,10 @@ extension Navigator {
                     return
                 }
 
-                performNavigationEvents(
-                    event: execution.event,
+                completeNavigationSuccess(
+                    controller: controller,
                     navigatorEvent: navigatorEvent,
-                    on: controller as? any UIViewController & Responder,
-                    completion: {
-                        execution.completion?(controller, true)
-                    }
+                    execution: execution
                 )
             }
         )
@@ -114,30 +111,7 @@ extension Navigator {
             return
         }
 
-        sourceController.present(
-            controller,
-            animated: execution.animated,
-            completion: { [self] in
-                DispatchQueue.main.async {
-                    let isPresented = controller.presentingViewController != nil
-                        || sourceController.presentedViewController === controller
-                    guard isPresented else {
-                        self.completeNavigationFailure(.mutationRejected, execution: execution)
-
-                        return
-                    }
-
-                    self.performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
-                    )
-                }
-            }
-        )
+        presentController(controller, from: sourceController, execution: execution)
     }
 
     func executePopover(
@@ -201,6 +175,14 @@ extension Navigator {
             popover.delegate = PopoverDelegate.shared
         }
 
+        presentController(controller, from: sourceController, execution: execution)
+    }
+
+    private func presentController(
+        _ controller: UIViewController,
+        from sourceController: UIViewController,
+        execution: NavigationExecution
+    ) {
         sourceController.present(
             controller,
             animated: execution.animated,
@@ -214,13 +196,9 @@ extension Navigator {
                         return
                     }
 
-                    self.performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    self.completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 }
             }

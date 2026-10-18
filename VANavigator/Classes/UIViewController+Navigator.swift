@@ -152,6 +152,17 @@ extension UIViewController {
         }
     }
 
+    var containsActiveNavigatorTransition: Bool {
+        if isBeingPresented || isBeingDismissed || transitionCoordinator != nil {
+            return true
+        }
+        if children.contains(where: { $0.containsActiveNavigatorTransition }) {
+            return true
+        }
+
+        return presentedViewController?.containsActiveNavigatorTransition ?? false
+    }
+
     private var navigatorSearchChildren: [UIViewController] {
         if let navigationController = self as? UINavigationController {
             return Array(navigationController.viewControllers.reversed())

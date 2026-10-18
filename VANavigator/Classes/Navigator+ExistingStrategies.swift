@@ -13,48 +13,10 @@ extension Navigator {
             return
         }
 
-        dismissVisiblePresentationsOutsideHierarchy(
-            of: controller,
-            animated: execution.animated,
-            completion: { [self] dismissalResult in
-                guard case .success = dismissalResult else {
-                    completeNavigationFailure(
-                        dismissalResult.failureReason ?? .dismissalRejected,
-                        execution: execution
-                    )
-
-                    return
-                }
-
-                selectTabIfNeededNow(
-                    controller: controller,
-                    completion: { [self] in
-                        closeNavigationPresentedResult(
-                            controller: controller,
-                            animated: execution.animated,
-                            completion: { [self] result in
-                                guard case .success = result else {
-                                    completeNavigationFailure(
-                                        result.failureReason ?? .mutationRejected,
-                                        execution: execution
-                                    )
-
-                                    return
-                                }
-
-                                performNavigationEvents(
-                                    event: execution.event,
-                                    navigatorEvent: ResponderClosedToExistingEvent(),
-                                    on: controller as? any UIViewController & Responder,
-                                    completion: {
-                                        execution.completion?(controller, true)
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            }
+        navigateToExistingController(
+            controller,
+            navigatorEvent: ResponderClosedToExistingEvent(),
+            execution: execution
         )
     }
 
@@ -71,44 +33,43 @@ extension Navigator {
             return
         }
 
+        navigateToExistingController(
+            controller,
+            navigatorEvent: ResponderPoppedToExistingEvent(),
+            execution: execution
+        )
+    }
+
+    private func navigateToExistingController(
+        _ controller: UIViewController,
+        navigatorEvent: any ResponderEvent,
+        execution: NavigationExecution
+    ) {
         dismissVisiblePresentationsOutsideHierarchy(
             of: controller,
             animated: execution.animated,
             completion: { [self] dismissalResult in
-                guard case .success = dismissalResult else {
-                    completeNavigationFailure(
-                        dismissalResult.failureReason ?? .dismissalRejected,
-                        execution: execution
-                    )
+                if case let .failure(reason) = dismissalResult {
+                    completeNavigationFailure(reason, execution: execution)
 
                     return
                 }
 
-                selectTabIfNeededNow(
+                selectTabIfNeededNow(controller: controller)
+                closeNavigationPresentedResult(
                     controller: controller,
-                    completion: { [self] in
-                        closeNavigationPresentedResult(
+                    animated: execution.animated,
+                    completion: { [self] result in
+                        if case let .failure(reason) = result {
+                            completeNavigationFailure(reason, execution: execution)
+
+                            return
+                        }
+
+                        completeNavigationSuccess(
                             controller: controller,
-                            animated: execution.animated,
-                            completion: { [self] result in
-                                guard case .success = result else {
-                                    completeNavigationFailure(
-                                        result.failureReason ?? .mutationRejected,
-                                        execution: execution
-                                    )
-
-                                    return
-                                }
-
-                                performNavigationEvents(
-                                    event: execution.event,
-                                    navigatorEvent: ResponderPoppedToExistingEvent(),
-                                    on: controller as? any UIViewController & Responder,
-                                    completion: {
-                                        execution.completion?(controller, true)
-                                    }
-                                )
-                            }
+                            navigatorEvent: navigatorEvent,
+                            execution: execution
                         )
                     }
                 )
@@ -132,22 +93,7 @@ extension Navigator {
             {
                 return controller
             }
-            sourceController = presentingController(above: source)
-        }
-
-        return nil
-    }
-
-    private func presentingController(above controller: UIViewController) -> UIViewController? {
-        var current: UIViewController? = controller
-        var searchedControllers = Set<ObjectIdentifier>()
-        while let candidate = current,
-            searchedControllers.insert(ObjectIdentifier(candidate)).inserted
-        {
-            if let presentingViewController = candidate.presentingViewController {
-                return presentingViewController
-            }
-            current = candidate.parent
+            sourceController = presentedAncestor(startingAt: source)?.presentingViewController
         }
 
         return nil
