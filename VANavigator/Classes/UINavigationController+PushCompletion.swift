@@ -145,6 +145,7 @@ extension UINavigationController {
         return canMutateNavigationStack
             && !(viewController is UINavigationController)
             && !(viewController is UITabBarController)
+            && !(viewController is UISplitViewController)
             && viewController !== self
             && (viewController.parent == nil || viewController.parent === self)
             && (viewController.navigationController == nil || viewController.navigationController === self)
@@ -211,6 +212,7 @@ extension UIViewController {
     var canBecomeNavigatorPushDestination: Bool {
         !(self is UINavigationController)
             && !(self is UITabBarController)
+            && !(self is UISplitViewController)
             && parent == nil
             && navigationController == nil
             && presentingViewController == nil
