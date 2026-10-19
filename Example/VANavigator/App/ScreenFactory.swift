@@ -248,6 +248,17 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         destination: .identity(QueueNavigationIdentity()),
                                         strategy: .present()
                                     )
+                                },
+                                followArrangement: { [weak navigator] in
+                                    #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+                                    if #available(iOS 27.1, *), let navigator {
+                                        let arrangement = ArrangementExampleViewController(navigator: navigator)
+                                        navigator.navigate(
+                                            destination: .controller(UINavigationController(rootViewController: arrangement)),
+                                            strategy: .present()
+                                        )
+                                    }
+                                    #endif
                                 }
                             )
                         )

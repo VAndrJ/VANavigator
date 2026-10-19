@@ -21,8 +21,8 @@ extension UIViewController {
     }
     /// Recursively finds the top-most view controller in the current hierarchy.
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
-    /// the visible detail column in `UISplitViewController`, children of custom containers, and any presented view
-    /// controller.
+    /// the visible detail column in `UISplitViewController`, the frontmost visible placement in
+    /// `UIArrangementViewController` (iOS 27.1+), children of custom containers, and any presented view controller.
     ///
     /// UIKit does not define a generic active-child API for custom containers. For those containers, the navigator uses
     /// the last non-dismissing child whose view is attached to a window, falling back to the last non-dismissing child.
@@ -32,7 +32,9 @@ extension UIViewController {
         }
 
         var possibleController: UIViewController?
-        if let tabBarController = self as? UITabBarController {
+        if let arrangement = navigatorArrangementChildren {
+            possibleController = arrangement.visible.first
+        } else if let tabBarController = self as? UITabBarController {
             possibleController = tabBarController.selectedViewController
         } else if let navigationController = self as? UINavigationController {
             possibleController = navigationController.topViewController
@@ -179,7 +181,9 @@ extension UIViewController {
     }
 
     private var navigatorSearchChildren: [UIViewController] {
-        if let navigationController = self as? UINavigationController {
+        if let arrangement = navigatorArrangementChildren {
+            return arrangement.all
+        } else if let navigationController = self as? UINavigationController {
             return Array(navigationController.viewControllers.reversed())
         } else if let tabBarController = self as? UITabBarController {
             let controllers = tabBarController.viewControllers ?? []

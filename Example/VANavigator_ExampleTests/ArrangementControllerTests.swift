@@ -1,0 +1,157 @@
+import Testing
+import UIKit
+import VANavigator
+
+#if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+@Suite(.serialized)
+final class ArrangementControllerTests {
+    @available(iOS 27.1, *)
+    @Test(arguments: [false, true])
+    func `Overlay lookup follows stacking order rather than insertion order`(secondaryFirst: Bool) async throws {
+        let arrangement = UIArrangementViewController()
+        let primary = UIViewController()
+        let secondary = UIViewController()
+        let identity = MockControllerNavigationIdentity()
+        primary.navigationIdentity = identity
+        secondary.navigationIdentity = identity
+        if secondaryFirst { arrangement.setViewController(secondary, for: .secondary) }
+        arrangement.setViewController(primary, for: .primary)
+        if !secondaryFirst { arrangement.setViewController(secondary, for: .secondary) }
+        arrangement.updateArrangement(.overlay)
+        let window = try makeWindow(root: arrangement)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        arrangement.view.layoutIfNeeded()
+        await waitUntil("overlay state", timeout: 3) { arrangement.state(for: .primary) != nil }
+        #expect(arrangement.state(for: .primary)?.isHidden == false)
+        #expect(arrangement.topController === primary)
+        #expect(arrangement.findController(identity: identity, withPresented: false) === primary)
+        #expect(arrangement.findController(controller: secondary, withPresented: false) === secondary)
+
+        let presented = UIViewController()
+        presented.navigationIdentity = identity
+        arrangement.present(presented, animated: false)
+        await waitUntil("presentation", timeout: 3) { !presented.isBeingPresented && presented.viewIfLoaded?.window != nil }
+        #expect(arrangement.topController === presented)
+        #expect(arrangement.findController(identity: identity, withPresented: true) === presented)
+        #expect(arrangement.findController(identity: identity, withPresented: false) === primary)
+    }
+
+    @available(iOS 27.1, *)
+    @Test
+    func `Axis changes retain hidden content and reject navigation without changing layout`() async throws {
+        let host = UIViewController()
+        host.traitOverrides.horizontalSizeClass = .regular
+        let arrangement = UIArrangementViewController()
+        let primary = UIViewController()
+        let secondary = MockRootViewController()
+        let identity = MockRootControllerNavigationIdentity()
+        secondary.navigationIdentity = identity
+        arrangement.setViewController(primary, for: .primary)
+        arrangement.setViewController(secondary, for: .secondary)
+        arrangement.updateArrangement(.split.axes(.horizontal))
+        host.addChild(arrangement)
+        host.view.addSubview(arrangement.view)
+        arrangement.didMove(toParent: host)
+        let window = try makeWindow(root: host)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        for wide in [false, true, false, true, false] {
+            arrangement.view.frame = CGRect(x: 0, y: 0, width: wide ? 600 : 300, height: wide ? 300 : 600)
+            arrangement.updateArrangement(.split.axes(.horizontal))
+            arrangement.view.setNeedsLayout()
+            arrangement.view.layoutIfNeeded()
+            await waitUntil("arrangement axis change", timeout: 3) {
+                secondary.view.isDescendant(of: arrangement.view) == wide
+            }
+            #expect(arrangement.topController === primary)
+            #expect(window.findController(destination: .controller(secondary)) === secondary)
+            #expect(window.findController(destination: .identity(identity)) === secondary)
+        }
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let finished = expectation(description: "hidden destination uses fallback")
+        let continued = expectation(description: "queue continues after hidden destination")
+        navigator.navigate(
+            destination: .controller(secondary),
+            strategy: .closeToExisting,
+            animated: false,
+            fallback: NavigationChainLink(destination: .controller(primary), strategy: .closeToExisting, animated: false)
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === primary)
+            #expect(!secondary.isClosedEventHandled)
+            #expect(!secondary.view.isDescendant(of: arrangement.view))
+            finished.fulfill()
+        }
+        navigator.navigate(destination: .controller(primary), strategy: .closeToExisting, animated: false) { _, success in
+            #expect(success)
+            continued.fulfill()
+        }
+        await fulfillment(of: [finished, continued], timeout: 3)
+        #expect(failures == [.mutationRejected])
+    }
+
+    @available(iOS 27.1, *)
+    @Test(arguments: [false, true], [false, true])
+    func `Navigation outside arrangement pushes and returns to retained content`(pop: Bool, presented: Bool) async throws {
+        let arrangement = UIArrangementViewController()
+        let primary = MockRootViewController()
+        arrangement.setViewController(primary, for: .primary)
+        arrangement.setViewController(UIViewController(), for: .secondary)
+        arrangement.updateArrangement(.split)
+        let navigation = UINavigationController(rootViewController: arrangement)
+        let root = presented ? UIViewController() : navigation
+        let window = try makeWindow(root: root)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        if presented {
+            root.present(navigation, animated: false)
+            await waitUntil("presented arrangement", timeout: 3) {
+                !navigation.isBeingPresented && navigation.viewIfLoaded?.window != nil
+            }
+        }
+        navigation.view.layoutIfNeeded()
+        await waitUntil("arrangement navigation installed", timeout: 3) {
+            navigation.transitionCoordinator == nil && primary.viewIfLoaded?.window != nil
+        }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        for _ in 0..<3 {
+            let detail = UIViewController()
+            let pushed = expectation(description: "push from arrangement")
+            let returned = expectation(description: "return to arrangement child")
+            navigator.navigate(destination: .controller(detail), strategy: .push(), animated: false) { controller, success in
+                #expect(success)
+                #expect(controller === detail)
+                pushed.fulfill()
+            }
+            navigator.navigate(
+                destination: .controller(primary),
+                strategy: pop ? .popToExisting() : .closeToExisting,
+                animated: false,
+                event: ResponderMockEvent()
+            ) { controller, success in
+                #expect(success)
+                #expect(controller === primary)
+                #expect(window.topController === primary)
+                #expect(navigation.topViewController === arrangement)
+                #expect(primary.isMockEventHandled)
+                if presented { #expect(root.presentedViewController === navigation) }
+                returned.fulfill()
+            }
+            await fulfillment(of: [pushed, returned], timeout: 3)
+        }
+        #expect(failures.isEmpty)
+    }
+
+    private func makeWindow(root: UIViewController) throws -> UIWindow {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = root
+        window.makeKeyAndVisible()
+
+        return window
+    }
+}
+#endif

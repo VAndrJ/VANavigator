@@ -70,6 +70,21 @@ extension Navigator {
 
                                 return
                             }
+                            // A navigation pop can bring an offscreen arrangement back into
+                            // the window. Check its current layout after that transition.
+                            guard let path = window?.rootViewController?.navigatorHierarchyPath(to: controller) else {
+                                completeNavigationFailure(.destinationNotFound, execution: execution)
+
+                                return
+                            }
+                            if path.contains(where: { $0.navigatorArrangementChildren != nil }) {
+                                window?.layoutIfNeeded()
+                            }
+                            guard path.allSatisfy({ $0.navigatorArrangementAllowsNavigation(to: controller) }) else {
+                                completeNavigationFailure(.mutationRejected, execution: execution)
+
+                                return
+                            }
 
                             completeNavigationSuccess(
                                 controller: controller,

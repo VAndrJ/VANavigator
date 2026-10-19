@@ -32,6 +32,7 @@ The example is organized as a set of reproducible navigation flows:
 | Close the top controller by popping or dismissing | Main → **Open details** → **Close this top screen** |
 | Remove a controller from a navigation stack | Main → **Open details** → push another number → **Remove -1 from navigation stack** |
 | Split push, pop, and replace | Main → **Open split** → use the buttons in **Primary**; the push/pop chain is easiest to observe on iPad |
+| Adaptive arrangement layout (iOS 27.1+) | Main → **Open adaptive arrangement** → switch split/overlay or limit the axis; type in both panels, resize, push a detail, and return |
 | Navigation queue serialization | Main → **Present queue example** |
 | Interception and continuation after authorization | Main → **Open authorization-protected content** → **Login** |
 | Nested fallback chain and responder event | Use the app's **Details** Home Screen quick action |
@@ -67,6 +68,68 @@ Controller lookup supports classic `UISplitViewController` instances. The `.spli
 On a classic split view, column strategies report `splitColumnNavigationControllerUnavailable` and use their fallback.
 Lookup also searches assigned columns while they are hidden or collapsed. `.closeToExisting` reveals the target's
 containing tabs and split columns before popping its navigation stack and delivering responder events.
+
+## iOS 27.1 and iPhone Duo
+
+Build with the iOS 27.1 SDK or newer to enable `UIArrangementViewController` integration. The package still supports
+iOS 15 and Swift 6.2; arrangement code is guarded at compile time and runtime. It is excluded from Mac Catalyst,
+where the initial 27.1 arrangement API is unavailable.
+
+Arrangement views control layout. Keep the `UINavigationController` outside the arrangement when navigation should
+replace the whole layout:
+
+```swift
+#if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+if #available(iOS 27.1, *) {
+    let arrangement = UIArrangementViewController()
+    arrangement.setViewController(primary, for: .primary)
+    arrangement.setViewController(secondary, for: .secondary)
+    arrangement.updateArrangement(.split.axes(.horizontal))
+    navigator.navigate(
+        destination: .controller(UINavigationController(rootViewController: arrangement)),
+        strategy: .present()
+    )
+}
+#endif
+```
+
+`topController` follows the frontmost visible placement using UIKit's `ViewState` and the installed view hierarchy.
+Equal stacking levels prefer primary, including before the first layout. Identity lookup searches visible placements
+first, then retained hidden placements. Instance lookup also finds retained content.
+`.closeToExisting` and `.popToExisting` validate arrangement visibility after revealing the enclosing navigation stack.
+A destination that remains hidden fails with `mutationRejected`, allowing fallback and queued work to continue without
+delivering a successful navigation event. Configure the arrangement in your app if you need to reveal that placement;
+the navigator does not change the app's preferred arrangement or axes. `.split` strategies continue to apply only to
+`UISplitViewController`.
+
+Create one navigator for each scene's window, as the example's `SceneDelegate` does. Apps built with the latest SDK
+on iOS 27 must use the [scene-based lifecycle](https://developer.apple.com/documentation/uikit/transitioning-to-the-uikit-scene-based-life-cycle).
+Use the current view's bounds, safe areas, and traits for layout decisions. Do not infer available space from the
+device model, screen size, interface idiom, or orientation.
+
+The example uses standard navigation and toolbar items with both titles and symbols so UIKit can adapt them to
+vertical bars. Custom containers and custom controls remain responsible for reserved regions, camera occlusions,
+keyboard avoidance, and accessibility. See Apple's [Duo preparation guide](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo)
+and [Duo design guidance](https://developer.apple.com/design/human-interface-guidelines/designing-for-iphone-duo).
+
+### Verification
+
+With Xcode 27.1+ and an installed iOS 27.1 Duo simulator, run:
+
+```sh
+xcodebuild -project Example/VANavigator.xcodeproj -scheme VANavigator-Example \
+  -destination 'platform=iOS Simulator,OS=27.1,name=iPhone Duo' \
+  -skipMacroValidation build test
+```
+
+The regression suite covers classic and collapsed split lookup, invalid stack destinations, arrangement stacking,
+repeated layout resizing, retained hidden content, fallback/queue behavior, and navigation outside the arrangement.
+Existing hosted CI retains the older SDK/runtime lanes; a Duo lane requires a runner with Xcode 27.1+ and that runtime.
+
+Also check the adaptive example on outer, fully open, and partially folded displays in both orientations. Verify that
+typed text survives transitions, controls remain reachable with the keyboard and larger text, sheets/popovers keep
+their anchors, and interactive back/dismiss cancellation leaves navigation usable. Automated size/trait tests do not
+replace device pose testing.
 
 
 ## Installation

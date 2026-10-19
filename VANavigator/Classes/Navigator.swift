@@ -734,7 +734,11 @@ public final class Navigator {
         while let currentController = candidate,
             visitedControllers.insert(ObjectIdentifier(currentController)).inserted
         {
-            if currentController.presentingViewController != nil {
+            // UIKit forwards presentingViewController to children of a presented container.
+            // Only the controller actually owned by the presenter is the modal boundary.
+            if let presenter = currentController.presentingViewController,
+                presenter.presentedViewController === currentController
+            {
                 return currentController
             }
             candidate = currentController.parent
