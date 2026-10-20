@@ -10,6 +10,7 @@
 		A352007F2F09DEB9007578D6 /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
 		A36FD6DE300780E300D8A4CD /* ObservationTracking in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6DD300780E300D8A4CD /* ObservationTracking */; };
 		A36FD6E130079D9300D8A4CD /* Swiftional in Frameworks */ = {isa = PBXBuildFile; productRef = A36FD6E030079D9300D8A4CD /* Swiftional */; };
+		A3D6436430852B7000E2DA1D /* VANavigator in Frameworks */ = {isa = PBXBuildFile; productRef = A352007E2F09DEB9007578D6 /* VANavigator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3D6436430852B7000E2DA1D /* VANavigator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
