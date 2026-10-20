@@ -96,9 +96,9 @@ if #available(iOS 27.1, *) {
 `topController` follows the frontmost visible placement using UIKit's `ViewState` and the installed view hierarchy.
 Equal stacking levels prefer primary, including before the first layout. Identity lookup searches visible placements
 first, then retained hidden placements. Instance lookup also finds retained content.
-`.closeToExisting` and `.popToExisting` validate arrangement visibility after revealing the enclosing navigation stack.
-A destination that remains hidden fails with `mutationRejected`, allowing fallback and queued work to continue without
-delivering a successful navigation event. Configure the arrangement in your app if you need to reveal that placement;
+`.closeToExisting`, `.popToExisting`, and split-column pop validate arrangement visibility after revealing the enclosing
+navigation stack. A destination that remains hidden fails with `mutationRejected`, allowing fallback and queued work to
+continue without delivering a successful navigation event. Configure the arrangement in your app if you need to reveal that placement;
 the navigator does not change the app's preferred arrangement or axes. `.split` strategies continue to apply only to
 `UISplitViewController`.
 

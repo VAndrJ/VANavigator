@@ -70,23 +70,7 @@ extension Navigator {
 
                                 return
                             }
-                            // A navigation pop can bring an offscreen arrangement back into
-                            // the window. Check its current layout after that transition.
-                            guard let path = window?.rootViewController?.navigatorHierarchyPath(to: controller) else {
-                                completeNavigationFailure(.destinationNotFound, execution: execution)
-
-                                return
-                            }
-                            if path.contains(where: { $0.navigatorArrangementChildren != nil }) {
-                                window?.layoutIfNeeded()
-                            }
-                            guard path.allSatisfy({ $0.navigatorArrangementAllowsNavigation(to: controller) }) else {
-                                completeNavigationFailure(.mutationRejected, execution: execution)
-
-                                return
-                            }
-
-                            completeNavigationSuccess(
+                            completeExistingControllerNavigation(
                                 controller: controller,
                                 navigatorEvent: navigatorEvent,
                                 execution: execution
@@ -95,6 +79,34 @@ extension Navigator {
                     )
                 }
             }
+        )
+    }
+
+    func completeExistingControllerNavigation(
+        controller: UIViewController,
+        navigatorEvent: any ResponderEvent,
+        execution: NavigationExecution
+    ) {
+        // A navigation pop can bring an offscreen arrangement back into the window.
+        // All existing-controller strategies must validate its layout after that transition.
+        guard let path = window?.rootViewController?.navigatorHierarchyPath(to: controller) else {
+            completeNavigationFailure(.destinationNotFound, execution: execution)
+
+            return
+        }
+        if path.contains(where: { $0.navigatorArrangementChildren != nil }) {
+            window?.layoutIfNeeded()
+        }
+        guard path.allSatisfy({ $0.navigatorArrangementAllowsNavigation(to: controller) }) else {
+            completeNavigationFailure(.mutationRejected, execution: execution)
+
+            return
+        }
+
+        completeNavigationSuccess(
+            controller: controller,
+            navigatorEvent: navigatorEvent,
+            execution: execution
         )
     }
 

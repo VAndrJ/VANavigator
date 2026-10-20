@@ -167,7 +167,7 @@ extension Navigator {
                         return
                     }
 
-                    completeNavigationSuccess(
+                    completeExistingControllerNavigation(
                         controller: controller,
                         navigatorEvent: ResponderPoppedToExistingEvent(),
                         execution: execution

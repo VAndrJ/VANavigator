@@ -145,6 +145,103 @@ final class ArrangementControllerTests {
         #expect(failures.isEmpty)
     }
 
+    @available(iOS 27.1, *)
+    @Test(arguments: [false, true], [false, true])
+    func `Split pop validates arrangement visibility before events and continues queued work`(
+        targetHidden: Bool,
+        useFallback: Bool
+    ) async throws {
+        let primary = MockPopViewController()
+        let target = MockPopViewController()
+        let identity = MockPopControllerNavigationIdentity()
+        target.navigationIdentity = identity
+        let arrangement = UIArrangementViewController()
+        arrangement.setViewController(primary, for: .primary)
+        arrangement.setViewController(target, for: .secondary)
+        arrangement.updateArrangement(.split.axes(.horizontal))
+        let host = UIViewController()
+        host.traitOverrides.horizontalSizeClass = .regular
+        host.addChild(arrangement)
+        host.view.addSubview(arrangement.view)
+        arrangement.didMove(toParent: host)
+        // Control the arrangement's aspect ratio independently of the split column's width.
+        arrangement.view.frame = CGRect(
+            x: 0, y: 0,
+            width: targetHidden ? 300 : 600,
+            height: targetHidden ? 600 : 300
+        )
+        let navigation = UINavigationController(rootViewController: host)
+        let split = UISplitViewController(style: .doubleColumn)
+        split.setViewController(UIViewController(), for: .primary)
+        split.setViewController(navigation, for: .secondary)
+        let window = try makeWindow(root: split)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        split.show(.secondary)
+        window.layoutIfNeeded()
+        arrangement.view.layoutIfNeeded()
+        await waitUntil("arrangement split column installed", timeout: 3) {
+            split.transitionCoordinator == nil
+                && primary.viewIfLoaded?.window === window
+                && target.view.isDescendant(of: arrangement.view) == !targetHidden
+        }
+        try #require(primary.viewIfLoaded?.window === window)
+        try #require(target.view.isDescendant(of: arrangement.view) == !targetHidden)
+
+        let detail = UIViewController()
+        navigation.pushViewController(detail, animated: false)
+        await waitUntil("detail covers arrangement", timeout: 3) {
+            navigation.transitionCoordinator == nil && host.viewIfLoaded?.window == nil
+        }
+        try #require(navigation.topViewController === detail)
+        #expect(window.findController(destination: .identity(identity)) === target)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let completed = expectation(description: "split pop to arrangement child")
+        let continued = expectation(description: "queued split pop after visibility check")
+        var completionOrder: [String] = []
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .split(strategy: .secondary(action: .pop)),
+            animated: false,
+            fallback: useFallback
+                ? NavigationChainLink(
+                    destination: .controller(primary),
+                    strategy: .split(strategy: .secondary(action: .pop)),
+                    animated: false
+                )
+                : nil,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success == (!targetHidden || useFallback))
+            if targetHidden {
+                #expect(controller === (useFallback ? primary : nil))
+            } else {
+                #expect(controller === target)
+            }
+            #expect(target.isPoppedEventHandled == !targetHidden)
+            #expect(target.isMockEventHandled == !targetHidden)
+            completionOrder.append("pop")
+            completed.fulfill()
+        }
+        navigator.navigate(
+            destination: .controller(primary),
+            strategy: .split(strategy: .secondary(action: .pop)),
+            animated: false
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === primary)
+            completionOrder.append("queued")
+            continued.fulfill()
+        }
+        await fulfillment(of: [completed, continued], timeout: 5)
+        #expect(failures == (targetHidden ? [.mutationRejected] : []))
+        #expect(completionOrder == ["pop", "queued"])
+        #expect(navigation.topViewController === host)
+        #expect(target.view.isDescendant(of: arrangement.view) == !targetHidden)
+    }
+
     private func makeWindow(root: UIViewController) throws -> UIWindow {
         let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let window = UIWindow(windowScene: scene)
