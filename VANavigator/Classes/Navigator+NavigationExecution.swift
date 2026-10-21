@@ -78,17 +78,29 @@ extension Navigator {
     func completeNavigationSuccess(
         controller: UIViewController,
         navigatorEvent: (any ResponderEvent)? = nil,
+        validate: (() -> NavigationFailure.Reason?)? = nil,
         execution: NavigationExecution
     ) {
         guard let responder = controller as? any Responder,
             navigatorEvent != nil || execution.event != nil
         else {
+            if let reason = validate?() {
+                completeNavigationFailure(reason, execution: execution)
+
+                return
+            }
             execution.completion?(controller, true)
 
             return
         }
 
         Task { [self] in
+            // UIKit lifecycle callbacks can change containment before this task starts.
+            if let reason = validate?() {
+                completeNavigationFailure(reason, execution: execution)
+
+                return
+            }
             if let navigatorEvent {
                 _ = await responder.handle(event: navigatorEvent)
             }

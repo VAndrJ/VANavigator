@@ -1773,6 +1773,220 @@ final class ProductionRegressionTests {
         #expect(completionCount == queuedCount)
     }
 
+    @Test(arguments: [false, true], [
+        (animated: false, innerCovered: false), (animated: false, innerCovered: true),
+        (animated: true, innerCovered: false), (animated: true, innerCovered: true),
+    ])
+    func `Existing navigation reveals nested stacks before events and queued work`(
+        pop: Bool,
+        configuration: (animated: Bool, innerCovered: Bool)
+    ) async throws {
+        let (animated, innerCovered) = configuration
+        let target = NestedNavigationResponderViewController()
+        let identity = MockControllerNavigationIdentity()
+        target.navigationIdentity = identity
+        let hierarchy = try makeNestedNavigationHierarchy(target: target)
+        if !innerCovered { hierarchy.inner.setViewControllers([target], animated: false) }
+        let window = hierarchy.window
+        defer { target.onEvent = nil; window.isHidden = true; window.rootViewController = nil }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        var order: [String] = []
+        target.onEvent = {
+            #expect(window.topController === target)
+            #expect(target.viewIfLoaded?.window === window)
+            #expect(hierarchy.outer.topViewController === hierarchy.host)
+            order.append("event")
+        }
+        let completed = expectation(description: "nested destination revealed")
+        let continued = expectation(description: "push queued after nested navigation")
+        let queuedController = UIViewController()
+        navigator.navigate(
+            destination: pop ? .identity(identity) : .controller(target),
+            strategy: pop ? .popToExisting() : .closeToExisting,
+            animated: animated,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === target)
+            #expect(window.topController === target)
+            #expect(target.events == [pop ? "popped" : "closed", "mock"])
+            order.append("completed")
+            completed.fulfill()
+        }
+        navigator.navigate(destination: .controller(queuedController), strategy: .push(), animated: false) { controller, success in
+            #expect(success)
+            #expect(controller === queuedController)
+            order.append("queued")
+            continued.fulfill()
+        }
+        await fulfillment(of: [completed, continued], timeout: 10)
+
+        #expect(failures.isEmpty)
+        #expect(order == ["event", "event", "completed", "queued"])
+        #expect(hierarchy.outer.viewControllers == [hierarchy.host])
+        #expect(hierarchy.inner.viewControllers == [target, queuedController])
+    }
+
+    @Test(arguments: [false, true], [false, true])
+    func `Rejected outer pop fails nested navigation without events and releases queued work`(pop: Bool, useFallback: Bool) async throws {
+        let target = NestedNavigationResponderViewController()
+        let outer = MutationRecordingNavigationController()
+        let hierarchy = try makeNestedNavigationHierarchy(target: target, outer: outer)
+        let window = hierarchy.window
+        defer { window.isHidden = true; window.rootViewController = nil }
+        outer.beginRecording()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let completed = expectation(description: "rejected ancestor pop")
+        let continued = expectation(description: "queue after rejected ancestor pop")
+        var order: [String] = []
+        navigator.navigate(
+            destination: .controller(target),
+            strategy: pop ? .popToExisting() : .closeToExisting,
+            animated: false,
+            fallback: useFallback
+                ? NavigationChainLink(destination: .controller(hierarchy.cover), strategy: .closeToExisting, animated: false)
+                : nil,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success == useFallback)
+            #expect(controller === (useFallback ? hierarchy.cover : nil))
+            #expect(window.topController === hierarchy.cover)
+            #expect(target.events.isEmpty)
+            order.append("completed")
+            completed.fulfill()
+        }
+        let queuedController = UIViewController()
+        navigator.navigate(destination: .controller(queuedController), strategy: .replaceWindowRoot(), animated: false) { _, success in
+            #expect(success)
+            order.append("queued")
+            continued.fulfill()
+        }
+        await fulfillment(of: [completed, continued], timeout: 10)
+
+        #expect(failures == [.mutationRejected])
+        #expect(outer.popToAttempts == 1)
+        #expect(hierarchy.inner.viewControllers.count == 2)
+        #expect(target.events.isEmpty)
+        #expect(order == ["completed", "queued"])
+        #expect(window.rootViewController === queuedController)
+    }
+
+    @Test(arguments: [false, true])
+    func `Nested navigation waits for each ancestor animation before events and queued work`(pop: Bool) async throws {
+        let target = NestedNavigationResponderViewController()
+        let hierarchy = try makeNestedNavigationHierarchy(target: target)
+        let window = hierarchy.window
+        let outerTransition = HoldingNavigationTransitionDelegate(operation: .pop)
+        let innerTransition = HoldingNavigationTransitionDelegate(operation: .pop)
+        hierarchy.outer.delegate = outerTransition
+        hierarchy.inner.delegate = innerTransition
+        defer {
+            outerTransition.finishTransition()
+            innerTransition.finishTransition()
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "animated nested navigation")
+        let continued = expectation(description: "queued work after ancestor animations")
+        navigator.navigate(
+            destination: .controller(target),
+            strategy: pop ? .popToExisting() : .closeToExisting,
+            animated: true,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === target)
+            #expect(window.topController === target)
+            #expect(target.events == [pop ? "popped" : "closed", "mock"])
+            completed.fulfill()
+        }
+        let queuedController = UIViewController()
+        navigator.navigate(destination: .controller(queuedController), strategy: .push(), animated: false) { _, success in
+            #expect(success)
+            continued.fulfill()
+        }
+        await waitUntil("outer ancestor animation", timeout: 10) { outerTransition.hasActiveTransition }
+        #expect(!innerTransition.hasActiveTransition)
+        #expect(!completed.isFulfilled && !continued.isFulfilled)
+        #expect(target.events.isEmpty)
+
+        outerTransition.finishTransition()
+        await waitUntil("inner ancestor animation", timeout: 10) { innerTransition.hasActiveTransition }
+        #expect(hierarchy.outer.topViewController === hierarchy.host)
+        #expect(!completed.isFulfilled && !continued.isFulfilled)
+        #expect(target.events.isEmpty)
+
+        innerTransition.finishTransition()
+        await fulfillment(of: [completed, continued], timeout: 10)
+        #expect(hierarchy.inner.viewControllers == [target, queuedController])
+    }
+
+    @Test(arguments: [false, true])
+    func `Nested navigation rejects an ancestor covered again during the inner pop`(pop: Bool) async throws {
+        let target = NestedNavigationResponderViewController()
+        let inner = PopCallbackNavigationController()
+        let hierarchy = try makeNestedNavigationHierarchy(target: target, inner: inner)
+        let window = hierarchy.window
+        defer { inner.onPop = nil; window.isHidden = true; window.rootViewController = nil }
+        inner.onPop = {
+            hierarchy.outer.pushViewController(hierarchy.cover, animated: false)
+        }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let completed = expectation(description: "recovered ancestor rejected")
+        let continued = expectation(description: "queue after covered ancestor")
+        navigator.navigate(
+            destination: .controller(target),
+            strategy: pop ? .popToExisting() : .closeToExisting,
+            animated: false,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(!success)
+            #expect(controller == nil)
+            #expect(window.topController === hierarchy.cover)
+            #expect(target.events.isEmpty)
+            completed.fulfill()
+        }
+        let queuedController = UIViewController()
+        navigator.navigate(destination: .controller(queuedController), strategy: .replaceWindowRoot(), animated: false) { _, success in
+            #expect(success)
+            continued.fulfill()
+        }
+        await fulfillment(of: [completed, continued], timeout: 10)
+        #expect(failures == [.mutationRejected])
+        #expect(target.events.isEmpty)
+        #expect(window.rootViewController === queuedController)
+    }
+
+    private func makeNestedNavigationHierarchy(
+        target: UIViewController,
+        outer: UINavigationController = UINavigationController(),
+        inner: UINavigationController = UINavigationController()
+    ) throws -> (window: UIWindow, outer: UINavigationController, inner: UINavigationController, host: UIViewController, cover: UIViewController) {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        inner.setViewControllers([target, UIViewController()], animated: false)
+        let host = UIViewController()
+        host.addChild(inner)
+        host.view.addSubview(inner.view)
+        inner.view.frame = host.view.bounds
+        inner.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        inner.didMove(toParent: host)
+        let cover = UIViewController()
+        outer.setViewControllers([host, cover], animated: false)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = outer
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        return (window, outer, inner, host, cover)
+    }
+
     private func makeAncestorNavigationHierarchy() -> (
         window: UIWindow,
         ancestor: UIViewController,
@@ -1851,8 +2065,14 @@ private final class SuspendedResponderViewController: UIViewController, Responde
 
 private final class HoldingNavigationTransitionDelegate: NSObject, UINavigationControllerDelegate {
     private let animator = HoldingNavigationAnimator()
+    private let operation: UINavigationController.Operation
 
     var hasActiveTransition: Bool { animator.hasActiveTransition }
+
+    init(operation: UINavigationController.Operation = .push) {
+        self.operation = operation
+        super.init()
+    }
 
     func navigationController(
         _ navigationController: UINavigationController,
@@ -1860,7 +2080,7 @@ private final class HoldingNavigationTransitionDelegate: NSObject, UINavigationC
         from fromVC: UIViewController,
         to toVC: UIViewController
     ) -> (any UIViewControllerAnimatedTransitioning)? {
-        operation == .push ? animator : nil
+        operation == self.operation ? animator : nil
     }
 
     func finishTransition() {
@@ -2185,6 +2405,35 @@ private final class RootAssignmentRejectingWindow: UIWindow {
 
             super.rootViewController = newValue
         }
+    }
+}
+
+private final class NestedNavigationResponderViewController: UIViewController, Responder {
+    var nextEventResponder: (any Responder)?
+    var onEvent: (() -> Void)?
+    private(set) var events: [String] = []
+
+    func handle(event: any ResponderEvent) async -> Bool {
+        switch event {
+        case is ResponderClosedToExistingEvent: events.append("closed")
+        case is ResponderPoppedToExistingEvent: events.append("popped")
+        case is ResponderMockEvent: events.append("mock")
+        default: return false
+        }
+        onEvent?()
+
+        return true
+    }
+}
+
+private final class PopCallbackNavigationController: UINavigationController {
+    var onPop: (() -> Void)?
+
+    override func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
+        let popped = super.popToViewController(viewController, animated: animated)
+        onPop?()
+
+        return popped
     }
 }
 
