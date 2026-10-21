@@ -243,6 +243,9 @@ final class ArrangementControllerTests {
         host.view.addSubview(arrangement.view)
         arrangement.didMove(toParent: host)
         // Control the arrangement's aspect ratio independently of the split column's width.
+        // UIKit gives container views a flexible autoresizing mask by default. Keep this
+        // fixture's size fixed when the split column is installed or revealed after a pop.
+        arrangement.view.autoresizingMask = []
         arrangement.view.frame = CGRect(
             x: 0, y: 0,
             width: targetHidden ? 300 : 600,

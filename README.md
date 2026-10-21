@@ -18,6 +18,7 @@
 
 
 To run the example project, clone the repo and open `Example/VANavigator.xcodeproj`. Xcode resolves its Swift package dependencies automatically.
+The example and its test host require iOS 17 or later; the library supports iOS 15 or later.
 
 The example is organized as a set of reproducible navigation flows:
 
@@ -51,6 +52,7 @@ Swift **6.2** or later.
 Navigation identities, responder events, and navigation APIs are isolated to the main actor. Construct identities and events on the main actor before starting navigation.
 
 `Responder.handle(event:)` is awaited before navigation completes and before queued work continues. Implementations must return after handling the event; start independent long-running work in a separate task instead of suspending the handler indefinitely.
+Returning through nested navigation stacks completes pending window layout before delivering responder events.
 
 Programmatic tab selection waits for UIKit's selection transition before its completion and queued navigation run.
 This also applies to tabs revealed by `.closeToExisting` and `.popToExisting()`, including nested tab containers.
@@ -75,9 +77,10 @@ reveal the target's containing tabs, split columns, and enclosing navigation sta
 
 ## iOS 27.1 and iPhone Duo
 
-Build with the iOS 27.1 SDK or newer to enable `UIArrangementViewController` integration. The package still supports
-iOS 15 and Swift 6.2; arrangement code is guarded at compile time and runtime. It is excluded from Mac Catalyst,
-where the initial 27.1 arrangement API is unavailable.
+Build with Xcode 27.1 (Swift 6.4) and the iOS 27.1 SDK or newer to enable `UIArrangementViewController` integration.
+The package still supports iOS 15 and Swift 6.2 with older SDKs; arrangement code is guarded at compile time and runtime.
+It is excluded from Mac Catalyst to work around the iOS 27.1 API compilation issue documented in Apple's
+[Xcode 27.1 release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_1-release-notes).
 
 Arrangement views control layout. Keep the `UINavigationController` outside the arrangement when navigation should
 replace the whole layout:
@@ -106,6 +109,13 @@ continue without delivering a successful navigation event. Configure the arrange
 the navigator does not change the app's preferred arrangement or axes. `.split` strategies continue to apply only to
 `UISplitViewController`.
 
+Prefer navigation around the arrangement for new layouts. Apple's
+[arrangement API guidance](https://developer.apple.com/documentation/uikit/uiarrangementviewcontroller) advises against
+nesting arrangements in split views, scroll views, or collection views, and against placing split or tab containers
+inside arrangements. The window-root example demonstrates independent panel navigation; choose that composition
+only when panel-local stacks are part of your app's design. Lookup support for a nested hierarchy does not guarantee
+that every container composition will lay out well in every Duo pose.
+
 Create one navigator for each scene's window, as the example's `SceneDelegate` does. Apps built with the latest SDK
 on iOS 27 must use the [scene-based lifecycle](https://developer.apple.com/documentation/uikit/transitioning-to-the-uikit-scene-based-life-cycle).
 Use the current view's bounds, safe areas, and traits for layout decisions. Do not infer available space from the
@@ -116,6 +126,11 @@ vertical bars. Its prominent Done/Main action uses `UINavigationItem.pinnedTrail
 menu when space is limited. Custom containers and custom controls remain responsible for reserved regions, camera occlusions,
 keyboard avoidance, and accessibility. See Apple's [Duo preparation guide](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo)
 and [Duo design guidance](https://developer.apple.com/design/human-interface-guidelines/designing-for-iphone-duo).
+
+For a custom layout, inspect `UIView.reservedRegions(kind:options:)` and each region's active state as the fold or
+camera changes. Safe-area insets alone do not describe every division or occlusion. Use
+`traitCollection.verticalBarEdge` when custom content needs to adapt to a vertical bar, and let
+`UISheetPresentationController.preferredPlacement` express a sheet's preferred placement instead of fixed coordinates.
 
 The example's scroll views follow `keyboardLayoutGuide`. During editing, its split arrangement gives the focused
 panel a larger preferred share, then restores equal sizing when editing ends. Draft fields support Dynamic Type.

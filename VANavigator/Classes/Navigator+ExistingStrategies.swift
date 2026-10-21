@@ -96,13 +96,12 @@ extension Navigator {
     }
 
     private func existingControllerNavigationFailure(to controller: UIViewController) -> NavigationFailure.Reason? {
-        // A navigation pop can bring an offscreen arrangement back into the window.
-        // All existing-controller strategies must validate its layout after that transition.
+        // Nonanimated pops can defer installing nested navigation content until layout,
+        // including on older UIKit versions. Finish that layout before responder events,
+        // and before validating an arrangement brought back into the window by the pop.
+        window?.layoutIfNeeded()
         guard let path = window?.rootViewController?.navigatorHierarchyPath(to: controller) else {
             return .destinationNotFound
-        }
-        if path.contains(where: { $0.navigatorArrangementChildren != nil }) {
-            window?.layoutIfNeeded()
         }
         guard path.allSatisfy({ $0.navigatorArrangementAllowsNavigation(to: controller) }) else {
             return .mutationRejected
