@@ -33,6 +33,7 @@ The example is organized as a set of reproducible navigation flows:
 | Remove a controller from a navigation stack | Main → **Open details** → push another number → **Remove -1 from navigation stack** |
 | Split push, pop, and replace | Main → **Open split** → use the buttons in **Primary**; the push/pop chain is easiest to observe on iPad |
 | Adaptive arrangement layout (iOS 27.1+) | Main → **Open adaptive arrangement** → switch split/overlay or limit the axis; type in both panels, resize, push a detail, and return |
+| Arrangement as the window root (iOS 27.1+) | Main → **Replace root with adaptive arrangement** → push a detail inside the frontmost panel, return, or choose **Main** to replace the root again |
 | Navigation queue serialization | Main → **Present queue example** |
 | Interception and continuation after authorization | Main → **Open authorization-protected content** → **Login** |
 | Nested fallback chain and responder event | Use the app's **Details** Home Screen quick action |

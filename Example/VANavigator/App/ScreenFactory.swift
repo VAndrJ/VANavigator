@@ -258,6 +258,17 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         )
                                     }
                                     #endif
+                                },
+                                followReplaceRootWithArrangement: { [weak navigator] in
+                                    #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+                                    if #available(iOS 27.1, *), let navigator {
+                                        let arrangement = ArrangementExampleViewController(navigator: navigator, isWindowRoot: true)
+                                        navigator.navigate(
+                                            destination: .controller(arrangement),
+                                            strategy: .replaceWindowRoot()
+                                        )
+                                    }
+                                    #endif
                                 }
                             )
                         )

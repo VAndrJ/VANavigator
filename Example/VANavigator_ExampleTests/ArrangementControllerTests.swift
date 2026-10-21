@@ -146,6 +146,84 @@ final class ArrangementControllerTests {
     }
 
     @available(iOS 27.1, *)
+    @Test(arguments: [false, true])
+    func `Root replacement installs arrangement with navigation inside its panels`(overlay: Bool) async throws {
+        let primary = MockRootViewController()
+        let secondary = UIViewController()
+        let primaryNavigation = UINavigationController(rootViewController: primary)
+        let secondaryNavigation = UINavigationController(rootViewController: secondary)
+        let arrangement = UIArrangementViewController()
+        arrangement.setViewController(primaryNavigation, for: .primary)
+        arrangement.setViewController(secondaryNavigation, for: .secondary)
+        if overlay {
+            arrangement.updateArrangement(.overlay)
+        } else {
+            arrangement.updateArrangement(.split)
+        }
+        let window = try makeWindow(root: UIViewController())
+        defer { window.isHidden = true; window.rootViewController = nil }
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let installed = expectation(description: "arrangement replaces window root")
+        let pushed = expectation(description: "detail stays inside primary panel")
+        let returned = expectation(description: "return to primary panel")
+        let exited = expectation(description: "replace arrangement root again")
+        let detail = UIViewController()
+        let main = UIViewController()
+        var completionOrder: [String] = []
+
+        navigator.navigate(destination: .controller(arrangement), strategy: .replaceWindowRoot()) { controller, success in
+            #expect(success)
+            #expect(controller === arrangement)
+            #expect(window.rootViewController === arrangement)
+            completionOrder.append("root")
+            installed.fulfill()
+        }
+        await fulfillment(of: [installed], timeout: 3)
+        window.layoutIfNeeded()
+        arrangement.view.layoutIfNeeded()
+        await waitUntil("root arrangement panel installed", timeout: 3) {
+            primary.viewIfLoaded?.window === window && primaryNavigation.transitionCoordinator == nil
+        }
+        try #require(window.topController === primary)
+
+        navigator.navigate(destination: .controller(detail), strategy: .push(), animated: false) { controller, success in
+            #expect(success)
+            #expect(controller === detail)
+            #expect(window.rootViewController === arrangement)
+            #expect(primaryNavigation.topViewController === detail)
+            #expect(secondaryNavigation.viewControllers.count == 1)
+            completionOrder.append("push")
+            pushed.fulfill()
+        }
+        navigator.navigate(
+            destination: .controller(primary),
+            strategy: .closeToExisting,
+            animated: false,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === primary)
+            #expect(primaryNavigation.topViewController === primary)
+            #expect(window.topController === primary)
+            #expect(primary.isMockEventHandled)
+            completionOrder.append("return")
+            returned.fulfill()
+        }
+        navigator.navigate(destination: .controller(main), strategy: .replaceWindowRoot()) { controller, success in
+            #expect(success)
+            #expect(controller === main)
+            #expect(window.rootViewController === main)
+            completionOrder.append("exit")
+            exited.fulfill()
+        }
+        await fulfillment(of: [installed, pushed, returned, exited], timeout: 5)
+        #expect(completionOrder == ["root", "push", "return", "exit"])
+        #expect(failures.isEmpty)
+    }
+
+    @available(iOS 27.1, *)
     @Test(arguments: [false, true], [false, true])
     func `Split pop validates arrangement visibility before events and continues queued work`(
         targetHidden: Bool,
