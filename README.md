@@ -156,6 +156,13 @@ typed text survives transitions, controls remain reachable with the keyboard and
 their anchors, and interactive back/dismiss cancellation leaves navigation usable. Automated size/trait tests do not
 replace device pose testing.
 
+Use Device Hub to select each pose and the display hosting the app. Duo has multiple simulator displays; screenshot
+and input tools must target the active display. A black capture of an inactive display does not establish an app failure.
+
+The shared test plan collects coverage for all built targets. Inspect the `VANavigator` target when assessing library
+coverage; the aggregate also includes the example, test host, and tests. See the [2026-10-21 audit](AUDIT.md) for verified
+results and remaining verification limits.
+
 
 ## Installation
 

@@ -3,8 +3,8 @@ import UIKit
 extension UIViewController {
     /// `nil` means this is not an arrangement container. An empty visible list is meaningful.
     var navigatorArrangementChildren: (visible: [UIViewController], all: [UIViewController])? {
-        // The submodule check preserves support for SDKs predating iOS 27.1. The initial
-        // arrangement API is unavailable in Mac Catalyst even when its header is present.
+        // The submodule check preserves support for SDKs predating iOS 27.1. Exclude
+        // Mac Catalyst for the iOS 27.1 API compilation issue in Xcode 27.1 (185924957).
         #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
         if #available(iOS 27.1, *), let arrangement = self as? UIArrangementViewController {
             let placements: [UIArrangementViewController.ViewPlacement] = [.primary, .secondary]

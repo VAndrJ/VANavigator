@@ -9,15 +9,7 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : {
-      "targets" : [
-        {
-          "containerPath" : "container:..",
-          "identifier" : "VANavigator",
-          "name" : "VANavigator"
-        }
-      ]
-    },
+    "codeCoverage" : true,
     "performanceAntipatternCheckerEnabled" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:VANavigator.xcodeproj",
