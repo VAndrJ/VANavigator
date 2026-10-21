@@ -10,7 +10,7 @@ import Swiftional
 import UIKit
 
 final class ScreenFactory: NavigatorScreenFactory {
-    let authorizationService: AuthorizationService
+    private let authorizationService: AuthorizationService
 
     init(authorizationService: AuthorizationService) {
         self.authorizationService = authorizationService
@@ -160,7 +160,6 @@ final class ScreenFactory: NavigatorScreenFactory {
                 return NavigationController(controller: controller)
             }
             let controller = TabBarController(controllers: tabControllers)
-            controller.tabBar.backgroundColor = .yellow
 
             return controller
         case _ as MainNavigationIdentity:

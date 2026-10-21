@@ -24,26 +24,33 @@ final class ArrangementExampleViewController: UIArrangementViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Done", image: UIImage(systemName: "checkmark"),
+            title: "Done",
+            image: UIImage(systemName: "checkmark"),
             primaryAction: UIAction { [weak self] _ in
                 guard let self, let navigationController else { return }
                 navigator?.navigate(destination: .controller(navigationController), strategy: .closeIfTop())
             }
         )
         toolbarItems = [
-            UIBarButtonItem(title: "Split / overlay", image: UIImage(systemName: "rectangle.on.rectangle"),
+            UIBarButtonItem(
+                title: "Split / overlay",
+                image: UIImage(systemName: "rectangle.on.rectangle"),
                 primaryAction: UIAction { [weak self] _ in
                     guard let self else { return }
                     overlay.toggle()
                     applyArrangement()
-                }),
+                }
+            ),
             .flexibleSpace(),
-            UIBarButtonItem(title: "Limit axis", image: UIImage(systemName: "arrow.left.and.right"),
+            UIBarButtonItem(
+                title: "Limit axis",
+                image: UIImage(systemName: "arrow.left.and.right"),
                 primaryAction: UIAction { [weak self] _ in
                     guard let self else { return }
                     horizontalOnly.toggle()
                     applyArrangement()
-                }),
+                }
+            ),
         ]
         navigationController?.setToolbarHidden(false, animated: false)
     }
