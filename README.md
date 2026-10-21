@@ -52,6 +52,9 @@ Navigation identities, responder events, and navigation APIs are isolated to the
 
 `Responder.handle(event:)` is awaited before navigation completes and before queued work continues. Implementations must return after handling the event; start independent long-running work in a separate task instead of suspending the handler indefinitely.
 
+Programmatic tab selection waits for UIKit's selection transition before its completion and queued navigation run.
+This also applies to tabs revealed by `.closeToExisting` and `.popToExisting()`, including nested tab containers.
+
 Navigation stack mutations fail safely (and use their configured fallback) while UIKit is already performing a transition, or when the destination controller belongs to another view-controller/window hierarchy. Setting the first root controller also calls `makeKeyAndVisible()` on the navigator's window.
 
 Modal and popover presentations require a source view attached to the navigator's visible window. An unavailable
@@ -109,9 +112,14 @@ Use the current view's bounds, safe areas, and traits for layout decisions. Do n
 device model, screen size, interface idiom, or orientation.
 
 The example uses standard navigation and toolbar items with both titles and symbols so UIKit can adapt them to
-vertical bars. Custom containers and custom controls remain responsible for reserved regions, camera occlusions,
+vertical bars. Its prominent Done/Main action uses `UINavigationItem.pinnedTrailingGroup` to stay out of the overflow
+menu when space is limited. Custom containers and custom controls remain responsible for reserved regions, camera occlusions,
 keyboard avoidance, and accessibility. See Apple's [Duo preparation guide](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo)
 and [Duo design guidance](https://developer.apple.com/design/human-interface-guidelines/designing-for-iphone-duo).
+
+The example's scroll views follow `keyboardLayoutGuide`. During editing, its split arrangement gives the focused
+panel a larger preferred share, then restores equal sizing when editing ends. Draft fields support Dynamic Type.
+These are example layout choices; the navigator continues to leave arrangement policy to the app.
 
 ### Verification
 
@@ -125,7 +133,8 @@ xcodebuild -project Example/VANavigator.xcodeproj -scheme VANavigator-Example \
 
 The regression suite covers classic and collapsed split lookup, invalid stack destinations, arrangement stacking,
 repeated layout resizing, retained hidden content, fallback/queue behavior, and navigation outside the arrangement.
-Existing hosted CI retains the older SDK/runtime lanes; a Duo lane requires a runner with Xcode 27.1+ and that runtime.
+Hosted CI retains the older SDK/runtime lanes and adds a Duo lane on the `xcode-27` runner with Xcode 27.1.
+That lane installs the iOS 27.1 runtime if needed and creates a dedicated `VANavigator Duo` simulator before testing.
 
 Also check the adaptive example on outer, fully open, and partially folded displays in both orientations. Verify that
 typed text survives transitions, controls remain reachable with the keyboard and larger text, sheets/popovers keep

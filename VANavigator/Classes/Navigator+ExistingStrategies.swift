@@ -173,7 +173,11 @@ extension Navigator {
                     $0.findController(controller: controller, withPresented: true) != nil
                 })
             {
-                tabs.selectedViewController = selected
+                tabs.selectNavigatorController(selected, animated: animated) {
+                    reveal(at: index + 1)
+                }
+
+                return
             }
             guard let split = container as? UISplitViewController,
                 let column = split.navigatorColumn(containing: controller)

@@ -8,6 +8,7 @@ final class ArrangementExampleViewController: UIArrangementViewController {
     private let isWindowRoot: Bool
     private var overlay = false
     private var horizontalOnly = false
+    private var editingPlacement: ViewPlacement?
 
     init(navigator: Navigator, isWindowRoot: Bool = false) {
         self.navigator = navigator
@@ -33,7 +34,7 @@ final class ArrangementExampleViewController: UIArrangementViewController {
 
     private func configureNavigation(in controller: UIViewController) {
         controller.title = title
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let exit = UIBarButtonItem(
             title: isWindowRoot ? "Main" : "Done",
             image: UIImage(systemName: isWindowRoot ? "house" : "checkmark"),
             primaryAction: UIAction { [weak self] _ in
@@ -44,6 +45,10 @@ final class ArrangementExampleViewController: UIArrangementViewController {
                     navigator?.navigate(destination: .controller(navigationController), strategy: .closeIfTop())
                 }
             }
+        )
+        controller.navigationItem.pinnedTrailingGroup = UIBarButtonItemGroup(
+            barButtonItems: [exit],
+            representativeItem: nil
         )
         controller.toolbarItems = [
             UIBarButtonItem(
@@ -68,12 +73,23 @@ final class ArrangementExampleViewController: UIArrangementViewController {
         ]
     }
 
-    private func applyArrangement() {
+    private func applyArrangement(animated: Bool = true) {
         let axes: UIAxis = horizontalOnly ? .horizontal : [.horizontal, .vertical]
         if overlay {
-            updateArrangement(.overlay.axes(axes), animated: true)
+            updateArrangement(.overlay.axes(axes), animated: animated)
         } else {
-            updateArrangement(.split.axes(axes), animated: true)
+            var split = UISplitArrangement().axes(axes)
+            if let editingPlacement {
+                // Give the editing panel enough space above a docked keyboard.
+                for placement: ViewPlacement in [.primary, .secondary] {
+                    var properties = split.defaultViewProperties
+                    let fraction: CGFloat = placement == editingPlacement ? 0.8 : 0.2
+                    properties.width.preferred = .fractional(fraction)
+                    properties.height.preferred = .fractional(fraction)
+                    split.setViewProperties(properties, for: placement)
+                }
+            }
+            updateArrangement(split, animated: animated)
         }
         title = "\(overlay ? "Overlay" : "Split") · \(horizontalOnly ? "Horizontal" : "Both axes")"
         if isWindowRoot {
@@ -99,7 +115,17 @@ final class ArrangementExampleViewController: UIArrangementViewController {
         let textField = UITextField()
         textField.placeholder = "Try typing, then resize"
         textField.borderStyle = .roundedRect
+        textField.font = .preferredFont(forTextStyle: .body)
+        textField.adjustsFontForContentSizeCategory = true
         textField.accessibilityLabel = primary ? "Primary draft" : "Secondary draft"
+        textField.addAction(UIAction { [weak self] _ in
+            self?.editingPlacement = primary ? .primary : .secondary
+            self?.applyArrangement(animated: false)
+        }, for: .editingDidBegin)
+        textField.addAction(UIAction { [weak self] _ in
+            self?.editingPlacement = nil
+            self?.applyArrangement(animated: false)
+        }, for: .editingDidEnd)
         let push = Button(title: isWindowRoot ? "Push detail in frontmost panel" : "Push detail") { [weak self] _ in
             guard let self, let navigator, let origin = navigator.window?.topController else { return }
             let detail = UIViewController()

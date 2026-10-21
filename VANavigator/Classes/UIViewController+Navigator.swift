@@ -87,7 +87,8 @@ extension UIViewController {
     /// - Parameters:
     ///   - identity: The navigation identity to match.
     ///   - withPresented: If `true`, the search includes presented view controllers.
-    /// - Returns: The visible match nearest the top of the hierarchy, or `nil` if no match is found.
+    /// - Returns: The match nearest the top of the hierarchy, preferring visible container content before
+    ///   searching retained hidden content, or `nil` if no match is found.
     public func findController(
         identity: any NavigationIdentity,
         withPresented: Bool
@@ -206,6 +207,57 @@ extension UIViewController {
             }
 
             return [visibleController] + controllers.filter { $0 !== visibleController }
+        }
+    }
+}
+
+extension UITabBarController {
+    /// Selection can animate even when assigned programmatically. Keep queued navigation behind that transition.
+    func selectNavigatorController(
+        _ controller: UIViewController,
+        animated: Bool = true,
+        completion: @escaping @MainActor () -> Void
+    ) {
+        if selectedViewController === controller, transitionCoordinator == nil {
+            completion()
+
+            return
+        }
+
+        guard let window = viewIfLoaded?.window, !window.isHidden else {
+            UIView.performWithoutAnimation { selectedViewController = controller }
+            completion()
+
+            return
+        }
+        if animated, window.canAnimateNavigatorViewControllerTransition {
+            selectedViewController = controller
+        } else {
+            UIView.performWithoutAnimation {
+                selectedViewController = controller
+            }
+        }
+
+        // Allow UIKit to install the selected hierarchy and its transition coordinator first.
+        DispatchQueue.main.async { [self] in
+            guard let transitionCoordinator else {
+                completion()
+
+                return
+            }
+            var didComplete = false
+            func completeOnce() {
+                guard !didComplete else { return }
+
+                didComplete = true
+                DispatchQueue.main.async { completion() }
+            }
+            let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
+                completeOnce()
+            }
+            if !registeredCompletion {
+                completeOnce()
+            }
         }
     }
 }

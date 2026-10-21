@@ -331,6 +331,7 @@ final class SetRootControllerTests {
         navigator.selectTabIfNeeded(controller: secondTab) {
             #expect(tabs.selectedIndex == 1)
             #expect(window.topController === secondTab)
+            #expect(tabs.transitionCoordinator == nil)
             completionOrder.append("tab")
         }
         navigator.navigate(

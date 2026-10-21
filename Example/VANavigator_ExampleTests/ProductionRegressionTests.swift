@@ -974,6 +974,68 @@ final class ProductionRegressionTests {
         #expect(outerTabController.selectedViewController === innerContainer)
     }
 
+    @Test(arguments: [false, true], [false, true])
+    func `Revealing another tab completes before queued presentation`(pop: Bool, animated: Bool) async throws {
+        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let target = MockRootViewController()
+        let tabs = UITabBarController()
+        tabs.viewControllers = [
+            UINavigationController(rootViewController: UIViewController()),
+            UINavigationController(rootViewController: target),
+        ]
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = tabs
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil }
+        window.layoutIfNeeded()
+        await waitUntil("initial tab installed", timeout: 3) {
+            tabs.selectedViewController?.viewIfLoaded?.window === window && tabs.transitionCoordinator == nil
+        }
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        let revealed = expectation(description: "tab revealed")
+        let presented = expectation(description: "presentation after revealing tab")
+        let closed = expectation(description: "close queued presentation")
+        var completionOrder: [String] = []
+        let modal = UIViewController()
+
+        navigator.navigate(
+            destination: .controller(target),
+            strategy: pop ? .popToExisting() : .closeToExisting,
+            animated: animated,
+            event: ResponderMockEvent()
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === target)
+            #expect(target.isMockEventHandled)
+            #expect(tabs.transitionCoordinator == nil)
+            completionOrder.append("reveal")
+            revealed.fulfill()
+        }
+        navigator.navigate(
+            destination: .controller(modal),
+            strategy: .present(source: .tabBarController),
+            animated: false
+        ) { controller, success in
+            #expect(success)
+            #expect(controller === modal)
+            completionOrder.append("present")
+            presented.fulfill()
+        }
+        navigator.navigate(destination: .controller(modal), strategy: .closeIfTop(), animated: false) { _, success in
+            #expect(success)
+            completionOrder.append("close")
+            closed.fulfill()
+        }
+
+        await fulfillment(of: [revealed, presented, closed], timeout: 5)
+        #expect(completionOrder == ["reveal", "present", "close"])
+        #expect(window.topController === target)
+        #expect(failures.isEmpty)
+    }
+
     @Test
     func `Closing to another tab dismisses the visible contextual presentation`() async {
         let strategies: [NavigationStrategy] = [

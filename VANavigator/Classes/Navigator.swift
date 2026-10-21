@@ -780,32 +780,38 @@ public final class Navigator {
     ///
     /// - Parameters:
     ///   - controller: The view controller from which to start searching for the tab bar controller.
-    ///   - completion: A closure to be executed after the tab is selected.
+    ///   - completion: A closure executed after the containing tabs are selected and their UIKit transitions finish.
     public func selectTabIfNeeded(
         controller: UIViewController?,
         completion: (() -> Void)? = nil
     ) {
         enqueueOrStartNavigationOperation { [self] finish in
-            selectTabIfNeededNow(controller: controller)
-            completion?()
-            finish()
+            selectTabIfNeededNow(controller: controller) {
+                completion?()
+                finish()
+            }
         }
     }
 
-    func selectTabIfNeededNow(controller: UIViewController?) {
-        guard let controller else { return }
+    func selectTabIfNeededNow(controller: UIViewController?, completion: @escaping () -> Void) {
+        guard let controller else {
+            completion()
+
+            return
+        }
 
         var selectionTarget = controller
         var tabBarController = controller.findTabBarController()
         var selectedTabControllers = Set<ObjectIdentifier>()
+        var selections: [(UITabBarController, UIViewController)] = []
         while let currentTabBarController = tabBarController,
             selectedTabControllers.insert(ObjectIdentifier(currentTabBarController)).inserted
         {
-            if let index = currentTabBarController.viewControllers?.firstIndex(where: {
+            if let target = currentTabBarController.viewControllers?.first(where: {
                 $0 === selectionTarget
                     || $0.findController(controller: selectionTarget, withPresented: false) != nil
-            }), currentTabBarController.selectedIndex != index {
-                currentTabBarController.selectedIndex = index
+            }) {
+                selections.append((currentTabBarController, target))
             }
 
             selectionTarget = currentTabBarController
@@ -815,6 +821,21 @@ public final class Navigator {
             }
             tabBarController = ancestor as? UITabBarController
         }
+
+        func select(at index: Int) {
+            guard index >= 0 else {
+                completion()
+
+                return
+            }
+            let (tabs, target) = selections[index]
+            tabs.selectNavigatorController(target) {
+                select(at: index - 1)
+            }
+        }
+
+        // Reveal outer tabs before starting transitions in their nested containers.
+        select(at: selections.count - 1)
     }
 
     public func makeFallbackChain(
