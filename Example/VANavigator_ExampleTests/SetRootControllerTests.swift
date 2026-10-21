@@ -230,6 +230,142 @@ final class SetRootControllerTests {
         #expect(didComplete)
     }
 
+    @Test(arguments: [false, true], [false, true])
+    func `Root content animations do not block completion or queued navigation`(hasExistingRoot: Bool, animated: Bool) async {
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = ContentLoadingWindow(windowScene: scene)
+        if hasExistingRoot {
+            window.rootViewController = UIViewController()
+            window.makeKeyAndVisible()
+        }
+        let content = RepeatingAnimationViewController()
+        let navigationController = UINavigationController(rootViewController: content)
+        let tabs = UITabBarController()
+        tabs.viewControllers = [navigationController, UIViewController()]
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let detail = UIViewController()
+        let rootCompleted = expectation(description: "root completion")
+        let completed = expectation(description: "root and queued push")
+        var completionOrder: [String] = []
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        defer {
+            content.view.layer.removeAllAnimations()
+            window.isHidden = true
+        }
+
+        navigator.navigate(
+            destination: .controller(tabs),
+            strategy: .replaceWindowRoot(),
+            animated: animated,
+            completion: { controller, success in
+                #expect(controller === tabs)
+                #expect(success)
+                #expect(content.view.layer.animation(forKey: "contentAnimation") != nil)
+                completionOrder.append("root")
+                rootCompleted.fulfill()
+            }
+        )
+        #expect(completionOrder.isEmpty)
+        navigator.navigate(
+            destination: .controller(detail),
+            strategy: .push(),
+            animated: false,
+            completion: { controller, success in
+                #expect(controller === detail)
+                #expect(success)
+                completionOrder.append("push")
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [rootCompleted, completed], timeout: 2)
+
+        #expect(content.startedAnimation)
+        #expect(completionOrder == ["root", "push"])
+        #expect(navigationController.topViewController === detail)
+        #expect(failures.isEmpty)
+    }
+
+    @Test(arguments: [PresentNavigationSource.topController, .navigationController, .tabBarController])
+    func `Root fallback without a public completion releases tab selection and presentations`(source: PresentNavigationSource) async {
+        guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let window = ContentLoadingWindow(windowScene: scene)
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        let content = RepeatingAnimationViewController()
+        let secondTab = UIViewController()
+        let tabs = UITabBarController()
+        tabs.viewControllers = [
+            UINavigationController(rootViewController: content),
+            UINavigationController(rootViewController: secondTab),
+        ]
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let modal = UIViewController()
+        let presented = expectation(description: "presentation after root fallback")
+        let closed = expectation(description: "dismissal after root fallback")
+        var completionOrder: [String] = []
+        var failures: [NavigationFailure.Reason] = []
+        navigator.navigationFailureHandler = { failures.append($0.reason) }
+        defer {
+            content.view.layer.removeAllAnimations()
+            window.isHidden = true
+        }
+
+        // Match Open tabs: look up an existing tab root, then replace it without a public completion.
+        navigator.navigate(
+            destination: .controller(tabs),
+            strategy: .closeToExisting,
+            fallbackStrategies: [.replaceWindowRoot()]
+        )
+        navigator.selectTabIfNeeded(controller: secondTab) {
+            #expect(tabs.selectedIndex == 1)
+            #expect(window.topController === secondTab)
+            completionOrder.append("tab")
+        }
+        navigator.navigate(
+            destination: .controller(modal),
+            strategy: .present(source: source),
+            animated: false,
+            completion: { controller, success in
+                #expect(controller === modal)
+                #expect(success)
+                #expect(modal.presentingViewController != nil)
+                completionOrder.append("present")
+                presented.fulfill()
+            }
+        )
+        navigator.navigate(
+            destination: .controller(modal),
+            strategy: .closeIfTop(),
+            animated: false,
+            completion: { _, success in
+                #expect(success)
+                #expect(modal.presentingViewController == nil)
+                completionOrder.append("close")
+                closed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [presented, closed], timeout: 2)
+
+        #expect(content.startedAnimation)
+        #expect(window.rootViewController === tabs)
+        #expect(window.topController === secondTab)
+        #expect(completionOrder == ["tab", "present", "close"])
+        #expect(failures == [.destinationNotFound])
+    }
+
     @Test
     func `Window rejects a repeating root transition without mutating its root`() {
         guard let window else {
@@ -536,6 +672,33 @@ private final class DelayedResponderViewController: UIViewController, Responder 
         default:
             return false
         }
+    }
+}
+
+private final class ContentLoadingWindow: UIWindow {
+    override var rootViewController: UIViewController? {
+        didSet {
+            // Exercise animations created during root installation, without depending on
+            // when UIKit happens to load the selected tab during the test run.
+            rootViewController?.view.layoutIfNeeded()
+            rootViewController?.topController.loadViewIfNeeded()
+        }
+    }
+}
+
+private final class RepeatingAnimationViewController: UIViewController {
+    private(set) var startedAnimation = false
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.fromValue = 1
+        animation.toValue = 0.5
+        animation.duration = 0.1
+        animation.repeatCount = .infinity
+        view.layer.add(animation, forKey: "contentAnimation")
+        startedAnimation = true
     }
 }
 

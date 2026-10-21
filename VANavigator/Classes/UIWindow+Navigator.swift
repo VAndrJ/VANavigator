@@ -195,20 +195,14 @@ extension UIWindow {
         _ mutation: () -> Void,
         completion: (() -> Void)?
     ) {
-        guard let completion else {
-            mutation()
-
-            return
-        }
-
-        CATransaction.begin()
-        CATransaction.setCompletionBlock {
-            DispatchQueue.main.async {
-                completion()
-            }
-        }
         mutation()
-        CATransaction.commit()
+        guard let completion else { return }
+
+        // There is no root transition to await here. A transaction completion would also
+        // wait for animations started by the new content, including repeating UIKit animations.
+        DispatchQueue.main.async {
+            completion()
+        }
     }
 
     func canRunNavigatorRootTransition(_ transition: CATransition) -> Bool {
