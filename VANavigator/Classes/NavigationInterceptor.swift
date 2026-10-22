@@ -48,7 +48,9 @@ open class NavigationInterceptor {
         return nil
     }
 
-    /// Resolves an interception by executing the stored closure.
+    /// Resumes all pending navigations for the reason, preserving their individual completion results.
+    /// The resolution completion waits for every resumed navigation and succeeds only if all succeed.
+    /// Its controller is the result of the last navigation in submission order, even if another navigation fails.
     public func interceptionResolved(
         reason: AnyHashable,
         newStrategy: NavigationStrategy? = nil,
@@ -240,6 +242,6 @@ private final class InterceptionResolutionCompletion {
         let result = results.last ?? nil
         let completion = self.completion
         self.completion = nil
-        completion?(result?.0, result?.1 ?? false)
+        completion?(result?.0, results.allSatisfy { $0?.1 == true })
     }
 }

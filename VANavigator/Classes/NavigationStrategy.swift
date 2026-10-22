@@ -54,7 +54,7 @@ extension NavigationStrategy {
     /// Closes presented controllers to given controller if it exists.
     public static var closeToExisting: NavigationStrategy { CloseToExistingNavigationStrategy() }
     /// Removes an existing controller from the `UINavigationController` stack, or uses fallback if no navigation
-    /// controller is found. Does nothing if the target is the last controller.
+    /// controller is found. Pops a matching top controller, but never removes the only controller in the stack.
     public static var removeFromNavigationStack: NavigationStrategy { RemoveFromStackNavigationStrategy() }
 
     /// Pushes a controller onto the navigation stack, or uses fallback if no `UINavigationController` is found.
@@ -76,7 +76,8 @@ extension NavigationStrategy {
         return PopoverNavigationStrategy(configure: configure)
     }
 
-    /// Close the controller if it is top one
+    /// Closes the controller if it is the top one. When the visible controller is a child of a custom container
+    /// at the top of a navigation stack, popping removes that stack entry together with its children.
     public static func closeIfTop(
         tryToPop: Bool = true,
         tryToDismiss: Bool = true,

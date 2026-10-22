@@ -395,19 +395,44 @@ public final class Navigator {
         navigation: ((UINavigationController) -> Void)?,
         completion: ((Result<Void, NavigationFailure.Reason>) -> Void)?
     ) {
+        guard window != nil else {
+            completion?(.failure(.windowUnavailable))
+
+            return
+        }
+        guard controller.canBecomeNavigatorPushDestination else {
+            let hasActiveTransition =
+                controller.isBeingPresented
+                || controller.isBeingDismissed
+                || controller.transitionCoordinator != nil
+            completion?(
+                .failure(
+                    hasActiveTransition
+                        ? .transitionInProgress
+                        : .invalidDestinationHierarchy
+                )
+            )
+
+            return
+        }
+
         dismissPresentedNow(
             in: sourceController,
             animated: animated,
             completion: { [self] dismissalResult in
-                guard case .success = dismissalResult else {
-                    completion?(
-                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
-                    )
+                if case .failure = dismissalResult {
+                    completion?(dismissalResult)
 
                     return
                 }
 
-                if let navigationController = window?.topController?.orNavigationController {
+                guard let window else {
+                    completion?(.failure(.windowUnavailable))
+
+                    return
+                }
+
+                if let navigationController = window.topController?.orNavigationController {
                     push(
                         controller: controller,
                         to: navigationController,
@@ -477,10 +502,13 @@ public final class Navigator {
         }
 
         if window.rootViewController == nil {
-            window.rootViewController = controller
-            window.makeKeyAndVisible()
-
-            completion?()
+            window.performNavigatorRootMutation(
+                {
+                    window.rootViewController = controller
+                    window.makeKeyAndVisible()
+                },
+                completion: completion
+            )
         } else {
             window.set(
                 rootViewController: controller,
@@ -530,10 +558,8 @@ public final class Navigator {
             in: controller,
             animated: animated,
             completion: { dismissalResult in
-                guard case .success = dismissalResult else {
-                    completion(
-                        .failure(dismissalResult.failureReason ?? .dismissalRejected)
-                    )
+                if case .failure = dismissalResult {
+                    completion(dismissalResult)
 
                     return
                 }
@@ -614,8 +640,8 @@ public final class Navigator {
 
             return
         }
-        guard !containsActiveTransition(in: controller),
-            !containsActiveTransition(in: presentingController)
+        guard !controller.containsActiveNavigatorTransition,
+            !presentingController.containsActiveNavigatorTransition
         else {
             completion(.failure(.transitionInProgress))
 
@@ -623,6 +649,15 @@ public final class Navigator {
         }
 
         let previouslyPresentedController = controller.presentedViewController
+        let transitionWindow =
+            controller.viewIfLoaded?.window
+            ?? presentingController.viewIfLoaded?.window
+            ?? window
+        guard transitionWindow?.hasAdvancingNavigatorLayerClock == true else {
+            completion(.failure(.invalidTransitionConfiguration))
+
+            return
+        }
         controller.dismiss(
             animated: animated,
             completion: {
@@ -673,23 +708,6 @@ public final class Navigator {
         )
     }
 
-    private func containsActiveTransition(in controller: UIViewController) -> Bool {
-        if controller.isBeingPresented
-            || controller.isBeingDismissed
-            || controller.transitionCoordinator != nil
-        {
-            return true
-        }
-        if controller.children.contains(where: containsActiveTransition(in:)) {
-            return true
-        }
-        if let presentedViewController = controller.presentedViewController {
-            return containsActiveTransition(in: presentedViewController)
-        }
-
-        return false
-    }
-
     private func visiblePresentationOutsideHierarchy(of controller: UIViewController) -> UIViewController? {
         guard let topController = window?.topController,
             var presentedController = presentedAncestor(startingAt: topController),
@@ -716,7 +734,11 @@ public final class Navigator {
         while let currentController = candidate,
             visitedControllers.insert(ObjectIdentifier(currentController)).inserted
         {
-            if currentController.presentingViewController != nil {
+            // UIKit forwards presentingViewController to children of a presented container.
+            // Only the controller actually owned by the presenter is the modal boundary.
+            if let presenter = currentController.presentingViewController,
+                presenter.presentedViewController === currentController
+            {
                 return currentController
             }
             candidate = currentController.parent
@@ -758,28 +780,22 @@ public final class Navigator {
     ///
     /// - Parameters:
     ///   - controller: The view controller from which to start searching for the tab bar controller.
-    ///   - completion: A closure to be executed after the tab is selected.
+    ///   - completion: A closure executed after the containing tabs are selected and their UIKit transitions finish.
     public func selectTabIfNeeded(
         controller: UIViewController?,
         completion: (() -> Void)? = nil
     ) {
         enqueueOrStartNavigationOperation { [self] finish in
-            selectTabIfNeededNow(
-                controller: controller,
-                completion: {
-                    completion?()
-                    finish()
-                }
-            )
+            selectTabIfNeededNow(controller: controller) {
+                completion?()
+                finish()
+            }
         }
     }
 
-    func selectTabIfNeededNow(
-        controller: UIViewController?,
-        completion: (() -> Void)? = nil
-    ) {
+    func selectTabIfNeededNow(controller: UIViewController?, completion: @escaping () -> Void) {
         guard let controller else {
-            completion?()
+            completion()
 
             return
         }
@@ -787,14 +803,15 @@ public final class Navigator {
         var selectionTarget = controller
         var tabBarController = controller.findTabBarController()
         var selectedTabControllers = Set<ObjectIdentifier>()
+        var selections: [(UITabBarController, UIViewController)] = []
         while let currentTabBarController = tabBarController,
             selectedTabControllers.insert(ObjectIdentifier(currentTabBarController)).inserted
         {
-            if let index = currentTabBarController.viewControllers?.firstIndex(where: {
+            if let target = currentTabBarController.viewControllers?.first(where: {
                 $0 === selectionTarget
                     || $0.findController(controller: selectionTarget, withPresented: false) != nil
-            }), currentTabBarController.selectedIndex != index {
-                currentTabBarController.selectedIndex = index
+            }) {
+                selections.append((currentTabBarController, target))
             }
 
             selectionTarget = currentTabBarController
@@ -805,7 +822,20 @@ public final class Navigator {
             tabBarController = ancestor as? UITabBarController
         }
 
-        completion?()
+        func select(at index: Int) {
+            guard index >= 0 else {
+                completion()
+
+                return
+            }
+            let (tabs, target) = selections[index]
+            tabs.selectNavigatorController(target) {
+                select(at: index - 1)
+            }
+        }
+
+        // Reveal outer tabs before starting transitions in their nested containers.
+        select(at: selections.count - 1)
     }
 
     public func makeFallbackChain(
@@ -934,11 +964,5 @@ extension Result where Success == Void, Failure == NavigationFailure.Reason {
         }
 
         return false
-    }
-
-    var failureReason: Failure? {
-        guard case let .failure(reason) = self else { return nil }
-
-        return reason
     }
 }

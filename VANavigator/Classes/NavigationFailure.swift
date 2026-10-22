@@ -30,7 +30,7 @@ public struct NavigationFailure: Error {
         case invalidDestinationHierarchy
         /// UIKit is already performing a transition that prevents the requested mutation.
         case transitionInProgress
-        /// A root-controller transition is delayed, paused, repeating, or otherwise cannot finish in finite time.
+        /// A transition is delayed, paused, repeating, or otherwise cannot finish in finite time.
         case invalidTransitionConfiguration
         /// A popover strategy did not configure a source item, source view, or bar button item.
         case popoverAnchorMissing

@@ -14,6 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: iOS 27.1 iPhone Duo
+            runner: xcode-27
+            xcode: '27.1'
+            runtime: '27.1'
+            scheme: VANavigator-Example
+            destination: 'platform=iOS Simulator,OS=27.1,name=VANavigator Duo'
           - name: iOS 26.4.1 iPhone
             runner: macos-26
             xcode: '26.4.1'
@@ -40,6 +46,15 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - uses: actions/checkout@v6
+    - name: Prepare Duo simulator
+      if: matrix.runtime == '27.1'
+      run: |
+        if ! xcrun simctl list runtimes --json | python3 -c 'import json, sys; sys.exit(not any(r["identifier"] == "com.apple.CoreSimulator.SimRuntime.iOS-27-1" and r["isAvailable"] for r in json.load(sys.stdin)["runtimes"]))'; then
+          xcodebuild -downloadPlatform iOS -buildVersion 27.1 -architectureVariant arm64
+        fi
+        xcrun simctl create 'VANavigator Duo' \
+          com.apple.CoreSimulator.SimDeviceType.iPhone-Duo \
+          com.apple.CoreSimulator.SimRuntime.iOS-27-1
     - name: Build and test
       env:
         destination: ${{ matrix.destination }}

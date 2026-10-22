@@ -10,8 +10,20 @@ extension Navigator {
         _ strategy: SplitNavigationStrategy,
         execution: NavigationExecution
     ) {
-        let splitController = window?.topController?.orSplitViewController
-            ?? window?.rootViewController?.orSplitViewController
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
+
+        let splitController =
+            window.topController?.orSplitViewController
+            ?? window.rootViewController?.orSplitViewController
         let column: UISplitViewController.Column
         let action: SplitStrategy.SplitAction
         switch strategy.strategy {
@@ -107,13 +119,9 @@ extension Navigator {
                         return
                     }
 
-                    performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 }
             )
@@ -148,11 +156,8 @@ extension Navigator {
                 controller: controller,
                 animated: execution.animated,
                 completion: { [self] result in
-                    guard case .success = result else {
-                        completeNavigationFailure(
-                            result.failureReason ?? .mutationRejected,
-                            execution: execution
-                        )
+                    if case let .failure(reason) = result {
+                        completeNavigationFailure(reason, execution: execution)
 
                         return
                     }
@@ -162,13 +167,10 @@ extension Navigator {
                         return
                     }
 
-                    performNavigationEvents(
-                        event: execution.event,
+                    completeExistingControllerNavigation(
+                        controller: controller,
                         navigatorEvent: ResponderPoppedToExistingEvent(),
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                        execution: execution
                     )
                 }
             )
@@ -206,11 +208,8 @@ extension Navigator {
                 animated: execution.animated,
                 navigation: nil,
                 completion: { [self] result in
-                    guard case .success = result else {
-                        completeNavigationFailure(
-                            result.failureReason ?? .mutationRejected,
-                            execution: execution
-                        )
+                    if case let .failure(reason) = result {
+                        completeNavigationFailure(reason, execution: execution)
 
                         return
                     }
@@ -219,21 +218,14 @@ extension Navigator {
                         .map { $0 === navigationController && $0.topViewController === controller }
                         ?? false
                     guard isCurrentColumnTop else {
-                        completeNavigationFailure(
-                            result.failureReason ?? .mutationRejected,
-                            execution: execution
-                        )
+                        completeNavigationFailure(.mutationRejected, execution: execution)
 
                         return
                     }
 
-                    performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 }
             )

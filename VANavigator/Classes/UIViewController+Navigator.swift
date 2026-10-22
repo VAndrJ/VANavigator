@@ -21,8 +21,8 @@ extension UIViewController {
     }
     /// Recursively finds the top-most view controller in the current hierarchy.
     /// This includes the selected tab in `UITabBarController`, the top view controller in `UINavigationController`,
-    /// the visible detail column in `UISplitViewController`, children of custom containers, and any presented view
-    /// controller.
+    /// the visible detail column in `UISplitViewController`, the frontmost visible placement in
+    /// `UIArrangementViewController` (iOS 27.1+), children of custom containers, and any presented view controller.
     ///
     /// UIKit does not define a generic active-child API for custom containers. For those containers, the navigator uses
     /// the last non-dismissing child whose view is attached to a window, falling back to the last non-dismissing child.
@@ -32,7 +32,9 @@ extension UIViewController {
         }
 
         var possibleController: UIViewController?
-        if let tabBarController = self as? UITabBarController {
+        if let arrangement = navigatorArrangementChildren {
+            possibleController = arrangement.visible.first
+        } else if let tabBarController = self as? UITabBarController {
             possibleController = tabBarController.selectedViewController
         } else if let navigationController = self as? UINavigationController {
             possibleController = navigationController.topViewController
@@ -85,13 +87,21 @@ extension UIViewController {
     /// - Parameters:
     ///   - identity: The navigation identity to match.
     ///   - withPresented: If `true`, the search includes presented view controllers.
-    /// - Returns: The found view controller or `nil` if not found.
+    /// - Returns: The match nearest the top of the hierarchy, preferring visible container content before
+    ///   searching retained hidden content, or `nil` if no match is found.
     public func findController(
         identity: any NavigationIdentity,
         withPresented: Bool
     ) -> UIViewController? {
-        if navigationIdentity?.isEqual(to: identity) == true {
-            return self
+        if withPresented,
+            let presentedViewController,
+            !presentedViewController.isBeingDismissed,
+            let target = presentedViewController.findController(
+                identity: identity,
+                withPresented: withPresented
+            )
+        {
+            return target
         }
         for controller in navigatorSearchChildren {
             if let target = controller.findController(
@@ -101,11 +111,8 @@ extension UIViewController {
                 return target
             }
         }
-        if withPresented, let presentedViewController {
-            return presentedViewController.findController(
-                identity: identity,
-                withPresented: withPresented
-            )
+        if navigationIdentity?.isEqual(to: identity) == true {
+            return self
         }
 
         return nil
@@ -148,15 +155,109 @@ extension UIViewController {
         }
     }
 
+    var containsActiveNavigatorTransition: Bool {
+        if isBeingPresented || isBeingDismissed || transitionCoordinator != nil {
+            return true
+        }
+        if children.contains(where: { $0.containsActiveNavigatorTransition }) {
+            return true
+        }
+
+        return presentedViewController?.containsActiveNavigatorTransition ?? false
+    }
+
+    /// Includes assigned split columns even while UIKit detaches them from the visible hierarchy.
+    func navigatorHierarchyPath(to controller: UIViewController) -> [UIViewController]? {
+        if self === controller { return [self] }
+        for child in navigatorSearchChildren {
+            if let path = child.navigatorHierarchyPath(to: controller) {
+                return [self] + path
+            }
+        }
+        if let path = presentedViewController?.navigatorHierarchyPath(to: controller) {
+            return [self] + path
+        }
+
+        return nil
+    }
+
     private var navigatorSearchChildren: [UIViewController] {
-        if let navigationController = self as? UINavigationController {
-            return navigationController.viewControllers
+        if let arrangement = navigatorArrangementChildren {
+            return arrangement.all
+        } else if let navigationController = self as? UINavigationController {
+            return Array(navigationController.viewControllers.reversed())
         } else if let tabBarController = self as? UITabBarController {
-            return tabBarController.viewControllers ?? []
+            let controllers = tabBarController.viewControllers ?? []
+            guard let selectedController = tabBarController.selectedViewController else {
+                return Array(controllers.reversed())
+            }
+
+            return [selectedController] + controllers.reversed().filter { $0 !== selectedController }
         } else if let splitViewController = self as? UISplitViewController {
-            return splitViewController.navigatorContainedViewControllers
+            let controllers = splitViewController.navigatorContainedViewControllers
+            guard let visibleController = splitViewController.navigatorVisibleViewController else {
+                return Array(controllers.reversed())
+            }
+
+            return [visibleController] + controllers.reversed().filter { $0 !== visibleController }
         } else {
-            return children
+            let controllers = Array(children.reversed())
+            guard let visibleController = controllers.first(where: { $0.viewIfLoaded?.window != nil }) else {
+                return controllers
+            }
+
+            return [visibleController] + controllers.filter { $0 !== visibleController }
+        }
+    }
+}
+
+extension UITabBarController {
+    /// Selection can animate even when assigned programmatically. Keep queued navigation behind that transition.
+    func selectNavigatorController(
+        _ controller: UIViewController,
+        animated: Bool = true,
+        completion: @escaping @MainActor () -> Void
+    ) {
+        if selectedViewController === controller, transitionCoordinator == nil {
+            completion()
+
+            return
+        }
+
+        guard let window = viewIfLoaded?.window, !window.isHidden else {
+            UIView.performWithoutAnimation { selectedViewController = controller }
+            completion()
+
+            return
+        }
+        if animated, window.canAnimateNavigatorViewControllerTransition {
+            selectedViewController = controller
+        } else {
+            UIView.performWithoutAnimation {
+                selectedViewController = controller
+            }
+        }
+
+        // Allow UIKit to install the selected hierarchy and its transition coordinator first.
+        DispatchQueue.main.async { [self] in
+            guard let transitionCoordinator else {
+                completion()
+
+                return
+            }
+            var didComplete = false
+            func completeOnce() {
+                guard !didComplete else { return }
+
+                didComplete = true
+                DispatchQueue.main.async { completion() }
+            }
+            let registeredCompletion = transitionCoordinator.animate(alongsideTransition: nil) { _ in
+                completeOnce()
+            }
+            if !registeredCompletion {
+                completeOnce()
+            }
         }
     }
 }
@@ -169,8 +270,9 @@ extension UISplitViewController {
     /// UIKit creates this controller when a non-navigation controller is assigned to a column. Starting in iOS 26,
     /// `viewController(for:)` continues to return the assigned controller instead of the generated navigation wrapper,
     /// so callers should use this method when they need to operate on the column's navigation stack.
+    /// Returns `nil` for classic (`.unspecified`) split views, which do not support column APIs.
     public func columnNavigationController(for column: Column) -> UINavigationController? {
-        guard let controller = viewController(for: column) else { return nil }
+        guard style != .unspecified, let controller = viewController(for: column) else { return nil }
         if let navigationController = controller.orNavigationController {
             return navigationController
         }
@@ -190,15 +292,41 @@ extension UISplitViewController {
     }
 
     fileprivate var navigatorContainedViewControllers: [UIViewController] {
+        var candidates = children + viewControllers
+        if style != .unspecified {
+            for column in navigatorColumns {
+                guard let controller = viewController(for: column) else { continue }
+                candidates.append(controller)
+                if let navigationController = controller.orNavigationController {
+                    candidates.append(navigationController)
+                }
+            }
+        }
         var result: [UIViewController] = []
-        for controller in children + viewControllers where !result.contains(where: { $0 === controller }) {
+        for controller in candidates where !result.contains(where: { $0 === controller }) {
             result.append(controller)
         }
 
         return result
     }
 
+    func navigatorColumn(containing controller: UIViewController) -> Column? {
+        guard style != .unspecified else { return nil }
+
+        // Prefer the most specific column when UIKit merges secondary navigation into the primary stack.
+        return navigatorColumns.first { column in
+            let assigned = viewController(for: column)
+            return assigned?.findController(controller: controller, withPresented: true) != nil
+                || columnNavigationController(for: column)?.findController(controller: controller, withPresented: true) != nil
+        }
+    }
+
     fileprivate var navigatorVisibleViewController: UIViewController? {
+        guard style != .unspecified else {
+            return viewControllers.last { !$0.isBeingDismissed && $0.viewIfLoaded?.window != nil }
+                ?? viewControllers.last { !$0.isBeingDismissed }
+        }
+
         if let compactController = navigatorVisibleController(for: .compact) {
             return compactController
         }
@@ -253,7 +381,9 @@ extension UISplitViewController {
             guard !didComplete else { return }
 
             didComplete = true
-            completion()
+            DispatchQueue.main.async {
+                completion()
+            }
         }
 
         navigatorActiveColumn = column

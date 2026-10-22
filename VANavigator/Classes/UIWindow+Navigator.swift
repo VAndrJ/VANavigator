@@ -129,7 +129,7 @@ extension UIWindow {
     ) {
         let previousViewController = rootViewController
 
-        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+        guard transition.map(canRunNavigatorRootTransition) ?? true else {
             completion?()
 
             return
@@ -143,6 +143,7 @@ extension UIWindow {
 
         func replaceRoot() {
             guard rootViewController === previousViewController,
+                transition.map(canRunNavigatorRootTransition) ?? true,
                 canFinishSettingNavigatorRootViewController(newRootViewController)
             else {
                 completion?()
@@ -167,19 +168,57 @@ extension UIWindow {
                 rootViewController = newRootViewController
                 newRootViewController.setNeedsStatusBarAppearanceUpdate()
             } else {
-                rootViewController = newRootViewController
-                newRootViewController.setNeedsStatusBarAppearanceUpdate()
-                completion?()
+                performNavigatorRootMutation(
+                    {
+                        rootViewController = newRootViewController
+                        newRootViewController.setNeedsStatusBarAppearanceUpdate()
+                    },
+                    completion: completion
+                )
             }
         }
 
         if previousViewController?.presentedViewController != nil {
-            previousViewController?.dismiss(animated: false) {
-                replaceRoot()
+            if hasAdvancingNavigatorLayerClock {
+                previousViewController?.dismiss(animated: false) {
+                    replaceRoot()
+                }
+            } else {
+                completion?()
             }
         } else {
             replaceRoot()
         }
+    }
+
+    func performNavigatorRootMutation(
+        _ mutation: () -> Void,
+        completion: (() -> Void)?
+    ) {
+        mutation()
+        guard let completion else { return }
+
+        // There is no root transition to await here. A transaction completion would also
+        // wait for animations started by the new content, including repeating UIKit animations.
+        DispatchQueue.main.async {
+            completion()
+        }
+    }
+
+    func canRunNavigatorRootTransition(_ transition: CATransition) -> Bool {
+        transition.isSupportedNavigatorRootTransition
+            && hasAdvancingNavigatorLayerClock
+    }
+
+    var canAnimateNavigatorViewControllerTransition: Bool {
+        !isHidden
+            && !bounds.isEmpty
+            && (isKeyWindow || windowScene != nil)
+            && hasAdvancingNavigatorLayerClock
+    }
+
+    var hasAdvancingNavigatorLayerClock: Bool {
+        layer.speed.isFinite && layer.speed > 0
     }
 
     func canSetNavigatorRootViewController(_ controller: UIViewController) -> Bool {
@@ -187,7 +226,7 @@ extension UIWindow {
             !controller.isBeingPresented,
             !controller.isBeingDismissed,
             controller.transitionCoordinator == nil,
-            rootViewController.map({ !containsActiveNavigatorTransition(in: $0) }) ?? true
+            rootViewController?.containsActiveNavigatorTransition != true
         else {
             return false
         }
@@ -221,23 +260,6 @@ extension UIWindow {
             && !controller.isBeingDismissed
             && controller.transitionCoordinator == nil
             && controller.viewIfLoaded?.window == nil
-    }
-
-    func containsActiveNavigatorTransition(in controller: UIViewController) -> Bool {
-        if controller.isBeingPresented
-            || controller.isBeingDismissed
-            || controller.transitionCoordinator != nil
-        {
-            return true
-        }
-        if controller.children.contains(where: containsActiveNavigatorTransition(in:)) {
-            return true
-        }
-        if let presentedViewController = controller.presentedViewController {
-            return containsActiveNavigatorTransition(in: presentedViewController)
-        }
-
-        return false
     }
 }
 

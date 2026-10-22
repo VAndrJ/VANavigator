@@ -7,6 +7,12 @@ import UIKit
 
 extension Navigator {
     func executeNavigation(_ execution: NavigationExecution) {
+        guard window != nil else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+
         switch execution.strategy {
         case _ as RemoveFromStackNavigationStrategy:
             executeRemoveFromStack(execution)
@@ -68,27 +74,41 @@ extension Navigator {
         )
     }
 
-    func performNavigationEvents(
-        event: (any ResponderEvent)?,
-        navigatorEvent: (any ResponderEvent)?,
-        on responder: (any Responder)?,
-        completion: @escaping () -> Void
+    /// Delivers responder events before completing the navigation and releasing queued work.
+    func completeNavigationSuccess(
+        controller: UIViewController,
+        navigatorEvent: (any ResponderEvent)? = nil,
+        validate: (() -> NavigationFailure.Reason?)? = nil,
+        execution: NavigationExecution
     ) {
-        guard let responder, navigatorEvent != nil || event != nil else {
-            completion()
+        guard let responder = controller as? any Responder,
+            navigatorEvent != nil || execution.event != nil
+        else {
+            if let reason = validate?() {
+                completeNavigationFailure(reason, execution: execution)
+
+                return
+            }
+            execution.completion?(controller, true)
 
             return
         }
 
         Task { [self] in
+            // UIKit lifecycle callbacks can change containment before this task starts.
+            if let reason = validate?() {
+                completeNavigationFailure(reason, execution: execution)
+
+                return
+            }
             if let navigatorEvent {
                 _ = await responder.handle(event: navigatorEvent)
             }
-            if let event {
+            if let event = execution.event {
                 _ = await responder.handle(event: event)
             }
             withExtendedLifetime(self) {
-                completion()
+                execution.completion?(controller, true)
             }
         }
     }

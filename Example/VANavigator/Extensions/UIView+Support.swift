@@ -23,12 +23,13 @@ extension UIView {
         let spacing: CGFloat = 16
         let scrollView = UIScrollView().apply {
             $0.alwaysBounceVertical = true
+            $0.keyboardDismissMode = .interactive
         }
         addAutolayoutSubview(scrollView)
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             scrollView.leftAnchor.constraint(equalTo: safeAreaLayoutGuide.leftAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor),
             scrollView.rightAnchor.constraint(equalTo: safeAreaLayoutGuide.rightAnchor),
         ])
         let containerView = UIStackView().apply {

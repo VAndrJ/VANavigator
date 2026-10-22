@@ -17,7 +17,7 @@ extension Navigator {
         }
 
         let transition = execution.animated ? strategy.transition : nil
-        guard transition?.isSupportedNavigatorRootTransition ?? true else {
+        guard transition.map(window.canRunNavigatorRootTransition) ?? true else {
             completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
 
             return
@@ -25,11 +25,19 @@ extension Navigator {
 
         let controller = getController(destination: execution.destination)
         let currentRootController = window.rootViewController
+        guard
+            currentRootController?.presentedViewController == nil
+                || window.hasAdvancingNavigatorLayerClock
+        else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
         guard window.canSetNavigatorRootViewController(controller) else {
             let hasActiveTransition = controller.isBeingPresented
                 || controller.isBeingDismissed
                 || controller.transitionCoordinator != nil
-                || currentRootController.map { window.containsActiveNavigatorTransition(in: $0) } == true
+                || currentRootController?.containsActiveNavigatorTransition == true
             completeNavigationFailure(
                 hasActiveTransition ? .transitionInProgress : .invalidDestinationHierarchy,
                 execution: execution
@@ -52,13 +60,10 @@ extension Navigator {
                     return
                 }
 
-                performNavigationEvents(
-                    event: execution.event,
+                completeNavigationSuccess(
+                    controller: controller,
                     navigatorEvent: navigatorEvent,
-                    on: controller as? any UIViewController & Responder,
-                    completion: {
-                        execution.completion?(controller, true)
-                    }
+                    execution: execution
                 )
             }
         )
@@ -68,8 +73,18 @@ extension Navigator {
         _ strategy: PresentNavigationStrategy,
         execution: NavigationExecution
     ) {
-        guard window?.rootViewController != nil else {
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.rootViewController != nil else {
             completeNavigationFailure(.rootViewControllerUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
 
             return
         }
@@ -77,11 +92,11 @@ extension Navigator {
         let requestedSourceController: UIViewController?
         switch strategy.source {
         case .topController:
-            requestedSourceController = window?.topController
+            requestedSourceController = window.topController
         case .navigationController:
-            requestedSourceController = window?.topController?.orNavigationController
+            requestedSourceController = window.topController?.orNavigationController
         case .tabBarController:
-            requestedSourceController = window?.topController?.orTabBarController
+            requestedSourceController = window.topController?.orTabBarController
         }
         guard let sourceController = presentableSource(from: requestedSourceController) else {
             completeNavigationFailure(.sourceViewControllerUnavailable, execution: execution)
@@ -96,38 +111,27 @@ extension Navigator {
             return
         }
 
-        sourceController.present(
-            controller,
-            animated: execution.animated,
-            completion: { [self] in
-                DispatchQueue.main.async {
-                    let isPresented = controller.presentingViewController != nil
-                        || sourceController.presentedViewController === controller
-                    guard isPresented else {
-                        self.completeNavigationFailure(.mutationRejected, execution: execution)
-
-                        return
-                    }
-
-                    self.performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
-                    )
-                }
-            }
-        )
+        presentController(controller, from: sourceController, execution: execution)
     }
 
     func executePopover(
         _ strategy: PopoverNavigationStrategy,
         execution: NavigationExecution
     ) {
-        guard let sourceController = window?.topController,
-            sourceController.viewIfLoaded?.window != nil || sourceController === window?.rootViewController
+        guard let window else {
+            completeNavigationFailure(.windowUnavailable, execution: execution)
+
+            return
+        }
+        guard window.hasAdvancingNavigatorLayerClock else {
+            completeNavigationFailure(.invalidTransitionConfiguration, execution: execution)
+
+            return
+        }
+        guard
+            let sourceController = window.topController,
+            sourceController.viewIfLoaded?.window != nil
+                || sourceController === window.rootViewController
         else {
             completeNavigationFailure(.sourceViewControllerUnavailable, execution: execution)
 
@@ -171,6 +175,14 @@ extension Navigator {
             popover.delegate = PopoverDelegate.shared
         }
 
+        presentController(controller, from: sourceController, execution: execution)
+    }
+
+    private func presentController(
+        _ controller: UIViewController,
+        from sourceController: UIViewController,
+        execution: NavigationExecution
+    ) {
         sourceController.present(
             controller,
             animated: execution.animated,
@@ -184,13 +196,9 @@ extension Navigator {
                         return
                     }
 
-                    self.performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    self.completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 }
             }
@@ -225,6 +233,12 @@ extension Navigator {
         for controller: UIViewController,
         from sourceController: UIViewController
     ) -> NavigationFailure.Reason? {
+        guard let window,
+            !window.isHidden,
+            sourceController.viewIfLoaded?.window === window
+        else {
+            return .sourceViewControllerUnavailable
+        }
         guard !canPresent(controller, from: sourceController) else { return nil }
 
         let hasActiveTransition = controller.isBeingPresented

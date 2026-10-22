@@ -54,6 +54,54 @@ final class PresentOrCloseToExistingControllerTests {
     }
 
     @Test
+    func `Close to existing keeps the visible duplicate identity`() async {
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            Issue.record("Missing window scene")
+
+            return
+        }
+
+        let identity = MockPushControllerNavigationIdentity()
+        let underlyingController = UIViewController()
+        underlyingController.navigationIdentity = identity
+        let navigationController = UINavigationController(rootViewController: underlyingController)
+        let presentedController = UIViewController()
+        presentedController.navigationIdentity = identity
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+
+        let presented = expectation(description: "present duplicate identity")
+        navigationController.present(presentedController, animated: false) {
+            presented.fulfill()
+        }
+        await fulfillment(of: [presented], timeout: 10)
+
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        let completed = expectation(description: "close to visible duplicate")
+        var responder: UIViewController?
+        var result: Bool?
+        navigator.navigate(
+            destination: .identity(identity),
+            strategy: .closeToExisting,
+            animated: false,
+            completion: { controller, isSuccess in
+                responder = controller
+                result = isSuccess
+                completed.fulfill()
+            }
+        )
+
+        await fulfillment(of: [completed], timeout: 10)
+
+        #expect(result == true)
+        #expect(responder === presentedController)
+        #expect(navigationController.presentedViewController === presentedController)
+        #expect(window.topController === presentedController)
+    }
+
+    @Test
     func `Presents fallback when existing controller is absent`() async {
         let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         await prepareNavigation(navigator: navigator)

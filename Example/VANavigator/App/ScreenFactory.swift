@@ -10,7 +10,7 @@ import Swiftional
 import UIKit
 
 final class ScreenFactory: NavigatorScreenFactory {
-    let authorizationService: AuthorizationService
+    private let authorizationService: AuthorizationService
 
     init(authorizationService: AuthorizationService) {
         self.authorizationService = authorizationService
@@ -160,7 +160,6 @@ final class ScreenFactory: NavigatorScreenFactory {
                 return NavigationController(controller: controller)
             }
             let controller = TabBarController(controllers: tabControllers)
-            controller.tabBar.backgroundColor = .yellow
 
             return controller
         case _ as MainNavigationIdentity:
@@ -248,6 +247,28 @@ final class ScreenFactory: NavigatorScreenFactory {
                                         destination: .identity(QueueNavigationIdentity()),
                                         strategy: .present()
                                     )
+                                },
+                                followArrangement: { [weak navigator] in
+                                    #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+                                    if #available(iOS 27.1, *), let navigator {
+                                        let arrangement = ArrangementExampleViewController(navigator: navigator)
+                                        navigator.navigate(
+                                            destination: .controller(UINavigationController(rootViewController: arrangement)),
+                                            strategy: .present()
+                                        )
+                                    }
+                                    #endif
+                                },
+                                followReplaceRootWithArrangement: { [weak navigator] in
+                                    #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+                                    if #available(iOS 27.1, *), let navigator {
+                                        let arrangement = ArrangementExampleViewController(navigator: navigator, isWindowRoot: true)
+                                        navigator.navigate(
+                                            destination: .controller(arrangement),
+                                            strategy: .replaceWindowRoot()
+                                        )
+                                    }
+                                    #endif
                                 }
                             )
                         )

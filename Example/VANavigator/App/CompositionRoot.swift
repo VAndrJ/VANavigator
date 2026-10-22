@@ -22,6 +22,7 @@ final class CompositionRoot {
             screenFactory: ScreenFactory(authorizationService: authorizationService),
             navigationInterceptor: navigationInterceptor
         )
+
         shortcutService.addShortcuts()
         navigator.navigate(
             destination: .identity(MainNavigationIdentity()),

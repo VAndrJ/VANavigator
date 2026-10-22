@@ -62,6 +62,48 @@ final class SplitControllerTests {
     }
 
     @Test
+    func `Split push waits until after the column show turn`() async {
+        guard let window else {
+            Issue.record("Missing window")
+
+            return
+        }
+
+        let rootController = UIViewController()
+        let navigationController = UINavigationController(rootViewController: rootController)
+        let splitController = NonTransitioningSplitViewController(style: .doubleColumn)
+        splitController.setViewController(navigationController, for: .primary)
+        splitController.setViewController(UIViewController(), for: .secondary)
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        await installRoot(splitController, navigator: navigator)
+        guard let primaryNavigationController = splitController.columnNavigationController(for: .primary),
+            let initialTopController = primaryNavigationController.topViewController
+        else {
+            Issue.record("Missing primary navigation hierarchy")
+
+            return
+        }
+        let destination = UIViewController()
+        let expect = expectation(description: "deferred split push")
+
+        navigator.navigate(
+            destination: .controller(destination),
+            strategy: .split(strategy: .primary(action: .push)),
+            animated: false,
+            completion: { completedController, isSuccess in
+                #expect(completedController === destination)
+                #expect(isSuccess)
+                expect.fulfill()
+            }
+        )
+
+        #expect(primaryNavigationController.topViewController === initialTopController)
+        await fulfillment(of: [expect], timeout: 10)
+
+        #expect(splitController.columnNavigationController(for: .primary)?.topViewController === destination)
+    }
+
+    @Test
     func `Existing primary controller fails without calling UIKit`() async {
         let existingController = UIViewController()
         let navigationController = SplitPushInvocationRecordingNavigationController()
@@ -107,16 +149,18 @@ final class SplitControllerTests {
         let splitController = SplitShowHookViewController(style: .doubleColumn)
         splitController.setViewController(navigationController, for: .primary)
         splitController.setViewController(UIViewController(), for: .secondary)
-        window.rootViewController = splitController
-        window.makeKeyAndVisible()
+        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
+        await installRoot(splitController, navigator: navigator)
 
         let destination = UIViewController()
         splitController.afterShow = { column in
             guard column == .primary else { return }
 
-            navigationController.pushViewController(destination, animated: false)
+            splitController.columnNavigationController(for: column)?.pushViewController(
+                destination,
+                animated: false
+            )
         }
-        let navigator = Navigator(window: window, screenFactory: MockScreenFactory())
         var failures: [NavigationFailure.Reason] = []
         navigator.navigationFailureHandler = { failures.append($0.reason) }
         let completed = expectation(description: "split push after destination insertion")
@@ -139,7 +183,7 @@ final class SplitControllerTests {
         #expect(isSuccess == false)
         #expect(completedController == nil)
         #expect(failures == [.invalidDestinationHierarchy])
-        #expect(navigationController.topViewController === destination)
+        #expect(splitController.columnNavigationController(for: .primary)?.topViewController === destination)
     }
 
     @Test
@@ -903,6 +947,27 @@ final class SplitControllerTests {
         window?.rootViewController?.view.layoutIfNeeded()
     }
 
+    func installRoot(
+        _ controller: UIViewController,
+        navigator: Navigator
+    ) async {
+        let expect = expectation(description: "install split root")
+        navigator.navigate(
+            destination: .controller(controller),
+            strategy: .replaceWindowRoot(),
+            animated: false,
+            completion: { completedController, isSuccess in
+                #expect(completedController === controller)
+                #expect(isSuccess)
+                expect.fulfill()
+            }
+        )
+
+        await fulfillment(of: [expect], timeout: 10)
+        controller.loadViewIfNeeded()
+        controller.view.layoutIfNeeded()
+    }
+
     func prepareNavigationStackWithMissingColumnNavigation(failedColumn: UISplitViewController.Column) {
         let splitController = MissingColumnNavigationSplitViewController(failedColumn: failedColumn)
         let primaryIdentity = MockRootControllerNavigationIdentity()
@@ -1004,6 +1069,10 @@ private final class SplitShowHookViewController: MockSplitViewController {
     override func show(_ column: UISplitViewController.Column) {
         afterShow?(column)
     }
+}
+
+private final class NonTransitioningSplitViewController: MockSplitViewController {
+    override func show(_ column: UISplitViewController.Column) {}
 }
 
 private final class SplitColumnSwappingNavigationController: UINavigationController {

@@ -72,13 +72,11 @@ final class SearchTests {
         let primaryController = try #require(window?.findController(destination: .identity(primaryIdentity)))
         #expect(primaryIdentity.isEqual(to: primaryController.navigationIdentity))
         #expect((primaryController) == (window?.findController(destination: .controller(primaryController))))
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let secondaryController = try #require(
-                window?.findController(destination: .identity(secondaryIdentity))
-            )
-            #expect(secondaryIdentity.isEqual(to: secondaryController.navigationIdentity))
-            #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController))))
-        }
+        let secondaryController = try #require(
+            window?.findController(destination: .identity(secondaryIdentity))
+        )
+        #expect(secondaryIdentity.isEqual(to: secondaryController.navigationIdentity))
+        #expect((secondaryController) == (window?.findController(destination: .controller(secondaryController))))
 
         #expect((presentedController) == (window?.topController))
         #expect((tabController) == (controller.findTabBarController()))
@@ -173,6 +171,50 @@ final class SearchTests {
         #expect((child) === (container.findController(controller: child, withPresented: false)))
         #expect((child) === (container.findController(identity: identity, withPresented: false)))
         #expect((child) === (window?.findController(destination: .identity(identity))))
+    }
+
+    @Test
+    func `Presented identity match takes priority over underlying hierarchy`() async throws {
+        let identity = MockPushControllerNavigationIdentity()
+        let underlyingController = UIViewController()
+        underlyingController.navigationIdentity = identity
+        let navigationController = UINavigationController(rootViewController: underlyingController)
+        let presentedController = UIViewController()
+        presentedController.navigationIdentity = identity
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+
+        let expect = expectation(description: "present duplicate identity")
+        navigationController.present(presentedController, animated: false) {
+            expect.fulfill()
+        }
+        await fulfillment(of: [expect], timeout: 10)
+
+        let foundController = try #require(window?.findController(destination: .identity(identity)))
+
+        #expect(foundController === presentedController)
+    }
+
+    @Test
+    func `Nearest navigation stack identity match takes priority`() {
+        let identity = MockPushControllerNavigationIdentity()
+        let firstController = UIViewController()
+        firstController.navigationIdentity = identity
+        let middleController = UIViewController()
+        let nearestController = UIViewController()
+        nearestController.navigationIdentity = identity
+        let topController = UIViewController()
+        let navigationController = UINavigationController()
+        navigationController.viewControllers = [
+            firstController,
+            middleController,
+            nearestController,
+            topController,
+        ]
+
+        let foundController = navigationController.findController(identity: identity, withPresented: false)
+
+        #expect(foundController === nearestController)
     }
 
     private func assertSearchIncludesPresentedController(

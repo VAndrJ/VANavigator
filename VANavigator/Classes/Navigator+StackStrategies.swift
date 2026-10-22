@@ -65,7 +65,19 @@ extension Navigator {
             controller.map { execution.destination.isEqual(to: .controller($0)) } ?? false
         }
         func presentedContainer(for controller: UIViewController) -> UIViewController? {
-            presentedAncestor(startingAt: controller)
+            var candidate: UIViewController? = controller
+            var presentedController: UIViewController?
+            var visitedControllers = Set<ObjectIdentifier>()
+            while let currentController = candidate,
+                visitedControllers.insert(ObjectIdentifier(currentController)).inserted
+            {
+                if currentController.presentingViewController != nil {
+                    presentedController = currentController
+                }
+                candidate = currentController.parent
+            }
+
+            return presentedController
         }
         func completeSuccess() {
             withExtendedLifetime(self) {
@@ -95,9 +107,23 @@ extension Navigator {
 
         if strategy.tryToPop,
             let navigationController = controller.orNavigationController,
-            isMatchingDestination(navigationController.topViewController)
+            let matchedController = navigationController.topViewController,
+            isMatchingDestination(matchedController) || isMatchingDestination(controller)
         {
             strategy.navigation?(navigationController)
+            guard navigationController.canMutateNavigationStack else {
+                completeNavigationFailure(.transitionInProgress, execution: execution)
+
+                return
+            }
+            guard navigationController.topViewController === matchedController,
+                window?.topController === controller,
+                isMatchingDestination(matchedController) || isMatchingDestination(controller)
+            else {
+                completeNavigationFailure(.mutationRejected, execution: execution)
+
+                return
+            }
             navigationController.popViewController(
                 animated: execution.animated,
                 completion: { [self] isSuccess in
@@ -113,8 +139,8 @@ extension Navigator {
                 }
             )
         } else if strategy.tryToDismiss,
-            isMatchingDestination(controller),
-            let presentedController = presentedContainer(for: controller)
+            let presentedController = presentedContainer(for: controller),
+            isMatchingDestination(controller) || isMatchingDestination(presentedController)
         {
             dismiss(presentedController)
         } else {
@@ -136,13 +162,9 @@ extension Navigator {
             completion: { [self] result in
                 switch result {
                 case .success:
-                    performNavigationEvents(
-                        event: execution.event,
-                        navigatorEvent: nil,
-                        on: controller as? any UIViewController & Responder,
-                        completion: {
-                            execution.completion?(controller, true)
-                        }
+                    completeNavigationSuccess(
+                        controller: controller,
+                        execution: execution
                     )
                 case let .failure(reason):
                     completeNavigationFailure(reason, execution: execution)
@@ -182,13 +204,9 @@ extension Navigator {
                     return
                 }
 
-                performNavigationEvents(
-                    event: execution.event,
-                    navigatorEvent: nil,
-                    on: controller as? any UIViewController & Responder,
-                    completion: {
-                        execution.completion?(controller, true)
-                    }
+                completeNavigationSuccess(
+                    controller: controller,
+                    execution: execution
                 )
             }
         )

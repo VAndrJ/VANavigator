@@ -36,6 +36,14 @@ final class MainScreen: ControllerView<MainViewModel> {
         title: "Open split (close or present)",
         onTap: viewModel ?> { $0.perform(PresentSplitEvent()) }
     )
+    private lazy var presentArrangementButton = Button(
+        title: "Open adaptive arrangement",
+        onTap: viewModel ?> { $0.perform(PresentArrangementEvent()) }
+    )
+    private lazy var replaceRootWithArrangementButton = Button(
+        title: "Replace root with adaptive arrangement",
+        onTap: viewModel ?> { $0.perform(ReplaceRootWithArrangementEvent()) }
+    )
     private lazy var showInSplitOrPresentButton = Button(
         title: "Show in split or present",
         onTap: viewModel ?> { $0.perform(ShowInSplitOrPresentEvent()) }
@@ -55,6 +63,8 @@ final class MainScreen: ControllerView<MainViewModel> {
             presentQueueButton,
             presentTabsButton,
             presentSplitButton,
+            presentArrangementButton,
+            replaceRootWithArrangementButton,
             Spacing(
                 value: 16,
                 child: showInSplitOrPresentButton
@@ -67,6 +77,14 @@ final class MainScreen: ControllerView<MainViewModel> {
 
     override func configure() {
         backgroundColor = .systemBackground
+        presentArrangementButton.isHidden = true
+        replaceRootWithArrangementButton.isHidden = true
+        #if canImport(UIKit.UIArrangementViewController) && !targetEnvironment(macCatalyst)
+        if #available(iOS 27.1, *) {
+            presentArrangementButton.isHidden = false
+            replaceRootWithArrangementButton.isHidden = false
+        }
+        #endif
     }
 
     @ObservationTracking
@@ -85,6 +103,10 @@ struct PushNextDetailsEvent: Event {}
 struct PresentTabsEvent: Event {}
 
 struct PresentSplitEvent: Event {}
+
+struct PresentArrangementEvent: Event {}
+
+struct ReplaceRootWithArrangementEvent: Event {}
 
 struct ShowInSplitOrPresentEvent: Event {}
 
@@ -105,6 +127,8 @@ final class MainViewModel: EventViewModel {
             let followShowInSplitOrPresent: () -> Void
             let followAuthorizedContent: () -> Void
             let followQueue: () -> Void
+            let followArrangement: () -> Void
+            let followReplaceRootWithArrangement: () -> Void
         }
 
         let source: DataSource
@@ -123,6 +147,10 @@ final class MainViewModel: EventViewModel {
 
     override func run(_ event: any Event) {
         switch event {
+        case _ as PresentArrangementEvent:
+            context.navigation.followArrangement()
+        case _ as ReplaceRootWithArrangementEvent:
+            context.navigation.followReplaceRootWithArrangement()
         case _ as PresentQueueEvent:
             context.navigation.followQueue()
         case _ as PresentAuthorizedOnlyEvent:
